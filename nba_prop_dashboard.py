@@ -168,3 +168,4 @@ if player_name and seasons:
         st.subheader("📊 Rolling Averages")
         fig_pred = px.line(df, x="GAME_DATE", y=["PTS", "REB", "AST", "FG3M"], title="Rolling Averages")
         st.plotly_chart(fig_pred, use_container)
+
