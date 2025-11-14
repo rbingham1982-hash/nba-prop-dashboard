@@ -88,31 +88,22 @@ def get_first_basket_data():
     fallback_data = {
         "BOS": {"Games": 12, "First Basket": 7, "Tip Wins": 8},
         "DEN": {"Games": 13, "First Basket": 9, "Tip Wins": 10},
-        "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5},
-        "MIA": {"Games": 12, "First Basket": 5, "Tip Wins": 6},
-        "GSW": {"Games": 13, "First Basket": 8, "Tip Wins": 9},
-        "CHI": {"Games": 11, "First Basket": 4, "Tip Wins": 4},
-        "PHX": {"Games": 13, "First Basket": 10, "Tip Wins": 11},
-        "MIL": {"Games": 12, "First Basket": 6, "Tip Wins": 7}
+        "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5}
     }
 
     try:
         response = requests.get(url, timeout=10)
         soup = BeautifulSoup(response.text, "html.parser")
-
         table = soup.find("table", {"id": "team-first-basket"})
         if not table:
-            st.warning("Could not find team-first-basket table. Using fallback data.")
             return fallback_data
 
-        rows = table.find_all("tr")[1:]  # skip header
+        rows = table.find_all("tr")[1:]
         data = {}
-
         for row in rows:
             cells = row.find_all("td")
             if len(cells) < 4:
                 continue
-
             team = cells[0].text.strip().upper()
             try:
                 games = int(cells[1].text.strip())
@@ -125,15 +116,8 @@ def get_first_basket_data():
                 }
             except ValueError:
                 continue
-
-        if not data:
-            st.warning("Scraping returned no valid data. Using fallback.")
-            return fallback_data
-
-        return data
-
-    except Exception as e:
-        st.warning(f"Scraping failed: {e}. Using fallback data.")
+        return data if data else fallback_data
+    except Exception:
         return fallback_data
 
 # --- UI ---
@@ -351,12 +335,26 @@ elif page == "🕒 First Basket Breakdown":
         st.warning(f"Missing columns: {required_cols - set(df_team.columns)}")
         st.dataframe(df_team)
 
-    # Visuals
-        df_team = pd.DataFrame.from_dict(team_stats, orient="index")
-        df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
-        df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
+    team_stats = get_first_basket_data()
+    team_codes = sorted(team_stats.keys())
+    selected_team = st.selectbox("Select NBA Team", team_codes)
 
-        fig_team = px.scatter(
+    team_data = team_stats[selected_team]
+    fb_rate = team_data["First Basket"] / team_data["Games"]
+    tip_rate = team_data["Tip Wins"] / team_data["Games"]
+
+    st.markdown(f"### 📊 {selected_team} First Basket Stats")
+    st.metric("Games Played", team_data["Games"])
+    st.metric("First Baskets Made", team_data["First Basket"])
+    st.metric("Tip-Off Wins", team_data["Tip Wins"])
+    st.metric("First Basket Rate", f"{fb_rate:.1%}")
+    st.metric("Tip-Off Win Rate", f"{tip_rate:.1%}")
+    # Visuals
+    df_team = pd.DataFrame.from_dict(team_stats, orient="index")
+    df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
+    df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
+
+    fig_team = px.scatter(
         df_team,
         x="Tip Win %",
         y="First Basket %",
@@ -365,9 +363,19 @@ elif page == "🕒 First Basket Breakdown":
         labels={"Tip Win %": "Tip-Off Win %", "First Basket %": "First Basket %"},
         trendline="ols"
     )
-        st.plotly_chart(fig_team, use_container_width=True)
+    st.plotly_chart(fig_team, use_container_width=True)
+    df_team = pd.DataFrame.from_dict(team_stats, orient="index")
+    df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
+    df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
+    df_team = df_team.sort_values("First Basket %", ascending=False)
 
-        st.markdown("🔍 Data sourced from [FirstBasketStats.com](https://firstbasketstats.com/2024-2025-first-basket-stats-data)")
+    st.subheader("📋 Full Team First Basket Table")
+    st.dataframe(df_team.style.format({
+    "First Basket %": "{:.1%}",
+    "Tip Win %": "{:.1%}"
+}))   
+
+    st.markdown("🔍 Data sourced from [FirstBasketStats.com](https://firstbasketstats.com/2024-2025-first-basket-stats-data)")
 
 elif page == "📜 Disclaimer":
     st.subheader("📜 Disclaimer")
@@ -375,6 +383,7 @@ elif page == "📜 Disclaimer":
     This dashboard is for informational and entertainment purposes only.  
     It does not constitute betting advice or guarantee outcomes.  
     Use at your own discretion. Konjure Analytics is not responsible for any financial decisions made based on this data.
-    """)                               
+    """)                                             
+
 
 
