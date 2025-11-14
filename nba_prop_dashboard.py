@@ -85,15 +85,25 @@ def simulate_bets(df):
 @st.cache_data(ttl=3600)
 def get_first_basket_data():
     url = "https://firstbasketstats.com/2024-2025-first-basket-stats-data"
+    fallback_data = {
+        "BOS": {"Games": 12, "First Basket": 7, "Tip Wins": 8},
+        "DEN": {"Games": 13, "First Basket": 9, "Tip Wins": 10},
+        "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5},
+        "MIA": {"Games": 12, "First Basket": 5, "Tip Wins": 6},
+        "GSW": {"Games": 13, "First Basket": 8, "Tip Wins": 9},
+        "CHI": {"Games": 11, "First Basket": 4, "Tip Wins": 4},
+        "PHX": {"Games": 13, "First Basket": 10, "Tip Wins": 11},
+        "MIL": {"Games": 12, "First Basket": 6, "Tip Wins": 7}
+    }
+
     try:
         response = requests.get(url, timeout=10)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Find the team-level table
         table = soup.find("table", {"id": "team-first-basket"})
         if not table:
-            st.warning("Could not find team-first-basket table on the page.")
-            return {}
+            st.warning("Could not find team-first-basket table. Using fallback data.")
+            return fallback_data
 
         rows = table.find_all("tr")[1:]  # skip header
         data = {}
@@ -101,29 +111,30 @@ def get_first_basket_data():
         for row in rows:
             cells = row.find_all("td")
             if len(cells) < 4:
-                continue  # skip malformed rows
+                continue
 
             team = cells[0].text.strip().upper()
             try:
                 games = int(cells[1].text.strip())
                 first_baskets = int(cells[2].text.strip())
                 tip_wins = int(cells[3].text.strip())
+                data[team] = {
+                    "Games": games,
+                    "First Basket": first_baskets,
+                    "Tip Wins": tip_wins
+                }
             except ValueError:
-                continue  # skip rows with non-numeric data
-
-            data[team] = {
-                "Games": games,
-                "First Basket": first_baskets,
-                "Tip Wins": tip_wins
-            }
+                continue
 
         if not data:
-            st.warning("No valid team data found in the table.")
+            st.warning("Scraping returned no valid data. Using fallback.")
+            return fallback_data
+
         return data
 
     except Exception as e:
-        st.warning(f"Failed to load first basket data: {e}")
-        return {}
+        st.warning(f"Scraping failed: {e}. Using fallback data.")
+        return fallback_data
 
 # --- UI ---
 st.set_page_config(page_title="NBA Prop Betting Dashboard", layout="centered")
@@ -296,6 +307,15 @@ elif page == "🕒 First Basket Breakdown":
 
     # Load scraped data
     team_stats = get_first_basket_data()
+    df_team = pd.DataFrame.from_dict(team_stats, orient="index")
+
+    required_cols = {"First Basket", "Games", "Tip Wins"}
+    if required_cols.issubset(df_team.columns):
+        df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
+        df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
+    else:
+        st.warning(f"Missing columns: {required_cols - set(df_team.columns)}")
+        st.dataframe(df_team)
 
     # Team breakdown
     team_data = team_stats.get(team_code, {"Games": 0, "First Basket": 0, "Tip Wins": 0})
@@ -334,4 +354,5 @@ elif page == "📜 Disclaimer":
     This dashboard is for informational and entertainment purposes only.  
     It does not constitute betting advice or guarantee outcomes.  
     Use at your own discretion. Konjure Analytics is not responsible for any financial decisions made based on this data.
-    """)              
+    """)                        
+
