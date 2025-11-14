@@ -119,6 +119,42 @@ def get_first_basket_data():
         return data if data else fallback_data
     except Exception:
         return fallback_data
+    
+@st.cache_data(ttl=1800)
+def get_today_first_basket_stats():
+    url = "https://firstbasketstats.com/today-first-basket-stats"
+    try:
+        response = requests.get(url, timeout=10)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Find the matchup table (you may need to inspect the HTML manually)
+        table = soup.find("table")  # Simplified — refine with class or ID if needed
+        rows = table.find_all("tr")[1:]  # Skip header
+
+        data = []
+        for row in rows:
+            cells = row.find_all("td")
+            if len(cells) < 6:
+                continue
+            matchup = cells[0].text.strip()
+            tip_winner = cells[1].text.strip()
+            jumper = cells[2].text.strip()
+            first_basket = cells[3].text.strip()
+            shot_type = cells[4].text.strip()
+            position = cells[5].text.strip()
+
+            data.append({
+                "Matchup": matchup,
+                "Tip Winner": tip_winner,
+                "Likely Jumper": jumper,
+                "First Basket": first_basket,
+                "Shot Type": shot_type,
+                "Position": position
+            })
+        return pd.DataFrame(data)
+    except Exception as e:
+        st.warning(f"Failed to load today's first basket data: {e}")
+        return pd.DataFrame()
 
 # --- UI ---
 st.set_page_config(page_title="NBA Prop Betting Dashboard", layout="centered")
@@ -375,7 +411,18 @@ elif page == "🕒 First Basket Breakdown":
     "Tip Win %": "{:.1%}"
 }))   
 
-    st.markdown("🔍 Data sourced from [FirstBasketStats.com](https://firstbasketstats.com/2024-2025-first-basket-stats-data)")
+    df_today = get_today_first_basket_stats()
+
+    if not df_today.empty:
+        teams_today = sorted(set(df_today["Matchup"].str.extract(r'(\w+)\s+vs\s+(\w+)').stack()))
+        selected_team = st.selectbox("Select Team from Today's Games", teams_today)
+
+        team_df = df_today[df_today["Matchup"].str.contains(selected_team)]
+        st.subheader(f"📊 First Basket Stats for {selected_team}")
+        st.dataframe(team_df)
+    else:
+        st.warning("No data available for today's matchups.")
+        st.markdown("🔍 Data sourced from [FirstBasketStats.com](https://firstbasketstats.com/2024-2025-first-basket-stats-data)")
 
 elif page == "📜 Disclaimer":
     st.subheader("📜 Disclaimer")
@@ -383,7 +430,8 @@ elif page == "📜 Disclaimer":
     This dashboard is for informational and entertainment purposes only.  
     It does not constitute betting advice or guarantee outcomes.  
     Use at your own discretion. Konjure Analytics is not responsible for any financial decisions made based on this data.
-    """)                                             
+    """)                                                        
+
 
 
 
