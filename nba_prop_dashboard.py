@@ -109,7 +109,7 @@ elif page == "📊 Player Stats":
     player_list = get_team_players(team_code)
     player_name = st.selectbox("Select Player", player_list)
 
-    seasons = st.multiselect("Seasons", ["2022-23", "2023-24", "2024-25", "2025-26"], default=["2023-24"])
+    seasons = st.multiselect("Seasons", ["2022-23", "2023-24", "2024-25", "2025-26"], default=["2025-26"])
     prop_type = st.selectbox("Prop Type", ["Points", "Rebounds", "Assists", "PRA", "3PM"])
     line_value = st.number_input("Custom Prop Line", value=25.5)
     rolling_window = st.slider("Rolling Average Window", 1, 10, 5)
@@ -172,5 +172,78 @@ elif page == "📊 Player Stats":
                     }
                     st.metric("Points", f"{pred_stats['PTS']:.1f}")
                     st.metric("Rebounds", f"{pred_stats['REB']:.1f}")
-                    st.metric("Assists",)
+                    st.metric("Assists", f"{pred_stats['AST']:.1f}")
+                    
+elif page == "📈 Opponent Breakdown":
+    st.subheader("🆚 Opponent Hit Rate Breakdown")
 
+    team_names = sorted([t["full_name"] for t in teams.get_teams()])
+    selected_team = st.selectbox("Select Team", team_names)
+    team_code = get_team_abbreviation(selected_team)
+    player_list = get_team_players(team_code)
+    player_name = st.selectbox("Select Player", player_list)
+
+    seasons = st.multiselect("Seasons", ["2022-23", "2023-24", "2024-25", "2025-26"], default=["2025-26"])
+    line_value = st.number_input("Prop Line for Breakdown", value=25.5)
+    prop_type = st.selectbox("Stat Type", ["Points", "Rebounds", "Assists", "PRA", "3PM"])
+
+    if player_name and seasons:
+        player_id = get_player_id(player_name)
+        if player_id:
+            df = get_gamelogs(player_id, seasons)
+            df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+            stat_map = {
+                "Points": "PTS",
+                "Rebounds": "REB",
+                "Assists": "AST",
+                "PRA": "PRA",
+                "3PM": "FG3M"
+            }
+            df["TARGET"] = df[stat_map[prop_type]]
+            df["HIT"] = df["TARGET"] > line_value
+            df["MARGIN"] = df["TARGET"] - line_value
+
+            opp_stats = df.groupby("OPPONENT")[["HIT", "MARGIN"]].mean().sort_values("HIT", ascending=False)
+            st.dataframe(opp_stats.style.format({"HIT": "{:.1%}", "MARGIN": "{:.2f}"})) 
+            
+elif page == "🎯 Bet Simulation":
+    st.subheader("🎯 Betting Strategy Simulation")
+
+    team_names = sorted([t["full_name"] for t in teams.get_teams()])
+    selected_team = st.selectbox("Select Team", team_names)
+    team_code = get_team_abbreviation(selected_team)
+    player_list = get_team_players(team_code)
+    player_name = st.selectbox("Select Player", player_list)
+
+    seasons = st.multiselect("Seasons", ["2022-23", "2023-24", "2024-25", "2025-26"], default=["2025-26"])
+    line_value = st.number_input("Simulated Prop Line", value=25.5)
+    prop_type = st.selectbox("Stat Type", ["Points", "Rebounds", "Assists", "PRA", "3PM"])
+
+    if player_name and seasons:
+        player_id = get_player_id(player_name)
+        if player_id:
+            df = get_gamelogs(player_id, seasons)
+            df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+            stat_map = {
+                "Points": "PTS",
+                "Rebounds": "REB",
+                "Assists": "AST",
+                "PRA": "PRA",
+                "3PM": "FG3M"
+            }
+            df["TARGET"] = df[stat_map[prop_type]]
+            df["HIT"] = df["TARGET"] > line_value
+            df["CUMULATIVE_PROFIT"] = simulate_bets(df)
+
+            st.line_chart(df[["CUMULATIVE_PROFIT"]])
+            st.metric("Total Profit", f"{df['CUMULATIVE_PROFIT'].iloc[-1]:.0f} units")
+            st.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
+            
+
+elif page == "📜 Disclaimer":
+    st.subheader("📜 Disclaimer")
+    st.markdown("""
+    This dashboard is for informational and entertainment purposes only.  
+    It does not constitute betting advice or guarantee outcomes.  
+    Use at your own discretion. Konjure Analytics is not responsible for any financial decisions made based on this data.
+    """)              
