@@ -11,6 +11,7 @@ import plotly.express as px
 import requests
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playergamelog
+from datetime import datetime
 
 # --- Helper Functions ---
 def get_player_id(player_name):
@@ -42,6 +43,22 @@ def simulate_bets(df):
     bet_result = df["HIT"].astype(int).replace({0: -1})
     cumulative = bet_result.cumsum()
     return pd.Series(cumulative.to_list(), index=df.index, name="CUMULATIVE_PROFIT")
+
+def get_next_opponent(team_code):
+    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_code}/schedule"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        now = datetime.now()
+        for event in data.get("events", []):
+            date_str = event.get("date")
+            game_date = datetime.fromisoformat(date_str.replace("Z", ""))
+            if game_date > now:
+                competitors = event["competitions"][0]["competitors"]
+                for team in competitors:
+                    if team["team"]["abbreviation"].lower() != team_code:
+                        return team["team"]["abbreviation"]
+    return None
 
 # --- UI ---
 st.set_page_config(page_title="NBA Prop Betting Dashboard", layout="wide")
@@ -102,23 +119,32 @@ if player_name and seasons:
         st.metric("Assists", f"{predictive_line['AST']:.1f}")
         st.metric("3PM", f"{predictive_line['FG3M']:.1f}")
 
-        # Predictive stat line vs next opponent (auto-set for now)
-        next_opp_code = "DET"  # Replace with dynamic detection later
-        df_opp = df[df["OPPONENT"].str.upper() == next_opp_code]
-        if not df_opp.empty:
-            st.subheader(f"📈 Prediction vs {next_opp_code}")
-            pred_stats = {
-                "PTS": df_opp["PTS"].mean(),
-                "REB": df_opp["REB"].mean(),
-                "AST": df_opp["AST"].mean(),
-                "FG3M": df_opp["FG3M"].mean()
-            }
-            st.metric("Points", f"{pred_stats['PTS']:.1f}")
-            st.metric("Rebounds", f"{pred_stats['REB']:.1f}")
-            st.metric("Assists", f"{pred_stats['AST']:.1f}")
-            st.metric("3PM", f"{pred_stats['FG3M']:.1f}")
-        else:
-            st.warning(f"No past games found vs {next_opp_code}.")
+        # Predictive stat line vs next opponent
+        player_team_map = {
+            "Jayson Tatum": "bos",
+            "LeBron James": "lal",
+            "Stephen Curry": "gs",
+            "Kevin Durant": "phx",
+            "Giannis Antetokounmpo": "mil"
+        }
+        team_code = player_team_map.get(player_name, "bos")
+        next_opp_code = get_next_opponent(team_code)
+        if next_opp_code:
+            df_opp = df[df["OPPONENT"].str.upper() == next_opp_code.upper()]
+            if not df_opp.empty:
+                st.subheader(f"📈 Prediction vs {next_opp_code.upper()}")
+                pred_stats = {
+                    "PTS": df_opp["PTS"].mean(),
+                    "REB": df_opp["REB"].mean(),
+                    "AST": df_opp["AST"].mean(),
+                    "FG3M": df_opp["FG3M"].mean()
+                }
+                st.metric("Points", f"{pred_stats['PTS']:.1f}")
+                st.metric("Rebounds", f"{pred_stats['REB']:.1f}")
+                st.metric("Assists", f"{pred_stats['AST']:.1f}")
+                st.metric("3PM", f"{pred_stats['FG3M']:.1f}")
+            else:
+                st.warning(f"No past games found vs {next_opp_code.upper()}.")
 
         # Opponent breakdown
         st.subheader("🆚 Opponent Hit Rate Breakdown")
@@ -145,9 +171,4 @@ if player_name and seasons:
         df["CUMULATIVE_PROFIT"] = simulate_bets(df)
         st.line_chart(df["CUMULATIVE_PROFIT"])
 
-        # Export
-        st.subheader("📥 Export Results")
-        st.download_button("Download CSV", df.to_csv(index=False), file_name="prop_results.csv")
-    else:
-        st.warning("Player not found. Please check the spelling.")
-
+       
