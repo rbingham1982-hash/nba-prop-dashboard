@@ -243,8 +243,15 @@ elif page == "🎯 Bet Simulation":
 elif page == "🕒 First Basket Breakdown":
     st.subheader("🕒 First Basket Breakdown")
 
-    # Sample team-level data (replace with real data or API)
-    first_basket_data = {
+    # --- Team & Player Selection ---
+    team_names = sorted([t["full_name"] for t in teams.get_teams()])
+    selected_team = st.selectbox("Select Team", team_names)
+    team_code = get_team_abbreviation(selected_team)
+    player_list = get_team_players(team_code)
+    selected_player = st.selectbox("Select Player", player_list)
+
+    # --- Sample Data (replace with real source or API) ---
+    team_stats = {
         "BOS": {"Games": 12, "First Basket": 7, "Tip Wins": 8},
         "DEN": {"Games": 13, "First Basket": 9, "Tip Wins": 10},
         "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5},
@@ -255,12 +262,35 @@ elif page == "🕒 First Basket Breakdown":
         "MIL": {"Games": 12, "First Basket": 6, "Tip Wins": 7}
     }
 
-    df_team = pd.DataFrame.from_dict(first_basket_data, orient="index")
+    player_stats = {
+        "Jayson Tatum": {"First Baskets": 5, "Games": 12},
+        "Nikola Jokic": {"First Baskets": 6, "Games": 13},
+        "LeBron James": {"First Baskets": 4, "Games": 14},
+        "Devin Booker": {"First Baskets": 7, "Games": 13},
+        "Giannis Antetokounmpo": {"First Baskets": 3, "Games": 12}
+    }
+
+    # --- Team Breakdown ---
+    team_data = team_stats.get(team_code, {"Games": 0, "First Basket": 0, "Tip Wins": 0})
+    team_fb_rate = team_data["First Basket"] / team_data["Games"] if team_data["Games"] else 0
+    team_tip_rate = team_data["Tip Wins"] / team_data["Games"] if team_data["Games"] else 0
+
+    st.markdown(f"### 📊 {team_code} Breakdown")
+    st.metric("First Basket Rate", f"{team_fb_rate:.1%}")
+    st.metric("Tip-Off Win Rate", f"{team_tip_rate:.1%}")
+
+    # --- Player Breakdown ---
+    player_data = player_stats.get(selected_player, {"First Baskets": 0, "Games": 0})
+    player_fb_rate = player_data["First Baskets"] / player_data["Games"] if player_data["Games"] else 0
+
+    st.markdown(f"### 🏀 {selected_player} Breakdown")
+    st.metric("First Basket Rate", f"{player_fb_rate:.1%}")
+    st.metric("Games Tracked", f"{player_data['Games']}")
+
+    # --- Visuals ---
+    df_team = pd.DataFrame.from_dict(team_stats, orient="index")
     df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
     df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
-    df_team = df_team.sort_values("First Basket %", ascending=False)
-
-    st.dataframe(df_team.style.format({"First Basket %": "{:.1%}", "Tip Win %": "{:.1%}"}))
 
     fig_team = px.scatter(
         df_team,
@@ -273,34 +303,7 @@ elif page == "🕒 First Basket Breakdown":
     )
     st.plotly_chart(fig_team, use_container_width=True)
 
-    # Player-level breakdown (sample data)
-    st.subheader("🏀 Top First Basket Scorers")
-
-    player_data = {
-        "Jayson Tatum": {"First Baskets": 5, "Games": 12},
-        "Nikola Jokic": {"First Baskets": 6, "Games": 13},
-        "LeBron James": {"First Baskets": 4, "Games": 14},
-        "Devin Booker": {"First Baskets": 7, "Games": 13},
-        "Giannis Antetokounmpo": {"First Baskets": 3, "Games": 12}
-    }
-
-    df_players = pd.DataFrame.from_dict(player_data, orient="index")
-    df_players["Rate"] = df_players["First Baskets"] / df_players["Games"]
-    df_players = df_players.sort_values("Rate", ascending=False)
-
-    st.dataframe(df_players.style.format({"Rate": "{:.1%}"}))
-
-    fig_players = px.bar(
-        df_players,
-        x=df_players.index,
-        y="Rate",
-        title="First Basket Rate by Player",
-        labels={"Rate": "First Basket %"}
-    )
-    st.plotly_chart(fig_players, use_container_width=True)
-
-    # Home/Away filter (placeholder toggle)
-    st.markdown("🔍 *Home/Away breakdown coming soon — data source integration in progress.*")
+    st.markdown("🔍 *Data is illustrative. For full accuracy, connect to a play-by-play API or curated source.*")
 
 elif page == "📜 Disclaimer":
     st.subheader("📜 Disclaimer")
@@ -308,4 +311,5 @@ elif page == "📜 Disclaimer":
     This dashboard is for informational and entertainment purposes only.  
     It does not constitute betting advice or guarantee outcomes.  
     Use at your own discretion. Konjure Analytics is not responsible for any financial decisions made based on this data.
-    """)              
+    """)                       
+
