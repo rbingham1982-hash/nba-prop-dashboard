@@ -181,3 +181,10 @@ if player_name and seasons:
         st.subheader("🎯 Betting Strategy Simulation")
         df["CUMULATIVE_PROFIT"] = simulate_bets(df)
         st.line_chart(df[["CUMULATIVE_PROFIT"]])
+        
+with st.expander("📜 Disclaimer"):
+    st.markdown("""
+    This dashboard is for informational and entertainment purposes only. 
+    It does not constitute betting advice or guarantee outcomes. 
+    Use at your own discretion.
+    """)
