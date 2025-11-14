@@ -19,13 +19,16 @@ def get_player_id(player_name):
     return match[0]['id'] if match else None
 
 def get_team_abbreviation(player_name):
-    match = players.find_players_by_full_name(player_name)
-    if match:
-        player_id = match[0]['id']
-        logs = playergamelog.PlayerGameLog(player_id=player_id, season="2023-24").get_data_frames()[0]
-        if not logs.empty:
-            team_abbr = logs.iloc[0]["TEAM_ABBREVIATION"]
-            return team_abbr.lower()
+    try:
+        match = players.find_players_by_full_name(player_name)
+        if match:
+            player_id = match[0]['id']
+            logs = playergamelog.PlayerGameLog(player_id=player_id, season="2023-24").get_data_frames()[0]
+            if not logs.empty and "TEAM_ABBREVIATION" in logs.columns:
+                team_abbr = logs.loc[0, "TEAM_ABBREVIATION"]
+                return team_abbr.lower()
+    except Exception as e:
+        st.warning(f"Team detection failed: {e}")
     return "bos"  # fallback
 
 def get_gamelogs(player_id, seasons):
@@ -167,5 +170,11 @@ if player_name and seasons:
         # Rolling averages chart
         st.subheader("📊 Rolling Averages")
         fig_pred = px.line(df, x="GAME_DATE", y=["PTS", "REB", "AST", "FG3M"], title="Rolling Averages")
-        st.plotly_chart(fig_pred, use_container)
+        st.plotly_chart(fig_pred, use_container_width=True)
+
+        # Betting simulation
+        st.subheader("🎯 Betting Strategy Simulation")
+        df["CUMULATIVE_PROFIT"] = simulate_bets(df)
+        st.line_chart
+
 
