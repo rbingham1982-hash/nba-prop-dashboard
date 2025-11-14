@@ -49,7 +49,7 @@ st.title("🏀 NBA Prop Betting Dashboard")
 
 player_name = st.text_input("Player Name", "Jayson Tatum")
 seasons = st.multiselect("Seasons", ["2022-23", "2023-24", "2024-25", "2025-26"], default=["2023-24"])
-prop_type = st.selectbox("Prop Type", ["Points", "Rebounds", "Assists", "PRA"])
+prop_type = st.selectbox("Prop Type", ["Points", "Rebounds", "Assists", "PRA", "3PM"])
 line_value = st.number_input("Custom Prop Line", value=25.5)
 rolling_window = st.slider("Rolling Average Window", 1, 10, 5)
 teammate_filter = st.text_input("Filter games with teammate (optional)")
@@ -62,8 +62,15 @@ if player_name and seasons:
         if teammate_filter:
             df = df[df["MATCHUP"].str.contains(teammate_filter, case=False, na=False)]
 
-        stat_map = {"Points": "PTS", "Rebounds": "REB", "Assists": "AST", "PRA": "PRA"}
         df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+        stat_map = {
+            "Points": "PTS",
+            "Rebounds": "REB",
+            "Assists": "AST",
+            "PRA": "PRA",
+            "3PM": "FG3M"
+        }
+
         df["TARGET"] = df[stat_map[prop_type]]
         df["HIT"] = df["TARGET"] > line_value
         df["MARGIN"] = df["TARGET"] - line_value
@@ -82,6 +89,19 @@ if player_name and seasons:
         col1.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
         col2.metric("Avg Margin", f"{df['MARGIN'].mean():.2f}")
 
+        # Predictive stat line
+        st.subheader("🔮 Predictive Stat Line (Rolling Avg)")
+        predictive_line = {
+            "PTS": df["PTS"].rolling(window=rolling_window).mean().iloc[-1],
+            "REB": df["REB"].rolling(window=rolling_window).mean().iloc[-1],
+            "AST": df["AST"].rolling(window=rolling_window).mean().iloc[-1],
+            "FG3M": df["FG3M"].rolling(window=rolling_window).mean().iloc[-1]
+        }
+        st.metric("Points", f"{predictive_line['PTS']:.1f}")
+        st.metric("Rebounds", f"{predictive_line['REB']:.1f}")
+        st.metric("Assists", f"{predictive_line['AST']:.1f}")
+        st.metric("3PM", f"{predictive_line['FG3M']:.1f}")
+
         # Opponent breakdown
         st.subheader("🆚 Opponent Hit Rate Breakdown")
         opp_stats = df.groupby("OPPONENT")[["HIT", "MARGIN"]].mean().sort_values("HIT", ascending=False)
@@ -96,6 +116,11 @@ if player_name and seasons:
         fig_scatter = px.scatter(df, x="GAME_DATE", y="TARGET", color="HIT", title="Hit/Miss Distribution")
         fig_scatter.add_hline(y=line_value, line_dash="dash", line_color="red")
         st.plotly_chart(fig_scatter, use_container_width=True)
+
+        # Rolling averages chart
+        st.subheader("📊 Rolling Averages")
+        fig_pred = px.line(df, x="GAME_DATE", y=["PTS", "REB", "AST", "FG3M"], title="Rolling Averages")
+        st.plotly_chart(fig_pred, use_container_width=True)
 
         # Betting simulation
         st.subheader("🎯 Betting Strategy Simulation")
