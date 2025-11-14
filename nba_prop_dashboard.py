@@ -94,6 +94,7 @@ page = st.sidebar.radio("Navigate", [
     "📊 Player Stats",
     "📈 Opponent Breakdown",
     "🎯 Bet Simulation",
+    "🕒 First Basket Breakdown",
     "📜 Disclaimer"
 ])
 
@@ -239,6 +240,67 @@ elif page == "🎯 Bet Simulation":
             st.metric("Total Profit", f"{df['CUMULATIVE_PROFIT'].iloc[-1]:.0f} units")
             st.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
             
+elif page == "🕒 First Basket Breakdown":
+    st.subheader("🕒 First Basket Breakdown")
+
+    # Sample team-level data (replace with real data or API)
+    first_basket_data = {
+        "BOS": {"Games": 12, "First Basket": 7, "Tip Wins": 8},
+        "DEN": {"Games": 13, "First Basket": 9, "Tip Wins": 10},
+        "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5},
+        "MIA": {"Games": 12, "First Basket": 5, "Tip Wins": 6},
+        "GSW": {"Games": 13, "First Basket": 8, "Tip Wins": 9},
+        "CHI": {"Games": 11, "First Basket": 4, "Tip Wins": 4},
+        "PHX": {"Games": 13, "First Basket": 10, "Tip Wins": 11},
+        "MIL": {"Games": 12, "First Basket": 6, "Tip Wins": 7}
+    }
+
+    df_team = pd.DataFrame.from_dict(first_basket_data, orient="index")
+    df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
+    df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
+    df_team = df_team.sort_values("First Basket %", ascending=False)
+
+    st.dataframe(df_team.style.format({"First Basket %": "{:.1%}", "Tip Win %": "{:.1%}"}))
+
+    fig_team = px.scatter(
+        df_team,
+        x="Tip Win %",
+        y="First Basket %",
+        text=df_team.index,
+        title="Tip Win % vs First Basket %",
+        labels={"Tip Win %": "Tip-Off Win %", "First Basket %": "First Basket %"},
+        trendline="ols"
+    )
+    st.plotly_chart(fig_team, use_container_width=True)
+
+    # Player-level breakdown (sample data)
+    st.subheader("🏀 Top First Basket Scorers")
+
+    player_data = {
+        "Jayson Tatum": {"First Baskets": 5, "Games": 12},
+        "Nikola Jokic": {"First Baskets": 6, "Games": 13},
+        "LeBron James": {"First Baskets": 4, "Games": 14},
+        "Devin Booker": {"First Baskets": 7, "Games": 13},
+        "Giannis Antetokounmpo": {"First Baskets": 3, "Games": 12}
+    }
+
+    df_players = pd.DataFrame.from_dict(player_data, orient="index")
+    df_players["Rate"] = df_players["First Baskets"] / df_players["Games"]
+    df_players = df_players.sort_values("Rate", ascending=False)
+
+    st.dataframe(df_players.style.format({"Rate": "{:.1%}"}))
+
+    fig_players = px.bar(
+        df_players,
+        x=df_players.index,
+        y="Rate",
+        title="First Basket Rate by Player",
+        labels={"Rate": "First Basket %"}
+    )
+    st.plotly_chart(fig_players, use_container_width=True)
+
+    # Home/Away filter (placeholder toggle)
+    st.markdown("🔍 *Home/Away breakdown coming soon — data source integration in progress.*")
 
 elif page == "📜 Disclaimer":
     st.subheader("📜 Disclaimer")
