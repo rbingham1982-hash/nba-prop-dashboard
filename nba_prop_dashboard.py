@@ -5,6 +5,19 @@ Created on Fri Nov 14 10:06:21 2025
 @author: rbing
 """
 
+Here’s your fully updated Streamlit dashboard with:
+
+- ✅ Branding (logo, splash screen, tagline)
+- ✅ Sidebar navigation
+- ✅ Opponent breakdown section
+- ✅ Disclaimer and footer
+- ✅ All original functionality preserved
+
+---
+
+### 🏀 Full Code: `nba_prop_dashboard.py`
+
+```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -81,110 +94,95 @@ def simulate_bets(df):
     return pd.Series(cumulative.to_list(), index=df.index, name="CUMULATIVE_PROFIT")
 
 # --- UI ---
-st.set_page_config(page_title="NBA Prop Betting Dashboard", layout="wide")
-st.title("🏀 NBA Prop Betting Dashboard")
+st.set_page_config(page_title="NBA Prop Betting Dashboard", layout="centered")
 
-team_names = sorted([t["full_name"] for t in teams.get_teams()])
-selected_team = st.selectbox("Select Team", team_names)
-team_code = get_team_abbreviation(selected_team)
-player_list = get_team_players(team_code)
-player_name = st.selectbox("Select Player", player_list)
+# Branding
+st.image("https://copilot.microsoft.com/th/id/BCO.402d6b29-c3e2-41e9-b818-3b556b92c0f2.png", width=120)
+st.markdown("<h1 style='text-align: center; color:#E50914;'>Konjure Analytics</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center;'>NBA Prop Intelligence, Powered by Data</h4>", unsafe_allow_html=True)
 
-seasons = st.multiselect("Seasons", ["2022-23", "2023-24", "2024-25", "2025-26"], default=["2023-24"])
-prop_type = st.selectbox("Prop Type", ["Points", "Rebounds", "Assists", "PRA", "3PM"])
-line_value = st.number_input("Custom Prop Line", value=25.5)
-rolling_window = st.slider("Rolling Average Window", 1, 10, 5)
-teammate_filter = st.text_input("Filter games with teammate (optional)")
+# Navigation
+page = st.sidebar.radio("Navigate", [
+    "🏠 Home",
+    "📊 Player Stats",
+    "📈 Opponent Breakdown",
+    "🎯 Bet Simulation",
+    "📜 Disclaimer"
+])
 
-# --- Main Logic ---
-if player_name and seasons:
-    player_id = get_player_id(player_name)
-    if player_id:
-        df = get_gamelogs(player_id, seasons)
-        if teammate_filter:
-            df = df[df["MATCHUP"].str.contains(teammate_filter, case=False, na=False)]
+if page == "🏠 Home":
+    st.image("https://copilot.microsoft.com/th/id/BCO.212291ea-d684-4612-81ca-a14039ffe56e.png", use_column_width=True)
+    st.markdown("Welcome to Konjure Analytics — your hub for NBA prop insights.")
+    st.markdown("---")
 
-        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-        stat_map = {
-            "Points": "PTS",
-            "Rebounds": "REB",
-            "Assists": "AST",
-            "PRA": "PRA",
-            "3PM": "FG3M"
-        }
+elif page == "📊 Player Stats":
+    team_names = sorted([t["full_name"] for t in teams.get_teams()])
+    selected_team = st.selectbox("Select Team", team_names)
+    team_code = get_team_abbreviation(selected_team)
+    player_list = get_team_players(team_code)
+    player_name = st.selectbox("Select Player", player_list)
 
-        df["TARGET"] = df[stat_map[prop_type]]
-        df["HIT"] = df["TARGET"] > line_value
-        df["MARGIN"] = df["TARGET"] - line_value
-        df["ROLLING_AVG"] = df["TARGET"].rolling(window=rolling_window).mean()
+    seasons = st.multiselect("Seasons", ["2022-23", "2023-24", "2024-25", "2025-26"], default=["2023-24"])
+    prop_type = st.selectbox("Prop Type", ["Points", "Rebounds", "Assists", "PRA", "3PM"])
+    line_value = st.number_input("Custom Prop Line", value=25.5)
+    rolling_window = st.slider("Rolling Average Window", 1, 10, 5)
+    teammate_filter = st.text_input("Filter games with teammate (optional)")
 
-        live_line = get_real_time_line(player_name, market=prop_type.lower())
-        if live_line:
-            st.info(f"📡 Real-Time Line: {live_line}")
-            df["LIVE_HIT"] = df["TARGET"] > live_line
-            st.metric("Hit Rate vs Live Line", f"{df['LIVE_HIT'].mean():.1%}")
+    if player_name and seasons:
+        player_id = get_player_id(player_name)
+        if player_id:
+            df = get_gamelogs(player_id, seasons)
+            if teammate_filter:
+                df = df[df["MATCHUP"].str.contains(teammate_filter, case=False, na=False)]
 
-        st.subheader("📊 Prop Performance Summary")
-        col1, col2 = st.columns(2)
-        col1.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
-        col2.metric("Avg Margin", f"{df['MARGIN'].mean():.2f}")
+            df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+            stat_map = {
+                "Points": "PTS",
+                "Rebounds": "REB",
+                "Assists": "AST",
+                "PRA": "PRA",
+                "3PM": "FG3M"
+            }
 
-        st.subheader("🔮 Predictive Stat Line (Rolling Avg)")
-        predictive_line = {
-            "PTS": df["PTS"].rolling(window=rolling_window).mean().iloc[-1],
-            "REB": df["REB"].rolling(window=rolling_window).mean().iloc[-1],
-            "AST": df["AST"].rolling(window=rolling_window).mean().iloc[-1],
-            "FG3M": df["FG3M"].rolling(window=rolling_window).mean().iloc[-1]
-        }
-        st.metric("Points", f"{predictive_line['PTS']:.1f}")
-        st.metric("Rebounds", f"{predictive_line['REB']:.1f}")
-        st.metric("Assists", f"{predictive_line['AST']:.1f}")
-        st.metric("3PM", f"{predictive_line['FG3M']:.1f}")
+            df["TARGET"] = df[stat_map[prop_type]]
+            df["HIT"] = df["TARGET"] > line_value
+            df["MARGIN"] = df["TARGET"] - line_value
+            df["ROLLING_AVG"] = df["TARGET"].rolling(window=rolling_window).mean()
 
-        next_opp_code = get_next_opponent(team_code)
-        if next_opp_code:
-            df_opp = df[df["OPPONENT"].str.upper() == next_opp_code]
-            st.subheader(f"📈 Prediction vs {next_opp_code}")
-            if not df_opp.empty:
-                pred_stats = {
-                    "PTS": df_opp["PTS"].mean(),
-                    "REB": df_opp["REB"].mean(),
-                    "AST": df_opp["AST"].mean(),
-                    "FG3M": df_opp["FG3M"].mean()
-                }
-                st.metric("Points", f"{pred_stats['PTS']:.1f}")
-                st.metric("Rebounds", f"{pred_stats['REB']:.1f}")
-                st.metric("Assists", f"{pred_stats['AST']:.1f}")
-                st.metric("3PM", f"{pred_stats['FG3M']:.1f}")
-            else:
-                st.warning(f"No past games found vs {next_opp_code}.")
+            live_line = get_real_time_line(player_name, market=prop_type.lower())
+            if live_line:
+                st.info(f"📡 Real-Time Line: {live_line}")
+                df["LIVE_HIT"] = df["TARGET"] > live_line
+                st.metric("Hit Rate vs Live Line", f"{df['LIVE_HIT'].mean():.1%}")
 
-        st.subheader("🆚 Opponent Hit Rate Breakdown")
-        opp_stats = df.groupby("OPPONENT")[["HIT", "MARGIN"]].mean().sort_values("HIT", ascending=False)
-        st.dataframe(opp_stats.style.format({"HIT": "{:.1%}", "MARGIN": "{:.2f}"}))
+            st.subheader("📊 Prop Performance Summary")
+            col1, col2 = st.columns(2)
+            col1.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
+            col2.metric("Avg Margin", f"{df['MARGIN'].mean():.2f}")
 
-        st.subheader("📈 Game-by-Game Performance")
-        fig_line = px.line(df, x="GAME_DATE", y=["TARGET", "ROLLING_AVG"], title="Performance vs Prop Line")
-        fig_line.add_hline(y=line_value, line_dash="dash", line_color="red", annotation_text=f"Line: {line_value}")
-        st.plotly_chart(fig_line, use_container_width=True)
+            st.subheader("🔮 Predictive Stat Line (Rolling Avg)")
+            predictive_line = {
+                "PTS": df["PTS"].rolling(window=rolling_window).mean().iloc[-1],
+                "REB": df["REB"].rolling(window=rolling_window).mean().iloc[-1],
+                "AST": df["AST"].rolling(window=rolling_window).mean().iloc[-1],
+                "FG3M": df["FG3M"].rolling(window=rolling_window).mean().iloc[-1]
+            }
+            st.metric("Points", f"{predictive_line['PTS']:.1f}")
+            st.metric("Rebounds", f"{predictive_line['REB']:.1f}")
+            st.metric("Assists", f"{predictive_line['AST']:.1f}")
+            st.metric("3PM", f"{predictive_line['FG3M']:.1f}")
 
-        fig_scatter = px.scatter(df, x="GAME_DATE", y="TARGET", color="HIT", title="Hit/Miss Distribution")
-        fig_scatter.add_hline(y=line_value, line_dash="dash", line_color="red")
-        st.plotly_chart(fig_scatter, use_container_width=True)
-        
-       # Rolling averages chart
-        st.subheader("📊 Rolling Averages")
-        fig_pred = px.line(df, x="GAME_DATE", y=["PTS", "REB", "AST", "FG3M"], title="Rolling Averages")
-        st.plotly_chart(fig_pred, use_container_width=True)
-
-       # Betting simulation
-        st.subheader("🎯 Betting Strategy Simulation")
-        df["CUMULATIVE_PROFIT"] = simulate_bets(df)
-        st.line_chart(df[["CUMULATIVE_PROFIT"]])
-        
-with st.expander("📜 Disclaimer"):
-    st.markdown("""
-    This dashboard is for informational and entertainment purposes only. 
-    It does not constitute betting advice or guarantee outcomes. 
-    Use at your own discretion.
-    """)
+            next_opp_code = get_next_opponent(team_code)
+            if next_opp_code:
+                df_opp = df[df["OPPONENT"].str.upper() == next_opp_code]
+                st.subheader(f"📈 Prediction vs {next_opp_code}")
+                if not df_opp.empty:
+                    pred_stats = {
+                        "PTS": df_opp["PTS"].mean(),
+                        "REB": df_opp["REB"].mean(),
+                        "AST": df_opp["AST"].mean(),
+                        "FG3M": df_opp["FG3M"].mean()
+                    }
+                    st.metric("Points", f"{pred_stats['PTS']:.1f}")
+                    st.metric("Rebounds", f"{pred_stats['REB']:.1f}")
+                    st.metric("Assists",
