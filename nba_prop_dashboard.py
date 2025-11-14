@@ -175,6 +175,4 @@ if player_name and seasons:
         # Betting simulation
         st.subheader("🎯 Betting Strategy Simulation")
         df["CUMULATIVE_PROFIT"] = simulate_bets(df)
-        st.line_chart
-
-
+        st.line_chart(df[["CUMULATIVE_PROFIT"]])
