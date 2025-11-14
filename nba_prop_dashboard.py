@@ -89,23 +89,38 @@ def get_first_basket_data():
         response = requests.get(url, timeout=10)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Example: extract team-level table
+        # Find the team-level table
         table = soup.find("table", {"id": "team-first-basket"})
-        rows = table.find_all("tr")[1:]  # skip header
+        if not table:
+            st.warning("Could not find team-first-basket table on the page.")
+            return {}
 
+        rows = table.find_all("tr")[1:]  # skip header
         data = {}
+
         for row in rows:
             cells = row.find_all("td")
-            team = cells[0].text.strip()
-            games = int(cells[1].text.strip())
-            first_baskets = int(cells[2].text.strip())
-            tip_wins = int(cells[3].text.strip())
+            if len(cells) < 4:
+                continue  # skip malformed rows
+
+            team = cells[0].text.strip().upper()
+            try:
+                games = int(cells[1].text.strip())
+                first_baskets = int(cells[2].text.strip())
+                tip_wins = int(cells[3].text.strip())
+            except ValueError:
+                continue  # skip rows with non-numeric data
+
             data[team] = {
                 "Games": games,
                 "First Basket": first_baskets,
                 "Tip Wins": tip_wins
             }
+
+        if not data:
+            st.warning("No valid team data found in the table.")
         return data
+
     except Exception as e:
         st.warning(f"Failed to load first basket data: {e}")
         return {}
@@ -319,4 +334,4 @@ elif page == "📜 Disclaimer":
     This dashboard is for informational and entertainment purposes only.  
     It does not constitute betting advice or guarantee outcomes.  
     Use at your own discretion. Konjure Analytics is not responsible for any financial decisions made based on this data.
-    """)     
+    """)              
