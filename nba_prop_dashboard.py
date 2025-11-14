@@ -89,7 +89,7 @@ if player_name and seasons:
         col1.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
         col2.metric("Avg Margin", f"{df['MARGIN'].mean():.2f}")
 
-        # Predictive stat line
+        # Predictive stat line (rolling)
         st.subheader("🔮 Predictive Stat Line (Rolling Avg)")
         predictive_line = {
             "PTS": df["PTS"].rolling(window=rolling_window).mean().iloc[-1],
@@ -101,6 +101,24 @@ if player_name and seasons:
         st.metric("Rebounds", f"{predictive_line['REB']:.1f}")
         st.metric("Assists", f"{predictive_line['AST']:.1f}")
         st.metric("3PM", f"{predictive_line['FG3M']:.1f}")
+
+        # Predictive stat line vs next opponent (auto-set for now)
+        next_opp_code = "DET"  # Replace with dynamic detection later
+        df_opp = df[df["OPPONENT"].str.upper() == next_opp_code]
+        if not df_opp.empty:
+            st.subheader(f"📈 Prediction vs {next_opp_code}")
+            pred_stats = {
+                "PTS": df_opp["PTS"].mean(),
+                "REB": df_opp["REB"].mean(),
+                "AST": df_opp["AST"].mean(),
+                "FG3M": df_opp["FG3M"].mean()
+            }
+            st.metric("Points", f"{pred_stats['PTS']:.1f}")
+            st.metric("Rebounds", f"{pred_stats['REB']:.1f}")
+            st.metric("Assists", f"{pred_stats['AST']:.1f}")
+            st.metric("3PM", f"{pred_stats['FG3M']:.1f}")
+        else:
+            st.warning(f"No past games found vs {next_opp_code}.")
 
         # Opponent breakdown
         st.subheader("🆚 Opponent Hit Rate Breakdown")
@@ -132,3 +150,4 @@ if player_name and seasons:
         st.download_button("Download CSV", df.to_csv(index=False), file_name="prop_results.csv")
     else:
         st.warning("Player not found. Please check the spelling.")
+
