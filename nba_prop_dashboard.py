@@ -329,13 +329,34 @@ elif page == "🕒 First Basket Breakdown":
     # Player breakdown (placeholder until player-level scrape is added)
     st.markdown(f"### 🏀 {selected_player} Breakdown")
     st.markdown("Player-level first basket data coming soon.")
+    
+    st.subheader("📊 Team First Basket Table")
+
+    # Load team stats
+    team_stats = get_first_basket_data()
+    df_team = pd.DataFrame.from_dict(team_stats, orient="index")
+
+    # Defensive check
+    required_cols = {"Games", "First Basket", "Tip Wins"}
+    if required_cols.issubset(df_team.columns):
+        df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
+        df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
+        df_team = df_team.sort_values("First Basket %", ascending=False)
+
+        st.dataframe(df_team.style.format({
+        "First Basket %": "{:.1%}",
+        "Tip Win %": "{:.1%}"
+    }))
+    else:
+        st.warning(f"Missing columns: {required_cols - set(df_team.columns)}")
+        st.dataframe(df_team)
 
     # Visuals
-    df_team = pd.DataFrame.from_dict(team_stats, orient="index")
-    df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
-    df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
+        df_team = pd.DataFrame.from_dict(team_stats, orient="index")
+        df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
+        df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
 
-    fig_team = px.scatter(
+        fig_team = px.scatter(
         df_team,
         x="Tip Win %",
         y="First Basket %",
@@ -344,9 +365,9 @@ elif page == "🕒 First Basket Breakdown":
         labels={"Tip Win %": "Tip-Off Win %", "First Basket %": "First Basket %"},
         trendline="ols"
     )
-    st.plotly_chart(fig_team, use_container_width=True)
+        st.plotly_chart(fig_team, use_container_width=True)
 
-    st.markdown("🔍 Data sourced from [FirstBasketStats.com](https://firstbasketstats.com/2024-2025-first-basket-stats-data)")
+        st.markdown("🔍 Data sourced from [FirstBasketStats.com](https://firstbasketstats.com/2024-2025-first-basket-stats-data)")
 
 elif page == "📜 Disclaimer":
     st.subheader("📜 Disclaimer")
@@ -354,5 +375,6 @@ elif page == "📜 Disclaimer":
     This dashboard is for informational and entertainment purposes only.  
     It does not constitute betting advice or guarantee outcomes.  
     Use at your own discretion. Konjure Analytics is not responsible for any financial decisions made based on this data.
-    """)                        
+    """)                               
+
 
