@@ -5,19 +5,6 @@ Created on Fri Nov 14 10:06:21 2025
 @author: rbing
 """
 
-Here’s your fully updated Streamlit dashboard with:
-
-- ✅ Branding (logo, splash screen, tagline)
-- ✅ Sidebar navigation
-- ✅ Opponent breakdown section
-- ✅ Disclaimer and footer
-- ✅ All original functionality preserved
-
----
-
-### 🏀 Full Code: `nba_prop_dashboard.py`
-
-```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -185,4 +172,5 @@ elif page == "📊 Player Stats":
                     }
                     st.metric("Points", f"{pred_stats['PTS']:.1f}")
                     st.metric("Rebounds", f"{pred_stats['REB']:.1f}")
-                    st.metric("Assists",
+                    st.metric("Assists",)
+
