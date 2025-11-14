@@ -9,6 +9,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import requests
+import requests
+from bs4 import BeautifulSoup
 from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import playergamelog, commonteamroster
 from datetime import datetime
@@ -79,6 +81,34 @@ def simulate_bets(df):
     bet_result = df["HIT"].astype(int).replace({0: -1})
     cumulative = bet_result.cumsum()
     return pd.Series(cumulative.to_list(), index=df.index, name="CUMULATIVE_PROFIT")
+
+@st.cache_data(ttl=3600)
+def get_first_basket_data():
+    url = "https://firstbasketstats.com/2024-2025-first-basket-stats-data"
+    try:
+        response = requests.get(url, timeout=10)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Example: extract team-level table
+        table = soup.find("table", {"id": "team-first-basket"})
+        rows = table.find_all("tr")[1:]  # skip header
+
+        data = {}
+        for row in rows:
+            cells = row.find_all("td")
+            team = cells[0].text.strip()
+            games = int(cells[1].text.strip())
+            first_baskets = int(cells[2].text.strip())
+            tip_wins = int(cells[3].text.strip())
+            data[team] = {
+                "Games": games,
+                "First Basket": first_baskets,
+                "Tip Wins": tip_wins
+            }
+        return data
+    except Exception as e:
+        st.warning(f"Failed to load first basket data: {e}")
+        return {}
 
 # --- UI ---
 st.set_page_config(page_title="NBA Prop Betting Dashboard", layout="centered")
@@ -243,34 +273,16 @@ elif page == "🎯 Bet Simulation":
 elif page == "🕒 First Basket Breakdown":
     st.subheader("🕒 First Basket Breakdown")
 
-    # --- Team & Player Selection ---
     team_names = sorted([t["full_name"] for t in teams.get_teams()])
     selected_team = st.selectbox("Select Team", team_names)
     team_code = get_team_abbreviation(selected_team)
     player_list = get_team_players(team_code)
     selected_player = st.selectbox("Select Player", player_list)
 
-    # --- Sample Data (replace with real source or API) ---
-    team_stats = {
-        "BOS": {"Games": 12, "First Basket": 7, "Tip Wins": 8},
-        "DEN": {"Games": 13, "First Basket": 9, "Tip Wins": 10},
-        "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5},
-        "MIA": {"Games": 12, "First Basket": 5, "Tip Wins": 6},
-        "GSW": {"Games": 13, "First Basket": 8, "Tip Wins": 9},
-        "CHI": {"Games": 11, "First Basket": 4, "Tip Wins": 4},
-        "PHX": {"Games": 13, "First Basket": 10, "Tip Wins": 11},
-        "MIL": {"Games": 12, "First Basket": 6, "Tip Wins": 7}
-    }
+    # Load scraped data
+    team_stats = get_first_basket_data()
 
-    player_stats = {
-        "Jayson Tatum": {"First Baskets": 5, "Games": 12},
-        "Nikola Jokic": {"First Baskets": 6, "Games": 13},
-        "LeBron James": {"First Baskets": 4, "Games": 14},
-        "Devin Booker": {"First Baskets": 7, "Games": 13},
-        "Giannis Antetokounmpo": {"First Baskets": 3, "Games": 12}
-    }
-
-    # --- Team Breakdown ---
+    # Team breakdown
     team_data = team_stats.get(team_code, {"Games": 0, "First Basket": 0, "Tip Wins": 0})
     team_fb_rate = team_data["First Basket"] / team_data["Games"] if team_data["Games"] else 0
     team_tip_rate = team_data["Tip Wins"] / team_data["Games"] if team_data["Games"] else 0
@@ -279,15 +291,11 @@ elif page == "🕒 First Basket Breakdown":
     st.metric("First Basket Rate", f"{team_fb_rate:.1%}")
     st.metric("Tip-Off Win Rate", f"{team_tip_rate:.1%}")
 
-    # --- Player Breakdown ---
-    player_data = player_stats.get(selected_player, {"First Baskets": 0, "Games": 0})
-    player_fb_rate = player_data["First Baskets"] / player_data["Games"] if player_data["Games"] else 0
-
+    # Player breakdown (placeholder until player-level scrape is added)
     st.markdown(f"### 🏀 {selected_player} Breakdown")
-    st.metric("First Basket Rate", f"{player_fb_rate:.1%}")
-    st.metric("Games Tracked", f"{player_data['Games']}")
+    st.markdown("Player-level first basket data coming soon.")
 
-    # --- Visuals ---
+    # Visuals
     df_team = pd.DataFrame.from_dict(team_stats, orient="index")
     df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
     df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
@@ -303,7 +311,7 @@ elif page == "🕒 First Basket Breakdown":
     )
     st.plotly_chart(fig_team, use_container_width=True)
 
-    st.markdown("🔍 *Data is illustrative. For full accuracy, connect to a play-by-play API or curated source.*")
+    st.markdown("🔍 Data sourced from [FirstBasketStats.com](https://firstbasketstats.com/2024-2025-first-basket-stats-data)")
 
 elif page == "📜 Disclaimer":
     st.subheader("📜 Disclaimer")
@@ -311,5 +319,4 @@ elif page == "📜 Disclaimer":
     This dashboard is for informational and entertainment purposes only.  
     It does not constitute betting advice or guarantee outcomes.  
     Use at your own discretion. Konjure Analytics is not responsible for any financial decisions made based on this data.
-    """)                       
-
+    """)     
