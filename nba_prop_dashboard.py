@@ -809,10 +809,18 @@ def get_today_mlb_games():
     except Exception:
         return []
 
+def _scoreboard_date():
+    """Current game-day date in CST (UTC-6). Day rolls at 2am CST."""
+    from datetime import timezone, timedelta as _td
+    cst = datetime.now(timezone(_td(hours=-6)))
+    if cst.hour < 2:
+        cst = cst - _td(days=1)
+    return cst.strftime("%Y%m%d")
+
 @st.cache_data(ttl=60)
-def get_nba_scoreboard():
+def get_nba_scoreboard(game_date: str):
     try:
-        url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={game_date}"
         resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
         games = []
         for ev in resp.json().get("events", []):
@@ -835,9 +843,9 @@ def get_nba_scoreboard():
         return []
 
 @st.cache_data(ttl=60)
-def get_mlb_scoreboard():
+def get_mlb_scoreboard(game_date: str):
     try:
-        url = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
+        url = f"https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates={game_date}"
         resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
         games = []
         for ev in resp.json().get("events", []):
@@ -860,9 +868,9 @@ def get_mlb_scoreboard():
         return []
 
 @st.cache_data(ttl=3600)
-def get_nba_scoreboard_full():
+def get_nba_scoreboard_full(game_date: str):
     try:
-        url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={game_date}"
         resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
         out = []
         for ev in resp.json().get("events", []):
@@ -1271,7 +1279,7 @@ def generate_nba_blog():
     weekday = today.strftime("%A")
     # NBA offseason: ~late June through mid-October
     is_offseason = (m == 6 and d >= 22) or (m in [7, 8]) or (m == 9) or (m == 10 and d <= 21)
-    games = get_nba_scoreboard_full()
+    games = get_nba_scoreboard_full(_scoreboard_date())
     news = get_sport_news("nba")
 
     if is_offseason or not games:
@@ -1644,7 +1652,7 @@ if sport == "🏀 NBA":
 
     # ── NBA score ticker (shown on all NBA tabs) ───────────────────────────────
     with st.spinner(""):
-        _nba_scores = get_nba_scoreboard()
+        _nba_scores = get_nba_scoreboard(_scoreboard_date())
     render_score_ticker(_nba_scores)
 
     tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_blog, tab_disc = st.tabs([
@@ -2058,7 +2066,7 @@ else:
 
     # ── MLB score ticker (shown on all MLB tabs) ───────────────────────────────
     with st.spinner(""):
-        _mlb_scores = get_mlb_scoreboard()
+        _mlb_scores = get_mlb_scoreboard(_scoreboard_date())
     render_score_ticker(_mlb_scores)
 
     tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_pp_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
