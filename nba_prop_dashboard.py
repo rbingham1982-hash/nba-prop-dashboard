@@ -51,20 +51,19 @@ def get_player_id(player_name):
 @st.cache_data(ttl=3600)
 def get_gamelogs(player_id, seasons):
     """Fetch and combine game logs for a player across multiple seasons."""
-    all_games = pd.DataFrame()
+    frames = []
     for season in seasons:
         try:
             logs = playergamelog.PlayerGameLog(
                 player_id=player_id, season=season
             ).get_data_frames()[0]
             logs['SEASON'] = season
-            # FIX: deprecated bfill(axis=1) replaced with fillna approach
             extracted = logs['MATCHUP'].str.extract(r'@ (\w+)|vs\. (\w+)')
             logs['OPPONENT'] = extracted[0].fillna(extracted[1])
-            all_games = pd.concat([all_games, logs], ignore_index=True)
+            frames.append(logs)
         except Exception as e:
             st.warning(f"Could not load {season} data: {e}")
-    return all_games
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 @st.cache_data(ttl=900)
 def get_next_opponent(team_code):
@@ -88,6 +87,56 @@ def get_next_opponent(team_code):
     except Exception as e:
         st.warning(f"Opponent detection failed: {e}")
     return None
+
+@st.cache_data(ttl=900)
+def get_prizepicks_lines():
+    """Fetch today's NBA prop lines from PrizePicks public API."""
+    try:
+        url = "https://api.prizepicks.com/projections?league_id=7&per_page=250&single_stat=true"
+        headers = {
+            "User-Agent": "Mozilla/5.0",
+            "Referer": "https://app.prizepicks.com/",
+        }
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code != 200:
+            return pd.DataFrame()
+
+        payload = resp.json()
+        player_map = {
+            item["id"]: item["attributes"].get("display_name", "")
+            for item in payload.get("included", [])
+            if item.get("type") == "new_player"
+        }
+
+        rows = []
+        for proj in payload.get("data", []):
+            if proj.get("type") != "projection":
+                continue
+            attrs = proj.get("attributes", {})
+            rel = proj.get("relationships", {}).get("new_player", {}).get("data", {})
+            player_id = rel.get("id", "")
+            rows.append({
+                "player_name": player_map.get(player_id, ""),
+                "stat_type": attrs.get("stat_type", ""),
+                "line_score": attrs.get("line_score"),
+                "status": attrs.get("status", ""),
+            })
+
+        df = pd.DataFrame(rows)
+        return df[df["player_name"] != ""] if not df.empty else df
+    except Exception as e:
+        st.warning(f"PrizePicks fetch failed: {e}")
+        return pd.DataFrame()
+
+
+PP_STAT_MAP = {
+    "Points": "Points",
+    "Rebounds": "Rebounds",
+    "Assists": "Assists",
+    "PRA": "Pts+Rebs+Asts",
+    "3PM": "3-PT Made",
+}
+
 
 def get_real_time_line(player_name, market="points"):
     """Fetch real-time prop line from odds API."""
@@ -212,6 +261,7 @@ page = st.sidebar.radio("Navigate", [
     "📈 Opponent Breakdown",
     "🎯 Bet Simulation",
     "🕒 First Basket Breakdown",
+    "🟣 PrizePicks Lines",
     "📜 Disclaimer"
 ])
 
@@ -267,6 +317,20 @@ elif page == "📊 Player Stats":
                 df["HIT"] = df["TARGET"] > line_value
                 df["MARGIN"] = df["TARGET"] - line_value
                 df["ROLLING_AVG"] = df["TARGET"].rolling(window=rolling_window).mean()
+
+                # PrizePicks line
+                pp_df = get_prizepicks_lines()
+                pp_stat = PP_STAT_MAP.get(prop_type)
+                if not pp_df.empty and pp_stat:
+                    match = pp_df[
+                        (pp_df["player_name"].str.lower() == player_name.lower()) &
+                        (pp_df["stat_type"] == pp_stat)
+                    ]
+                    if not match.empty:
+                        pp_line = match.iloc[0]["line_score"]
+                        st.info(f"🟣 PrizePicks Line: **{pp_line}**")
+                        df["PP_HIT"] = df["TARGET"] > pp_line
+                        st.metric("Hit Rate vs PrizePicks Line", f"{df['PP_HIT'].mean():.1%}")
 
                 # Live line
                 live_line = get_real_time_line(player_name, market=prop_type.lower())
@@ -515,6 +579,42 @@ elif page == "🕒 First Basket Breakdown":
         st.warning("No data available for today's matchups.")
 
     st.markdown("🔍 Data sourced from [FirstBasketStats.com](https://firstbasketstats.com/2024-2025-first-basket-stats-data)")
+
+# ─────────────────────────────────────────────
+# 🟣 PRIZEPICKS LINES
+# ─────────────────────────────────────────────
+elif page == "🟣 PrizePicks Lines":
+    st.subheader("🟣 Today's PrizePicks NBA Lines")
+
+    with st.spinner("Loading PrizePicks projections..."):
+        pp_df = get_prizepicks_lines()
+
+    if pp_df.empty:
+        st.warning("No PrizePicks data available right now.")
+    else:
+        stat_options = ["All"] + sorted(pp_df["stat_type"].dropna().unique().tolist())
+        selected_stat = st.selectbox("Filter by Stat Type", stat_options)
+
+        search = st.text_input("Search Player Name")
+
+        filtered = pp_df.copy()
+        if selected_stat != "All":
+            filtered = filtered[filtered["stat_type"] == selected_stat]
+        if search:
+            filtered = filtered[filtered["player_name"].str.contains(search, case=False, na=False)]
+
+        filtered = filtered.sort_values("player_name")
+        st.dataframe(
+            filtered[["player_name", "stat_type", "line_score", "status"]].rename(columns={
+                "player_name": "Player",
+                "stat_type": "Stat",
+                "line_score": "Line",
+                "status": "Status",
+            }),
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.caption(f"{len(filtered)} projection(s) shown")
 
 # ─────────────────────────────────────────────
 # 📜 DISCLAIMER
