@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Konjure Analytics</string>
+    <string name="nav_subtitle">PROP · PREDICTIVE · DASHBOARD</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="nav_nba_props">NBA Props</string>
+    <string name="nav_first_basket">First Basket</string>
+    <string name="nav_bet_sim">Bet Simulation</string>
+    <string name="nav_prizepicks">PrizePicks</string>
+    <string name="nav_daily_blog">Daily Blog</string>
+    <string name="nav_mlb_section">Baseball</string>
+    <string name="nav_mlb">MLB Stats</string>
+    <string name="nav_other">Info</string>
+    <string name="nav_disclaimer">Disclaimer</string>
+</resources>

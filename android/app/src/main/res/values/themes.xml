@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Light theme (default) -->
+    <style name="Theme.KonjureAnalytics" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/konjure_primary</item>
+        <item name="colorPrimaryContainer">@color/konjure_accent</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="colorOnSurface">#1a1d2e</item>
+        <item name="colorOnSurfaceVariant">#4a4f6a</item>
+        <item name="android:statusBarColor">@color/konjure_primary_dark</item>
+        <item name="android:navigationBarColor">@color/surface_light</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="TextAppearance.KonjureToolbar" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.12</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+</resources>

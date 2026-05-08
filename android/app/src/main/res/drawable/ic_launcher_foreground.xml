@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Konjure Analytics adaptive icon foreground.
+    Safe zone: 72dp circle centred on 108×108 canvas (18dp inset on each side).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Hexagonal badge with indigo gradient -->
+    <path android:pathData="M54,18 L88,37 L88,71 L54,90 L20,71 L20,37 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="20" android:startY="18"
+                android:endX="88" android:endY="90"
+                android:startColor="#6d28d9"
+                android:endColor="#3730a3" />
+        </aapt:attr>
+    </path>
+
+    <!-- Subtle inner hex ring -->
+    <path
+        android:pathData="M54,24 L83,40.5 L83,67.5 L54,84 L25,67.5 L25,40.5 Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#7c3aed"
+        android:strokeWidth="1.5" />
+
+    <!-- K letterform — single compound path, white -->
+    <!--
+        Layout: vertical bar x=31-40, y=31-77
+        Upper arm: from (40,48) diagonal to (67,31), outer tip (76,31), notch at (50,54)
+        Lower arm: mirror of upper
+    -->
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="
+          M31,31 L40,31 L40,48 L67,31 L76,31
+          L50,54
+          L76,77 L67,77 L40,60 L40,77 L31,77 Z" />
+
+    <!-- Analytics bar chart — lower-right inside hex -->
+    <path android:fillColor="#a5b4fc"
+        android:pathData="M59,69 L63,69 L63,77 L59,77 Z" />
+    <path android:fillColor="#818cf8"
+        android:pathData="M65,64 L69,64 L69,77 L65,77 Z" />
+    <path android:fillColor="#6366f1"
+        android:pathData="M71,58 L75,58 L75,77 L71,77 Z" />
+
+</vector>

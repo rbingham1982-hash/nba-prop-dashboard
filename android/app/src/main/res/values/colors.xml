@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Konjure brand -->
+    <color name="konjure_primary">#818cf8</color>
+    <color name="konjure_primary_dark">#4f46e5</color>
+    <color name="konjure_accent">#a5b4fc</color>
+
+    <!-- Surfaces -->
+    <color name="surface_light">#f4f5ff</color>
+    <color name="surface_dark">#13151f</color>
+    <color name="nav_header_bg">#1a1d2e</color>
+
+    <!-- Generic -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>
