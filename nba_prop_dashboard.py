@@ -229,43 +229,112 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
 .news-meta { font-size: 0.56rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin: 0; }
 .news-source { font-size: 0.56rem; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 0.28rem 0; }
 
-/* ── Mobile ── */
-@media (max-width: 768px) {
-    .block-container { padding: 0.75rem 0.6rem !important; }
-    .konjure-title { font-size: 1rem !important; }
-    .stTabs [data-baseweb="tab"] { padding: 0.45rem 0.55rem !important; font-size: 0.58rem !important; }
-    [data-testid="metric-container"] [data-testid="metric-value"] { font-size: 1.15rem !important; }
-    .player-card img { width: 48px !important; height: 48px !important; }
-    .mlb-player-card img { width: 58px !important; height: 58px !important; }
-    .sport-hero { padding: 1.25rem 1.5rem !important; }
-    .sport-hero-title { font-size: 1.4rem !important; }
-    .sport-hero-watermark { font-size: 5rem !important; }
+/* ══ MOBILE RESPONSIVE ══════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+    /* ── Layout ── */
+    .block-container { padding: 0.6rem 0.5rem 1.5rem !important; }
+
+    /* Stack ALL column groups by default */
+    [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+        gap: 0 !important;
+    }
+    [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Re-allow 2-up grid for rows that contain metric cards or feature cards */
+    [data-testid="stHorizontalBlock"]:has([data-testid="metric-container"]) > [data-testid="stColumn"],
+    [data-testid="stHorizontalBlock"]:has(.feature-card) > [data-testid="stColumn"] {
+        flex: 1 1 calc(50% - 0.25rem) !important;
+        min-width: calc(50% - 0.25rem) !important;
+        max-width: 50% !important;
+    }
+
+    /* ── Header ── */
+    .konjure-title { font-size: 1rem !important; letter-spacing: 0.12em !important; }
+    .konjure-sub { font-size: 0.54rem !important; }
+
+    /* ── Tabs: horizontal scroll, no wrap ── */
+    .stTabs [data-baseweb="tab-list"] {
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+    .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar { display: none !important; }
+    .stTabs [data-baseweb="tab"] {
+        padding: 0.5rem 0.65rem !important;
+        font-size: 0.6rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* ── Metric cards ── */
+    [data-testid="metric-container"] {
+        padding: 0.65rem 0.75rem !important;
+        border-radius: 10px !important;
+    }
+    [data-testid="metric-container"] [data-testid="metric-value"] {
+        font-size: 1.1rem !important;
+    }
+    [data-testid="metric-container"] label {
+        font-size: 0.54rem !important;
+    }
+
+    /* ── Player cards ── */
+    .player-card { padding: 0.75rem !important; gap: 0.75rem !important; }
+    .player-card img { width: 46px !important; height: 46px !important; }
+    .mlb-player-card { padding: 0.75rem !important; gap: 0.75rem !important; }
+    .mlb-player-card img { width: 54px !important; height: 54px !important; }
+
+    /* ── Hero banner ── */
+    .sport-hero {
+        padding: 1.2rem 1.1rem !important;
+        border-radius: 10px !important;
+    }
+    .sport-hero-title { font-size: 1.35rem !important; }
+    .sport-hero-sub { font-size: 0.74rem !important; }
+    .sport-hero-watermark { display: none !important; }
+
+    /* ── Score ticker ── */
+    .sg-item { min-width: 88px !important; padding: 0.4rem 0.65rem !important; }
+    .sg-score { font-size: 0.8rem !important; }
+    .sg-teams { font-size: 0.64rem !important; }
+
+    /* ── News cards ── */
+    .news-card { padding: 0.75rem 0.85rem !important; }
+    .news-headline { font-size: 0.76rem !important; }
+
+    /* ── Control panel ── */
+    .ctrl-panel { padding: 0.85rem !important; }
+
+    /* ── Charts: allow horizontal scroll ── */
+    .js-plotly-plot { overflow-x: auto !important; }
+
+    /* ── DataFrames ── */
+    .stDataFrame { font-size: 0.75rem !important; }
+
+    /* ── Section headings ── */
+    .section-heading { margin-top: 1rem !important; font-size: 0.55rem !important; }
+
+    /* ── Feature card text ── */
+    .feature-card-title { font-size: 0.62rem !important; }
+    .feature-card-desc { font-size: 0.72rem !important; }
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ─── PWA + mobile meta tags ────────────────────────────────────────────────
 st.markdown("""
-<link rel="manifest" href='data:application/manifest+json,{"name":"Konjure Analytics","short_name":"Konjure","description":"Multi-Sport Prop Intelligence","start_url":"/","display":"standalone","background_color":"%23090909","theme_color":"%23090909","orientation":"portrait-primary","icons":[{"src":"https://cdn.jsdelivr.net/npm/twemoji@14/72x72/1f3c6.png","sizes":"72x72","type":"image/png"},{"src":"https://cdn.jsdelivr.net/npm/twemoji@14/72x72/1f3c6.png","sizes":"192x192","type":"image/png"}]}'>
+<link rel="manifest" href='data:application/manifest+json,{"name":"Konjure Analytics","short_name":"Konjure","description":"Multi-Sport Prop Intelligence","start_url":"/","display":"standalone","background_color":"%23111318","theme_color":"%23111318","orientation":"portrait-primary","icons":[{"src":"https://cdn.jsdelivr.net/npm/twemoji@14/72x72/1f3c6.png","sizes":"72x72","type":"image/png"},{"src":"https://cdn.jsdelivr.net/npm/twemoji@14/72x72/1f3c6.png","sizes":"192x192","type":"image/png"}]}'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Konjure">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#090909">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<style>
-/* ── Mobile responsive tweaks ── */
-@media (max-width: 768px) {
-    .block-container { padding: 0.75rem 0.5rem !important; }
-    .konjure-title { font-size: 1.1rem !important; }
-    .konjure-sub { font-size: 0.58rem !important; }
-    [data-testid="metric-container"] { padding: 0.6rem 0.75rem !important; }
-    [data-testid="metric-container"] [data-testid="metric-value"] { font-size: 1.1rem !important; }
-    .stTabs [data-baseweb="tab"] { padding: 0.5rem 0.6rem !important; font-size: 0.62rem !important; }
-    .player-card img { width: 50px !important; height: 50px !important; }
-    .mlb-player-card img { width: 64px !important; height: 64px !important; }
-}
-</style>
+<meta name="theme-color" content="#111318">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
 """, unsafe_allow_html=True)
 
 # ─── ESPN slug map ─────────────────────────────────────────────────────────
