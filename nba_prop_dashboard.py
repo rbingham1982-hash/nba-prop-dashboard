@@ -458,16 +458,21 @@ def get_player_id(player_name):
 def get_gamelogs(player_id, seasons):
     frames = []
     for season in seasons:
-        try:
-            logs = playergamelog.PlayerGameLog(
-                player_id=player_id, season=season
-            ).get_data_frames()[0]
-            logs['SEASON'] = season
-            extracted = logs['MATCHUP'].str.extract(r'@ (\w+)|vs\. (\w+)')
-            logs['OPPONENT'] = extracted[0].fillna(extracted[1])
-            frames.append(logs)
-        except Exception as e:
-            st.warning(f"Could not load {season} data: {e}")
+        for s_type in ("Regular Season", "Playoffs"):
+            try:
+                logs = playergamelog.PlayerGameLog(
+                    player_id=player_id, season=season,
+                    season_type_all_star=s_type,
+                ).get_data_frames()[0]
+                if logs.empty:
+                    continue
+                logs['SEASON'] = season
+                logs['SEASON_TYPE'] = s_type
+                extracted = logs['MATCHUP'].str.extract(r'@ (\w+)|vs\. (\w+)')
+                logs['OPPONENT'] = extracted[0].fillna(extracted[1])
+                frames.append(logs)
+            except Exception:
+                pass
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 @st.cache_data(ttl=900)
@@ -558,7 +563,6 @@ def get_team_first_basket_history(team_abbr, num_games=20):
     try:
         games_df = leaguegamefinder.LeagueGameFinder(
             team_id_nullable=team_id,
-            season_type_nullable="Regular Season",
         ).get_data_frames()[0].head(num_games)
     except Exception:
         return pd.DataFrame()
