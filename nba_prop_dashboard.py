@@ -245,9 +245,9 @@ def get_next_opponent(team_code):
     return None
 
 @st.cache_data(ttl=900)
-def get_prizepicks_lines():
+def get_prizepicks_lines(league_id=7):
     try:
-        url = "https://api.prizepicks.com/projections?league_id=7&per_page=250&single_stat=true"
+        url = f"https://api.prizepicks.com/projections?league_id={league_id}&per_page=250&single_stat=true"
         headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://app.prizepicks.com/"}
         resp = requests.get(url, headers=headers, timeout=10)
         if resp.status_code != 200:
@@ -982,8 +982,8 @@ if sport == "🏀 NBA":
 # ══════════════════════════════════════════════════════════════════════════════
 else:
 
-    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_disc_mlb = st.tabs([
-        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Disclaimer"
+    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_pp_mlb, tab_disc_mlb = st.tabs([
+        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "PrizePicks", "Disclaimer"
     ])
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
@@ -1357,6 +1357,36 @@ else:
                             .style.format({"date": lambda x: x.strftime("%b %d"), **display_fmt}),
                             use_container_width=True, hide_index=True,
                         )
+
+    # ── MLB PRIZEPICKS ────────────────────────────────────────────────────────
+    with tab_pp_mlb:
+        with st.spinner("Loading PrizePicks MLB projections..."):
+            mlb_pp_df = get_prizepicks_lines(league_id=2)
+
+        if mlb_pp_df.empty:
+            st.info("No MLB PrizePicks lines available right now. Lines are typically posted on game days.")
+        else:
+            pf1, pf2 = st.columns([1, 2])
+            with pf1:
+                stat_opts = ["All"] + sorted(mlb_pp_df["stat_type"].dropna().unique().tolist())
+                sel_stat = st.selectbox("Stat Type", stat_opts, key="mlb_pp_stat")
+            with pf2:
+                search_mlb = st.text_input("Search Player", key="mlb_pp_search")
+
+            filt = mlb_pp_df.copy()
+            if sel_stat != "All":
+                filt = filt[filt["stat_type"] == sel_stat]
+            if search_mlb:
+                filt = filt[filt["player_name"].str.contains(search_mlb, case=False, na=False)]
+
+            mlb_section(f"{len(filt)} Projection(s)")
+            st.dataframe(
+                filt[["player_name", "stat_type", "line_score", "status"]].rename(columns={
+                    "player_name": "Player", "stat_type": "Stat",
+                    "line_score": "Line", "status": "Status",
+                }).sort_values("Player"),
+                use_container_width=True, hide_index=True,
+            )
 
     # ── MLB DISCLAIMER ────────────────────────────────────────────────────────
     with tab_disc_mlb:
