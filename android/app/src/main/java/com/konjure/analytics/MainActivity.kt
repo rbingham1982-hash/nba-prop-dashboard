@@ -2,9 +2,10 @@ package com.konjure.analytics
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
+import android.webkit.ConsoleMessage
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -66,17 +67,32 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
+        WebView.setWebContentsDebuggingEnabled(true)
         binding.webview.apply {
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
+                databaseEnabled = true
                 loadWithOverviewMode = true
                 useWideViewPort = true
                 builtInZoomControls = false
                 setSupportZoom(false)
-                cacheMode = WebSettings.LOAD_DEFAULT
+                cacheMode = WebSettings.LOAD_NO_CACHE
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 mediaPlaybackRequiresUserGesture = false
+                allowContentAccess = true
+                allowFileAccess = true
+                // Identify as Chrome so Streamlit's WebSocket handshake succeeds
+                userAgentString = "Mozilla/5.0 (Linux; Android 14; Samsung Galaxy S25) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
+            }
+            webChromeClient = object : WebChromeClient() {
+                override fun onConsoleMessage(msg: ConsoleMessage): Boolean {
+                    android.util.Log.d("KonjureWebView", "${msg.message()} (${msg.sourceId()}:${msg.lineNumber()})")
+                    return true
+                }
+                override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                    if (newProgress == 100) binding.swipeRefresh.isRefreshing = false
+                }
             }
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(
@@ -99,7 +115,6 @@ class MainActivity : AppCompatActivity() {
                     binding.swipeRefresh.isRefreshing = false
                 }
             }
-            setBackgroundColor(Color.TRANSPARENT)
         }
     }
 
@@ -177,6 +192,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         // Emulator localhost → 10.0.2.2
         // Physical device on same Wi-Fi → use your PC's LAN IP, e.g. "http://192.168.1.X:8501"
-        const val BASE_URL = "http://10.0.2.2:8501"
+        const val BASE_URL = "http://10.0.0.71:8501"
     }
 }
