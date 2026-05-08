@@ -1654,6 +1654,35 @@ if sport == "🏀 NBA":
 
     # ── HOME ──────────────────────────────────────────────────────────────────
     with tab_home:
+        section("Players to Watch")
+        with st.spinner(""):
+            _ptw_df = get_prizepicks_lines()
+        if not _ptw_df.empty:
+            _ptw_stats = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "Pts+Asts", "Pts+Rebs", "3-PT Made", "Blocked Shots", "Steals"]
+            _ptw = (
+                _ptw_df[_ptw_df["stat_type"].isin(_ptw_stats)]
+                .sort_values("line_score", ascending=False)
+                .drop_duplicates("player_name")
+                .head(10)
+            )
+            _ptw_cards = "<div class='ptw-grid'>"
+            for _, _r in _ptw.iterrows():
+                _st = str(_r.get("status") or "normal").lower()
+                _bcls = "ptw-badge-goblin" if _st == "goblin" else ("ptw-badge-demon" if _st == "demon" else "ptw-badge-normal")
+                _blbl = _st.capitalize() if _st in ("goblin", "demon") else "Normal"
+                _ptw_cards += (
+                    f"<div class='ptw-card'>"
+                    f"<p class='ptw-player-name'>{_r['player_name']}</p>"
+                    f"<p class='ptw-team'>{_r['stat_type']}</p>"
+                    f"<p class='ptw-line'>{_r['line_score']}</p>"
+                    f"<span class='ptw-badge {_bcls}'>{_blbl}</span>"
+                    f"</div>"
+                )
+            _ptw_cards += "</div>"
+            st.markdown(_ptw_cards, unsafe_allow_html=True)
+        else:
+            st.caption("PrizePicks lines unavailable right now.")
+
         st.markdown("""
         <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
             <div class="sport-hero-watermark">🏀</div>
@@ -1691,35 +1720,6 @@ if sport == "🏀 NBA":
             with st.spinner("Loading news..."):
                 _nba_news = get_sport_news("nba")
             render_news_panel(_nba_news)
-
-        section("Players to Watch")
-        with st.spinner(""):
-            _ptw_df = get_prizepicks_lines()
-        if not _ptw_df.empty:
-            _ptw_stats = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "Pts+Asts", "Pts+Rebs", "3-PT Made", "Blocked Shots", "Steals"]
-            _ptw = (
-                _ptw_df[_ptw_df["stat_type"].isin(_ptw_stats)]
-                .sort_values("line_score", ascending=False)
-                .drop_duplicates("player_name")
-                .head(10)
-            )
-            _ptw_cards = "<div class='ptw-grid'>"
-            for _, _r in _ptw.iterrows():
-                _st = str(_r.get("status") or "normal").lower()
-                _bcls = "ptw-badge-goblin" if _st == "goblin" else ("ptw-badge-demon" if _st == "demon" else "ptw-badge-normal")
-                _blbl = _st.capitalize() if _st in ("goblin", "demon") else "Normal"
-                _ptw_cards += (
-                    f"<div class='ptw-card'>"
-                    f"<p class='ptw-player-name'>{_r['player_name']}</p>"
-                    f"<p class='ptw-team'>{_r['stat_type']}</p>"
-                    f"<p class='ptw-line'>{_r['line_score']}</p>"
-                    f"<span class='ptw-badge {_bcls}'>{_blbl}</span>"
-                    f"</div>"
-                )
-            _ptw_cards += "</div>"
-            st.markdown(_ptw_cards, unsafe_allow_html=True)
-        else:
-            st.caption("PrizePicks lines unavailable right now.")
 
     # ── PLAYER STATS ──────────────────────────────────────────────────────────
     with tab_stats:
@@ -2067,47 +2067,6 @@ else:
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
     with tab_mlb_home:
-        st.markdown("""
-        <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
-            <div class="sport-hero-watermark">⚾</div>
-            <div class="sport-hero-content">
-                <p class="sport-hero-label">Konjure Analytics &nbsp;·&nbsp; MLB Edition</p>
-                <h2 class="sport-hero-title">MLB Predictive Analytics</h2>
-                <p class="sport-hero-sub">
-                    Hitter &amp; pitcher projections &nbsp;·&nbsp; Batter vs. pitcher matchups &nbsp;·&nbsp;
-                    PrizePicks integration &nbsp;·&nbsp; Official MLB Stats API
-                </p>
-            </div>
-        </div>""", unsafe_allow_html=True)
-
-        feat_col, news_col = st.columns([1.5, 1])
-        with feat_col:
-            section("Platform Features")
-            fc1, fc2 = st.columns(2)
-            mlb_features = [
-                (fc1, "⚾", "Hitter Analysis",
-                 "Rolling averages, opponent splits, and next-game projections for H, HR, RBI."),
-                (fc2, "🎯", "Pitcher Analysis",
-                 "Per-start K, IP, ERA, WHIP trends and opponent breakdowns."),
-                (fc1, "📊", "vs Opponent",
-                 "Head-to-head batter vs. pitcher and pitcher vs. lineup previews."),
-                (fc2, "🟣", "PrizePicks",
-                 "Today's live MLB prop lines from PrizePicks."),
-            ]
-            for col, icon, title, desc in mlb_features:
-                with col:
-                    st.markdown(f"""
-                    <div class="feature-card">
-                        <div class="feature-card-icon">{icon}</div>
-                        <p class="feature-card-title">{title}</p>
-                        <p class="feature-card-desc">{desc}</p>
-                    </div>""", unsafe_allow_html=True)
-        with news_col:
-            section("MLB News")
-            with st.spinner("Loading news..."):
-                _mlb_news = get_sport_news("mlb")
-            render_news_panel(_mlb_news)
-
         section("Players to Watch")
         with st.spinner(""):
             _mlb_ptw_games = get_mlb_today_with_pitchers()
@@ -2154,6 +2113,47 @@ else:
             st.markdown(_mlb_ptw_cards, unsafe_allow_html=True)
         else:
             st.caption("Player data unavailable right now.")
+
+        st.markdown("""
+        <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
+            <div class="sport-hero-watermark">⚾</div>
+            <div class="sport-hero-content">
+                <p class="sport-hero-label">Konjure Analytics &nbsp;·&nbsp; MLB Edition</p>
+                <h2 class="sport-hero-title">MLB Predictive Analytics</h2>
+                <p class="sport-hero-sub">
+                    Hitter &amp; pitcher projections &nbsp;·&nbsp; Batter vs. pitcher matchups &nbsp;·&nbsp;
+                    PrizePicks integration &nbsp;·&nbsp; Official MLB Stats API
+                </p>
+            </div>
+        </div>""", unsafe_allow_html=True)
+
+        feat_col, news_col = st.columns([1.5, 1])
+        with feat_col:
+            section("Platform Features")
+            fc1, fc2 = st.columns(2)
+            mlb_features = [
+                (fc1, "⚾", "Hitter Analysis",
+                 "Rolling averages, opponent splits, and next-game projections for H, HR, RBI."),
+                (fc2, "🎯", "Pitcher Analysis",
+                 "Per-start K, IP, ERA, WHIP trends and opponent breakdowns."),
+                (fc1, "📊", "vs Opponent",
+                 "Head-to-head batter vs. pitcher and pitcher vs. lineup previews."),
+                (fc2, "🟣", "PrizePicks",
+                 "Today's live MLB prop lines from PrizePicks."),
+            ]
+            for col, icon, title, desc in mlb_features:
+                with col:
+                    st.markdown(f"""
+                    <div class="feature-card">
+                        <div class="feature-card-icon">{icon}</div>
+                        <p class="feature-card-title">{title}</p>
+                        <p class="feature-card-desc">{desc}</p>
+                    </div>""", unsafe_allow_html=True)
+        with news_col:
+            section("MLB News")
+            with st.spinner("Loading news..."):
+                _mlb_news = get_sport_news("mlb")
+            render_news_panel(_mlb_news)
 
     # ── HITTER ANALYSIS ───────────────────────────────────────────────────────
     with tab_hitter:
