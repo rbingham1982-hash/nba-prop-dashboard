@@ -4,13 +4,15 @@ Konjure Analytics — Multi-Sport Prop & Predictive Dashboard
 """
 
 import os
+import re
+import time
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import requests
 from bs4 import BeautifulSoup
 from nba_api.stats.static import teams, players
-from nba_api.stats.endpoints import playergamelog, commonteamroster
+from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv2
 from datetime import datetime, timedelta
 
 # ─── Page config ───────────────────────────────────────────────────────────
@@ -547,63 +549,69 @@ def simulate_bets(df):
     bet_result = df["HIT"].apply(lambda x: 1 if x else -1)
     return pd.Series(bet_result.cumsum().to_list(), index=df.index, name="CUMULATIVE_PROFIT")
 
-@st.cache_data(ttl=3600)
-def get_first_basket_data():
-    url = "https://firstbasketstats.com/2024-2025-first-basket-stats-data"
-    fallback = {
-        "BOS": {"Games": 12, "First Basket": 7, "Tip Wins": 8},
-        "DEN": {"Games": 13, "First Basket": 9, "Tip Wins": 10},
-        "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5},
-    }
-    try:
-        response = requests.get(url, timeout=10)
-        soup = BeautifulSoup(response.text, "html.parser")
-        table = soup.find("table", {"id": "team-first-basket"})
-        if not table:
-            return fallback
-        rows = table.find_all("tr")[1:]
-        data = {}
-        for row in rows:
-            cells = row.find_all("td")
-            if len(cells) < 4:
-                continue
-            team = cells[0].text.strip().upper()
-            try:
-                data[team] = {
-                    "Games": int(cells[1].text.strip()),
-                    "First Basket": int(cells[2].text.strip()),
-                    "Tip Wins": int(cells[3].text.strip()),
-                }
-            except ValueError:
-                continue
-        return data if data else fallback
-    except Exception:
-        return fallback
-
-@st.cache_data(ttl=1800)
-def get_today_first_basket_stats():
-    url = "https://firstbasketstats.com/today-first-basket-stats"
-    try:
-        response = requests.get(url, timeout=10)
-        soup = BeautifulSoup(response.text, "html.parser")
-        table = soup.find("table")
-        if not table:
-            return pd.DataFrame()
-        rows = table.find_all("tr")[1:]
-        data = []
-        for row in rows:
-            cells = row.find_all("td")
-            if len(cells) < 6:
-                continue
-            data.append({
-                "Matchup": cells[0].text.strip(), "Tip Winner": cells[1].text.strip(),
-                "Likely Jumper": cells[2].text.strip(), "First Basket": cells[3].text.strip(),
-                "Shot Type": cells[4].text.strip(), "Position": cells[5].text.strip(),
-            })
-        return pd.DataFrame(data)
-    except Exception as e:
-        st.warning(f"Failed to load today's first basket data: {e}")
+@st.cache_data(ttl=7200)
+def get_team_first_basket_history(team_abbr, num_games=20):
+    """Pull real play-by-play from NBA API to extract first basket + tip-off data."""
+    team_id = get_team_id(team_abbr)
+    if not team_id:
         return pd.DataFrame()
+    try:
+        games_df = leaguegamefinder.LeagueGameFinder(
+            team_id_nullable=team_id,
+            season_type_nullable="Regular Season",
+        ).get_data_frames()[0].head(num_games)
+    except Exception:
+        return pd.DataFrame()
+
+    results = []
+    for _, game in games_df.iterrows():
+        game_id = game["GAME_ID"]
+        try:
+            pbp_df = playbyplayv2.PlayByPlayV2(game_id=game_id).get_data_frames()[0]
+
+            # Tip-off: first jump ball in period 1
+            jumps = pbp_df[(pbp_df["EVENTMSGTYPE"] == 10) & (pbp_df["PERIOD"] == 1)]
+            tip_team = None
+            if not jumps.empty:
+                j = jumps.iloc[0]
+                tip_team = str(j.get("PLAYER1_TEAM_ABBREVIATION") or "")
+
+            # First scoring event (made FG=1 or made FT=3) in the game (any period)
+            scores = pbp_df[pbp_df["EVENTMSGTYPE"].isin([1, 3])]
+            first_scorer = None
+            shot_type = None
+            team_scored_first = None
+            if not scores.empty:
+                fs = scores.iloc[0]
+                first_scorer = fs.get("PLAYER1_NAME") or "Unknown"
+                scorer_team = str(fs.get("PLAYER1_TEAM_ABBREVIATION") or "")
+                home_desc = str(fs.get("HOMEDESCRIPTION") or "")
+                vis_desc = str(fs.get("VISITORDESCRIPTION") or "")
+                all_desc = home_desc + vis_desc
+                if fs["EVENTMSGTYPE"] == 3:
+                    shot_type = "Free Throw"
+                elif "3PT" in all_desc:
+                    shot_type = "3-Pointer"
+                else:
+                    shot_type = "2-Pointer"
+                team_scored_first = scorer_team.upper() == team_abbr.upper()
+
+            tip_won = tip_team.upper() == team_abbr.upper() if tip_team else None
+            results.append({
+                "Game Date": game.get("GAME_DATE", ""),
+                "Matchup": game.get("MATCHUP", ""),
+                "W/L": game.get("WL", ""),
+                "Tip Winner": tip_team or "—",
+                "Tip Won": tip_won,
+                "First Scorer": first_scorer or "—",
+                "Shot Type": shot_type or "—",
+                "Team Scored First": team_scored_first,
+            })
+            time.sleep(0.35)
+        except Exception:
+            continue
+
+    return pd.DataFrame(results)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # MLB DATA FUNCTIONS  (MLB Stats API — free, no key required)
@@ -1969,53 +1977,112 @@ if sport == "🏀 NBA":
             selected_team_full = st.selectbox("Team", team_names_list, key="fb_team")
             team_code = get_team_abbreviation(selected_team_full)
             player_list = get_team_players(team_code)
-            selected_player = st.selectbox("Player", player_list, key="fb_player")
-            if selected_player:
+            selected_player = st.selectbox("Player", ["(All Players)"] + player_list, key="fb_player")
+            if selected_player and selected_player != "(All Players)":
                 nba_player_card(selected_player, team_code)
+            st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+            num_games = st.slider("Games to analyze", min_value=10, max_value=30, value=20, step=5, key="fb_ngames")
 
         with main_col:
-            with st.spinner("Loading first basket data..."):
-                team_stats = get_first_basket_data()
-            df_team = pd.DataFrame.from_dict(team_stats, orient="index")
-            required_cols = {"First Basket", "Games", "Tip Wins"}
-            if not required_cols.issubset(df_team.columns):
-                st.warning(f"Missing columns: {required_cols - set(df_team.columns)}")
-                st.dataframe(df_team)
+            with st.spinner(f"Pulling last {num_games} play-by-play logs for {team_code}… this takes ~30s on first load."):
+                fb_df = get_team_first_basket_history(team_code, num_games)
+
+            if fb_df.empty:
+                st.warning("Could not load play-by-play data for this team. Try again shortly.")
             else:
-                df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
-                df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
-                team_data = team_stats.get(team_code, {"Games": 0, "First Basket": 0, "Tip Wins": 0})
-                team_fb_rate = team_data["First Basket"] / team_data["Games"] if team_data["Games"] else 0
-                team_tip_rate = team_data["Tip Wins"] / team_data["Games"] if team_data["Games"] else 0
-                section(f"{team_code} Metrics")
+                total = len(fb_df)
+                tip_wins = fb_df["Tip Won"].sum() if "Tip Won" in fb_df else 0
+                team_fb_count = fb_df["Team Scored First"].sum() if "Team Scored First" in fb_df else 0
+                tip_pct = tip_wins / total if total else 0
+                fb_pct = team_fb_count / total if total else 0
+
+                # Top scorer of first baskets
+                scorer_counts = fb_df[fb_df["First Scorer"] != "—"]["First Scorer"].value_counts()
+                top_scorer = scorer_counts.index[0] if not scorer_counts.empty else "—"
+
+                section(f"{team_code} — Last {total} Games")
                 c1, c2, c3 = st.columns(3)
-                c1.metric("First Basket Rate", f"{team_fb_rate:.1%}")
-                c2.metric("Tip-Off Win Rate", f"{team_tip_rate:.1%}")
-                c3.metric("Games Played", team_data["Games"])
-                section("Tip Win % vs First Basket % — All Teams")
-                fig_scatter = px.scatter(df_team, x="Tip Win %", y="First Basket %",
-                                         text=df_team.index, trendline="ols",
-                                         color_discrete_sequence=["#818cf8"])
-                fig_scatter.update_traces(textfont_color="#5c6272", marker_size=8)
-                st.plotly_chart(nba_fig(fig_scatter), use_container_width=True, config=_CHART_CFG)
-                section("Full Team Table")
-                st.dataframe(df_team.sort_values("First Basket %", ascending=False).style.format(
-                    {"First Basket %": "{:.1%}", "Tip Win %": "{:.1%}"}), use_container_width=True)
-                section("Today's Matchups")
-                with st.spinner("Loading..."):
-                    df_today = get_today_first_basket_stats()
-                if not df_today.empty:
-                    extracted = df_today["Matchup"].str.extract(r'(\w+)\s+vs\s+(\w+)')
-                    teams_today = sorted(set(extracted[0].dropna().tolist() + extracted[1].dropna().tolist()))
-                    if teams_today:
-                        sel_today = st.selectbox("Filter by Team", teams_today, key="fb_today")
-                        st.dataframe(df_today[df_today["Matchup"].str.contains(sel_today, na=False)],
-                                     use_container_width=True)
+                c1.metric("Tip-Off Win %", f"{tip_pct:.1%}")
+                c2.metric("Team First Basket %", f"{fb_pct:.1%}")
+                c3.metric("Top First Scorer", top_scorer)
+
+                # ── First Basket Scorers bar chart ──
+                section("First Basket Scorers — Frequency")
+                if not scorer_counts.empty:
+                    df_scorers = scorer_counts.reset_index()
+                    df_scorers.columns = ["Player", "First Baskets"]
+                    fig_bar = px.bar(
+                        df_scorers.head(12), x="First Baskets", y="Player",
+                        orientation="h",
+                        color="First Baskets",
+                        color_continuous_scale=["#3a4055", "#818cf8"],
+                        text="First Baskets",
+                    )
+                    fig_bar.update_traces(textposition="outside")
+                    fig_bar.update_layout(yaxis={"categoryorder": "total ascending"}, coloraxis_showscale=False)
+                    st.plotly_chart(nba_fig(fig_bar), use_container_width=True, config=_CHART_CFG)
+
+                # ── Shot type breakdown ──
+                shot_counts = fb_df[fb_df["Shot Type"] != "—"]["Shot Type"].value_counts().reset_index()
+                shot_counts.columns = ["Shot Type", "Count"]
+                if not shot_counts.empty:
+                    left_c, right_c = st.columns(2)
+                    with left_c:
+                        section("First Basket Shot Type")
+                        fig_pie = px.pie(
+                            shot_counts, names="Shot Type", values="Count",
+                            color_discrete_sequence=["#818cf8", "#a5b4fc", "#4f46e5"],
+                            hole=0.55,
+                        )
+                        fig_pie.update_traces(textfont_size=11)
+                        st.plotly_chart(nba_fig(fig_pie), use_container_width=True, config=_CHART_CFG)
+
+                    # ── Tip-off outcome breakdown ──
+                    with right_c:
+                        section("Tip-Off Outcomes")
+                        tip_data = pd.DataFrame({
+                            "Result": ["Won Tip", "Lost Tip"],
+                            "Count": [int(tip_wins), total - int(tip_wins)],
+                        })
+                        fig_tip = px.bar(
+                            tip_data, x="Result", y="Count",
+                            color="Result",
+                            color_discrete_map={"Won Tip": "#818cf8", "Lost Tip": "#3a4055"},
+                            text="Count",
+                        )
+                        fig_tip.update_traces(textposition="outside")
+                        fig_tip.update_layout(showlegend=False)
+                        st.plotly_chart(nba_fig(fig_tip), use_container_width=True, config=_CHART_CFG)
+
+                # ── Player spotlight ──
+                if selected_player and selected_player != "(All Players)":
+                    player_games = fb_df[fb_df["First Scorer"] == selected_player]
+                    section(f"Player Spotlight — {selected_player}")
+                    if player_games.empty:
+                        st.info(f"{selected_player} has not scored the first basket in the last {total} games.")
                     else:
-                        st.info("Could not parse team names from today's matchups.")
-                else:
-                    st.warning("No data available for today's matchups.")
-                st.caption("Data: firstbasketstats.com")
+                        p_count = len(player_games)
+                        p_pct = p_count / total
+                        p1, p2 = st.columns(2)
+                        p1.metric("First Basket Games", p_count)
+                        p2.metric("First Basket Rate", f"{p_pct:.1%}")
+                        p_shots = player_games["Shot Type"].value_counts().reset_index()
+                        p_shots.columns = ["Shot Type", "Count"]
+                        fig_p = px.bar(
+                            p_shots, x="Shot Type", y="Count",
+                            color="Shot Type",
+                            color_discrete_sequence=["#818cf8", "#a5b4fc", "#4f46e5"],
+                            text="Count",
+                        )
+                        fig_p.update_traces(textposition="outside")
+                        fig_p.update_layout(showlegend=False)
+                        st.plotly_chart(nba_fig(fig_p), use_container_width=True, config=_CHART_CFG)
+
+                # ── Game log table ──
+                section("Game Log")
+                display_df = fb_df[["Game Date", "Matchup", "W/L", "Tip Winner", "First Scorer", "Shot Type"]].copy()
+                st.dataframe(display_df, use_container_width=True, hide_index=True)
+                st.caption("Data: NBA Stats API (nba_api) — play-by-play")
 
     # ── PRIZEPICKS ────────────────────────────────────────────────────────────
     with tab_pp:
