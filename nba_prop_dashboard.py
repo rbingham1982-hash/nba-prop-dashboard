@@ -3,6 +3,7 @@
 Konjure Analytics — NBA Prop Betting Dashboard
 """
 
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -230,10 +231,14 @@ def get_team_id(team_abbr):
 @st.cache_data(ttl=3600)
 def get_team_players(team_abbr):
     team_id = get_team_id(team_abbr)
-    if team_id:
+    if not team_id:
+        return []
+    try:
         roster = commonteamroster.CommonTeamRoster(team_id=team_id).get_data_frames()[0]
         return roster["PLAYER"].tolist()
-    return []
+    except Exception as e:
+        st.warning(f"Could not load roster for {team_abbr}: {e}")
+        return []
 
 def get_player_id(player_name):
     match = players.find_players_by_full_name(player_name)
@@ -312,7 +317,10 @@ def get_prizepicks_lines():
 
 def get_real_time_line(player_name, market="points"):
     try:
-        api_key = st.secrets.get("ODDS_API_KEY", "132d657e987feea06b1b91a21116d4a0")
+        api_key = st.secrets["ODDS_API_KEY"]
+    except Exception:
+        api_key = os.environ.get("ODDS_API_KEY", "132d657e987feea06b1b91a21116d4a0")
+    try:
         url = "https://api.sportsgameodds.com/v2/events"
         headers = {"X-API-Key": api_key}
         response = requests.get(url, headers=headers, timeout=10)
@@ -323,8 +331,8 @@ def get_real_time_line(player_name, market="points"):
                     if (player_name.lower() in prop.get("name", "").lower()
                             and market in prop.get("market", "").lower()):
                         return prop.get("line")
-    except Exception as e:
-        st.warning(f"Could not fetch live line: {e}")
+    except Exception:
+        pass
     return None
 
 def simulate_bets(df):
