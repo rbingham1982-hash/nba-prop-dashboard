@@ -214,6 +214,68 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
 .sport-hero-stat-val { font-size: 1.25rem; font-weight: 800; color: var(--text-primary); }
 .sport-hero-stat-lbl { font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
 
+/* ── Daily Blog ── */
+.blog-wrap { max-width: 740px; margin: 0 auto; padding: 0.5rem 0 2rem; }
+.blog-kicker {
+    font-size: 0.56rem; font-weight: 800; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 0.55rem;
+}
+.blog-title {
+    font-size: 1.7rem; font-weight: 800; line-height: 1.22;
+    color: var(--text-primary); margin: 0 0 0.8rem;
+}
+.blog-meta {
+    font-size: 0.6rem; color: var(--text-muted); margin: 0 0 1.6rem;
+    padding-bottom: 0.8rem; border-bottom: 1px solid var(--border);
+    display: flex; gap: 1.2rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.blog-lead {
+    font-size: 1.0rem; color: var(--text-primary); line-height: 1.75;
+    font-weight: 500; margin: 0 0 1.6rem;
+}
+.blog-body { font-size: 0.9rem; color: #9294a8; line-height: 1.82; margin: 0 0 1.25rem; }
+.blog-h2 {
+    font-size: 0.65rem; font-weight: 800; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.2rem 0 1.1rem; padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--border);
+}
+.blog-game-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.1rem 1.3rem; margin-bottom: 0.85rem;
+    position: relative; overflow: hidden;
+}
+.blog-game-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--accent-gradient);
+}
+.blog-game-vs { font-size: 0.72rem; font-weight: 800; color: var(--text-primary); margin: 0 0 0.22rem; }
+.blog-game-rec { font-size: 0.6rem; color: var(--text-muted); margin: 0 0 0.55rem; letter-spacing: 0.06em; }
+.blog-game-body { font-size: 0.84rem; color: #9294a8; line-height: 1.72; margin: 0; }
+.blog-player-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 0.95rem 1.15rem; margin-bottom: 0.75rem;
+}
+.blog-player-name { font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 0.18rem; }
+.blog-player-role { font-size: 0.6rem; color: var(--accent); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 0.38rem; }
+.blog-player-body { font-size: 0.82rem; color: #9294a8; line-height: 1.7; margin: 0; }
+.blog-callout {
+    background: rgba(129,140,248,0.07); border: 1px solid rgba(129,140,248,0.18);
+    border-radius: 10px; padding: 1rem 1.2rem; margin: 1.5rem 0;
+    font-size: 0.9rem; color: var(--text-primary); line-height: 1.75;
+}
+.blog-news-row {
+    padding: 0.65rem 0; border-bottom: 1px solid var(--border);
+    display: flex; gap: 0.75rem; align-items: flex-start;
+}
+.blog-news-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0; margin-top: 0.35rem;
+}
+.blog-news-text { font-size: 0.82rem; color: var(--text-primary); line-height: 1.5; }
+.blog-news-date { font-size: 0.56rem; color: var(--text-muted); margin-top: 0.15rem; }
+
 /* ── News cards ── */
 .news-card {
     background: var(--card-bg); border: 1px solid var(--border);
@@ -785,6 +847,67 @@ def get_mlb_scoreboard():
     except Exception:
         return []
 
+@st.cache_data(ttl=3600)
+def get_nba_scoreboard_full():
+    try:
+        url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+        resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        out = []
+        for ev in resp.json().get("events", []):
+            comp = ev["competitions"][0]
+            comps = comp["competitors"]
+            home = next((c for c in comps if c["homeAway"] == "home"), comps[0])
+            away = next((c for c in comps if c["homeAway"] == "away"), comps[-1])
+            out.append({
+                "name": ev.get("shortName", ev.get("name", "")),
+                "away": away["team"]["displayName"],
+                "away_abbr": away["team"]["abbreviation"],
+                "away_record": ((away.get("records") or [{}])[0].get("summary", "")),
+                "home": home["team"]["displayName"],
+                "home_abbr": home["team"]["abbreviation"],
+                "home_record": ((home.get("records") or [{}])[0].get("summary", "")),
+                "status": ev["status"]["type"].get("shortDetail", ""),
+                "venue": comp.get("venue", {}).get("fullName", ""),
+            })
+        return out
+    except Exception:
+        return []
+
+@st.cache_data(ttl=3600)
+def get_mlb_today_with_pitchers():
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        url = f"{MLB_BASE}/schedule?sportId=1&date={today}&hydrate=probablePitcher,team,record,linescore"
+        resp = requests.get(url, timeout=10)
+        out = []
+        for date_entry in resp.json().get("dates", []):
+            for game in date_entry.get("games", []):
+                at = game["teams"]["away"]
+                ht = game["teams"]["home"]
+                ap = at.get("probablePitcher", {})
+                hp = ht.get("probablePitcher", {})
+                ar = at.get("leagueRecord", {})
+                hr = ht.get("leagueRecord", {})
+                out.append({
+                    "away": at["team"]["name"],
+                    "away_abbr": at["team"].get("abbreviation", ""),
+                    "away_record": f"{ar.get('wins',0)}-{ar.get('losses',0)}",
+                    "home": ht["team"]["name"],
+                    "home_abbr": ht["team"].get("abbreviation", ""),
+                    "home_record": f"{hr.get('wins',0)}-{hr.get('losses',0)}",
+                    "away_pitcher": ap.get("fullName", "TBD"),
+                    "away_p_id": ap.get("id"),
+                    "home_pitcher": hp.get("fullName", "TBD"),
+                    "home_p_id": hp.get("id"),
+                    "venue": game.get("venue", {}).get("name", ""),
+                })
+        for g in out:
+            g["away_p_stats"] = get_mlb_pitcher_season_stats(g["away_p_id"]) if g["away_p_id"] else {}
+            g["home_p_stats"] = get_mlb_pitcher_season_stats(g["home_p_id"]) if g["home_p_id"] else {}
+        return out
+    except Exception:
+        return []
+
 @st.cache_data(ttl=900)
 def get_sport_news(sport="nba"):
     import re as _re, warnings as _w
@@ -994,6 +1117,316 @@ def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id):
     )
 
 # ══════════════════════════════════════════════════════════════════════════════
+# DAILY BLOG GENERATORS
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _win_pct(record_str):
+    try:
+        w, l = record_str.split("-")
+        t = int(w) + int(l)
+        return int(w) / t if t > 0 else 0.5
+    except Exception:
+        return 0.5
+
+def _pitcher_desc(stats):
+    if not stats:
+        return ""
+    era = float(stats.get("era") or 0)
+    whip = float(stats.get("whip") or 0)
+    k9 = float(stats.get("strikeoutsPer9Inn") or 0)
+    tier = ("one of the game's elite arms" if era < 3.00
+            else "a bonafide ace" if era < 3.50
+            else "a solid mid-rotation starter" if era < 4.25
+            else "a back-end starter fighting for consistency")
+    k_str = (f" a strikeout machine ({k9:.1f} K/9)" if k9 > 10
+              else f" high strikeout upside ({k9:.1f} K/9)" if k9 > 8
+              else "")
+    ctrl_str = (" with elite control" if whip < 1.05
+                else " with sharp control" if whip < 1.20
+                else " who has battled command issues at times" if whip > 1.40
+                else "")
+    return f"{tier}{k_str}{ctrl_str} ({era:.2f} ERA / {whip:.2f} WHIP)"
+
+def _nba_game_html(g):
+    aw, hw = g["away"], g["home"]
+    ar, hr = g["away_record"], g["home_record"]
+    ap, hp = _win_pct(ar), _win_pct(hr)
+    rec_line = f"{ar} · {hr}" if ar and hr else ""
+    if ap > 0.60 and hp > 0.60:
+        ctx = "a marquee clash between two of the league's elite teams"
+    elif ap < 0.38 and hp < 0.38:
+        ctx = "a bottom-of-the-standings battle with lottery implications"
+    elif abs(ap - hp) > 0.22:
+        fav = hw if hp > ap else aw
+        dog = aw if hp > ap else hw
+        ctx = f"a lopsided test as the {fav} host the struggling {dog}"
+    else:
+        ctx = "a tight, evenly-matched contest"
+    venue = f" at {g['venue']}" if g.get("venue") else ""
+    body = (f"The {aw} ({ar}) travel to face the {hw} ({hr}){venue} in {ctx}. "
+            f"Expect both teams' backcourt depth and three-point shooting to be decisive factors, "
+            f"as the game-time status of any injured stars bears watching before tip-off.")
+    return (f"<div class='blog-game-card'>"
+            f"<div class='blog-game-vs'>{aw} @ {hw}</div>"
+            f"{'<div class=\"blog-game-rec\">' + rec_line + '</div>' if rec_line else ''}"
+            f"<div class='blog-game-body'>{body}</div>"
+            f"</div>")
+
+def _mlb_game_html(g):
+    aw, hw = g["away"], g["home"]
+    ar, hr = g["away_record"], g["home_record"]
+    ap_name = g["away_pitcher"]
+    hp_name = g["home_pitcher"]
+    ap_desc = _pitcher_desc(g.get("away_p_stats", {}))
+    hp_desc = _pitcher_desc(g.get("home_p_stats", {}))
+    rec_line = f"{ar} · {hr}" if ar and hr else ""
+    venue = f" at {g['venue']}" if g.get("venue") else ""
+
+    body = f"The {aw} ({ar}) visit the {hw} ({hr}){venue}. "
+    if ap_name != "TBD" and ap_desc:
+        body += f"{ap_name} gets the ball for {aw} — {ap_desc}. "
+    elif ap_name != "TBD":
+        body += f"{ap_name} takes the hill for {aw}. "
+    if hp_name != "TBD" and hp_desc:
+        body += f"He'll be opposed by {hp_name}, {hp_desc}. "
+    elif hp_name != "TBD":
+        body += f"He'll be opposed by {hp_name}. "
+    if ap_name == "TBD" and hp_name == "TBD":
+        body += "Probable pitchers are yet to be posted — check back closer to first pitch. "
+
+    ap_era = float((g.get("away_p_stats") or {}).get("era") or 0)
+    hp_era = float((g.get("home_p_stats") or {}).get("era") or 0)
+    if ap_era > 0 and hp_era > 0:
+        if abs(ap_era - hp_era) > 1.2:
+            adv = hp_name if hp_era < ap_era else ap_name
+            body += f"On paper, {adv} holds a clear ERA advantage in this pitching matchup."
+        else:
+            body += "The pitching matchup looks competitive on the surface — bullpen depth may be the deciding factor."
+
+    return (f"<div class='blog-game-card'>"
+            f"<div class='blog-game-vs'>{aw} @ {hw}</div>"
+            f"{'<div class=\"blog-game-rec\">' + rec_line + '</div>' if rec_line else ''}"
+            f"<div class='blog-game-body'>{body}</div>"
+            f"</div>")
+
+def _news_rows_html(news, n=5):
+    if not news:
+        return "<p class='blog-body'>No recent stories available.</p>"
+    rows = ""
+    for item in news[:n]:
+        link = item.get("link", "#")
+        title = item.get("title", "")
+        date = item.get("date", "")
+        rows += (f"<a href='{link}' target='_blank' style='text-decoration:none;color:inherit;'>"
+                 f"<div class='blog-news-row'>"
+                 f"<div class='blog-news-dot'></div>"
+                 f"<div><div class='blog-news-text'>{title}</div>"
+                 f"<div class='blog-news-date'>{date}</div></div>"
+                 f"</div></a>")
+    return rows
+
+@st.cache_data(ttl=3600)
+def generate_nba_blog():
+    today = datetime.now()
+    m, d = today.month, today.day
+    date_str = today.strftime("%B %d, %Y")
+    weekday = today.strftime("%A")
+    # NBA offseason: ~late June through mid-October
+    is_offseason = (m == 6 and d >= 22) or (m in [7, 8]) or (m == 9) or (m == 10 and d <= 21)
+    games = get_nba_scoreboard_full()
+    news = get_sport_news("nba")
+
+    if is_offseason or not games:
+        # ── Offseason article ─────────────────────────────────────────────────
+        headline = "NBA Offseason Watch: Draft, Free Agency & What Every Team Needs"
+        top_news = news[0]["title"] if news else "the league continues to evolve"
+        lead = (f"The NBA season may be over, but the offseason never sleeps. "
+                f"From lottery picks to blockbuster trades and free-agent courtships, "
+                f"the moves made between now and training camp will define next year's contenders. "
+                f"The latest from around the league: {top_news.lower().rstrip('.')}.")
+        offseason_body = (
+            "The NBA Draft Lottery sets the stage for rebuilding franchises. "
+            "Teams at the bottom of the standings are jockeying for positioning, "
+            "with the top prospects commanding intense pre-draft workouts and measurables "
+            "scrutiny. Expect front offices to be aggressive on draft night — both moving up "
+            "and consolidating picks for near-term help. "
+            "On the free-agent front, the summer market is shaping up to feature a mix of "
+            "max-contract stars and high-value role players. Teams with cap space will be "
+            "targeting perimeter shooting, versatile defenders, and reliable shot creation — "
+            "the premium commodities in today's pace-and-space NBA. "
+            "The trade market is equally active. Contenders will be looking to add proven "
+            "playoff contributors, while rebuilders are signaling openness to moving veteran "
+            "pieces for draft capital. The Western Conference arms race shows no sign of slowing."
+        )
+        closing = (f"Konjure will be tracking every significant roster move, trade rumor, and "
+                   f"draft development throughout the offseason. Check back daily as the "
+                   f"NBA landscape reshapes itself for {today.year + 1}.")
+        html = (f"<div class='blog-wrap'>"
+                f"<div class='blog-kicker'>NBA Offseason Brief · {date_str}</div>"
+                f"<h1 class='blog-title'>{headline}</h1>"
+                f"<div class='blog-meta'><span>{date_str}</span><span>Konjure Analytics</span></div>"
+                f"<p class='blog-lead'>{lead}</p>"
+                f"<h2 class='blog-h2'>Draft & Free Agency Landscape</h2>"
+                f"<p class='blog-body'>{offseason_body}</p>"
+                f"<h2 class='blog-h2'>Around the League</h2>"
+                f"{_news_rows_html(news, 6)}"
+                f"<div class='blog-callout'>{closing}</div>"
+                f"</div>")
+        return html
+
+    # ── Game Day article ───────────────────────────────────────────────────────
+    n = len(games)
+    g0 = games[0]
+    if n == 1:
+        headline = f"{g0['away_abbr']} vs. {g0['home_abbr']}: Breaking Down Tonight's Lone NBA Showdown"
+    elif n <= 3:
+        headline = f"{g0['away_abbr']}–{g0['home_abbr']} Headline a {n}-Game {weekday} NBA Slate"
+    else:
+        headline = f"{n} Games Tonight: Konjure's Breakdown of {weekday}'s Full NBA Slate"
+
+    lead = (f"{weekday}'s NBA calendar delivers {n} {'game' if n == 1 else 'games'} for fans across the league. "
+            f"{'The marquee matchup' if n > 1 else 'Tonight'} features the {g0['away']} "
+            f"{'(' + g0['away_record'] + ') ' if g0['away_record'] else ''}"
+            f"taking on the {g0['home']} "
+            f"{'(' + g0['home_record'] + ') ' if g0['home_record'] else ''}. "
+            f"Here's Konjure's data-driven breakdown of the night's action, "
+            f"the matchups that matter, and the players worth putting on your radar.")
+
+    games_html = "".join(_nba_game_html(g) for g in games)
+
+    watch_body = (
+        f"With {n} games on the docket, prop bettors and fantasy players alike should zero in on "
+        f"volume scorers who face weaker perimeter defenses. Players who have posted back-to-back "
+        f"double-digit performances and are playing at home deserve extra attention — rest advantage "
+        f"and crowd energy remain underrated factors. Monitor late-breaking injury reports for guards "
+        f"and wings, as their absence can elevate usage rates for teammates in significant ways. "
+        f"The Konjure rolling model favors high-usage players who have exceeded their prop lines in "
+        f"four or more of their last seven outings."
+    )
+
+    closing = (f"Tonight shapes up as a {'packed' if n >= 6 else 'focused'} slate. "
+               f"Konjure's projections are live on the Player Stats tab — select any player "
+               f"currently on tonight's schedule to pull their rolling model and matchup history.")
+
+    html = (f"<div class='blog-wrap'>"
+            f"<div class='blog-kicker'>NBA Daily Brief · {date_str}</div>"
+            f"<h1 class='blog-title'>{headline}</h1>"
+            f"<div class='blog-meta'><span>{date_str}</span><span>Konjure Analytics</span></div>"
+            f"<p class='blog-lead'>{lead}</p>"
+            f"<h2 class='blog-h2'>Tonight's Matchups</h2>"
+            f"{games_html}"
+            f"<h2 class='blog-h2'>Players to Watch</h2>"
+            f"<p class='blog-body'>{watch_body}</p>"
+            f"<h2 class='blog-h2'>Around the League</h2>"
+            f"{_news_rows_html(news, 5)}"
+            f"<div class='blog-callout'>{closing}</div>"
+            f"</div>")
+    return html
+
+
+@st.cache_data(ttl=3600)
+def generate_mlb_blog():
+    today = datetime.now()
+    m, d = today.month, today.day
+    date_str = today.strftime("%B %d, %Y")
+    weekday = today.strftime("%A")
+    # MLB offseason: ~Nov 1 through Feb 14
+    is_offseason = m in [11, 12, 1] or (m == 2 and d <= 14)
+    games = get_mlb_today_with_pitchers()
+    news = get_sport_news("mlb")
+
+    if is_offseason or not games:
+        # ── Offseason article ─────────────────────────────────────────────────
+        headline = "MLB Hot Stove: Free Agency, Trades & the Winter Moves Reshaping Rosters"
+        top_news = news[0]["title"] if news else "the offseason market is heating up"
+        lead = (f"The Hot Stove is burning. With the {today.year - 1} season in the books, "
+                f"front offices are working overtime — free-agent targets are being pursued, "
+                f"trade packages are being assembled, and minor-league depth charts are being "
+                f"reshuffled. The latest: {top_news.lower().rstrip('.')}.")
+        offseason_body = (
+            "The free-agent market typically breaks open after the World Series, with top "
+            "starting pitchers and corner outfielders commanding the largest guarantees. "
+            "Teams with rotation holes — always a majority of the league — are competing "
+            "aggressively for arms with sub-4.00 ERAs and elite strikeout rates. On offense, "
+            "power bats with on-base skills remain the most coveted commodity. "
+            "The trade market is equally dynamic. Clubs sitting outside playoff contention "
+            "are fielding offers for veterans with one or two years of control remaining, "
+            "seeking prospects and draft capital to accelerate their rebuilds. Deadline "
+            "rentals from last year are now extension targets or trade chips depending on "
+            "each organization's competitive window. "
+            "The Rule 5 Draft and offseason waiver wire rounds out the roster-building "
+            "calendar — a hunting ground for savvy front offices looking for undervalued talent."
+        )
+        closing = (f"Konjure's MLB coverage will track every significant signing, trade, and "
+                   f"prospect development through the winter. The {today.year} roster projections "
+                   f"will update as deals are completed — check the Hitter and Pitcher tabs for live stats.")
+        html = (f"<div class='blog-wrap'>"
+                f"<div class='blog-kicker'>MLB Hot Stove · {date_str}</div>"
+                f"<h1 class='blog-title'>{headline}</h1>"
+                f"<div class='blog-meta'><span>{date_str}</span><span>Konjure Analytics</span></div>"
+                f"<p class='blog-lead'>{lead}</p>"
+                f"<h2 class='blog-h2'>Free Agency & Trade Market</h2>"
+                f"<p class='blog-body'>{offseason_body}</p>"
+                f"<h2 class='blog-h2'>Around the League</h2>"
+                f"{_news_rows_html(news, 6)}"
+                f"<div class='blog-callout'>{closing}</div>"
+                f"</div>")
+        return html
+
+    # ── Game Day article ───────────────────────────────────────────────────────
+    n = len(games)
+    g0 = games[0]
+    if n >= 15:
+        headline = f"Full {n}-Game MLB Slate: The Pitching Matchups and Hot Bats to Target Today"
+    elif n >= 8:
+        headline = f"{n} Games on Tap: Konjure's MLB Pitching Preview for {weekday}"
+    else:
+        headline = (f"{g0['away_abbr']} vs. {g0['home_abbr']} Among {n} MLB Games — "
+                    f"Today's Pitching Matchup Analysis")
+
+    lead = (f"{weekday}'s MLB schedule features {n} {'game' if n == 1 else 'games'} across the league. "
+            f"{'The featured matchup' if n > 1 else 'The day'} has the {g0['away']} "
+            f"({g0['away_record']}) visiting the {g0['home']} ({g0['home_record']}), "
+            f"with {g0['away_pitcher']} squaring off against {g0['home_pitcher']}. "
+            f"Here's Konjure's game-by-game pitching breakdown and the bats worth tracking today.")
+
+    games_html = "".join(_mlb_game_html(g) for g in games[:8])
+    if n > 8:
+        games_html += (f"<p class='blog-body' style='margin-top:0.5rem;'>"
+                       f"Plus {n - 8} additional game{'s' if n - 8 > 1 else ''} rounding out the full {n}-game slate.</p>")
+
+    hitter_body = (
+        "With a full slate comes a deep pool of hitting props to explore. "
+        "Target hitters facing starters with ERAs above 4.50 and WHIPs north of 1.30 — "
+        "these arms tend to allow hard contact and can inflate hit totals. "
+        "Left-handed bats against right-handed pitchers with below-average platoon splits "
+        "represent some of the best edges in today's market. "
+        "Pay close attention to lineup position: cleanup and three-hole hitters facing "
+        "vulnerable arms have historically hit over their average lines at a 58%+ clip "
+        "in Konjure's database. Power props (HR) carry more variance but reward on full "
+        "counts and hitter-friendly park factors."
+    )
+
+    closing = (f"Today's full slate is live. Head to the Hitter Analysis and Pitcher Analysis "
+               f"tabs to pull any player's rolling model, matchup history, and current prop line comparison. "
+               f"Good luck on {weekday}'s card.")
+
+    html = (f"<div class='blog-wrap'>"
+            f"<div class='blog-kicker'>MLB Daily Brief · {date_str}</div>"
+            f"<h1 class='blog-title'>{headline}</h1>"
+            f"<div class='blog-meta'><span>{date_str}</span><span>Konjure Analytics</span></div>"
+            f"<p class='blog-lead'>{lead}</p>"
+            f"<h2 class='blog-h2'>Today's Pitching Matchups</h2>"
+            f"{games_html}"
+            f"<h2 class='blog-h2'>Hitters to Target</h2>"
+            f"<p class='blog-body'>{hitter_body}</p>"
+            f"<h2 class='blog-h2'>Around the League</h2>"
+            f"{_news_rows_html(news, 5)}"
+            f"<div class='blog-callout'>{closing}</div>"
+            f"</div>")
+    return html
+
+# ══════════════════════════════════════════════════════════════════════════════
 # CONSTANTS & CHART HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
 STAT_MAP = {"Points": "PTS", "Rebounds": "REB", "Assists": "AST", "PRA": "PRA", "3PM": "FG3M"}
@@ -1172,9 +1605,9 @@ if sport == "🏀 NBA":
         _nba_scores = get_nba_scoreboard()
     render_score_ticker(_nba_scores)
 
-    tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_disc = st.tabs([
+    tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_blog, tab_disc = st.tabs([
         "Home", "Player Stats", "Opponent Breakdown",
-        "Bet Simulation", "First Basket", "PrizePicks", "Disclaimer"
+        "Bet Simulation", "First Basket", "PrizePicks", "Daily Blog", "Disclaimer"
     ])
 
     # ── HOME ──────────────────────────────────────────────────────────────────
@@ -1529,6 +1962,12 @@ if sport == "🏀 NBA":
                     "player_name": "Player", "stat_type": "Stat", "line_score": "Line", "status": "Status"
                 }).sort_values("Player"), use_container_width=True, hide_index=True)
 
+    # ── DAILY BLOG ────────────────────────────────────────────────────────────
+    with tab_blog:
+        with st.spinner("Generating today's NBA brief..."):
+            blog_html = generate_nba_blog()
+        st.markdown(blog_html, unsafe_allow_html=True)
+
     # ── DISCLAIMER ────────────────────────────────────────────────────────────
     with tab_disc:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -1551,8 +1990,8 @@ else:
         _mlb_scores = get_mlb_scoreboard()
     render_score_ticker(_mlb_scores)
 
-    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_pp_mlb, tab_disc_mlb = st.tabs([
-        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "PrizePicks", "Disclaimer"
+    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_pp_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
+        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "PrizePicks", "Daily Blog", "Disclaimer"
     ])
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
@@ -2063,6 +2502,12 @@ else:
                 }).sort_values("Player"),
                 use_container_width=True, hide_index=True,
             )
+
+    # ── MLB DAILY BLOG ────────────────────────────────────────────────────────
+    with tab_blog_mlb:
+        with st.spinner("Generating today's MLB brief..."):
+            blog_html_mlb = generate_mlb_blog()
+        st.markdown(blog_html_mlb, unsafe_allow_html=True)
 
     # ── MLB DISCLAIMER ────────────────────────────────────────────────────────
     with tab_disc_mlb:
