@@ -506,6 +506,42 @@ def mlb_headshot(player_id):
     )
 
 @st.cache_data(ttl=900)
+def get_mlb_today_game_for_team(team_id):
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        url = (f"{MLB_BASE}/schedule?sportId=1&teamId={team_id}"
+               f"&date={today}&hydrate=probablePitcher,team")
+        resp = requests.get(url, timeout=10)
+        for date_entry in resp.json().get("dates", []):
+            for game in date_entry.get("games", []):
+                return game
+    except Exception:
+        pass
+    return None
+
+@st.cache_data(ttl=3600)
+def get_mlb_pitcher_season_stats(pitcher_id):
+    try:
+        url = (f"{MLB_BASE}/people/{pitcher_id}/stats"
+               f"?stats=season&season={MLB_SEASON}&group=pitching")
+        resp = requests.get(url, timeout=10)
+        splits = resp.json().get("stats", [{}])[0].get("splits", [])
+        return splits[0].get("stat", {}) if splits else {}
+    except Exception:
+        return {}
+
+@st.cache_data(ttl=3600)
+def get_mlb_team_batting_stats(team_id):
+    try:
+        url = (f"{MLB_BASE}/teams/{team_id}/stats"
+               f"?stats=season&season={MLB_SEASON}&group=hitting")
+        resp = requests.get(url, timeout=10)
+        splits = resp.json().get("stats", [{}])[0].get("splits", [])
+        return splits[0].get("stat", {}) if splits else {}
+    except Exception:
+        return {}
+
+@st.cache_data(ttl=900)
 def get_today_mlb_games():
     try:
         today = datetime.now().strftime("%Y-%m-%d")
@@ -526,6 +562,195 @@ def get_today_mlb_games():
         return games
     except Exception:
         return []
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SCOUT REPORT GENERATORS
+# ══════════════════════════════════════════════════════════════════════════════
+def _scout_card_nba(text):
+    return (
+        "<div style='background:#111;border:1px solid #1c1c1c;border-left:3px solid #fff;"
+        "border-radius:8px;padding:1.25rem 1.4rem;margin-bottom:1.25rem;'>"
+        "<p style='font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;"
+        "color:#444;margin:0 0 0.55rem 0;'>Scout Report</p>"
+        f"<p style='font-size:0.88rem;color:#ccc;line-height:1.8;margin:0;'>{text}</p></div>"
+    )
+
+def _scout_card_mlb(text):
+    return (
+        "<div style='background:#fff;border:1px solid #dde6f0;border-left:4px solid #002D72;"
+        "border-radius:8px;padding:1.25rem 1.4rem;margin-bottom:1.25rem;"
+        "box-shadow:0 2px 8px rgba(0,45,114,0.07);'>"
+        "<p style='font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;"
+        "color:#6b7c9e;margin:0 0 0.55rem 0;'>Scout Report</p>"
+        f"<p style='font-size:0.88rem;color:#1a1a2e;line-height:1.8;margin:0;'>{text}</p></div>"
+    )
+
+def nba_scout_report(player_name, team_code, df, next_opp, prop_type, rolling_window):
+    if df.empty or not next_opp:
+        return None
+    season_pts = df["PTS"].mean()
+    season_reb = df["REB"].mean()
+    season_ast = df["AST"].mean()
+    last10 = df.tail(10)
+    recent_pts = last10["PTS"].mean()
+    delta = recent_pts - season_pts
+    if delta > 2:
+        trend = f"trending upward at {recent_pts:.1f} PPG over the last 10 games (+{delta:.1f} vs season avg)"
+    elif delta < -2:
+        trend = f"trending downward at {recent_pts:.1f} PPG over the last 10 games ({delta:.1f} vs season avg)"
+    else:
+        trend = f"consistent at {recent_pts:.1f} PPG over the last 10 games"
+    opp_df = df[df["OPPONENT"].str.upper() == next_opp.upper()]
+    if not opp_df.empty:
+        op = opp_df["PTS"].mean()
+        or_ = opp_df["REB"].mean()
+        oa = opp_df["AST"].mean()
+        n = len(opp_df)
+        quality = "favorable" if op - season_pts > 3 else ("difficult" if season_pts - op > 3 else "neutral")
+        opp_str = (f"Against {next_opp} in {n} game(s) from the selected seasons, {player_name} averaged "
+                   f"{op:.1f} PPG / {or_:.1f} RPG / {oa:.1f} APG — a historically {quality} matchup.")
+    else:
+        opp_str = f"No prior matchup data vs {next_opp} exists in the selected seasons, making this an uncharted assignment."
+    pred_pts = df["PTS"].rolling(rolling_window).mean().iloc[-1] if len(df) >= rolling_window else season_pts
+    pred_reb = df["REB"].rolling(rolling_window).mean().iloc[-1] if len(df) >= rolling_window else season_reb
+    pred_ast = df["AST"].rolling(rolling_window).mean().iloc[-1] if len(df) >= rolling_window else season_ast
+    last5_pts = df.tail(5)["PTS"].mean()
+    if last5_pts > season_pts * 1.1:
+        form = f"Momentum is on their side — {player_name} is running hot over the last 5 games ({last5_pts:.1f} PPG)."
+    elif last5_pts < season_pts * 0.9:
+        form = f"A note of caution: {player_name} has cooled over the last 5 games ({last5_pts:.1f} PPG)."
+    else:
+        form = f"Recent 5-game form is steady ({last5_pts:.1f} PPG), lending reliability to the projection."
+    return (
+        f"{player_name} ({team_code}) heads into the upcoming matchup against {next_opp} averaging "
+        f"{season_pts:.1f} PPG, {season_reb:.1f} RPG, and {season_ast:.1f} APG this season. "
+        f"Scoring is {trend}. {opp_str} "
+        f"A {rolling_window}-game rolling model projects approximately "
+        f"{pred_pts:.1f} pts / {pred_reb:.1f} reb / {pred_ast:.1f} ast. {form}"
+    )
+
+def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id):
+    if df.empty:
+        return None
+    avg = df["AVG"].mean()
+    obp = df["OBP"].mean()
+    slg = df["SLG"].mean()
+    ops = obp + slg
+    game = get_mlb_today_game_for_team(team_id)
+    pitcher_txt = opp_hist_txt = ""
+    if game:
+        is_away = game["teams"]["away"]["team"]["id"] == team_id
+        opp_side = "home" if is_away else "away"
+        opp_team = game["teams"][opp_side]["team"]
+        opp_prob = game["teams"][opp_side].get("probablePitcher", {})
+        opp_name = opp_team.get("name", "the opponent")
+        opp_abbr = opp_team.get("abbreviation", "")
+        opp_id = opp_team.get("id")
+        if opp_prob:
+            p_name = opp_prob.get("fullName", "the starter")
+            p_id = opp_prob.get("id")
+            pitcher_txt = f"Today, {hitter_name} faces {p_name} of the {opp_name}. "
+            if p_id:
+                ps = get_mlb_pitcher_season_stats(p_id)
+                if ps:
+                    p_era = float(ps.get("era") or 0)
+                    p_whip = float(ps.get("whip") or 0)
+                    p_k9 = float(ps.get("strikeoutsPer9Inn") or 0)
+                    pitcher_txt += f"{p_name} carries a {p_era:.2f} ERA, {p_whip:.2f} WHIP, and {p_k9:.1f} K/9. "
+                    if p_era < 3.50:
+                        pitcher_txt += "This is a tough draw at the plate. "
+                    elif p_era > 5.00:
+                        pitcher_txt += "The numbers favor the hitter — this is an exploitable assignment. "
+                    else:
+                        pitcher_txt += "The matchup is neutral on paper. "
+        else:
+            pitcher_txt = f"Today's opponent is the {opp_name}; no probable starter has been posted yet. "
+        if opp_abbr:
+            vs = df[df["opponent"].str.upper() == opp_abbr.upper()]
+            if not vs.empty:
+                vs_avg = vs["H"].sum() / max(vs["AB"].sum(), 1)
+                opp_hist_txt = (f"Against the {opp_name} this season, {hitter_name} is batting "
+                                f".{int(vs_avg*1000):03d} ({vs['H'].sum()}-for-{vs['AB'].sum()}) "
+                                f"with {vs['HR'].sum()} HR. ")
+        if opp_id:
+            bat = get_mlb_team_batting_stats(opp_id)
+            if bat:
+                t_avg = float(bat.get("avg") or 0)
+                t_ops = float(bat.get("ops") or 0)
+    recent10 = df.tail(10)
+    rh = recent10["H"].mean()
+    sh = df["H"].mean()
+    form = (f"Over the last 10 games, {hitter_name} is hot ({rh:.2f} H/G, up from {sh:.2f} season avg)."
+            if rh > sh * 1.2
+            else f"Over the last 10 games, {hitter_name} has cooled ({rh:.2f} H/G vs {sh:.2f} season avg)."
+            if rh < sh * 0.8
+            else f"Recent form is consistent ({rh:.2f} H/G over the last 10 games).")
+    pred_h = df["H"].rolling(10).mean().iloc[-1] if len(df) >= 10 else sh
+    pred_hr = df["HR"].rolling(10).mean().iloc[-1] if len(df) >= 10 else df["HR"].mean()
+    pred_rbi = df["RBI"].rolling(10).mean().iloc[-1] if len(df) >= 10 else df["RBI"].mean()
+    q = "elite" if avg > 0.290 else ("above-average" if avg > 0.260 else ("solid" if avg > 0.230 else "below-average"))
+    return (
+        f"{hitter_name} ({team_abbr}) brings an {q} slash line of "
+        f".{int(avg*1000):03d}/.{int(obp*1000):03d}/.{int(slg*1000):03d} (OPS {ops:.3f}) into today's game. "
+        f"{pitcher_txt}{opp_hist_txt}{form} "
+        f"10-game rolling projection: {pred_h:.1f} H / {pred_hr:.2f} HR / {pred_rbi:.1f} RBI."
+    )
+
+def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id):
+    if df.empty:
+        return None
+    era = df["ERA"].mean()
+    whip = df["WHIP"].mean()
+    k9 = df["K9"].mean()
+    tip = df["IP"].sum()
+    bb9 = df["BB"].sum() / tip * 9 if tip > 0 else 0
+    kbb = df["K"].sum() / max(df["BB"].sum(), 1)
+    qs = ((df["IP"] >= 6) & (df["ER"] <= 3)).mean() * 100
+    game = get_mlb_today_game_for_team(team_id)
+    opp_txt = bat_txt = ""
+    if game:
+        is_away = game["teams"]["away"]["team"]["id"] == team_id
+        opp_side = "home" if is_away else "away"
+        opp_team = game["teams"][opp_side]["team"]
+        opp_name = opp_team.get("name", "the opponent")
+        opp_abbr = opp_team.get("abbreviation", "")
+        opp_id = opp_team.get("id")
+        opp_txt = f"Today, {pitcher_name} takes the hill against the {opp_name}. "
+        vs = df[df["opponent"].str.upper() == opp_abbr.upper()] if opp_abbr else pd.DataFrame()
+        if not vs.empty:
+            opp_txt += (f"In {len(vs)} prior start(s) vs the {opp_name} this season, "
+                        f"{pitcher_name} posted a {vs['ERA'].mean():.2f} ERA with {vs['K'].mean():.1f} K/start. ")
+        if opp_id:
+            bat = get_mlb_team_batting_stats(opp_id)
+            if bat:
+                t_avg = float(bat.get("avg") or 0)
+                t_ops = float(bat.get("ops") or 0)
+                if t_avg > 0.265:
+                    bat_txt = (f"The {opp_name} offense is dangerous ({t_avg:.3f} team AVG / {t_ops:.3f} OPS) "
+                               f"— precision will be essential. ")
+                elif t_avg < 0.240:
+                    bat_txt = (f"The {opp_name} lineup has struggled offensively ({t_avg:.3f} AVG / {t_ops:.3f} OPS), "
+                               f"setting up a favorable strikeout environment. ")
+                else:
+                    bat_txt = f"The {opp_name} lineup is an average offensive unit ({t_avg:.3f} AVG / {t_ops:.3f} OPS). "
+    last5 = df.tail(5)
+    rk = last5["K"].mean()
+    sk = df["K"].mean()
+    form = (f"Over the last 5 starts, {pitcher_name} has been dealing — {rk:.1f} K/start (up from {sk:.1f} season avg)."
+            if rk > sk * 1.15
+            else f"Strikeout output has dipped over the last 5 starts ({rk:.1f} vs {sk:.1f} season avg), worth monitoring."
+            if rk < sk * 0.85
+            else f"Strikeout production has been steady at {rk:.1f}/start over the last 5 outings.")
+    pred_k = df["K"].rolling(5).mean().iloc[-1] if len(df) >= 5 else sk
+    pred_ip = df["IP"].rolling(5).mean().iloc[-1] if len(df) >= 5 else df["IP"].mean()
+    tier = "elite" if era < 3.00 else ("solid" if era < 4.00 else ("middling" if era < 5.00 else "struggling"))
+    return (
+        f"{pitcher_name} ({team_abbr}) is a {tier} arm carrying a {era:.2f} ERA, "
+        f"{whip:.2f} WHIP, {k9:.1f} K/9, {bb9:.1f} BB/9, {kbb:.2f} K/BB ratio, "
+        f"and a {qs:.0f}% quality-start rate into today's outing. "
+        f"{opp_txt}{bat_txt}{form} "
+        f"5-start rolling projection: {pred_k:.1f} K / {pred_ip:.1f} IP."
+    )
 
 # ══════════════════════════════════════════════════════════════════════════════
 # CONSTANTS & CHART HELPERS
@@ -753,6 +978,14 @@ if sport == "🏀 NBA":
                         if live_line:
                             df["LIVE_HIT"] = df["TARGET"] > live_line
                             banner_cols[2].metric("Live Line", live_line)
+
+                        # ── Scout Report ──────────────────────────────────
+                        _nxt = get_next_opponent(team_code)
+                        _report = nba_scout_report(player_name, team_code, df,
+                                                   _nxt, prop_type, rolling_window)
+                        if _report:
+                            section("Game Preview")
+                            st.markdown(_scout_card_nba(_report), unsafe_allow_html=True)
 
                         # ── Analytical Breakdown ──────────────────────────
                         section("Analytical Breakdown")
@@ -1101,6 +1334,13 @@ else:
                 if h_df.empty:
                     st.warning("No hitting data found for this player this season.")
                 else:
+                    # ── Scout Report ──────────────────────────────────────
+                    _h_report = mlb_hitter_scout_report(
+                        sel_hitter["name"], sel_team["abbr"], h_df, sel_team["id"])
+                    if _h_report:
+                        mlb_section("Game Preview")
+                        st.markdown(_scout_card_mlb(_h_report), unsafe_allow_html=True)
+
                     # ── Analytical Breakdown ──────────────────────────────
                     mlb_section("Analytical Breakdown")
 
@@ -1244,6 +1484,13 @@ else:
                 if p_df.empty:
                     st.warning("No pitching data found for this player this season.")
                 else:
+                    # ── Scout Report ──────────────────────────────────────
+                    _p_report = mlb_pitcher_scout_report(
+                        sel_pitcher["name"], sel_team_p["abbr"], p_df, sel_team_p["id"])
+                    if _p_report:
+                        mlb_section("Game Preview")
+                        st.markdown(_scout_card_mlb(_p_report), unsafe_allow_html=True)
+
                     # ── Analytical Breakdown ──────────────────────────────
                     mlb_section("Analytical Breakdown")
 
