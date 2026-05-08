@@ -1991,8 +1991,9 @@ if sport == "🏀 NBA":
                 st.warning("Could not load play-by-play data for this team. Try again shortly.")
             else:
                 total = len(fb_df)
-                tip_wins = fb_df["Tip Won"].sum() if "Tip Won" in fb_df else 0
-                team_fb_count = fb_df["Team Scored First"].sum() if "Team Scored First" in fb_df else 0
+                # fillna(False) so None tip/scorer values don't produce NaN sums
+                tip_wins = int(fb_df["Tip Won"].fillna(False).sum()) if "Tip Won" in fb_df.columns else 0
+                team_fb_count = int(fb_df["Team Scored First"].fillna(False).sum()) if "Team Scored First" in fb_df.columns else 0
                 tip_pct = tip_wins / total if total else 0
                 fb_pct = team_fb_count / total if total else 0
 
@@ -2022,13 +2023,13 @@ if sport == "🏀 NBA":
                     fig_bar.update_layout(yaxis={"categoryorder": "total ascending"}, coloraxis_showscale=False)
                     st.plotly_chart(nba_fig(fig_bar), use_container_width=True, config=_CHART_CFG)
 
-                # ── Shot type breakdown ──
+                # ── Shot type + Tip-off charts (independent columns) ──
                 shot_counts = fb_df[fb_df["Shot Type"] != "—"]["Shot Type"].value_counts().reset_index()
                 shot_counts.columns = ["Shot Type", "Count"]
-                if not shot_counts.empty:
-                    left_c, right_c = st.columns(2)
-                    with left_c:
-                        section("First Basket Shot Type")
+                left_c, right_c = st.columns(2)
+                with left_c:
+                    section("First Basket Shot Type")
+                    if not shot_counts.empty:
                         fig_pie = px.pie(
                             shot_counts, names="Shot Type", values="Count",
                             color_discrete_sequence=["#818cf8", "#a5b4fc", "#4f46e5"],
@@ -2036,23 +2037,23 @@ if sport == "🏀 NBA":
                         )
                         fig_pie.update_traces(textfont_size=11)
                         st.plotly_chart(nba_fig(fig_pie), use_container_width=True, config=_CHART_CFG)
-
-                    # ── Tip-off outcome breakdown ──
-                    with right_c:
-                        section("Tip-Off Outcomes")
-                        tip_data = pd.DataFrame({
-                            "Result": ["Won Tip", "Lost Tip"],
-                            "Count": [int(tip_wins), total - int(tip_wins)],
-                        })
-                        fig_tip = px.bar(
-                            tip_data, x="Result", y="Count",
-                            color="Result",
-                            color_discrete_map={"Won Tip": "#818cf8", "Lost Tip": "#3a4055"},
-                            text="Count",
-                        )
-                        fig_tip.update_traces(textposition="outside")
-                        fig_tip.update_layout(showlegend=False)
-                        st.plotly_chart(nba_fig(fig_tip), use_container_width=True, config=_CHART_CFG)
+                    else:
+                        st.info("No shot type data available.")
+                with right_c:
+                    section("Tip-Off Outcomes")
+                    tip_data = pd.DataFrame({
+                        "Result": ["Won Tip", "Lost Tip"],
+                        "Count": [tip_wins, total - tip_wins],
+                    })
+                    fig_tip = px.bar(
+                        tip_data, x="Result", y="Count",
+                        color="Result",
+                        color_discrete_map={"Won Tip": "#818cf8", "Lost Tip": "#3a4055"},
+                        text="Count",
+                    )
+                    fig_tip.update_traces(textposition="outside")
+                    fig_tip.update_layout(showlegend=False)
+                    st.plotly_chart(nba_fig(fig_tip), use_container_width=True, config=_CHART_CFG)
 
                 # ── Player spotlight ──
                 if selected_player and selected_player != "(All Players)":
