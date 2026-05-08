@@ -754,6 +754,45 @@ if sport == "🏀 NBA":
                             df["LIVE_HIT"] = df["TARGET"] > live_line
                             banner_cols[2].metric("Live Line", live_line)
 
+                        # ── Analytical Breakdown ──────────────────────────
+                        section("Analytical Breakdown")
+                        ab_c = st.columns(5)
+                        for _c, _s, _l in zip(ab_c,
+                                ["PTS", "REB", "AST", "FG3M", "STL"],
+                                ["PPG", "RPG", "APG", "3PM", "SPG"]):
+                            if _s in df.columns:
+                                _c.metric(_l, f"{df[_s].mean():.1f}")
+
+                        section("Recent Form — Last 10 Games vs Season Avg")
+                        _last10 = df.tail(10)
+                        rf_c = st.columns(4)
+                        for _c, _s, _l in zip(rf_c,
+                                ["PTS", "REB", "AST", "FG3M"],
+                                ["Points", "Rebounds", "Assists", "3PM"]):
+                            if _s in df.columns:
+                                _sa = df[_s].mean()
+                                _ra = _last10[_s].mean()
+                                _c.metric(_l, f"{_ra:.1f}", delta=f"{_ra - _sa:+.1f}")
+
+                        section("Splits & Consistency")
+                        df["IS_HOME"] = df["MATCHUP"].str.contains(r"vs\.", na=False)
+                        _tgt_s = STAT_MAP[prop_type]
+                        _home_a = df.loc[df["IS_HOME"], _tgt_s].mean()
+                        _away_a = df.loc[~df["IS_HOME"], _tgt_s].mean()
+                        _cv = (df[_tgt_s].std() / df[_tgt_s].mean() * 100
+                               if df[_tgt_s].mean() > 0 else 0)
+                        _cons = max(0, 100 - _cv)
+                        _last5 = df.tail(5)
+                        _above = (_last5[_tgt_s] > df[_tgt_s].mean()).sum()
+                        _form = ("Hot (4-5 over avg)" if _above >= 4
+                                 else "Cold (0-1 over avg)" if _above <= 1
+                                 else "Neutral")
+                        sp_c = st.columns(4)
+                        sp_c[0].metric(f"Home {prop_type}", f"{_home_a:.1f}" if pd.notna(_home_a) else "—")
+                        sp_c[1].metric(f"Away {prop_type}", f"{_away_a:.1f}" if pd.notna(_away_a) else "—")
+                        sp_c[2].metric("Consistency", f"{_cons:.0f}/100")
+                        sp_c[3].metric("Form (L5)", _form)
+
                         section("Performance Summary")
                         m1, m2, m3 = st.columns(3)
                         m1.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
@@ -1062,6 +1101,51 @@ else:
                 if h_df.empty:
                     st.warning("No hitting data found for this player this season.")
                 else:
+                    # ── Analytical Breakdown ──────────────────────────────
+                    mlb_section("Analytical Breakdown")
+
+                    _h_avg = h_df["AVG"].mean() if not h_df.empty else 0
+                    _h_obp = h_df["OBP"].mean() if not h_df.empty else 0
+                    _h_slg = h_df["SLG"].mean() if not h_df.empty else 0
+                    _h_ops = _h_obp + _h_slg
+                    _h_iso = _h_slg - _h_avg
+                    sl_c = st.columns(5)
+                    sl_c[0].metric("AVG", f"{_h_avg:.3f}")
+                    sl_c[1].metric("OBP", f"{_h_obp:.3f}")
+                    sl_c[2].metric("SLG", f"{_h_slg:.3f}")
+                    sl_c[3].metric("OPS", f"{_h_ops:.3f}")
+                    sl_c[4].metric("ISO", f"{_h_iso:.3f}")
+
+                    mlb_section("Recent Form — Last 10 Games vs Season Avg")
+                    _last10h = h_df.tail(10)
+                    rfh_c = st.columns(4)
+                    for _c, _s, _l, _inv in zip(rfh_c,
+                            ["H", "HR", "RBI", "K"],
+                            ["Hits", "HR", "RBI", "K"],
+                            [False, False, False, True]):
+                        _sa = h_df[_s].mean()
+                        _ra = _last10h[_s].mean()
+                        _c.metric(_l, f"{_ra:.2f}", delta=f"{_ra - _sa:+.2f}",
+                                  delta_color="inverse" if _inv else "normal")
+
+                    mlb_section("Plate Discipline & Consistency")
+                    _h_pa = h_df["AB"].sum() + h_df["BB"].sum()
+                    _h_kpct = h_df["K"].sum() / _h_pa * 100 if _h_pa > 0 else 0
+                    _h_bbpct = h_df["BB"].sum() / _h_pa * 100 if _h_pa > 0 else 0
+                    _h_cv = (h_df["H"].std() / h_df["H"].mean() * 100
+                             if h_df["H"].mean() > 0 else 0)
+                    _h_cons = max(0, 100 - _h_cv)
+                    _last5h = h_df.tail(5)
+                    _h_above = (_last5h["H"] > h_df["H"].mean()).sum()
+                    _h_form = ("Hot (4-5 over avg)" if _h_above >= 4
+                               else "Cold (0-1 over avg)" if _h_above <= 1
+                               else "Neutral")
+                    pd_c = st.columns(4)
+                    pd_c[0].metric("K%", f"{_h_kpct:.1f}%")
+                    pd_c[1].metric("BB%", f"{_h_bbpct:.1f}%")
+                    pd_c[2].metric("Consistency", f"{_h_cons:.0f}/100")
+                    pd_c[3].metric("Form (L5)", _h_form)
+
                     # Projections
                     proj = {c: rolling_projection(h_df, c, h_window) for c in ["H", "HR", "RBI", "K", "BB"]}
 
@@ -1160,6 +1244,51 @@ else:
                 if p_df.empty:
                     st.warning("No pitching data found for this player this season.")
                 else:
+                    # ── Analytical Breakdown ──────────────────────────────
+                    mlb_section("Analytical Breakdown")
+
+                    _p_ip = p_df["IP"].sum()
+                    _p_k = p_df["K"].sum()
+                    _p_bb = p_df["BB"].sum()
+                    _p_era = p_df["ERA"].mean()
+                    _p_whip = p_df["WHIP"].mean()
+                    _p_k9 = _p_k / _p_ip * 9 if _p_ip > 0 else 0
+                    _p_bb9 = _p_bb / _p_ip * 9 if _p_ip > 0 else 0
+                    _p_kbb = _p_k / _p_bb if _p_bb > 0 else 0
+                    pm_c = st.columns(5)
+                    pm_c[0].metric("ERA", f"{_p_era:.2f}")
+                    pm_c[1].metric("WHIP", f"{_p_whip:.2f}")
+                    pm_c[2].metric("K/9", f"{_p_k9:.1f}")
+                    pm_c[3].metric("BB/9", f"{_p_bb9:.1f}")
+                    pm_c[4].metric("K/BB", f"{_p_kbb:.2f}")
+
+                    mlb_section("Recent Form — Last 5 Starts vs Season Avg")
+                    _last5p = p_df.tail(5)
+                    rfp_c = st.columns(4)
+                    for _c, _s, _l, _inv in zip(rfp_c,
+                            ["K", "IP", "ER", "BB"],
+                            ["K", "IP", "ER", "BB"],
+                            [False, False, True, True]):
+                        _sa = p_df[_s].mean()
+                        _ra = _last5p[_s].mean()
+                        _c.metric(_l, f"{_ra:.1f}", delta=f"{_ra - _sa:+.1f}",
+                                  delta_color="inverse" if _inv else "normal")
+
+                    mlb_section("Quality & Consistency")
+                    _p_qs = ((p_df["IP"] >= 6) & (p_df["ER"] <= 3)).mean() * 100
+                    _p_cv = (p_df["K"].std() / p_df["K"].mean() * 100
+                             if p_df["K"].mean() > 0 else 0)
+                    _p_cons = max(0, 100 - _p_cv)
+                    _p_above = (_last5p["K"] > p_df["K"].mean()).sum()
+                    _p_form = ("Hot (4-5 over avg)" if _p_above >= 4
+                               else "Cold (0-1 over avg)" if _p_above <= 1
+                               else "Neutral")
+                    qc_c = st.columns(4)
+                    qc_c[0].metric("Quality Start %", f"{_p_qs:.0f}%")
+                    qc_c[1].metric("Avg IP/Start", f"{p_df['IP'].mean():.1f}")
+                    qc_c[2].metric("K Consistency", f"{_p_cons:.0f}/100")
+                    qc_c[3].metric("Form (L5)", _p_form)
+
                     proj_p = {c: rolling_projection(p_df, c, p_window) for c in ["K", "IP", "ER", "BB", "ERA", "WHIP", "K9"]}
 
                     mlb_section("Season Projections (Rolling Avg)")
