@@ -910,8 +910,30 @@ def get_mlb_today_with_pitchers():
 
 @st.cache_data(ttl=900)
 def get_sport_news(sport="nba"):
-    import re as _re, warnings as _w
-    _w.filterwarnings("ignore")
+    import re as _re
+    # ESPN JSON news API — works from cloud servers (no scraping)
+    _ESPN_SPORT = {"nba": "basketball/nba", "mlb": "baseball/mlb"}
+    sport_path = _ESPN_SPORT.get(sport, f"basketball/{sport}")
+    try:
+        url = f"https://site.api.espn.com/apis/site/v2/sports/{sport_path}/news?limit=10"
+        resp = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        resp.raise_for_status()
+        data = resp.json()
+        articles = data.get("articles", [])
+        news = []
+        for a in articles[:8]:
+            title = a.get("headline", "").strip()
+            if not title:
+                continue
+            desc = BeautifulSoup(a.get("description", ""), "html.parser").get_text()[:130]
+            link = a.get("links", {}).get("web", {}).get("href", "#")
+            published = a.get("published", "")[:22]
+            news.append({"title": title, "desc": desc, "link": link, "date": published})
+        if news:
+            return news
+    except Exception:
+        pass
+    # Fallback: ESPN RSS (works locally but may be blocked on cloud)
     try:
         url = f"https://www.espn.com/espn/rss/{sport}/news"
         resp = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
@@ -920,16 +942,12 @@ def get_sport_news(sport="nba"):
         news = []
         for item in items:
             raw = str(item)
-            # Title — strip CDATA wrapper if present
             title_tag = item.find("title")
             title_text = _re.sub(r"<!\[CDATA\[|\]\]>", "", title_tag.get_text(strip=True)) if title_tag else ""
-            # Link — stored as CDATA after self-closing <link/> in ESPN RSS
             link_match = _re.search(r"<link/>\s*<!\[CDATA\[(https?://[^\]]+)\]\]>", raw)
             link_url = link_match.group(1).strip() if link_match else "#"
-            # Description
             desc_tag = item.find("description")
             desc_text = BeautifulSoup(desc_tag.get_text(strip=True), "html.parser").get_text()[:130] if desc_tag else ""
-            # Date
             date_tag = item.find("pubdate") or item.find("pubDate")
             date_text = date_tag.get_text(strip=True)[:22] if date_tag else ""
             news.append({"title": title_text, "desc": desc_text, "link": link_url, "date": date_text})
