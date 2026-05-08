@@ -165,6 +165,30 @@ div[data-testid="stSelectbox"] label { display: none; }
 </style>
 """, unsafe_allow_html=True)
 
+# ─── PWA + mobile meta tags ────────────────────────────────────────────────
+st.markdown("""
+<link rel="manifest" href='data:application/manifest+json,{"name":"Konjure Analytics","short_name":"Konjure","description":"Multi-Sport Prop Intelligence","start_url":"/","display":"standalone","background_color":"%23090909","theme_color":"%23090909","orientation":"portrait-primary","icons":[{"src":"https://cdn.jsdelivr.net/npm/twemoji@14/72x72/1f3c6.png","sizes":"72x72","type":"image/png"},{"src":"https://cdn.jsdelivr.net/npm/twemoji@14/72x72/1f3c6.png","sizes":"192x192","type":"image/png"}]}'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Konjure">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#090909">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+/* ── Mobile responsive tweaks ── */
+@media (max-width: 768px) {
+    .block-container { padding: 0.75rem 0.5rem !important; }
+    .konjure-title { font-size: 1.1rem !important; }
+    .konjure-sub { font-size: 0.58rem !important; }
+    [data-testid="metric-container"] { padding: 0.6rem 0.75rem !important; }
+    [data-testid="metric-container"] [data-testid="metric-value"] { font-size: 1.1rem !important; }
+    .stTabs [data-baseweb="tab"] { padding: 0.5rem 0.6rem !important; font-size: 0.62rem !important; }
+    .player-card img { width: 50px !important; height: 50px !important; }
+    .mlb-player-card img { width: 64px !important; height: 64px !important; }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ─── ESPN slug map ─────────────────────────────────────────────────────────
 ESPN_SLUG_MAP = {
     "ATL": "atlanta-hawks", "BOS": "boston-celtics", "BKN": "brooklyn-nets",
