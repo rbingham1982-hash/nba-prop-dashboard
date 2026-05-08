@@ -747,24 +747,19 @@ def get_sport_news(sport="nba"):
 # ══════════════════════════════════════════════════════════════════════════════
 # SCOUT REPORT GENERATORS
 # ══════════════════════════════════════════════════════════════════════════════
-def _scout_card_nba(text):
+def _scout_card(text):
     return (
-        "<div style='background:#111;border:1px solid #1c1c1c;border-left:3px solid #fff;"
-        "border-radius:8px;padding:1.25rem 1.4rem;margin-bottom:1.25rem;'>"
-        "<p style='font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;"
-        "color:#444;margin:0 0 0.55rem 0;'>Scout Report</p>"
-        f"<p style='font-size:0.88rem;color:#ccc;line-height:1.8;margin:0;'>{text}</p></div>"
+        "<div style='background:#191c23;border:1px solid #252a35;"
+        "border-left:3px solid #818cf8;"
+        "border-radius:10px;padding:1.25rem 1.4rem;margin-bottom:1.25rem;'>"
+        "<p style='font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;"
+        "color:#818cf8;margin:0 0 0.55rem 0;font-weight:700;'>Scout Report</p>"
+        f"<p style='font-size:0.86rem;color:#c8cad4;line-height:1.85;margin:0;'>{text}</p></div>"
     )
 
-def _scout_card_mlb(text):
-    return (
-        "<div style='background:#fff;border:1px solid #dde6f0;border-left:4px solid #002D72;"
-        "border-radius:8px;padding:1.25rem 1.4rem;margin-bottom:1.25rem;"
-        "box-shadow:0 2px 8px rgba(0,45,114,0.07);'>"
-        "<p style='font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;"
-        "color:#6b7c9e;margin:0 0 0.55rem 0;'>Scout Report</p>"
-        f"<p style='font-size:0.88rem;color:#1a1a2e;line-height:1.8;margin:0;'>{text}</p></div>"
-    )
+# Aliases kept for compatibility with existing call sites
+def _scout_card_nba(text): return _scout_card(text)
+def _scout_card_mlb(text): return _scout_card(text)
 
 def nba_scout_report(player_name, team_code, df, next_opp, prop_type, rolling_window):
     if df.empty or not next_opp:
@@ -938,48 +933,34 @@ PP_STAT_MAP = {
 }
 SEASONS = ["2022-23", "2023-24", "2024-25", "2025-26"]
 
-NBA_CHART = dict(
-    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0a0b10", font_color="#3a3a50",
-    title_font_color="#d0d0e0", title_font_size=13,
+_SHARED_CHART = dict(
+    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#191c23",
+    font_color="#5c6272", title_font_color="#dfe1ea", title_font_size=13,
     font=dict(family="Inter, sans-serif", size=11),
-    xaxis=dict(gridcolor="#13141e", linecolor="#13141e", zerolinecolor="#13141e",
-               tickfont=dict(size=10, color="#3a3a50"), showspikes=True,
-               spikecolor="#2a2b38", spikethickness=1, spikemode="across"),
-    yaxis=dict(gridcolor="#13141e", linecolor="#13141e", zerolinecolor="#13141e",
-               tickfont=dict(size=10, color="#3a3a50")),
-    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#4a4a60", size=10),
+    xaxis=dict(gridcolor="#252a35", linecolor="#252a35", zerolinecolor="#252a35",
+               tickfont=dict(size=10, color="#5c6272"), showspikes=True,
+               spikecolor="#2e3341", spikethickness=1, spikemode="across"),
+    yaxis=dict(gridcolor="#252a35", linecolor="#252a35", zerolinecolor="#252a35",
+               tickfont=dict(size=10, color="#5c6272")),
+    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#5c6272", size=10),
                 bordercolor="rgba(0,0,0,0)", orientation="h", yanchor="bottom",
                 y=1.02, xanchor="right", x=1),
     margin=dict(t=44, b=24, l=4, r=4),
     hovermode="x unified",
-    hoverlabel=dict(bgcolor="#12131c", bordercolor="#1e1f2b",
-                    font=dict(color="#d0d0e0", size=11)),
+    hoverlabel=dict(bgcolor="#1f2330", bordercolor="#2e3341",
+                    font=dict(color="#dfe1ea", size=11)),
 )
-MLB_CHART = dict(
-    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#f5f8ff", font_color="#5a6e9a",
-    title_font_color="#001845", title_font_size=13,
-    font=dict(family="Inter, sans-serif", size=11),
-    xaxis=dict(gridcolor="#dde6f5", linecolor="#dde6f5", zerolinecolor="#dde6f5",
-               tickfont=dict(size=10, color="#8899bb"), showspikes=True,
-               spikecolor="#c0cce4", spikethickness=1, spikemode="across"),
-    yaxis=dict(gridcolor="#dde6f5", linecolor="#dde6f5", zerolinecolor="#dde6f5",
-               tickfont=dict(size=10, color="#8899bb")),
-    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#5a6e9a", size=10),
-                bordercolor="rgba(0,0,0,0)", orientation="h", yanchor="bottom",
-                y=1.02, xanchor="right", x=1),
-    margin=dict(t=44, b=24, l=4, r=4),
-    hovermode="x unified",
-    hoverlabel=dict(bgcolor="#fff", bordercolor="#d4ddf0",
-                    font=dict(color="#001845", size=11)),
-)
+# Keep aliases so existing code compiles without change
+NBA_CHART = _SHARED_CHART
+MLB_CHART = _SHARED_CHART
 _CHART_CFG = {"displaylogo": False, "modeBarButtonsToRemove": ["select2d","lasso2d","autoScale2d"]}
 
 def nba_fig(fig):
-    fig.update_layout(**NBA_CHART)
+    fig.update_layout(**_SHARED_CHART)
     return fig
 
 def mlb_fig(fig):
-    fig.update_layout(**MLB_CHART)
+    fig.update_layout(**_SHARED_CHART)
     return fig
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1082,61 +1063,34 @@ with sport_col:
 # ══════════════════════════════════════════════════════════════════════════════
 # SPORT-SPECIFIC CSS INJECTION
 # ══════════════════════════════════════════════════════════════════════════════
-if sport == "🏀 NBA":
-    st.markdown("""
-    <style>
-    html, body, .stApp {
-        background-color: #07080b !important; color: #d8d8e0 !important;
-        --text-primary: #f0f0f8; --text-muted: #3a3a50; --border: #16171f;
-        --surface: #0d0e14; --card-bg: #0d0e14; --accent: #5b8dee;
-        --accent-dim: rgba(91,141,238,0.12); --accent-gradient: linear-gradient(90deg,#5b8dee,#a78bfa);
-        --title-gradient: linear-gradient(135deg,#ffffff 0%,#8b9cf4 100%);
-        --mlb-navy: #c0c8f0; --mlb-red: #8b9cf4; --mlb-surface: #0d0e14; --mlb-border: #16171f;
-    }
-    div[data-baseweb="select"] > div {
-        background-color: #0d0e14 !important; border: 1px solid #1e1f2b !important; color: #d8d8e0 !important; border-radius: 8px !important;
-    }
-    div[data-baseweb="select"] svg { fill: #3a3a50 !important; }
-    .stTextInput input, .stNumberInput input {
-        background-color: #0d0e14 !important; border: 1px solid #1e1f2b !important; color: #d8d8e0 !important;
-    }
-    div[data-baseweb="popover"] { background-color: #10111a !important; border: 1px solid #1e1f2b !important; border-radius: 10px !important; }
-    li[role="option"] { background-color: #10111a !important; color: #d8d8e0 !important; font-size: 0.82rem !important; }
-    li[role="option"]:hover { background-color: #1a1b28 !important; }
-    div[data-baseweb="tag"] { background-color: rgba(91,141,238,0.15) !important; border: 1px solid rgba(91,141,238,0.3) !important; color: #8baff5 !important; border-radius: 6px !important; }
-    [data-testid="stSlider"] > div > div > div { background: linear-gradient(90deg,#5b8dee,#a78bfa) !important; }
-    [data-testid="stSlider"] [role="slider"] { background-color: #5b8dee !important; box-shadow: 0 0 0 4px rgba(91,141,238,0.2) !important; }
-    .stMultiSelect [data-baseweb="select"] > div { background-color: #0d0e14 !important; border: 1px solid #1e1f2b !important; }
-    </style>""", unsafe_allow_html=True)
-else:
-    st.markdown("""
-    <style>
-    html, body, .stApp {
-        background-color: #edf1fb !important; color: #0a1640 !important;
-        --text-primary: #001845; --text-muted: #5a6e9a; --border: #d4ddf0;
-        --surface: #ffffff; --card-bg: #ffffff; --accent: #002060;
-        --accent-dim: rgba(0,32,96,0.07); --accent-gradient: linear-gradient(90deg,#002060,#C8102E);
-        --title-gradient: linear-gradient(135deg,#001845 0%,#004aad 100%);
-        --mlb-navy: #001845; --mlb-red: #C8102E; --mlb-surface: #ffffff; --mlb-border: #d4ddf0;
-    }
-    div[data-baseweb="select"] > div {
-        background-color: #fff !important; border: 1px solid #c8d4ea !important; color: #001845 !important; border-radius: 8px !important;
-    }
-    div[data-baseweb="select"] svg { fill: #5a6e9a !important; }
-    .stTextInput input, .stNumberInput input {
-        background-color: #fff !important; border: 1px solid #c8d4ea !important; color: #001845 !important;
-    }
-    div[data-baseweb="popover"] { background-color: #fff !important; border: 1px solid #c8d4ea !important; border-radius: 10px !important; box-shadow: 0 8px 24px rgba(0,24,69,0.12) !important; }
-    li[role="option"] { background-color: #fff !important; color: #001845 !important; font-size: 0.82rem !important; }
-    li[role="option"]:hover { background-color: #edf1fb !important; }
-    div[data-baseweb="tag"] { background-color: rgba(0,32,96,0.08) !important; border: 1px solid rgba(0,32,96,0.2) !important; color: #002060 !important; border-radius: 6px !important; }
-    [data-testid="stSlider"] > div > div > div { background: linear-gradient(90deg,#002060,#C8102E) !important; }
-    [data-testid="stSlider"] [role="slider"] { background-color: #002060 !important; box-shadow: 0 0 0 4px rgba(0,32,96,0.15) !important; }
-    .stTabs [aria-selected="true"] { color: #C8102E !important; border-bottom: 2px solid #C8102E !important; }
-    .stTabs [data-baseweb="tab-list"] { border-bottom: 1px solid #d4ddf0 !important; }
-    .section-heading { color: var(--mlb-navy) !important; border-bottom-color: #C8102E !important; }
-    .stMultiSelect [data-baseweb="select"] > div { background-color: #fff !important; border: 1px solid #c8d4ea !important; }
-    </style>""", unsafe_allow_html=True)
+_SHARED_CSS = """
+<style>
+html, body, .stApp {
+    background-color: #111318 !important; color: #d8dae4 !important;
+    --text-primary: #dfe1ea; --text-muted: #5c6272; --border: #252a35;
+    --surface: #191c23; --card-bg: #191c23; --accent: #818cf8;
+    --accent-dim: rgba(129,140,248,0.12);
+    --accent-gradient: linear-gradient(90deg,#818cf8,#a78bfa);
+    --title-gradient: linear-gradient(135deg,#dfe1ea 0%,#a5b0ff 100%);
+    --mlb-navy: #a5b0ff; --mlb-red: #a78bfa; --mlb-surface: #191c23; --mlb-border: #252a35;
+}
+div[data-baseweb="select"] > div {
+    background-color: #191c23 !important; border: 1px solid #2e3341 !important;
+    color: #d8dae4 !important; border-radius: 8px !important;
+}
+div[data-baseweb="select"] svg { fill: #5c6272 !important; }
+.stTextInput input, .stNumberInput input {
+    background-color: #191c23 !important; border: 1px solid #2e3341 !important; color: #d8dae4 !important;
+}
+div[data-baseweb="popover"] { background-color: #1f2330 !important; border: 1px solid #2e3341 !important; border-radius: 10px !important; }
+li[role="option"] { background-color: #1f2330 !important; color: #d8dae4 !important; font-size: 0.82rem !important; }
+li[role="option"]:hover { background-color: #252a35 !important; }
+div[data-baseweb="tag"] { background-color: rgba(129,140,248,0.14) !important; border: 1px solid rgba(129,140,248,0.3) !important; color: #a5b0ff !important; border-radius: 6px !important; }
+[data-testid="stSlider"] > div > div > div { background: linear-gradient(90deg,#818cf8,#a78bfa) !important; }
+[data-testid="stSlider"] [role="slider"] { background-color: #818cf8 !important; box-shadow: 0 0 0 4px rgba(129,140,248,0.2) !important; }
+.stMultiSelect [data-baseweb="select"] > div { background-color: #191c23 !important; border: 1px solid #2e3341 !important; }
+</style>"""
+st.markdown(_SHARED_CSS, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ══════════════  NBA  ════════════════════════════════════════════════════════
@@ -1156,7 +1110,7 @@ if sport == "🏀 NBA":
     # ── HOME ──────────────────────────────────────────────────────────────────
     with tab_home:
         st.markdown("""
-        <div class="sport-hero" style="background:linear-gradient(135deg,#07080b 0%,#0d1535 55%,#07080b 100%);">
+        <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
             <div class="sport-hero-watermark">🏀</div>
             <div class="sport-hero-content">
                 <p class="sport-hero-label">Konjure Analytics &nbsp;·&nbsp; NBA Edition</p>
@@ -1303,9 +1257,9 @@ if sport == "🏀 NBA":
                         section("Trend")
                         fig = px.line(df.reset_index(), y=["TARGET", "ROLLING_AVG"],
                                       labels={"value": prop_type, "index": "Game"},
-                                      color_discrete_map={"TARGET": "#ffffff", "ROLLING_AVG": "#555"})
-                        fig.add_hline(y=line_value, line_dash="dot", line_color="#333",
-                                      annotation_text=f"Line {line_value}", annotation_font_color="#555")
+                                      color_discrete_map={"TARGET": "#818cf8", "ROLLING_AVG": "#a78bfa"})
+                        fig.add_hline(y=line_value, line_dash="dot", line_color="#3a4055",
+                                      annotation_text=f"Line {line_value}", annotation_font_color="#5c6272")
                         st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
 
                         section("Predictive Stat Line")
@@ -1372,9 +1326,9 @@ if sport == "🏀 NBA":
                         section("Hit Rate by Opponent")
                         fig = px.bar(opp_stats.reset_index(), x="Hit Rate", y="OPPONENT",
                                      orientation="h", color="Hit Rate",
-                                     color_continuous_scale=["#222", "#555", "#ffffff"],
+                                     color_continuous_scale=["#252a35", "#4a5280", "#818cf8"],
                                      text=opp_stats["Games"].astype(str).values + " G")
-                        fig.add_vline(x=0.5, line_dash="dot", line_color="#333")
+                        fig.add_vline(x=0.5, line_dash="dot", line_color="#3a4055")
                         fig.update_coloraxes(showscale=False)
                         st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
                         section("Data Table")
@@ -1420,8 +1374,8 @@ if sport == "🏀 NBA":
                         section("Cumulative P&L")
                         fig = px.line(df.reset_index(), y="CUMULATIVE_PROFIT",
                                       labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
-                                      color_discrete_sequence=["#ffffff"])
-                        fig.add_hline(y=0, line_dash="dot", line_color="#333")
+                                      color_discrete_sequence=["#818cf8"])
+                        fig.add_hline(y=0, line_dash="dot", line_color="#3a4055")
                         st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
 
     # ── FIRST BASKET ──────────────────────────────────────────────────────────
@@ -1459,8 +1413,8 @@ if sport == "🏀 NBA":
                 section("Tip Win % vs First Basket % — All Teams")
                 fig_scatter = px.scatter(df_team, x="Tip Win %", y="First Basket %",
                                          text=df_team.index, trendline="ols",
-                                         color_discrete_sequence=["#ffffff"])
-                fig_scatter.update_traces(textfont_color="#666", marker_size=8)
+                                         color_discrete_sequence=["#818cf8"])
+                fig_scatter.update_traces(textfont_color="#5c6272", marker_size=8)
                 st.plotly_chart(nba_fig(fig_scatter), use_container_width=True, config=_CHART_CFG)
                 section("Full Team Table")
                 st.dataframe(df_team.sort_values("First Basket %", ascending=False).style.format(
@@ -1534,7 +1488,7 @@ else:
     # ── MLB HOME ──────────────────────────────────────────────────────────────
     with tab_mlb_home:
         st.markdown("""
-        <div class="sport-hero" style="background:linear-gradient(135deg,#001845 0%,#0a2260 55%,#001845 100%);">
+        <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
             <div class="sport-hero-watermark">⚾</div>
             <div class="sport-hero-content">
                 <p class="sport-hero-label">Konjure Analytics &nbsp;·&nbsp; MLB Edition</p>
@@ -1689,10 +1643,10 @@ else:
                         h_df.reset_index(),
                         x="date", y=[h_stat, "ROLLING"],
                         labels={"value": h_stat, "date": "Date"},
-                        color_discrete_map={h_stat: "#002D72", "ROLLING": "#D50032"},
+                        color_discrete_map={h_stat: "#818cf8", "ROLLING": "#a78bfa"},
                     )
-                    fig_h.add_hline(y=h_line, line_dash="dot", line_color="#bbb",
-                                    annotation_text=f"Line {h_line}", annotation_font_color="#aaa")
+                    fig_h.add_hline(y=h_line, line_dash="dot", line_color="#3a4055",
+                                    annotation_text=f"Line {h_line}", annotation_font_color="#5c6272")
                     st.plotly_chart(mlb_fig(fig_h), use_container_width=True, config=_CHART_CFG)
 
                     # Opponent breakdown
@@ -1706,10 +1660,10 @@ else:
                             opp_h.reset_index(),
                             x=f"Avg {h_stat}", y="opponent", orientation="h",
                             color=f"Avg {h_stat}",
-                            color_continuous_scale=["#e8f0fa", "#002D72"],
+                            color_continuous_scale=["#252a35", "#818cf8"],
                             text=opp_h["Games"].astype(str).values + "G",
                         )
-                        fig_opp.add_vline(x=h_df[h_stat].mean(), line_dash="dot", line_color="#D50032")
+                        fig_opp.add_vline(x=h_df[h_stat].mean(), line_dash="dot", line_color="#a78bfa")
                         fig_opp.update_coloraxes(showscale=False)
                         st.plotly_chart(mlb_fig(fig_opp), use_container_width=True, config=_CHART_CFG)
 
@@ -1840,20 +1794,20 @@ else:
                         p_df.reset_index(),
                         x="date", y=[p_stat, "ROLLING"],
                         labels={"value": p_stat, "date": "Date"},
-                        color_discrete_map={p_stat: "#002D72", "ROLLING": "#D50032"},
+                        color_discrete_map={p_stat: "#818cf8", "ROLLING": "#a78bfa"},
                     )
-                    fig_p.add_hline(y=p_line, line_dash="dot", line_color="#bbb",
-                                    annotation_text=f"Line {p_line}", annotation_font_color="#aaa")
+                    fig_p.add_hline(y=p_line, line_dash="dot", line_color="#3a4055",
+                                    annotation_text=f"Line {p_line}", annotation_font_color="#5c6272")
                     st.plotly_chart(mlb_fig(fig_p), use_container_width=True, config=_CHART_CFG)
 
                     # Strikeout distribution
                     mlb_section("K Distribution")
                     fig_hist = px.histogram(
                         p_df, x="K", nbins=12,
-                        color_discrete_sequence=["#002D72"],
+                        color_discrete_sequence=["#818cf8"],
                     )
-                    fig_hist.add_vline(x=p_line, line_dash="dot", line_color="#D50032",
-                                       annotation_text=f"Line {p_line}", annotation_font_color="#D50032")
+                    fig_hist.add_vline(x=p_line, line_dash="dot", line_color="#a78bfa",
+                                       annotation_text=f"Line {p_line}", annotation_font_color="#a78bfa")
                     st.plotly_chart(mlb_fig(fig_hist), use_container_width=True, config=_CHART_CFG)
 
                     # Opponent breakdown
@@ -1983,16 +1937,16 @@ else:
                         mlb_section(f"{primary} Trend with {opp_display} Games Highlighted")
                         fig_vo = px.line(vo_df.reset_index(), x="date", y=primary,
                                          labels={primary: primary, "date": "Date"},
-                                         color_discrete_sequence=["#ccd8ea"])
+                                         color_discrete_sequence=["#3a4055"])
                         fig_vo.add_scatter(x=vo_df["date"], y=vo_df["ROLLING"],
                                            mode="lines", name="Rolling Avg",
-                                           line=dict(color="#002D72", width=2))
+                                           line=dict(color="#818cf8", width=2))
                         if opp_mask.any():
                             fig_vo.add_scatter(
                                 x=vo_df.loc[opp_mask, "date"],
                                 y=vo_df.loc[opp_mask, primary],
                                 mode="markers", name=f"vs {opp_display}",
-                                marker=dict(color="#D50032", size=10, symbol="diamond"),
+                                marker=dict(color="#a78bfa", size=10, symbol="diamond"),
                             )
                         st.plotly_chart(mlb_fig(fig_vo), use_container_width=True, config=_CHART_CFG)
 
