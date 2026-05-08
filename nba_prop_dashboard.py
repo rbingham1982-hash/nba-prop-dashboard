@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 Konjure Analytics — Multi-Sport Prop & Predictive Dashboard
 """
@@ -24,144 +24,162 @@ st.set_page_config(
 # ─── Base CSS (shared) ─────────────────────────────────────────────────────
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 #MainMenu, footer, header { visibility: hidden; }
-.block-container { padding-top: 1.5rem !important; max-width: 100% !important; }
-html, body, .stApp {
-    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-}
+[data-testid="stSidebar"] { display: none; }
+.block-container { padding: 1.1rem 1.5rem 2rem !important; max-width: 100% !important; }
+html, body, .stApp { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 /* ── Header ── */
-.konjure-header {
-    padding: 0.75rem 0 1rem 0;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0.5rem;
-}
+.konjure-header { padding: 0.5rem 0 0.85rem 0; border-bottom: 1px solid var(--border); margin-bottom: 0.25rem; }
 .konjure-title {
-    font-size: 1.4rem; font-weight: 700; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--text-primary); margin: 0 0 0.1rem 0;
+    font-size: 1.3rem; font-weight: 800; letter-spacing: 0.18em;
+    text-transform: uppercase; margin: 0 0 0.06rem 0;
+    background: var(--title-gradient); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; background-clip: text;
 }
-.konjure-sub {
-    font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.18em;
-    text-transform: uppercase; margin: 0;
-}
+.konjure-sub { font-size: 0.6rem; color: var(--text-muted); letter-spacing: 0.22em; text-transform: uppercase; margin: 0; }
 
 /* ── Tabs ── */
 .stTabs [data-baseweb="tab-list"] {
-    gap: 0; background-color: transparent !important;
+    gap: 0; background: transparent !important;
     border-bottom: 1px solid var(--border);
 }
 .stTabs [data-baseweb="tab"] {
-    color: var(--text-muted) !important; background-color: transparent !important;
+    color: var(--text-muted) !important; background: transparent !important;
     border: none !important; border-bottom: 2px solid transparent !important;
-    padding: 0.65rem 1.2rem !important; font-size: 0.72rem !important;
-    font-weight: 500 !important; letter-spacing: 0.12em !important;
-    text-transform: uppercase !important;
+    padding: 0.6rem 1.1rem !important; font-size: 0.66rem !important;
+    font-weight: 600 !important; letter-spacing: 0.14em !important;
+    text-transform: uppercase !important; transition: color 0.15s !important;
 }
-.stTabs [aria-selected="true"] {
-    color: var(--accent) !important;
-    border-bottom: 2px solid var(--accent) !important;
-}
-.stTabs [data-baseweb="tab-panel"] { padding-top: 1.5rem; }
+.stTabs [data-baseweb="tab"]:hover { color: var(--text-primary) !important; }
+.stTabs [aria-selected="true"] { color: var(--accent) !important; border-bottom: 2px solid var(--accent) !important; }
+.stTabs [data-baseweb="tab-panel"] { padding-top: 1.25rem; }
 
 /* ── Section heading ── */
 .section-heading {
-    font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--text-muted); margin: 1.25rem 0 0.5rem 0;
-    padding-bottom: 0.35rem; border-bottom: 1px solid var(--border);
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-muted); margin: 1.4rem 0 0.7rem 0;
+    padding-bottom: 0.38rem; border-bottom: 1px solid var(--border);
 }
 
 /* ── Metric cards ── */
 [data-testid="metric-container"] {
-    background-color: var(--surface) !important;
+    background: var(--card-bg) !important;
     border: 1px solid var(--border) !important;
-    border-radius: 6px; padding: 0.9rem 1.1rem !important;
+    border-radius: 12px !important; padding: 1rem 1.15rem !important;
+    position: relative; overflow: hidden;
+}
+[data-testid="metric-container"]::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--accent-gradient);
 }
 [data-testid="metric-container"] label {
-    color: var(--text-muted) !important; font-size: 0.65rem !important;
-    letter-spacing: 0.12em !important; text-transform: uppercase !important;
+    color: var(--text-muted) !important; font-size: 0.59rem !important;
+    font-weight: 600 !important; letter-spacing: 0.16em !important; text-transform: uppercase !important;
 }
 [data-testid="metric-container"] [data-testid="metric-value"] {
-    color: var(--text-primary) !important;
-    font-size: 1.4rem !important; font-weight: 600 !important;
+    color: var(--text-primary) !important; font-size: 1.45rem !important; font-weight: 700 !important; line-height: 1.2 !important;
 }
+[data-testid="stMetricDelta"] { font-size: 0.68rem !important; font-weight: 500 !important; }
 
 /* ── DataFrames ── */
-.stDataFrame { border: 1px solid var(--border) !important; border-radius: 6px !important; }
+.stDataFrame { border: 1px solid var(--border) !important; border-radius: 12px !important; overflow: hidden !important; }
 
 /* ── Alerts ── */
-.stAlert {
-    background-color: var(--surface) !important; border: 1px solid var(--border) !important;
-    color: var(--text-muted) !important; border-radius: 6px;
-}
+.stAlert { background: var(--card-bg) !important; border: 1px solid var(--border) !important; color: var(--text-muted) !important; border-radius: 10px !important; font-size: 0.8rem !important; }
 
 /* ── Divider ── */
-hr { border-color: var(--border) !important; }
+hr { border-color: var(--border) !important; margin: 1rem 0 !important; }
 
-/* ── Player card (NBA dark) ── */
+/* ── Player card (NBA) ── */
 .player-card {
-    background-color: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 1rem 1.25rem; display: flex;
-    align-items: center; gap: 1rem; margin-bottom: 1.25rem;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1rem 1.2rem; display: flex;
+    align-items: center; gap: 1rem; margin-bottom: 1rem;
 }
 .player-card img {
-    width: 68px; height: 68px; object-fit: cover;
-    border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
+    width: 62px; height: 62px; object-fit: cover;
+    border-radius: 50%; border: 2px solid var(--border); background: var(--card-bg);
 }
-.player-card-name { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 0.15rem 0; }
-.player-card-team { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
+.player-card-name { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.12rem 0; }
+.player-card-team { font-size: 0.58rem; color: var(--text-muted); letter-spacing: 0.16em; text-transform: uppercase; margin: 0; }
 
-/* ── Feature cards (home) ── */
+/* ── Feature cards ── */
 .feature-card {
-    background-color: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 1.1rem 1.25rem; height: 100%;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.15rem 1.25rem; height: 100%;
 }
-.feature-card-icon { font-size: 1.3rem; margin-bottom: 0.4rem; }
-.feature-card-title {
-    font-size: 0.74rem; font-weight: 600; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--text-primary); margin: 0 0 0.35rem 0;
-}
-.feature-card-desc { font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+.feature-card-icon { font-size: 1.35rem; margin-bottom: 0.45rem; }
+.feature-card-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-primary); margin: 0 0 0.35rem 0; }
+.feature-card-desc { font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.6; }
 
-/* ── MLB player photo card ── */
+/* ── MLB player card ── */
 .mlb-player-card {
-    background: var(--mlb-surface); border: 1px solid var(--mlb-border);
-    border-radius: 12px; padding: 1.25rem; display: flex;
-    align-items: center; gap: 1.25rem; margin-bottom: 1.25rem;
-    box-shadow: 0 2px 8px rgba(0,45,114,0.08);
+    background: #fff; border: 1px solid var(--mlb-border);
+    border-radius: 14px; padding: 1.15rem 1.3rem; display: flex;
+    align-items: center; gap: 1.2rem; margin-bottom: 1rem;
+    box-shadow: 0 4px 20px rgba(0,32,96,0.08);
 }
 .mlb-player-card img {
-    width: 90px; height: 90px; object-fit: cover; object-position: top;
-    border-radius: 8px; background: #e8edf4;
-    border: 2px solid var(--mlb-navy);
+    width: 76px; height: 76px; object-fit: cover; object-position: top;
+    border-radius: 10px; background: #e8edf4; border: 2px solid var(--mlb-navy);
 }
-.mlb-player-name { font-size: 1.15rem; font-weight: 700; color: var(--mlb-navy); margin: 0 0 0.2rem 0; }
-.mlb-player-pos { font-size: 0.68rem; color: var(--mlb-red); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 0.1rem 0; }
-.mlb-player-team { font-size: 0.68rem; color: #666; letter-spacing: 0.1em; text-transform: uppercase; margin: 0; }
+.mlb-player-name { font-size: 1.05rem; font-weight: 800; color: var(--mlb-navy); margin: 0 0 0.12rem 0; }
+.mlb-player-pos { font-size: 0.6rem; color: var(--mlb-red); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 0.06rem 0; }
+.mlb-player-team { font-size: 0.6rem; color: #8899aa; letter-spacing: 0.1em; text-transform: uppercase; margin: 0; }
 
 /* ── MLB section heading ── */
 .mlb-section {
-    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em;
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.22em;
     text-transform: uppercase; color: var(--mlb-navy);
-    margin: 1.5rem 0 0.6rem 0; padding-bottom: 0.4rem;
+    margin: 1.4rem 0 0.7rem 0; padding-bottom: 0.42rem;
     border-bottom: 2px solid var(--mlb-red);
 }
 
-/* ── MLB stat badge ── */
-.mlb-badge {
-    display: inline-block; background: var(--mlb-navy); color: #fff;
-    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
-    padding: 0.2rem 0.6rem; border-radius: 20px; margin-right: 0.4rem;
-}
-
-/* ── Prediction chip ── */
-.pred-chip {
-    display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px;
-    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
-    background: var(--mlb-red); color: #fff; margin-top: 0.3rem;
+/* ── Stat pill ── */
+.stat-pill {
+    display: inline-block; background: var(--accent-dim); color: var(--text-primary);
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em;
+    padding: 0.18rem 0.65rem; border-radius: 20px; margin-right: 0.35rem; margin-bottom: 0.25rem;
 }
 
 /* ── Sport selector ── */
 div[data-testid="stSelectbox"] label { display: none; }
+
+/* ── Control panel wrapper ── */
+.ctrl-panel {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.1rem 1.15rem; margin-bottom: 0.5rem;
+}
+
+/* ── Inputs / selects ── */
+.stTextInput input, .stNumberInput input {
+    border-radius: 8px !important; font-size: 0.82rem !important;
+}
+div[data-baseweb="select"] > div { border-radius: 8px !important; }
+
+/* ── Buttons ── */
+.stButton > button {
+    border-radius: 8px !important; font-size: 0.7rem !important;
+    font-weight: 600 !important; letter-spacing: 0.1em !important;
+    text-transform: uppercase !important; transition: all 0.15s !important;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+    .block-container { padding: 0.75rem 0.6rem !important; }
+    .konjure-title { font-size: 1rem !important; }
+    .stTabs [data-baseweb="tab"] { padding: 0.45rem 0.55rem !important; font-size: 0.58rem !important; }
+    [data-testid="metric-container"] [data-testid="metric-value"] { font-size: 1.15rem !important; }
+    .player-card img { width: 48px !important; height: 48px !important; }
+    .mlb-player-card img { width: 58px !important; height: 58px !important; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -696,11 +714,6 @@ def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id):
                 opp_hist_txt = (f"Against the {opp_name} this season, {hitter_name} is batting "
                                 f".{int(vs_avg*1000):03d} ({vs['H'].sum()}-for-{vs['AB'].sum()}) "
                                 f"with {vs['HR'].sum()} HR. ")
-        if opp_id:
-            bat = get_mlb_team_batting_stats(opp_id)
-            if bat:
-                t_avg = float(bat.get("avg") or 0)
-                t_ops = float(bat.get("ops") or 0)
     recent10 = df.tail(10)
     rh = recent10["H"].mean()
     sh = df["H"].mean()
@@ -787,21 +800,40 @@ PP_STAT_MAP = {
 SEASONS = ["2022-23", "2023-24", "2024-25", "2025-26"]
 
 NBA_CHART = dict(
-    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0f0f0f", font_color="#888",
-    title_font_color="#e0e0e0",
-    xaxis=dict(gridcolor="#1c1c1c", linecolor="#1c1c1c", zerolinecolor="#1c1c1c"),
-    yaxis=dict(gridcolor="#1c1c1c", linecolor="#1c1c1c", zerolinecolor="#1c1c1c"),
-    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#888")),
-    margin=dict(t=40, b=20, l=0, r=0),
+    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0a0b10", font_color="#3a3a50",
+    title_font_color="#d0d0e0", title_font_size=13,
+    font=dict(family="Inter, sans-serif", size=11),
+    xaxis=dict(gridcolor="#13141e", linecolor="#13141e", zerolinecolor="#13141e",
+               tickfont=dict(size=10, color="#3a3a50"), showspikes=True,
+               spikecolor="#2a2b38", spikethickness=1, spikemode="across"),
+    yaxis=dict(gridcolor="#13141e", linecolor="#13141e", zerolinecolor="#13141e",
+               tickfont=dict(size=10, color="#3a3a50")),
+    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#4a4a60", size=10),
+                bordercolor="rgba(0,0,0,0)", orientation="h", yanchor="bottom",
+                y=1.02, xanchor="right", x=1),
+    margin=dict(t=44, b=24, l=4, r=4),
+    hovermode="x unified",
+    hoverlabel=dict(bgcolor="#12131c", bordercolor="#1e1f2b",
+                    font=dict(color="#d0d0e0", size=11)),
 )
 MLB_CHART = dict(
-    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#f8fbff", font_color="#555",
-    title_font_color="#002D72",
-    xaxis=dict(gridcolor="#dde6f0", linecolor="#dde6f0", zerolinecolor="#dde6f0"),
-    yaxis=dict(gridcolor="#dde6f0", linecolor="#dde6f0", zerolinecolor="#dde6f0"),
-    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#555")),
-    margin=dict(t=40, b=20, l=0, r=0),
+    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#f5f8ff", font_color="#5a6e9a",
+    title_font_color="#001845", title_font_size=13,
+    font=dict(family="Inter, sans-serif", size=11),
+    xaxis=dict(gridcolor="#dde6f5", linecolor="#dde6f5", zerolinecolor="#dde6f5",
+               tickfont=dict(size=10, color="#8899bb"), showspikes=True,
+               spikecolor="#c0cce4", spikethickness=1, spikemode="across"),
+    yaxis=dict(gridcolor="#dde6f5", linecolor="#dde6f5", zerolinecolor="#dde6f5",
+               tickfont=dict(size=10, color="#8899bb")),
+    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#5a6e9a", size=10),
+                bordercolor="rgba(0,0,0,0)", orientation="h", yanchor="bottom",
+                y=1.02, xanchor="right", x=1),
+    margin=dict(t=44, b=24, l=4, r=4),
+    hovermode="x unified",
+    hoverlabel=dict(bgcolor="#fff", bordercolor="#d4ddf0",
+                    font=dict(color="#001845", size=11)),
 )
+_CHART_CFG = {"displaylogo": False, "modeBarButtonsToRemove": ["select2d","lasso2d","autoScale2d"]}
 
 def nba_fig(fig):
     fig.update_layout(**NBA_CHART)
@@ -869,47 +901,56 @@ if sport == "🏀 NBA":
     st.markdown("""
     <style>
     html, body, .stApp {
-        background-color: #090909 !important; color: #e0e0e0 !important;
-        --text-primary: #ffffff; --text-muted: #444; --border: #1c1c1c;
-        --surface: #0f0f0f; --accent: #ffffff;
-        --mlb-navy: #fff; --mlb-red: #fff; --mlb-surface: #111; --mlb-border: #1c1c1c;
+        background-color: #07080b !important; color: #d8d8e0 !important;
+        --text-primary: #f0f0f8; --text-muted: #3a3a50; --border: #16171f;
+        --surface: #0d0e14; --card-bg: #0d0e14; --accent: #5b8dee;
+        --accent-dim: rgba(91,141,238,0.12); --accent-gradient: linear-gradient(90deg,#5b8dee,#a78bfa);
+        --title-gradient: linear-gradient(135deg,#ffffff 0%,#8b9cf4 100%);
+        --mlb-navy: #c0c8f0; --mlb-red: #8b9cf4; --mlb-surface: #0d0e14; --mlb-border: #16171f;
     }
     div[data-baseweb="select"] > div {
-        background-color: #101010 !important; border: 1px solid #222 !important; color: #e0e0e0 !important;
+        background-color: #0d0e14 !important; border: 1px solid #1e1f2b !important; color: #d8d8e0 !important; border-radius: 8px !important;
     }
-    div[data-baseweb="select"] svg { fill: #555 !important; }
+    div[data-baseweb="select"] svg { fill: #3a3a50 !important; }
     .stTextInput input, .stNumberInput input {
-        background-color: #101010 !important; border: 1px solid #222 !important; color: #e0e0e0 !important;
+        background-color: #0d0e14 !important; border: 1px solid #1e1f2b !important; color: #d8d8e0 !important;
     }
-    div[data-baseweb="popover"] { background-color: #111 !important; border: 1px solid #222 !important; }
-    li[role="option"] { background-color: #111 !important; color: #e0e0e0 !important; }
-    li[role="option"]:hover { background-color: #1e1e1e !important; }
-    div[data-baseweb="tag"] { background-color: #1e1e1e !important; border: 1px solid #2e2e2e !important; color: #e0e0e0 !important; }
-    [data-testid="stSlider"] [role="slider"] { background-color: #fff !important; }
+    div[data-baseweb="popover"] { background-color: #10111a !important; border: 1px solid #1e1f2b !important; border-radius: 10px !important; }
+    li[role="option"] { background-color: #10111a !important; color: #d8d8e0 !important; font-size: 0.82rem !important; }
+    li[role="option"]:hover { background-color: #1a1b28 !important; }
+    div[data-baseweb="tag"] { background-color: rgba(91,141,238,0.15) !important; border: 1px solid rgba(91,141,238,0.3) !important; color: #8baff5 !important; border-radius: 6px !important; }
+    [data-testid="stSlider"] > div > div > div { background: linear-gradient(90deg,#5b8dee,#a78bfa) !important; }
+    [data-testid="stSlider"] [role="slider"] { background-color: #5b8dee !important; box-shadow: 0 0 0 4px rgba(91,141,238,0.2) !important; }
+    .stMultiSelect [data-baseweb="select"] > div { background-color: #0d0e14 !important; border: 1px solid #1e1f2b !important; }
     </style>""", unsafe_allow_html=True)
 else:
     st.markdown("""
     <style>
     html, body, .stApp {
-        background-color: #f0f5fc !important; color: #1a1a2e !important;
-        --text-primary: #002D72; --text-muted: #6b7c9e; --border: #dde6f0;
-        --surface: #ffffff; --accent: #002D72;
-        --mlb-navy: #002D72; --mlb-red: #D50032; --mlb-surface: #ffffff; --mlb-border: #dde6f0;
+        background-color: #edf1fb !important; color: #0a1640 !important;
+        --text-primary: #001845; --text-muted: #5a6e9a; --border: #d4ddf0;
+        --surface: #ffffff; --card-bg: #ffffff; --accent: #002060;
+        --accent-dim: rgba(0,32,96,0.07); --accent-gradient: linear-gradient(90deg,#002060,#C8102E);
+        --title-gradient: linear-gradient(135deg,#001845 0%,#004aad 100%);
+        --mlb-navy: #001845; --mlb-red: #C8102E; --mlb-surface: #ffffff; --mlb-border: #d4ddf0;
     }
     div[data-baseweb="select"] > div {
-        background-color: #ffffff !important; border: 1px solid #c8d8ea !important; color: #002D72 !important;
+        background-color: #fff !important; border: 1px solid #c8d4ea !important; color: #001845 !important; border-radius: 8px !important;
     }
-    div[data-baseweb="select"] svg { fill: #002D72 !important; }
+    div[data-baseweb="select"] svg { fill: #5a6e9a !important; }
     .stTextInput input, .stNumberInput input {
-        background-color: #ffffff !important; border: 1px solid #c8d8ea !important; color: #002D72 !important;
+        background-color: #fff !important; border: 1px solid #c8d4ea !important; color: #001845 !important;
     }
-    div[data-baseweb="popover"] { background-color: #fff !important; border: 1px solid #c8d8ea !important; }
-    li[role="option"] { background-color: #fff !important; color: #002D72 !important; }
-    li[role="option"]:hover { background-color: #f0f5fc !important; }
-    div[data-baseweb="tag"] { background-color: #e0ecf8 !important; border: 1px solid #c8d8ea !important; color: #002D72 !important; }
-    [data-testid="stSlider"] [role="slider"] { background-color: #002D72 !important; }
-    .stTabs [aria-selected="true"] { color: #D50032 !important; border-bottom: 2px solid #D50032 !important; }
-    .stTabs [data-baseweb="tab-list"] { border-bottom: 1px solid #dde6f0 !important; }
+    div[data-baseweb="popover"] { background-color: #fff !important; border: 1px solid #c8d4ea !important; border-radius: 10px !important; box-shadow: 0 8px 24px rgba(0,24,69,0.12) !important; }
+    li[role="option"] { background-color: #fff !important; color: #001845 !important; font-size: 0.82rem !important; }
+    li[role="option"]:hover { background-color: #edf1fb !important; }
+    div[data-baseweb="tag"] { background-color: rgba(0,32,96,0.08) !important; border: 1px solid rgba(0,32,96,0.2) !important; color: #002060 !important; border-radius: 6px !important; }
+    [data-testid="stSlider"] > div > div > div { background: linear-gradient(90deg,#002060,#C8102E) !important; }
+    [data-testid="stSlider"] [role="slider"] { background-color: #002060 !important; box-shadow: 0 0 0 4px rgba(0,32,96,0.15) !important; }
+    .stTabs [aria-selected="true"] { color: #C8102E !important; border-bottom: 2px solid #C8102E !important; }
+    .stTabs [data-baseweb="tab-list"] { border-bottom: 1px solid #d4ddf0 !important; }
+    .mlb-section { border-bottom-color: #C8102E !important; }
+    .stMultiSelect [data-baseweb="select"] > div { background-color: #fff !important; border: 1px solid #c8d4ea !important; }
     </style>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1062,7 +1103,7 @@ if sport == "🏀 NBA":
                                       color_discrete_map={"TARGET": "#ffffff", "ROLLING_AVG": "#555"})
                         fig.add_hline(y=line_value, line_dash="dot", line_color="#333",
                                       annotation_text=f"Line {line_value}", annotation_font_color="#555")
-                        st.plotly_chart(nba_fig(fig), use_container_width=True)
+                        st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
 
                         section("Predictive Stat Line")
                         if len(df) >= rolling_window:
@@ -1132,7 +1173,7 @@ if sport == "🏀 NBA":
                                      text=opp_stats["Games"].astype(str).values + " G")
                         fig.add_vline(x=0.5, line_dash="dot", line_color="#333")
                         fig.update_coloraxes(showscale=False)
-                        st.plotly_chart(nba_fig(fig), use_container_width=True)
+                        st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
                         section("Data Table")
                         st.dataframe(opp_stats.style.format(
                             {"Hit Rate": "{:.1%}", "Avg Margin": "{:.2f}", "Avg Stat": "{:.1f}", "Games": "{:.0f}"}
@@ -1178,7 +1219,7 @@ if sport == "🏀 NBA":
                                       labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
                                       color_discrete_sequence=["#ffffff"])
                         fig.add_hline(y=0, line_dash="dot", line_color="#333")
-                        st.plotly_chart(nba_fig(fig), use_container_width=True)
+                        st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
 
     # ── FIRST BASKET ──────────────────────────────────────────────────────────
     with tab_fb:
@@ -1217,7 +1258,7 @@ if sport == "🏀 NBA":
                                          text=df_team.index, trendline="ols",
                                          color_discrete_sequence=["#ffffff"])
                 fig_scatter.update_traces(textfont_color="#666", marker_size=8)
-                st.plotly_chart(nba_fig(fig_scatter), use_container_width=True)
+                st.plotly_chart(nba_fig(fig_scatter), use_container_width=True, config=_CHART_CFG)
                 section("Full Team Table")
                 st.dataframe(df_team.sort_values("First Basket %", ascending=False).style.format(
                     {"First Basket %": "{:.1%}", "Tip Win %": "{:.1%}"}), use_container_width=True)
@@ -1441,7 +1482,7 @@ else:
                     )
                     fig_h.add_hline(y=h_line, line_dash="dot", line_color="#bbb",
                                     annotation_text=f"Line {h_line}", annotation_font_color="#aaa")
-                    st.plotly_chart(mlb_fig(fig_h), use_container_width=True)
+                    st.plotly_chart(mlb_fig(fig_h), use_container_width=True, config=_CHART_CFG)
 
                     # Opponent breakdown
                     if "opponent" in h_df.columns and h_df["opponent"].notna().any():
@@ -1459,7 +1500,7 @@ else:
                         )
                         fig_opp.add_vline(x=h_df[h_stat].mean(), line_dash="dot", line_color="#D50032")
                         fig_opp.update_coloraxes(showscale=False)
-                        st.plotly_chart(mlb_fig(fig_opp), use_container_width=True)
+                        st.plotly_chart(mlb_fig(fig_opp), use_container_width=True, config=_CHART_CFG)
 
                     # Recent game log table
                     mlb_section("Recent Game Log")
@@ -1592,7 +1633,7 @@ else:
                     )
                     fig_p.add_hline(y=p_line, line_dash="dot", line_color="#bbb",
                                     annotation_text=f"Line {p_line}", annotation_font_color="#aaa")
-                    st.plotly_chart(mlb_fig(fig_p), use_container_width=True)
+                    st.plotly_chart(mlb_fig(fig_p), use_container_width=True, config=_CHART_CFG)
 
                     # Strikeout distribution
                     mlb_section("K Distribution")
@@ -1602,7 +1643,7 @@ else:
                     )
                     fig_hist.add_vline(x=p_line, line_dash="dot", line_color="#D50032",
                                        annotation_text=f"Line {p_line}", annotation_font_color="#D50032")
-                    st.plotly_chart(mlb_fig(fig_hist), use_container_width=True)
+                    st.plotly_chart(mlb_fig(fig_hist), use_container_width=True, config=_CHART_CFG)
 
                     # Opponent breakdown
                     if "opponent" in p_df.columns and p_df["opponent"].notna().any():
@@ -1742,7 +1783,7 @@ else:
                                 mode="markers", name=f"vs {opp_display}",
                                 marker=dict(color="#D50032", size=10, symbol="diamond"),
                             )
-                        st.plotly_chart(mlb_fig(fig_vo), use_container_width=True)
+                        st.plotly_chart(mlb_fig(fig_vo), use_container_width=True, config=_CHART_CFG)
 
                         # ── Recent game log ────────────────────────────────────
                         mlb_section("Recent Game Log")
