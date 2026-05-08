@@ -134,14 +134,6 @@ hr { border-color: var(--border) !important; margin: 1rem 0 !important; }
 .mlb-player-pos { font-size: 0.6rem; color: var(--mlb-red); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 0.06rem 0; }
 .mlb-player-team { font-size: 0.6rem; color: #8899aa; letter-spacing: 0.1em; text-transform: uppercase; margin: 0; }
 
-/* ── MLB section heading ── */
-.mlb-section {
-    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.22em;
-    text-transform: uppercase; color: var(--mlb-navy);
-    margin: 1.4rem 0 0.7rem 0; padding-bottom: 0.42rem;
-    border-bottom: 2px solid var(--mlb-red);
-}
-
 /* ── Stat pill ── */
 .stat-pill {
     display: inline-block; background: var(--accent-dim); color: var(--text-primary);
@@ -171,6 +163,72 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
     text-transform: uppercase !important; transition: all 0.15s !important;
 }
 
+/* ── Score ticker ── */
+.score-ticker {
+    display: flex; align-items: stretch; overflow-x: auto;
+    white-space: nowrap; background: var(--card-bg);
+    border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: 1rem; scrollbar-width: none;
+}
+.score-ticker::-webkit-scrollbar { display: none; }
+.sg-label {
+    flex-shrink: 0; display: flex; align-items: center;
+    padding: 0 1rem; font-size: 0.52rem; font-weight: 800;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); border-right: 1px solid var(--border);
+}
+.sg-item {
+    flex-shrink: 0; padding: 0.55rem 1.1rem;
+    border-right: 1px solid var(--border);
+    text-align: center; min-width: 110px;
+}
+.sg-teams { font-size: 0.7rem; font-weight: 700; color: var(--text-primary); }
+.sg-score { font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0.12rem 0; letter-spacing: 0.04em; }
+.sg-status { font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+.sg-live { color: #4ade80 !important; }
+
+/* ── Sport hero ── */
+.sport-hero {
+    position: relative; border-radius: 14px; overflow: hidden;
+    padding: 2rem 2.5rem; margin-bottom: 1.25rem;
+}
+.sport-hero-watermark {
+    position: absolute; right: 2rem; top: 50%; transform: translateY(-50%);
+    font-size: 9rem; line-height: 1; opacity: 0.06;
+    user-select: none; pointer-events: none;
+}
+.sport-hero-content { position: relative; z-index: 1; }
+.sport-hero-label {
+    font-size: 0.56rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0 0 0.4rem 0;
+}
+.sport-hero-title {
+    font-size: 2rem; font-weight: 800; line-height: 1.1; margin: 0 0 0.5rem 0;
+    background: var(--title-gradient); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; background-clip: text;
+}
+.sport-hero-sub { font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.6; }
+.sport-hero-stats {
+    display: flex; gap: 2rem; margin-top: 1.2rem;
+}
+.sport-hero-stat-val { font-size: 1.25rem; font-weight: 800; color: var(--text-primary); }
+.sport-hero-stat-lbl { font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+
+/* ── News cards ── */
+.news-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.55rem;
+    transition: border-color 0.15s, box-shadow 0.15s; display: block;
+}
+.news-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
+.news-headline {
+    font-size: 0.8rem; font-weight: 600; color: var(--text-primary);
+    line-height: 1.45; margin: 0 0 0.28rem 0;
+}
+.news-desc { font-size: 0.73rem; color: var(--text-muted); margin: 0 0 0.28rem 0; line-height: 1.5; }
+.news-meta { font-size: 0.56rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin: 0; }
+.news-source { font-size: 0.56rem; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 0.28rem 0; }
+
 /* ── Mobile ── */
 @media (max-width: 768px) {
     .block-container { padding: 0.75rem 0.6rem !important; }
@@ -179,6 +237,9 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
     [data-testid="metric-container"] [data-testid="metric-value"] { font-size: 1.15rem !important; }
     .player-card img { width: 48px !important; height: 48px !important; }
     .mlb-player-card img { width: 58px !important; height: 58px !important; }
+    .sport-hero { padding: 1.25rem 1.5rem !important; }
+    .sport-hero-title { font-size: 1.4rem !important; }
+    .sport-hero-watermark { font-size: 5rem !important; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -605,6 +666,84 @@ def get_today_mlb_games():
     except Exception:
         return []
 
+@st.cache_data(ttl=60)
+def get_nba_scoreboard():
+    try:
+        url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+        resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        games = []
+        for ev in resp.json().get("events", []):
+            comp = ev["competitions"][0]
+            comps = comp["competitors"]
+            home = next((c for c in comps if c["homeAway"] == "home"), comps[0])
+            away = next((c for c in comps if c["homeAway"] == "away"), comps[-1])
+            st_type = ev["status"]["type"]
+            games.append({
+                "away": away["team"]["abbreviation"],
+                "home": home["team"]["abbreviation"],
+                "away_score": away.get("score", ""),
+                "home_score": home.get("score", ""),
+                "status": st_type.get("shortDetail", st_type.get("description", "")),
+                "live": st_type.get("state", "") == "in",
+                "completed": st_type.get("completed", False),
+            })
+        return games
+    except Exception:
+        return []
+
+@st.cache_data(ttl=60)
+def get_mlb_scoreboard():
+    try:
+        url = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
+        resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        games = []
+        for ev in resp.json().get("events", []):
+            comp = ev["competitions"][0]
+            comps = comp["competitors"]
+            home = next((c for c in comps if c["homeAway"] == "home"), comps[0])
+            away = next((c for c in comps if c["homeAway"] == "away"), comps[-1])
+            st_type = ev["status"]["type"]
+            games.append({
+                "away": away["team"]["abbreviation"],
+                "home": home["team"]["abbreviation"],
+                "away_score": away.get("score", ""),
+                "home_score": home.get("score", ""),
+                "status": st_type.get("shortDetail", st_type.get("description", "")),
+                "live": st_type.get("state", "") == "in",
+                "completed": st_type.get("completed", False),
+            })
+        return games
+    except Exception:
+        return []
+
+@st.cache_data(ttl=900)
+def get_sport_news(sport="nba"):
+    try:
+        url = f"https://www.espn.com/espn/rss/{sport}/news"
+        resp = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        soup = BeautifulSoup(resp.content, "lxml-xml")
+        items = soup.find_all("item")[:8]
+        news = []
+        for item in items:
+            title_tag = item.find("title")
+            desc_tag = item.find("description")
+            link_tag = item.find("link")
+            date_tag = item.find("pubDate")
+            raw_desc = desc_tag.get_text() if desc_tag else ""
+            clean_desc = BeautifulSoup(raw_desc, "html.parser").get_text()[:130] if raw_desc else ""
+            link_url = link_tag.get_text(strip=True) if link_tag else "#"
+            if not link_url.startswith("http"):
+                link_url = "#"
+            news.append({
+                "title": title_tag.get_text(strip=True) if title_tag else "",
+                "desc": clean_desc,
+                "link": link_url,
+                "date": (date_tag.get_text()[:16] if date_tag else ""),
+            })
+        return [n for n in news if n["title"]]
+    except Exception:
+        return []
+
 # ══════════════════════════════════════════════════════════════════════════════
 # SCOUT REPORT GENERATORS
 # ══════════════════════════════════════════════════════════════════════════════
@@ -849,24 +988,32 @@ def mlb_fig(fig):
 def nba_player_card(player_name, team_code):
     pid = get_player_id(player_name)
     headshot = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else ""
+    logo = f"https://a.espncdn.com/i/teamlogos/nba/500/{team_code.lower()}.png"
     st.markdown(f"""
     <div class="player-card">
         <img src="{headshot}" />
-        <div>
+        <div style="flex:1;">
             <p class="player-card-name">{player_name}</p>
-            <p class="player-card-team">{team_code}</p>
+            <div style="display:flex;align-items:center;gap:0.45rem;margin-top:0.2rem;">
+                <img src="{logo}" style="width:18px;height:18px;object-fit:contain;border:none;border-radius:0;background:transparent;" onerror="this.style.display='none'" />
+                <p class="player-card-team" style="margin:0;">{team_code}</p>
+            </div>
         </div>
     </div>""", unsafe_allow_html=True)
 
 def mlb_player_card(name, pos, team, player_id):
     photo = mlb_headshot(player_id)
+    logo = f"https://a.espncdn.com/i/teamlogos/mlb/500/{team.lower()}.png"
     st.markdown(f"""
     <div class="mlb-player-card">
         <img src="{photo}" />
-        <div>
+        <div style="flex:1;">
             <p class="mlb-player-name">{name}</p>
             <p class="mlb-player-pos">{pos}</p>
-            <p class="mlb-player-team">{team}</p>
+            <div style="display:flex;align-items:center;gap:0.45rem;margin-top:0.18rem;">
+                <img src="{logo}" style="width:20px;height:20px;object-fit:contain;background:transparent;" onerror="this.style.display='none'" />
+                <p class="mlb-player-team" style="margin:0;">{team}</p>
+            </div>
         </div>
     </div>""", unsafe_allow_html=True)
 
@@ -874,7 +1021,45 @@ def section(label):
     st.markdown(f'<p class="section-heading">{label}</p>', unsafe_allow_html=True)
 
 def mlb_section(label):
-    st.markdown(f'<p class="mlb-section">{label}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-heading">{label}</p>', unsafe_allow_html=True)
+
+def render_score_ticker(games):
+    if not games:
+        st.markdown(
+            "<div class='score-ticker'><span class='sg-label'>TODAY</span>"
+            "<span style='padding:0 1.5rem;font-size:0.75rem;color:var(--text-muted);'>No games scheduled today</span></div>",
+            unsafe_allow_html=True)
+        return
+    items_html = ""
+    for g in games:
+        has_score = g["away_score"] != "" or g["home_score"] != ""
+        score = f"{g['away_score']} – {g['home_score']}" if has_score else "–"
+        status_cls = "sg-live" if g["live"] else ""
+        items_html += (
+            f"<div class='sg-item'>"
+            f"<div class='sg-teams'>{g['away']} @ {g['home']}</div>"
+            f"<div class='sg-score'>{score}</div>"
+            f"<div class='sg-status {status_cls}'>{g['status']}</div>"
+            f"</div>"
+        )
+    st.markdown(
+        f"<div class='score-ticker'><span class='sg-label'>TODAY</span>{items_html}</div>",
+        unsafe_allow_html=True)
+
+def render_news_panel(news):
+    if not news:
+        st.caption("No news available right now.")
+        return
+    for item in news:
+        st.markdown(
+            f"<a href='{item['link']}' target='_blank' style='text-decoration:none;'>"
+            f"<div class='news-card'>"
+            f"<p class='news-source'>AP / ESPN</p>"
+            f"<p class='news-headline'>{item['title']}</p>"
+            f"<p class='news-desc'>{item['desc']}</p>"
+            f"<p class='news-meta'>{item['date']}</p>"
+            f"</div></a>",
+            unsafe_allow_html=True)
 
 def rolling_projection(df, col, window):
     if len(df) >= window:
@@ -949,7 +1134,7 @@ else:
     [data-testid="stSlider"] [role="slider"] { background-color: #002060 !important; box-shadow: 0 0 0 4px rgba(0,32,96,0.15) !important; }
     .stTabs [aria-selected="true"] { color: #C8102E !important; border-bottom: 2px solid #C8102E !important; }
     .stTabs [data-baseweb="tab-list"] { border-bottom: 1px solid #d4ddf0 !important; }
-    .mlb-section { border-bottom-color: #C8102E !important; }
+    .section-heading { color: var(--mlb-navy) !important; border-bottom-color: #C8102E !important; }
     .stMultiSelect [data-baseweb="select"] > div { background-color: #fff !important; border: 1px solid #c8d4ea !important; }
     </style>""", unsafe_allow_html=True)
 
@@ -958,6 +1143,11 @@ else:
 # ══════════════════════════════════════════════════════════════════════════════
 if sport == "🏀 NBA":
 
+    # ── NBA score ticker (shown on all NBA tabs) ───────────────────────────────
+    with st.spinner(""):
+        _nba_scores = get_nba_scoreboard()
+    render_score_ticker(_nba_scores)
+
     tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_disc = st.tabs([
         "Home", "Player Stats", "Opponent Breakdown",
         "Bet Simulation", "First Basket", "PrizePicks", "Disclaimer"
@@ -965,30 +1155,43 @@ if sport == "🏀 NBA":
 
     # ── HOME ──────────────────────────────────────────────────────────────────
     with tab_home:
-        st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("""
-        <p style='font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;color:#444;'>
-            Welcome to Konjure Analytics
-        </p>
-        <h2 style='color:#fff;font-size:2rem;font-weight:700;margin:0.25rem 0 1rem 0;'>
-            NBA Prop Intelligence,<br>Powered by Data.
-        </h2>""", unsafe_allow_html=True)
-        c1, c2, c3, c4, c5 = st.columns(5)
-        features = [
-            ("📊", "Player Stats", "Hit rates, rolling averages, and next-opponent predictions."),
-            ("📈", "Opponent Breakdown", "Player performance split by every opponent faced."),
-            ("🎯", "Bet Simulation", "Simulate flat-unit profit and loss across a season."),
-            ("🕒", "First Basket", "Tip-off win rates and first basket frequency data."),
-            ("🟣", "PrizePicks", "Today's live NBA prop lines from PrizePicks."),
-        ]
-        for col, (icon, title, desc) in zip([c1, c2, c3, c4, c5], features):
-            with col:
-                st.markdown(f"""
-                <div class="feature-card">
-                    <div class="feature-card-icon">{icon}</div>
-                    <p class="feature-card-title">{title}</p>
-                    <p class="feature-card-desc">{desc}</p>
-                </div>""", unsafe_allow_html=True)
+        <div class="sport-hero" style="background:linear-gradient(135deg,#07080b 0%,#0d1535 55%,#07080b 100%);">
+            <div class="sport-hero-watermark">🏀</div>
+            <div class="sport-hero-content">
+                <p class="sport-hero-label">Konjure Analytics &nbsp;·&nbsp; NBA Edition</p>
+                <h2 class="sport-hero-title">NBA Prop Intelligence</h2>
+                <p class="sport-hero-sub">
+                    Real-time player tracking &nbsp;·&nbsp; Rolling predictive models &nbsp;·&nbsp;
+                    PrizePicks integration &nbsp;·&nbsp; Scout reports
+                </p>
+            </div>
+        </div>""", unsafe_allow_html=True)
+
+        feat_col, news_col = st.columns([1.5, 1])
+        with feat_col:
+            section("Platform Features")
+            fc1, fc2 = st.columns(2)
+            features = [
+                (fc1, "📊", "Player Stats", "Hit rates, rolling averages, and next-opponent predictions."),
+                (fc2, "📈", "Opponent Breakdown", "Player performance split by every opponent faced."),
+                (fc1, "🎯", "Bet Simulation", "Simulate flat-unit profit and loss across a season."),
+                (fc2, "🕒", "First Basket", "Tip-off win rates and first basket frequency data."),
+                (fc1, "🟣", "PrizePicks", "Today's live NBA prop lines from PrizePicks."),
+            ]
+            for col, icon, title, desc in features:
+                with col:
+                    st.markdown(f"""
+                    <div class="feature-card">
+                        <div class="feature-card-icon">{icon}</div>
+                        <p class="feature-card-title">{title}</p>
+                        <p class="feature-card-desc">{desc}</p>
+                    </div>""", unsafe_allow_html=True)
+        with news_col:
+            section("NBA News")
+            with st.spinner("Loading news..."):
+                _nba_news = get_sport_news("nba")
+            render_news_panel(_nba_news)
 
     # ── PLAYER STATS ──────────────────────────────────────────────────────────
     with tab_stats:
@@ -1319,49 +1522,57 @@ if sport == "🏀 NBA":
 # ══════════════════════════════════════════════════════════════════════════════
 else:
 
+    # ── MLB score ticker (shown on all MLB tabs) ───────────────────────────────
+    with st.spinner(""):
+        _mlb_scores = get_mlb_scoreboard()
+    render_score_ticker(_mlb_scores)
+
     tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_pp_mlb, tab_disc_mlb = st.tabs([
         "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "PrizePicks", "Disclaimer"
     ])
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
     with tab_mlb_home:
-        st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("""
-        <p style='font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;color:#6b7c9e;'>
-            Welcome to Konjure Analytics — MLB Edition
-        </p>
-        <h2 style='color:#002D72;font-size:2rem;font-weight:700;margin:0.25rem 0 0.5rem 0;'>
-            MLB Predictive Analytics
-        </h2>
-        <p style='color:#6b7c9e;font-size:0.9rem;margin:0 0 1.5rem 0;'>
-            Hitter and pitcher projections powered by the official MLB Stats API.
-        </p>""", unsafe_allow_html=True)
+        <div class="sport-hero" style="background:linear-gradient(135deg,#001845 0%,#0a2260 55%,#001845 100%);">
+            <div class="sport-hero-watermark">⚾</div>
+            <div class="sport-hero-content">
+                <p class="sport-hero-label">Konjure Analytics &nbsp;·&nbsp; MLB Edition</p>
+                <h2 class="sport-hero-title">MLB Predictive Analytics</h2>
+                <p class="sport-hero-sub">
+                    Hitter &amp; pitcher projections &nbsp;·&nbsp; Batter vs. pitcher matchups &nbsp;·&nbsp;
+                    PrizePicks integration &nbsp;·&nbsp; Official MLB Stats API
+                </p>
+            </div>
+        </div>""", unsafe_allow_html=True)
 
-        hc1, hc2, hc3 = st.columns(3)
-        mlb_features = [
-            ("⚾", "#D50032", "Hitter Analysis",
-             "Rolling averages, opponent splits, and next-game projections for H, HR, RBI, K, BB."),
-            ("🎯", "#002D72", "Pitcher Analysis",
-             "Per-start K, IP, ERA, WHIP trends and opponent breakdowns for every pitcher."),
-            ("📸", "#1a7d3e", "Player Photos",
-             "Official MLB headshots pulled live from MLB's photo CDN for every active player."),
-        ]
-        for col, (icon, color, title, desc) in zip([hc1, hc2, hc3], mlb_features):
-            with col:
-                st.markdown(f"""
-                <div style='background:#fff;border:1px solid #dde6f0;border-radius:10px;
-                            padding:1.3rem 1.4rem;border-top:3px solid {color};'>
-                    <div style='font-size:1.5rem;margin-bottom:0.5rem;'>{icon}</div>
-                    <p style='font-size:0.76rem;font-weight:700;letter-spacing:0.1em;
-                              text-transform:uppercase;color:{color};margin:0 0 0.4rem 0;'>{title}</p>
-                    <p style='font-size:0.82rem;color:#6b7c9e;margin:0;line-height:1.5;'>{desc}</p>
-                </div>""", unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("""
-        <p style='font-size:0.68rem;color:#aab;letter-spacing:0.1em;text-transform:uppercase;'>
-            Data Source: MLB Stats API (statsapi.mlb.com) &nbsp;&middot;&nbsp; Free &nbsp;&middot;&nbsp; No API Key Required
-        </p>""", unsafe_allow_html=True)
+        feat_col, news_col = st.columns([1.5, 1])
+        with feat_col:
+            section("Platform Features")
+            fc1, fc2 = st.columns(2)
+            mlb_features = [
+                (fc1, "⚾", "Hitter Analysis",
+                 "Rolling averages, opponent splits, and next-game projections for H, HR, RBI."),
+                (fc2, "🎯", "Pitcher Analysis",
+                 "Per-start K, IP, ERA, WHIP trends and opponent breakdowns."),
+                (fc1, "📊", "vs Opponent",
+                 "Head-to-head batter vs. pitcher and pitcher vs. lineup previews."),
+                (fc2, "🟣", "PrizePicks",
+                 "Today's live MLB prop lines from PrizePicks."),
+            ]
+            for col, icon, title, desc in mlb_features:
+                with col:
+                    st.markdown(f"""
+                    <div class="feature-card">
+                        <div class="feature-card-icon">{icon}</div>
+                        <p class="feature-card-title">{title}</p>
+                        <p class="feature-card-desc">{desc}</p>
+                    </div>""", unsafe_allow_html=True)
+        with news_col:
+            section("MLB News")
+            with st.spinner("Loading news..."):
+                _mlb_news = get_sport_news("mlb")
+            render_news_panel(_mlb_news)
 
     # ── HITTER ANALYSIS ───────────────────────────────────────────────────────
     with tab_hitter:
