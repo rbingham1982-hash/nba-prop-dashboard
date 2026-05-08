@@ -291,6 +291,18 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
 .news-meta { font-size: 0.56rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin: 0; }
 .news-source { font-size: 0.56rem; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 0.28rem 0; }
 
+/* ── Players to Watch ── */
+.ptw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; margin-bottom: 0.5rem; }
+.ptw-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 0.85rem; transition: border-color 0.18s; }
+.ptw-card:hover { border-color: var(--accent); }
+.ptw-player-name { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.2rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ptw-team { font-size: 0.62rem; color: var(--text-muted); margin: 0 0 0.3rem 0; letter-spacing: 0.08em; text-transform: uppercase; }
+.ptw-line { font-size: 1.05rem; font-weight: 700; color: var(--accent); margin: 0 0 0.35rem 0; }
+.ptw-badge { display: inline-block; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; padding: 0.14rem 0.4rem; border-radius: 3px; }
+.ptw-badge-normal { background: rgba(129,140,248,0.12); color: var(--accent); }
+.ptw-badge-goblin { background: rgba(167,139,250,0.15); color: #a78bfa; }
+.ptw-badge-demon  { background: rgba(248,113,113,0.15); color: #f87171; }
+
 /* ══ MOBILE RESPONSIVE ══════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
     /* ── Layout ── */
@@ -1668,6 +1680,35 @@ if sport == "🏀 NBA":
                 _nba_news = get_sport_news("nba")
             render_news_panel(_nba_news)
 
+        section("Players to Watch")
+        with st.spinner(""):
+            _ptw_df = get_prizepicks_lines()
+        if not _ptw_df.empty:
+            _ptw_stats = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "Pts+Asts", "Pts+Rebs", "3-PT Made", "Blocked Shots", "Steals"]
+            _ptw = (
+                _ptw_df[_ptw_df["stat_type"].isin(_ptw_stats)]
+                .sort_values("line_score", ascending=False)
+                .drop_duplicates("player_name")
+                .head(10)
+            )
+            _ptw_cards = "<div class='ptw-grid'>"
+            for _, _r in _ptw.iterrows():
+                _st = str(_r.get("status") or "normal").lower()
+                _bcls = "ptw-badge-goblin" if _st == "goblin" else ("ptw-badge-demon" if _st == "demon" else "ptw-badge-normal")
+                _blbl = _st.capitalize() if _st in ("goblin", "demon") else "Normal"
+                _ptw_cards += (
+                    f"<div class='ptw-card'>"
+                    f"<p class='ptw-player-name'>{_r['player_name']}</p>"
+                    f"<p class='ptw-team'>{_r['stat_type']}</p>"
+                    f"<p class='ptw-line'>{_r['line_score']}</p>"
+                    f"<span class='ptw-badge {_bcls}'>{_blbl}</span>"
+                    f"</div>"
+                )
+            _ptw_cards += "</div>"
+            st.markdown(_ptw_cards, unsafe_allow_html=True)
+        else:
+            st.caption("PrizePicks lines unavailable right now.")
+
     # ── PLAYER STATS ──────────────────────────────────────────────────────────
     with tab_stats:
         ctrl_col, main_col = st.columns([1, 2.8])
@@ -2054,6 +2095,53 @@ else:
             with st.spinner("Loading news..."):
                 _mlb_news = get_sport_news("mlb")
             render_news_panel(_mlb_news)
+
+        section("Players to Watch")
+        with st.spinner(""):
+            _mlb_ptw_games = get_mlb_today_with_pitchers()
+            _mlb_pp = get_prizepicks_lines(league_id=2)
+        _mlb_ptw_cards = "<div class='ptw-grid'>"
+        # Today's starting pitchers
+        for _g in _mlb_ptw_games[:5]:
+            for _side in ("away", "home"):
+                _pname = _g.get(f"{_side}_pitcher", "TBD")
+                _pteam = _g.get(f"{_side}_abbr", "")
+                _pstats = _g.get(f"{_side}_p_stats") or {}
+                _era = _pstats.get("era", "—")
+                _mlb_ptw_cards += (
+                    f"<div class='ptw-card'>"
+                    f"<p class='ptw-player-name'>{_pname}</p>"
+                    f"<p class='ptw-team'>{_pteam} &nbsp;·&nbsp; SP</p>"
+                    f"<p class='ptw-line' style='font-size:0.88rem'>ERA {_era}</p>"
+                    f"<span class='ptw-badge ptw-badge-normal'>Starting</span>"
+                    f"</div>"
+                )
+        # Top hitters from PrizePicks MLB
+        if not _mlb_pp.empty:
+            _mlb_h_stats = ["Hits", "Home Runs", "RBI", "Hits+Runs+RBI", "Total Bases", "Strikeouts"]
+            _mlb_top = (
+                _mlb_pp[_mlb_pp["stat_type"].isin(_mlb_h_stats)]
+                .sort_values("line_score", ascending=False)
+                .drop_duplicates("player_name")
+                .head(6)
+            )
+            for _, _r in _mlb_top.iterrows():
+                _st = str(_r.get("status") or "normal").lower()
+                _bcls = "ptw-badge-goblin" if _st == "goblin" else ("ptw-badge-demon" if _st == "demon" else "ptw-badge-normal")
+                _blbl = _st.capitalize() if _st in ("goblin", "demon") else "Normal"
+                _mlb_ptw_cards += (
+                    f"<div class='ptw-card'>"
+                    f"<p class='ptw-player-name'>{_r['player_name']}</p>"
+                    f"<p class='ptw-team'>{_r['stat_type']}</p>"
+                    f"<p class='ptw-line'>{_r['line_score']}</p>"
+                    f"<span class='ptw-badge {_bcls}'>{_blbl}</span>"
+                    f"</div>"
+                )
+        _mlb_ptw_cards += "</div>"
+        if _mlb_ptw_games or not _mlb_pp.empty:
+            st.markdown(_mlb_ptw_cards, unsafe_allow_html=True)
+        else:
+            st.caption("Player data unavailable right now.")
 
     # ── HITTER ANALYSIS ───────────────────────────────────────────────────────
     with tab_hitter:
