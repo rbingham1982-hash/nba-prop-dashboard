@@ -362,7 +362,8 @@ def get_today_first_basket_stats():
 # ══════════════════════════════════════════════════════════════════════════════
 # MLB DATA FUNCTIONS  (MLB Stats API — free, no key required)
 # ══════════════════════════════════════════════════════════════════════════════
-MLB_SEASON = "2025"
+MLB_SEASON = "2026"
+MLB_SEASONS = ["2024", "2025", "2026"]
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
 @st.cache_data(ttl=3600)
@@ -386,12 +387,13 @@ def get_mlb_roster(team_id):
         roster = resp.json().get("roster", [])
         hitters, pitchers = [], []
         for p in roster:
-            pos_code = p.get("position", {}).get("code", "")
+            pos = p.get("position", {})
+            pos_abbr = pos.get("abbreviation", "")
+            pos_type = pos.get("type", "")
             name = p.get("person", {}).get("fullName", "")
             pid = p.get("person", {}).get("id")
-            pos_name = p.get("position", {}).get("abbreviation", pos_code)
-            entry = {"name": name, "id": pid, "pos": pos_name}
-            if pos_code == "P":
+            entry = {"name": name, "id": pid, "pos": pos_abbr}
+            if pos_abbr == "P" or pos_type == "Pitcher":
                 pitchers.append(entry)
             else:
                 hitters.append(entry)
@@ -401,73 +403,81 @@ def get_mlb_roster(team_id):
         return [], []
 
 @st.cache_data(ttl=3600)
-def get_mlb_hitting_logs(player_id):
-    try:
-        url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={MLB_SEASON}&group=hitting"
-        resp = requests.get(url, timeout=10)
-        splits = resp.json().get("stats", [{}])[0].get("splits", [])
-        rows = []
-        for s in splits:
-            st_data = s.get("stat", {})
-            rows.append({
-                "date": s.get("date", ""),
-                "opponent": s.get("opponent", {}).get("abbreviation", ""),
-                "AB": int(st_data.get("atBats") or 0),
-                "H":  int(st_data.get("hits") or 0),
-                "HR": int(st_data.get("homeRuns") or 0),
-                "RBI": int(st_data.get("rbi") or 0),
-                "BB": int(st_data.get("baseOnBalls") or 0),
-                "K":  int(st_data.get("strikeOuts") or 0),
-                "AVG": float(st_data.get("avg") or 0),
-                "OBP": float(st_data.get("obp") or 0),
-                "SLG": float(st_data.get("slg") or 0),
-            })
-        df = pd.DataFrame(rows)
-        if not df.empty:
-            df["date"] = pd.to_datetime(df["date"])
-            df = df.sort_values("date").reset_index(drop=True)
-        return df
-    except Exception as e:
-        st.warning(f"Could not load hitting logs: {e}")
+def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
+    frames = []
+    for season in seasons:
+        try:
+            url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=hitting"
+            resp = requests.get(url, timeout=10)
+            splits = resp.json().get("stats", [{}])[0].get("splits", [])
+            rows = []
+            for s in splits:
+                st_data = s.get("stat", {})
+                rows.append({
+                    "date": s.get("date", ""),
+                    "season": season,
+                    "opponent": s.get("opponent", {}).get("abbreviation", ""),
+                    "AB": int(st_data.get("atBats") or 0),
+                    "H":  int(st_data.get("hits") or 0),
+                    "HR": int(st_data.get("homeRuns") or 0),
+                    "RBI": int(st_data.get("rbi") or 0),
+                    "BB": int(st_data.get("baseOnBalls") or 0),
+                    "K":  int(st_data.get("strikeOuts") or 0),
+                    "AVG": float(st_data.get("avg") or 0),
+                    "OBP": float(st_data.get("obp") or 0),
+                    "SLG": float(st_data.get("slg") or 0),
+                })
+            if rows:
+                frames.append(pd.DataFrame(rows))
+        except Exception as e:
+            st.warning(f"Could not load hitting logs for {season}: {e}")
+    if not frames:
         return pd.DataFrame()
+    df = pd.concat(frames, ignore_index=True)
+    df["date"] = pd.to_datetime(df["date"])
+    return df.sort_values("date").reset_index(drop=True)
 
 @st.cache_data(ttl=3600)
-def get_mlb_pitching_logs(player_id):
-    try:
-        url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={MLB_SEASON}&group=pitching"
-        resp = requests.get(url, timeout=10)
-        splits = resp.json().get("stats", [{}])[0].get("splits", [])
-        rows = []
-        for s in splits:
-            st_data = s.get("stat", {})
-            ip_str = str(st_data.get("inningsPitched") or "0")
-            try:
-                parts = ip_str.split(".")
-                ip = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
-            except Exception:
-                ip = 0.0
-            k9 = round((int(st_data.get("strikeOuts") or 0) / ip * 9), 2) if ip > 0 else 0
-            rows.append({
-                "date": s.get("date", ""),
-                "opponent": s.get("opponent", {}).get("abbreviation", ""),
-                "IP":  round(ip, 1),
-                "H":  int(st_data.get("hits") or 0),
-                "ER": int(st_data.get("earnedRuns") or 0),
-                "BB": int(st_data.get("baseOnBalls") or 0),
-                "K":  int(st_data.get("strikeOuts") or 0),
-                "HR": int(st_data.get("homeRuns") or 0),
-                "ERA": float(st_data.get("era") or 0),
-                "WHIP": float(st_data.get("whip") or 0),
-                "K9": k9,
-            })
-        df = pd.DataFrame(rows)
-        if not df.empty:
-            df["date"] = pd.to_datetime(df["date"])
-            df = df.sort_values("date").reset_index(drop=True)
-        return df
-    except Exception as e:
-        st.warning(f"Could not load pitching logs: {e}")
+def get_mlb_pitching_logs(player_id, seasons=(MLB_SEASON,)):
+    frames = []
+    for season in seasons:
+        try:
+            url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=pitching"
+            resp = requests.get(url, timeout=10)
+            splits = resp.json().get("stats", [{}])[0].get("splits", [])
+            rows = []
+            for s in splits:
+                st_data = s.get("stat", {})
+                ip_str = str(st_data.get("inningsPitched") or "0")
+                try:
+                    parts = ip_str.split(".")
+                    ip = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
+                except Exception:
+                    ip = 0.0
+                k9 = round((int(st_data.get("strikeOuts") or 0) / ip * 9), 2) if ip > 0 else 0
+                rows.append({
+                    "date": s.get("date", ""),
+                    "season": season,
+                    "opponent": s.get("opponent", {}).get("abbreviation", ""),
+                    "IP":  round(ip, 1),
+                    "H":  int(st_data.get("hits") or 0),
+                    "ER": int(st_data.get("earnedRuns") or 0),
+                    "BB": int(st_data.get("baseOnBalls") or 0),
+                    "K":  int(st_data.get("strikeOuts") or 0),
+                    "HR": int(st_data.get("homeRuns") or 0),
+                    "ERA": float(st_data.get("era") or 0),
+                    "WHIP": float(st_data.get("whip") or 0),
+                    "K9": k9,
+                })
+            if rows:
+                frames.append(pd.DataFrame(rows))
+        except Exception as e:
+            st.warning(f"Could not load pitching logs for {season}: {e}")
+    if not frames:
         return pd.DataFrame()
+    df = pd.concat(frames, ignore_index=True)
+    df["date"] = pd.to_datetime(df["date"])
+    return df.sort_values("date").reset_index(drop=True)
 
 @st.cache_data(ttl=900)
 def get_mlb_next_opponent(team_id):
@@ -703,7 +713,7 @@ if sport == "🏀 NBA":
             if player_name:
                 nba_player_card(player_name, team_code)
             section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="ps_seasons")
+            seasons = st.multiselect("Seasons", SEASONS, default=["2025-26"], key="ps_seasons")
             prop_type = st.selectbox("Prop Type", list(STAT_MAP.keys()), key="ps_prop")
             line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ps_line")
             rolling_window = st.slider("Rolling Window", 1, 10, 5, key="ps_roll")
@@ -796,7 +806,7 @@ if sport == "🏀 NBA":
             if player_name:
                 nba_player_card(player_name, team_code)
             section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="ob_seasons")
+            seasons = st.multiselect("Seasons", SEASONS, default=["2025-26"], key="ob_seasons")
             line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ob_line")
             prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="ob_prop")
 
@@ -845,7 +855,7 @@ if sport == "🏀 NBA":
             if player_name:
                 nba_player_card(player_name, team_code)
             section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="sim_seasons")
+            seasons = st.multiselect("Seasons", SEASONS, default=["2025-26"], key="sim_seasons")
             line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="sim_line")
             prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="sim_prop")
 
@@ -1020,7 +1030,7 @@ else:
     with tab_hitter:
         mlb_teams = get_mlb_teams()
         h_roster, sel_hitter, sel_team = [], None, None
-        h_window, h_stat, h_line = 10, "H", 0.5
+        h_seasons, h_window, h_stat, h_line = [MLB_SEASON], 10, "H", 0.5
 
         ctrl_col, main_col = st.columns([1, 2.8])
         with ctrl_col:
@@ -1039,6 +1049,7 @@ else:
                     sel_hitter = next(p for p in h_roster if p["name"] == sel_h_name)
                     mlb_player_card(sel_hitter["name"], sel_hitter["pos"], sel_team["abbr"], sel_hitter["id"])
                     mlb_section("Parameters")
+                    h_seasons = st.multiselect("Seasons", MLB_SEASONS, default=[MLB_SEASON], key="h_seasons")
                     h_window = st.slider("Rolling Window (games)", 3, 20, 10, key="h_roll")
                     h_stat = st.selectbox("Primary Stat", ["H", "HR", "RBI", "K", "BB"], key="h_stat")
                     h_line = st.number_input("Prop Line", value=0.5, step=0.5, key="h_line")
@@ -1046,7 +1057,7 @@ else:
         with main_col:
             if mlb_teams and h_roster and sel_hitter:
                 with st.spinner("Loading hitting logs..."):
-                    h_df = get_mlb_hitting_logs(sel_hitter["id"])
+                    h_df = get_mlb_hitting_logs(sel_hitter["id"], tuple(h_seasons) if h_seasons else (MLB_SEASON,))
 
                 if h_df.empty:
                     st.warning("No hitting data found for this player this season.")
@@ -1117,7 +1128,7 @@ else:
     with tab_pitcher:
         mlb_teams_p = get_mlb_teams()
         p_roster, sel_pitcher, sel_team_p = [], None, None
-        p_window, p_stat, p_line = 5, "K", 5.5
+        p_seasons, p_window, p_stat, p_line = [MLB_SEASON], 5, "K", 5.5
 
         ctrl_col, main_col = st.columns([1, 2.8])
         with ctrl_col:
@@ -1136,6 +1147,7 @@ else:
                     sel_pitcher = next(p for p in p_roster if p["name"] == sel_p_name)
                     mlb_player_card(sel_pitcher["name"], sel_pitcher["pos"], sel_team_p["abbr"], sel_pitcher["id"])
                     mlb_section("Parameters")
+                    p_seasons = st.multiselect("Seasons", MLB_SEASONS, default=[MLB_SEASON], key="p_seasons")
                     p_window = st.slider("Rolling Window (starts)", 3, 15, 5, key="p_roll")
                     p_stat = st.selectbox("Primary Stat", ["K", "IP", "ER", "BB", "H", "HR"], key="p_stat")
                     p_line = st.number_input("Prop Line", value=5.5, step=0.5, key="p_line")
@@ -1143,7 +1155,7 @@ else:
         with main_col:
             if mlb_teams_p and p_roster and sel_pitcher:
                 with st.spinner("Loading pitching logs..."):
-                    p_df = get_mlb_pitching_logs(sel_pitcher["id"])
+                    p_df = get_mlb_pitching_logs(sel_pitcher["id"], tuple(p_seasons) if p_seasons else (MLB_SEASON,))
 
                 if p_df.empty:
                     st.warning("No pitching data found for this player this season.")
@@ -1224,6 +1236,7 @@ else:
 
             with vo_ctrl:
                 mlb_section("Today's Games")
+                vo_seasons = st.multiselect("Seasons", MLB_SEASONS, default=[MLB_SEASON], key="vo_seasons")
                 game_labels = [g["label"] for g in today_games]
                 sel_game_label = st.selectbox("Select Game", game_labels, key="vo_game")
                 sel_game = next(g for g in today_games if g["label"] == sel_game_label)
@@ -1257,11 +1270,12 @@ else:
 
             with vo_main:
                 if vo_player and vo_team:
+                    _vo_seasons = tuple(vo_seasons) if vo_seasons else (MLB_SEASON,)
                     with st.spinner("Loading stats..."):
                         if vo_player_type == "Hitter":
-                            vo_df = get_mlb_hitting_logs(vo_player["id"])
+                            vo_df = get_mlb_hitting_logs(vo_player["id"], _vo_seasons)
                         else:
-                            vo_df = get_mlb_pitching_logs(vo_player["id"])
+                            vo_df = get_mlb_pitching_logs(vo_player["id"], _vo_seasons)
 
                     if vo_df.empty:
                         st.warning("No stats found for this player this season.")
