@@ -12,7 +12,7 @@ import plotly.express as px
 import requests
 from bs4 import BeautifulSoup
 from nba_api.stats.static import teams, players
-from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv2
+from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv3
 from datetime import datetime, timedelta
 
 # ─── Page config ───────────────────────────────────────────────────────────
@@ -551,7 +551,7 @@ def simulate_bets(df):
 
 @st.cache_data(ttl=7200)
 def get_team_first_basket_history(team_abbr, num_games=20):
-    """Pull real play-by-play from NBA API to extract first basket + tip-off data."""
+    """Pull real play-by-play from NBA API (v3) to extract first basket + tip-off data."""
     team_id = get_team_id(team_abbr)
     if not team_id:
         return pd.DataFrame()
@@ -567,30 +567,29 @@ def get_team_first_basket_history(team_abbr, num_games=20):
     for _, game in games_df.iterrows():
         game_id = game["GAME_ID"]
         try:
-            pbp_df = playbyplayv2.PlayByPlayV2(game_id=game_id).get_data_frames()[0]
+            pbp_df = playbyplayv3.PlayByPlayV3(game_id=game_id).get_data_frames()[0]
 
-            # Tip-off: first jump ball in period 1
-            jumps = pbp_df[(pbp_df["EVENTMSGTYPE"] == 10) & (pbp_df["PERIOD"] == 1)]
-            tip_team = None
-            if not jumps.empty:
-                j = jumps.iloc[0]
-                tip_team = str(j.get("PLAYER1_TEAM_ABBREVIATION") or "")
+            # Tip-off: first Jump Ball in period 1; teamTricode = team that won the tip
+            tips = pbp_df[(pbp_df["actionType"] == "Jump Ball") & (pbp_df["period"] == 1)]
+            tip_team = str(tips.iloc[0].get("teamTricode") or "") if not tips.empty else ""
 
-            # First scoring event (made FG=1 or made FT=3) in the game (any period)
-            scores = pbp_df[pbp_df["EVENTMSGTYPE"].isin([1, 3])]
-            first_scorer = None
-            shot_type = None
-            team_scored_first = None
-            if not scores.empty:
-                fs = scores.iloc[0]
-                first_scorer = fs.get("PLAYER1_NAME") or "Unknown"
-                scorer_team = str(fs.get("PLAYER1_TEAM_ABBREVIATION") or "")
-                home_desc = str(fs.get("HOMEDESCRIPTION") or "")
-                vis_desc = str(fs.get("VISITORDESCRIPTION") or "")
-                all_desc = home_desc + vis_desc
-                if fs["EVENTMSGTYPE"] == 3:
+            # First scoring event: made field goal or made free throw
+            made_fg = pbp_df[pbp_df["actionType"] == "Made Shot"]
+            made_ft = pbp_df[
+                (pbp_df["actionType"] == "Free Throw") &
+                (~pbp_df["description"].str.startswith("MISS", na=False))
+            ]
+            scoring = pd.concat([made_fg, made_ft]).sort_values("actionNumber")
+
+            first_scorer = shot_type = team_scored_first = None
+            if not scoring.empty:
+                fs = scoring.iloc[0]
+                first_scorer = str(fs.get("playerName") or "Unknown")
+                scorer_team = str(fs.get("teamTricode") or "")
+                shot_val = fs.get("shotValue", 0)
+                if fs["actionType"] == "Free Throw":
                     shot_type = "Free Throw"
-                elif "3PT" in all_desc:
+                elif shot_val == 3:
                     shot_type = "3-Pointer"
                 else:
                     shot_type = "2-Pointer"
