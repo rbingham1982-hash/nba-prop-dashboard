@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Konjure Analytics — NBA Prop Betting Dashboard
+Konjure Analytics — Multi-Sport Prop & Predictive Dashboard
 """
 
 import os
@@ -11,197 +11,157 @@ import requests
 from bs4 import BeautifulSoup
 from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import playergamelog, commonteamroster
-from datetime import datetime
+from datetime import datetime, timedelta
 
-# ─── Page config (must be first Streamlit call) ────────────────────────────
+# ─── Page config ───────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Konjure Analytics",
-    page_icon="🏀",
+    page_icon="🏆",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# ─── CSS ───────────────────────────────────────────────────────────────────
+# ─── Base CSS (shared) ─────────────────────────────────────────────────────
 st.markdown("""
 <style>
-html, body, .stApp {
-    background-color: #090909;
-    color: #e0e0e0;
-    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-}
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding-top: 1.5rem !important; max-width: 100% !important; }
+html, body, .stApp {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
 
 /* ── Header ── */
 .konjure-header {
-    padding: 1rem 0 1.25rem 0;
-    border-bottom: 1px solid #1c1c1c;
+    padding: 0.75rem 0 1rem 0;
+    border-bottom: 1px solid var(--border);
     margin-bottom: 0.5rem;
 }
 .konjure-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #ffffff;
-    margin: 0 0 0.15rem 0;
+    font-size: 1.4rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-primary); margin: 0 0 0.1rem 0;
 }
 .konjure-sub {
-    font-size: 0.72rem;
-    color: #444;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin: 0;
+    font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.18em;
+    text-transform: uppercase; margin: 0;
 }
 
 /* ── Tabs ── */
 .stTabs [data-baseweb="tab-list"] {
-    gap: 0;
-    background-color: transparent !important;
-    border-bottom: 1px solid #1c1c1c;
+    gap: 0; background-color: transparent !important;
+    border-bottom: 1px solid var(--border);
 }
 .stTabs [data-baseweb="tab"] {
-    color: #444 !important;
-    background-color: transparent !important;
-    border: none !important;
-    border-bottom: 2px solid transparent !important;
-    padding: 0.65rem 1.2rem !important;
-    font-size: 0.72rem !important;
-    font-weight: 500 !important;
-    letter-spacing: 0.12em !important;
+    color: var(--text-muted) !important; background-color: transparent !important;
+    border: none !important; border-bottom: 2px solid transparent !important;
+    padding: 0.65rem 1.2rem !important; font-size: 0.72rem !important;
+    font-weight: 500 !important; letter-spacing: 0.12em !important;
     text-transform: uppercase !important;
 }
 .stTabs [aria-selected="true"] {
-    color: #ffffff !important;
-    border-bottom: 2px solid #ffffff !important;
+    color: var(--accent) !important;
+    border-bottom: 2px solid var(--accent) !important;
 }
 .stTabs [data-baseweb="tab-panel"] { padding-top: 1.5rem; }
 
-/* ── Selectbox / Input ── */
-div[data-baseweb="select"] > div {
-    background-color: #101010 !important;
-    border: 1px solid #222 !important;
-    border-radius: 4px !important;
-    color: #e0e0e0 !important;
-}
-div[data-baseweb="select"] svg { fill: #555 !important; }
-.stTextInput input, .stNumberInput input {
-    background-color: #101010 !important;
-    border: 1px solid #222 !important;
-    color: #e0e0e0 !important;
-    border-radius: 4px !important;
-}
-div[data-baseweb="popover"] { background-color: #111 !important; border: 1px solid #222 !important; }
-li[role="option"] { background-color: #111 !important; color: #e0e0e0 !important; }
-li[role="option"]:hover { background-color: #1e1e1e !important; }
-
-/* ── Multiselect tags ── */
-div[data-baseweb="tag"] {
-    background-color: #1e1e1e !important;
-    border: 1px solid #2e2e2e !important;
-    color: #e0e0e0 !important;
-}
-
-/* ── Metrics ── */
-[data-testid="metric-container"] {
-    background-color: #0f0f0f;
-    border: 1px solid #1c1c1c;
-    border-radius: 6px;
-    padding: 1rem 1.25rem !important;
-}
-[data-testid="metric-container"] label {
-    color: #555 !important;
-    font-size: 0.68rem !important;
-    letter-spacing: 0.12em !important;
-    text-transform: uppercase !important;
-}
-[data-testid="metric-container"] [data-testid="metric-value"] {
-    color: #ffffff !important;
-    font-size: 1.5rem !important;
-    font-weight: 600 !important;
-}
-
-/* ── Player card ── */
-.player-card {
-    background-color: #0f0f0f;
-    border: 1px solid #1c1c1c;
-    border-radius: 8px;
-    padding: 1rem 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-}
-.player-card img {
-    width: 72px;
-    height: 72px;
-    object-fit: cover;
-    border-radius: 50%;
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-}
-.player-card-name {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin: 0 0 0.2rem 0;
-    letter-spacing: 0.03em;
-}
-.player-card-team {
-    font-size: 0.68rem;
-    color: #555;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin: 0;
-}
-
 /* ── Section heading ── */
 .section-heading {
-    font-size: 0.68rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: #444;
-    margin: 1.5rem 0 0.6rem 0;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid #1c1c1c;
+    font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-muted); margin: 1.25rem 0 0.5rem 0;
+    padding-bottom: 0.35rem; border-bottom: 1px solid var(--border);
 }
 
-/* ── Alerts ── */
-.stAlert {
-    background-color: #0f0f0f !important;
-    border: 1px solid #222 !important;
-    color: #888 !important;
-    border-radius: 6px;
+/* ── Metric cards ── */
+[data-testid="metric-container"] {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 6px; padding: 0.9rem 1.1rem !important;
+}
+[data-testid="metric-container"] label {
+    color: var(--text-muted) !important; font-size: 0.65rem !important;
+    letter-spacing: 0.12em !important; text-transform: uppercase !important;
+}
+[data-testid="metric-container"] [data-testid="metric-value"] {
+    color: var(--text-primary) !important;
+    font-size: 1.4rem !important; font-weight: 600 !important;
 }
 
 /* ── DataFrames ── */
-.stDataFrame { border: 1px solid #1c1c1c !important; border-radius: 6px !important; }
-[data-testid="stDataFrameResizable"] { background-color: #0f0f0f !important; }
+.stDataFrame { border: 1px solid var(--border) !important; border-radius: 6px !important; }
+
+/* ── Alerts ── */
+.stAlert {
+    background-color: var(--surface) !important; border: 1px solid var(--border) !important;
+    color: var(--text-muted) !important; border-radius: 6px;
+}
 
 /* ── Divider ── */
-hr { border-color: #1c1c1c !important; }
+hr { border-color: var(--border) !important; }
 
-/* ── Slider ── */
-[data-testid="stSlider"] [role="slider"] { background-color: #fff !important; }
+/* ── Player card (NBA dark) ── */
+.player-card {
+    background-color: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem 1.25rem; display: flex;
+    align-items: center; gap: 1rem; margin-bottom: 1.25rem;
+}
+.player-card img {
+    width: 68px; height: 68px; object-fit: cover;
+    border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
+}
+.player-card-name { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 0.15rem 0; }
+.player-card-team { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
 
-/* ── Home feature cards ── */
+/* ── Feature cards (home) ── */
 .feature-card {
-    background-color: #0f0f0f;
-    border: 1px solid #1c1c1c;
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-    height: 100%;
+    background-color: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.1rem 1.25rem; height: 100%;
 }
-.feature-card-icon { font-size: 1.4rem; margin-bottom: 0.5rem; }
+.feature-card-icon { font-size: 1.3rem; margin-bottom: 0.4rem; }
 .feature-card-title {
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #ffffff;
-    margin: 0 0 0.4rem 0;
+    font-size: 0.74rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-primary); margin: 0 0 0.35rem 0;
 }
-.feature-card-desc { font-size: 0.82rem; color: #555; margin: 0; line-height: 1.5; }
+.feature-card-desc { font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+
+/* ── MLB player photo card ── */
+.mlb-player-card {
+    background: var(--mlb-surface); border: 1px solid var(--mlb-border);
+    border-radius: 12px; padding: 1.25rem; display: flex;
+    align-items: center; gap: 1.25rem; margin-bottom: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,45,114,0.08);
+}
+.mlb-player-card img {
+    width: 90px; height: 90px; object-fit: cover; object-position: top;
+    border-radius: 8px; background: #e8edf4;
+    border: 2px solid var(--mlb-navy);
+}
+.mlb-player-name { font-size: 1.15rem; font-weight: 700; color: var(--mlb-navy); margin: 0 0 0.2rem 0; }
+.mlb-player-pos { font-size: 0.68rem; color: var(--mlb-red); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 0.1rem 0; }
+.mlb-player-team { font-size: 0.68rem; color: #666; letter-spacing: 0.1em; text-transform: uppercase; margin: 0; }
+
+/* ── MLB section heading ── */
+.mlb-section {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--mlb-navy);
+    margin: 1.5rem 0 0.6rem 0; padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--mlb-red);
+}
+
+/* ── MLB stat badge ── */
+.mlb-badge {
+    display: inline-block; background: var(--mlb-navy); color: #fff;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem; border-radius: 20px; margin-right: 0.4rem;
+}
+
+/* ── Prediction chip ── */
+.pred-chip {
+    display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+    background: var(--mlb-red); color: #fff; margin-top: 0.3rem;
+}
+
+/* ── Sport selector ── */
+div[data-testid="stSelectbox"] label { display: none; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -219,7 +179,9 @@ ESPN_SLUG_MAP = {
     "TOR": "toronto-raptors", "UTA": "utah-jazz", "WAS": "washington-wizards"
 }
 
-# ─── Data helpers ──────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# NBA DATA FUNCTIONS
+# ══════════════════════════════════════════════════════════════════════════════
 def get_team_abbreviation(team_name):
     team = next((t for t in teams.get_teams() if t["full_name"] == team_name), None)
     return team["abbreviation"].upper() if team else None
@@ -337,23 +299,22 @@ def get_real_time_line(player_name, market="points"):
 
 def simulate_bets(df):
     bet_result = df["HIT"].apply(lambda x: 1 if x else -1)
-    cumulative = bet_result.cumsum()
-    return pd.Series(cumulative.to_list(), index=df.index, name="CUMULATIVE_PROFIT")
+    return pd.Series(bet_result.cumsum().to_list(), index=df.index, name="CUMULATIVE_PROFIT")
 
 @st.cache_data(ttl=3600)
 def get_first_basket_data():
     url = "https://firstbasketstats.com/2024-2025-first-basket-stats-data"
-    fallback_data = {
+    fallback = {
         "BOS": {"Games": 12, "First Basket": 7, "Tip Wins": 8},
         "DEN": {"Games": 13, "First Basket": 9, "Tip Wins": 10},
-        "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5}
+        "LAL": {"Games": 14, "First Basket": 6, "Tip Wins": 5},
     }
     try:
         response = requests.get(url, timeout=10)
         soup = BeautifulSoup(response.text, "html.parser")
         table = soup.find("table", {"id": "team-first-basket"})
         if not table:
-            return fallback_data
+            return fallback
         rows = table.find_all("tr")[1:]
         data = {}
         for row in rows:
@@ -365,13 +326,13 @@ def get_first_basket_data():
                 data[team] = {
                     "Games": int(cells[1].text.strip()),
                     "First Basket": int(cells[2].text.strip()),
-                    "Tip Wins": int(cells[3].text.strip())
+                    "Tip Wins": int(cells[3].text.strip()),
                 }
             except ValueError:
                 continue
-        return data if data else fallback_data
+        return data if data else fallback
     except Exception:
-        return fallback_data
+        return fallback
 
 @st.cache_data(ttl=1800)
 def get_today_first_basket_stats():
@@ -389,466 +350,1008 @@ def get_today_first_basket_stats():
             if len(cells) < 6:
                 continue
             data.append({
-                "Matchup": cells[0].text.strip(),
-                "Tip Winner": cells[1].text.strip(),
-                "Likely Jumper": cells[2].text.strip(),
-                "First Basket": cells[3].text.strip(),
-                "Shot Type": cells[4].text.strip(),
-                "Position": cells[5].text.strip()
+                "Matchup": cells[0].text.strip(), "Tip Winner": cells[1].text.strip(),
+                "Likely Jumper": cells[2].text.strip(), "First Basket": cells[3].text.strip(),
+                "Shot Type": cells[4].text.strip(), "Position": cells[5].text.strip(),
             })
         return pd.DataFrame(data)
     except Exception as e:
         st.warning(f"Failed to load today's first basket data: {e}")
         return pd.DataFrame()
 
-# ─── Constants ─────────────────────────────────────────────────────────────
-STAT_MAP = {
-    "Points": "PTS",
-    "Rebounds": "REB",
-    "Assists": "AST",
-    "PRA": "PRA",
-    "3PM": "FG3M"
-}
+# ══════════════════════════════════════════════════════════════════════════════
+# MLB DATA FUNCTIONS  (MLB Stats API — free, no key required)
+# ══════════════════════════════════════════════════════════════════════════════
+MLB_SEASON = "2025"
+MLB_BASE = "https://statsapi.mlb.com/api/v1"
+
+@st.cache_data(ttl=3600)
+def get_mlb_teams():
+    try:
+        resp = requests.get(f"{MLB_BASE}/teams?sportId=1&season={MLB_SEASON}", timeout=10)
+        data = resp.json().get("teams", [])
+        return sorted(
+            [{"id": t["id"], "name": t["name"], "abbr": t.get("abbreviation", "")}
+             for t in data if t.get("active", True) and t.get("sport", {}).get("id") == 1],
+            key=lambda x: x["name"],
+        )
+    except Exception:
+        return []
+
+@st.cache_data(ttl=3600)
+def get_mlb_roster(team_id):
+    try:
+        url = f"{MLB_BASE}/teams/{team_id}/roster?season={MLB_SEASON}&rosterType=active"
+        resp = requests.get(url, timeout=10)
+        roster = resp.json().get("roster", [])
+        hitters, pitchers = [], []
+        for p in roster:
+            pos_code = p.get("position", {}).get("code", "")
+            name = p.get("person", {}).get("fullName", "")
+            pid = p.get("person", {}).get("id")
+            pos_name = p.get("position", {}).get("abbreviation", pos_code)
+            entry = {"name": name, "id": pid, "pos": pos_name}
+            if pos_code == "P":
+                pitchers.append(entry)
+            else:
+                hitters.append(entry)
+        return hitters, pitchers
+    except Exception as e:
+        st.warning(f"Could not load MLB roster: {e}")
+        return [], []
+
+@st.cache_data(ttl=3600)
+def get_mlb_hitting_logs(player_id):
+    try:
+        url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={MLB_SEASON}&group=hitting"
+        resp = requests.get(url, timeout=10)
+        splits = resp.json().get("stats", [{}])[0].get("splits", [])
+        rows = []
+        for s in splits:
+            st_data = s.get("stat", {})
+            rows.append({
+                "date": s.get("date", ""),
+                "opponent": s.get("opponent", {}).get("abbreviation", ""),
+                "AB": int(st_data.get("atBats") or 0),
+                "H":  int(st_data.get("hits") or 0),
+                "HR": int(st_data.get("homeRuns") or 0),
+                "RBI": int(st_data.get("rbi") or 0),
+                "BB": int(st_data.get("baseOnBalls") or 0),
+                "K":  int(st_data.get("strikeOuts") or 0),
+                "AVG": float(st_data.get("avg") or 0),
+                "OBP": float(st_data.get("obp") or 0),
+                "SLG": float(st_data.get("slg") or 0),
+            })
+        df = pd.DataFrame(rows)
+        if not df.empty:
+            df["date"] = pd.to_datetime(df["date"])
+            df = df.sort_values("date").reset_index(drop=True)
+        return df
+    except Exception as e:
+        st.warning(f"Could not load hitting logs: {e}")
+        return pd.DataFrame()
+
+@st.cache_data(ttl=3600)
+def get_mlb_pitching_logs(player_id):
+    try:
+        url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={MLB_SEASON}&group=pitching"
+        resp = requests.get(url, timeout=10)
+        splits = resp.json().get("stats", [{}])[0].get("splits", [])
+        rows = []
+        for s in splits:
+            st_data = s.get("stat", {})
+            ip_str = str(st_data.get("inningsPitched") or "0")
+            try:
+                parts = ip_str.split(".")
+                ip = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
+            except Exception:
+                ip = 0.0
+            k9 = round((int(st_data.get("strikeOuts") or 0) / ip * 9), 2) if ip > 0 else 0
+            rows.append({
+                "date": s.get("date", ""),
+                "opponent": s.get("opponent", {}).get("abbreviation", ""),
+                "IP":  round(ip, 1),
+                "H":  int(st_data.get("hits") or 0),
+                "ER": int(st_data.get("earnedRuns") or 0),
+                "BB": int(st_data.get("baseOnBalls") or 0),
+                "K":  int(st_data.get("strikeOuts") or 0),
+                "HR": int(st_data.get("homeRuns") or 0),
+                "ERA": float(st_data.get("era") or 0),
+                "WHIP": float(st_data.get("whip") or 0),
+                "K9": k9,
+            })
+        df = pd.DataFrame(rows)
+        if not df.empty:
+            df["date"] = pd.to_datetime(df["date"])
+            df = df.sort_values("date").reset_index(drop=True)
+        return df
+    except Exception as e:
+        st.warning(f"Could not load pitching logs: {e}")
+        return pd.DataFrame()
+
+@st.cache_data(ttl=900)
+def get_mlb_next_opponent(team_id):
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        future = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
+        url = f"{MLB_BASE}/schedule?sportId=1&teamId={team_id}&startDate={today}&endDate={future}"
+        resp = requests.get(url, timeout=10)
+        for date_entry in resp.json().get("dates", []):
+            for game in date_entry.get("games", []):
+                away = game["teams"]["away"]["team"]
+                home = game["teams"]["home"]["team"]
+                if away["id"] == team_id:
+                    return home.get("abbreviation", ""), home.get("id")
+                else:
+                    return away.get("abbreviation", ""), away.get("id")
+    except Exception:
+        pass
+    return None, None
+
+def mlb_headshot(player_id):
+    return (
+        f"https://img.mlbstatic.com/mlb-photos/image/upload/"
+        f"d_people:generic:headshot:67:current.png/w_213,q_auto:best/"
+        f"v1/people/{player_id}/headshot/67/current"
+    )
+
+@st.cache_data(ttl=900)
+def get_today_mlb_games():
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        url = f"{MLB_BASE}/schedule?sportId=1&date={today}&hydrate=team"
+        resp = requests.get(url, timeout=10)
+        games = []
+        for date_entry in resp.json().get("dates", []):
+            for game in date_entry.get("games", []):
+                away = game["teams"]["away"]["team"]
+                home = game["teams"]["home"]["team"]
+                games.append({
+                    "label": f"{away['name']} @ {home['name']}",
+                    "away_id": away["id"], "away_name": away["name"],
+                    "away_abbr": away.get("abbreviation", ""),
+                    "home_id": home["id"], "home_name": home["name"],
+                    "home_abbr": home.get("abbreviation", ""),
+                })
+        return games
+    except Exception:
+        return []
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CONSTANTS & CHART HELPERS
+# ══════════════════════════════════════════════════════════════════════════════
+STAT_MAP = {"Points": "PTS", "Rebounds": "REB", "Assists": "AST", "PRA": "PRA", "3PM": "FG3M"}
 PP_STAT_MAP = {
-    "Points": "Points",
-    "Rebounds": "Rebounds",
-    "Assists": "Assists",
-    "PRA": "Pts+Rebs+Asts",
-    "3PM": "3-PT Made",
+    "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
+    "PRA": "Pts+Rebs+Asts", "3PM": "3-PT Made",
 }
 SEASONS = ["2022-23", "2023-24", "2024-25", "2025-26"]
-CHART_LAYOUT = dict(
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="#0f0f0f",
-    font_color="#888",
+
+NBA_CHART = dict(
+    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0f0f0f", font_color="#888",
     title_font_color="#e0e0e0",
     xaxis=dict(gridcolor="#1c1c1c", linecolor="#1c1c1c", zerolinecolor="#1c1c1c"),
     yaxis=dict(gridcolor="#1c1c1c", linecolor="#1c1c1c", zerolinecolor="#1c1c1c"),
-    legend=dict(bgcolor="rgba(0,0,0,0)", font_color="#888"),
+    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#888")),
+    margin=dict(t=40, b=20, l=0, r=0),
+)
+MLB_CHART = dict(
+    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#f8fbff", font_color="#555",
+    title_font_color="#002D72",
+    xaxis=dict(gridcolor="#dde6f0", linecolor="#dde6f0", zerolinecolor="#dde6f0"),
+    yaxis=dict(gridcolor="#dde6f0", linecolor="#dde6f0", zerolinecolor="#dde6f0"),
+    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#555")),
     margin=dict(t=40, b=20, l=0, r=0),
 )
 
-# ─── UI helper ─────────────────────────────────────────────────────────────
-def player_card(player_name, team_code):
+def nba_fig(fig):
+    fig.update_layout(**NBA_CHART)
+    return fig
+
+def mlb_fig(fig):
+    fig.update_layout(**MLB_CHART)
+    return fig
+
+# ══════════════════════════════════════════════════════════════════════════════
+# UI HELPERS
+# ══════════════════════════════════════════════════════════════════════════════
+def nba_player_card(player_name, team_code):
     pid = get_player_id(player_name)
     headshot = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else ""
     st.markdown(f"""
     <div class="player-card">
-        <img src="{headshot}" onerror="this.style.display='none'" />
+        <img src="{headshot}" />
         <div>
             <p class="player-card-name">{player_name}</p>
             <p class="player-card-team">{team_code}</p>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+    </div>""", unsafe_allow_html=True)
+
+def mlb_player_card(name, pos, team, player_id):
+    photo = mlb_headshot(player_id)
+    st.markdown(f"""
+    <div class="mlb-player-card">
+        <img src="{photo}" />
+        <div>
+            <p class="mlb-player-name">{name}</p>
+            <p class="mlb-player-pos">{pos}</p>
+            <p class="mlb-player-team">{team}</p>
+        </div>
+    </div>""", unsafe_allow_html=True)
 
 def section(label):
     st.markdown(f'<p class="section-heading">{label}</p>', unsafe_allow_html=True)
 
-def dark_fig(fig):
-    fig.update_layout(**CHART_LAYOUT)
-    return fig
+def mlb_section(label):
+    st.markdown(f'<p class="mlb-section">{label}</p>', unsafe_allow_html=True)
 
-# ─── Header ────────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="konjure-header">
-    <p class="konjure-title">Konjure Analytics</p>
-    <p class="konjure-sub">NBA Prop Intelligence &nbsp;·&nbsp; Powered by Data</p>
-</div>
-""", unsafe_allow_html=True)
+def rolling_projection(df, col, window):
+    if len(df) >= window:
+        return df[col].rolling(window).mean().iloc[-1]
+    return df[col].mean() if not df.empty else 0
 
-# ─── Navigation tabs ───────────────────────────────────────────────────────
-tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_disc = st.tabs([
-    "Home", "Player Stats", "Opponent Breakdown",
-    "Bet Simulation", "First Basket", "PrizePicks", "Disclaimer"
-])
-
-# ═══════════════════════════════════════════════════════════════════════════
-# HOME
-# ═══════════════════════════════════════════════════════════════════════════
-with tab_home:
-    st.markdown("<br>", unsafe_allow_html=True)
+# ══════════════════════════════════════════════════════════════════════════════
+# HEADER + SPORT SELECTOR
+# ══════════════════════════════════════════════════════════════════════════════
+hdr_col, sport_col = st.columns([5, 1])
+with hdr_col:
     st.markdown("""
-    <p style='font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;color:#444;'>
-        Welcome to Konjure Analytics
-    </p>
-    <h2 style='color:#fff;font-size:2rem;font-weight:700;margin:0.25rem 0 1rem 0;'>
-        NBA Prop Intelligence,<br>Powered by Data.
-    </h2>
-    """, unsafe_allow_html=True)
+    <div class="konjure-header">
+        <p class="konjure-title">Konjure Analytics</p>
+        <p class="konjure-sub">Multi-Sport Prop Intelligence &nbsp;&middot;&nbsp; Powered by Data</p>
+    </div>""", unsafe_allow_html=True)
+with sport_col:
+    sport = st.selectbox("Sport", ["🏀 NBA", "⚾ MLB"], key="sport_selector")
 
-    c1, c2, c3, c4, c5 = st.columns(5)
-    features = [
-        ("📊", "Player Stats", "Hit rates, rolling averages, and next-opponent predictions for any player."),
-        ("📈", "Opponent Breakdown", "See how a player performs split by every opponent they've faced."),
-        ("🎯", "Bet Simulation", "Simulate flat-unit profit and loss across a full season."),
-        ("🕒", "First Basket", "Team tip-off win rates and first basket frequency data."),
-        ("🟣", "PrizePicks", "Today's live NBA prop lines pulled directly from PrizePicks."),
-    ]
-    for col, (icon, title, desc) in zip([c1, c2, c3, c4, c5], features):
-        with col:
-            st.markdown(f"""
-            <div class="feature-card">
-                <div class="feature-card-icon">{icon}</div>
-                <p class="feature-card-title">{title}</p>
-                <p class="feature-card-desc">{desc}</p>
-            </div>
-            """, unsafe_allow_html=True)
+# ══════════════════════════════════════════════════════════════════════════════
+# SPORT-SPECIFIC CSS INJECTION
+# ══════════════════════════════════════════════════════════════════════════════
+if sport == "🏀 NBA":
+    st.markdown("""
+    <style>
+    html, body, .stApp {
+        background-color: #090909 !important; color: #e0e0e0 !important;
+        --text-primary: #ffffff; --text-muted: #444; --border: #1c1c1c;
+        --surface: #0f0f0f; --accent: #ffffff;
+        --mlb-navy: #fff; --mlb-red: #fff; --mlb-surface: #111; --mlb-border: #1c1c1c;
+    }
+    div[data-baseweb="select"] > div {
+        background-color: #101010 !important; border: 1px solid #222 !important; color: #e0e0e0 !important;
+    }
+    div[data-baseweb="select"] svg { fill: #555 !important; }
+    .stTextInput input, .stNumberInput input {
+        background-color: #101010 !important; border: 1px solid #222 !important; color: #e0e0e0 !important;
+    }
+    div[data-baseweb="popover"] { background-color: #111 !important; border: 1px solid #222 !important; }
+    li[role="option"] { background-color: #111 !important; color: #e0e0e0 !important; }
+    li[role="option"]:hover { background-color: #1e1e1e !important; }
+    div[data-baseweb="tag"] { background-color: #1e1e1e !important; border: 1px solid #2e2e2e !important; color: #e0e0e0 !important; }
+    [data-testid="stSlider"] [role="slider"] { background-color: #fff !important; }
+    </style>""", unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <style>
+    html, body, .stApp {
+        background-color: #f0f5fc !important; color: #1a1a2e !important;
+        --text-primary: #002D72; --text-muted: #6b7c9e; --border: #dde6f0;
+        --surface: #ffffff; --accent: #002D72;
+        --mlb-navy: #002D72; --mlb-red: #D50032; --mlb-surface: #ffffff; --mlb-border: #dde6f0;
+    }
+    div[data-baseweb="select"] > div {
+        background-color: #ffffff !important; border: 1px solid #c8d8ea !important; color: #002D72 !important;
+    }
+    div[data-baseweb="select"] svg { fill: #002D72 !important; }
+    .stTextInput input, .stNumberInput input {
+        background-color: #ffffff !important; border: 1px solid #c8d8ea !important; color: #002D72 !important;
+    }
+    div[data-baseweb="popover"] { background-color: #fff !important; border: 1px solid #c8d8ea !important; }
+    li[role="option"] { background-color: #fff !important; color: #002D72 !important; }
+    li[role="option"]:hover { background-color: #f0f5fc !important; }
+    div[data-baseweb="tag"] { background-color: #e0ecf8 !important; border: 1px solid #c8d8ea !important; color: #002D72 !important; }
+    [data-testid="stSlider"] [role="slider"] { background-color: #002D72 !important; }
+    .stTabs [aria-selected="true"] { color: #D50032 !important; border-bottom: 2px solid #D50032 !important; }
+    .stTabs [data-baseweb="tab-list"] { border-bottom: 1px solid #dde6f0 !important; }
+    </style>""", unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════════════════════════
-# PLAYER STATS
-# ═══════════════════════════════════════════════════════════════════════════
-with tab_stats:
-    ctrl_col, main_col = st.columns([1, 2.8])
+# ══════════════════════════════════════════════════════════════════════════════
+# ══════════════  NBA  ════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+if sport == "🏀 NBA":
 
-    with ctrl_col:
-        section("Select Player")
-        team_names = sorted([t["full_name"] for t in teams.get_teams()])
-        selected_team = st.selectbox("Team", team_names, key="ps_team")
-        team_code = get_team_abbreviation(selected_team)
-        player_list = get_team_players(team_code)
-        player_name = st.selectbox("Player", player_list, key="ps_player")
+    tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_disc = st.tabs([
+        "Home", "Player Stats", "Opponent Breakdown",
+        "Bet Simulation", "First Basket", "PrizePicks", "Disclaimer"
+    ])
 
-        if player_name:
-            player_card(player_name, team_code)
+    # ── HOME ──────────────────────────────────────────────────────────────────
+    with tab_home:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("""
+        <p style='font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;color:#444;'>
+            Welcome to Konjure Analytics
+        </p>
+        <h2 style='color:#fff;font-size:2rem;font-weight:700;margin:0.25rem 0 1rem 0;'>
+            NBA Prop Intelligence,<br>Powered by Data.
+        </h2>""", unsafe_allow_html=True)
+        c1, c2, c3, c4, c5 = st.columns(5)
+        features = [
+            ("📊", "Player Stats", "Hit rates, rolling averages, and next-opponent predictions."),
+            ("📈", "Opponent Breakdown", "Player performance split by every opponent faced."),
+            ("🎯", "Bet Simulation", "Simulate flat-unit profit and loss across a season."),
+            ("🕒", "First Basket", "Tip-off win rates and first basket frequency data."),
+            ("🟣", "PrizePicks", "Today's live NBA prop lines from PrizePicks."),
+        ]
+        for col, (icon, title, desc) in zip([c1, c2, c3, c4, c5], features):
+            with col:
+                st.markdown(f"""
+                <div class="feature-card">
+                    <div class="feature-card-icon">{icon}</div>
+                    <p class="feature-card-title">{title}</p>
+                    <p class="feature-card-desc">{desc}</p>
+                </div>""", unsafe_allow_html=True)
 
-        section("Parameters")
-        seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="ps_seasons")
-        prop_type = st.selectbox("Prop Type", list(STAT_MAP.keys()), key="ps_prop")
-        line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ps_line")
-        rolling_window = st.slider("Rolling Window", 1, 10, 5, key="ps_roll")
-        teammate_filter = st.text_input("Matchup Filter (optional)", key="ps_filter")
+    # ── PLAYER STATS ──────────────────────────────────────────────────────────
+    with tab_stats:
+        ctrl_col, main_col = st.columns([1, 2.8])
+        with ctrl_col:
+            section("Select Player")
+            team_names = sorted([t["full_name"] for t in teams.get_teams()])
+            selected_team = st.selectbox("Team", team_names, key="ps_team")
+            team_code = get_team_abbreviation(selected_team)
+            player_list = get_team_players(team_code)
+            player_name = st.selectbox("Player", player_list, key="ps_player")
+            if player_name:
+                nba_player_card(player_name, team_code)
+            section("Parameters")
+            seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="ps_seasons")
+            prop_type = st.selectbox("Prop Type", list(STAT_MAP.keys()), key="ps_prop")
+            line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ps_line")
+            rolling_window = st.slider("Rolling Window", 1, 10, 5, key="ps_roll")
+            teammate_filter = st.text_input("Matchup Filter (optional)", key="ps_filter")
 
-    with main_col:
-        if player_name and seasons:
-            player_id = get_player_id(player_name)
-            if player_id:
-                with st.spinner("Loading..."):
-                    df = get_gamelogs(player_id, tuple(seasons))
-
-                if df.empty:
-                    st.warning("No game log data found for the selected seasons.")
-                else:
-                    if teammate_filter:
-                        df = df[df["MATCHUP"].str.contains(teammate_filter, case=False, na=False)]
-
-                    df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-                    df["TARGET"] = df[STAT_MAP[prop_type]]
-                    df["HIT"] = df["TARGET"] > line_value
-                    df["MARGIN"] = df["TARGET"] - line_value
-                    df["ROLLING_AVG"] = df["TARGET"].rolling(window=rolling_window).mean()
-
-                    # Lines banner
-                    pp_df = get_prizepicks_lines()
-                    pp_stat = PP_STAT_MAP.get(prop_type)
-                    banner_cols = st.columns(3)
-                    if not pp_df.empty and pp_stat:
-                        match = pp_df[
-                            (pp_df["player_name"].str.lower() == player_name.lower()) &
-                            (pp_df["stat_type"] == pp_stat)
-                        ]
-                        if not match.empty:
-                            pp_line = match.iloc[0]["line_score"]
-                            df["PP_HIT"] = df["TARGET"] > pp_line
-                            banner_cols[0].metric("PrizePicks Line", pp_line)
-                            banner_cols[1].metric("Hit Rate vs PP", f"{df['PP_HIT'].mean():.1%}")
-
-                    live_line = get_real_time_line(player_name, market=prop_type.lower())
-                    if live_line:
-                        df["LIVE_HIT"] = df["TARGET"] > live_line
-                        banner_cols[2].metric("Live Line", live_line)
-
-                    section("Performance Summary")
-                    m1, m2, m3 = st.columns(3)
-                    m1.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
-                    m2.metric("Avg Margin", f"{df['MARGIN'].mean():.2f}")
-                    m3.metric("Games", len(df))
-
-                    section("Trend")
-                    fig = px.line(
-                        df.reset_index(),
-                        y=["TARGET", "ROLLING_AVG"],
-                        labels={"value": prop_type, "index": "Game"},
-                        color_discrete_map={"TARGET": "#ffffff", "ROLLING_AVG": "#555555"},
-                    )
-                    fig.add_hline(y=line_value, line_dash="dot", line_color="#333",
-                                  annotation_text=f"Line {line_value}",
-                                  annotation_font_color="#555")
-                    st.plotly_chart(dark_fig(fig), use_container_width=True)
-
-                    section("Predictive Stat Line")
-                    if len(df) >= rolling_window:
-                        pred = {
-                            "PTS": df["PTS"].rolling(window=rolling_window).mean().iloc[-1],
-                            "REB": df["REB"].rolling(window=rolling_window).mean().iloc[-1],
-                            "AST": df["AST"].rolling(window=rolling_window).mean().iloc[-1],
-                            "FG3M": df["FG3M"].rolling(window=rolling_window).mean().iloc[-1],
-                        }
-                        c1, c2, c3, c4 = st.columns(4)
-                        c1.metric("Points", f"{pred['PTS']:.1f}")
-                        c2.metric("Rebounds", f"{pred['REB']:.1f}")
-                        c3.metric("Assists", f"{pred['AST']:.1f}")
-                        c4.metric("3PM", f"{pred['FG3M']:.1f}")
+        with main_col:
+            if player_name and seasons:
+                player_id = get_player_id(player_name)
+                if player_id:
+                    with st.spinner("Loading..."):
+                        df = get_gamelogs(player_id, tuple(seasons))
+                    if df.empty:
+                        st.warning("No game log data found.")
                     else:
-                        st.warning(f"Not enough games ({len(df)}) for a rolling window of {rolling_window}.")
+                        if teammate_filter:
+                            df = df[df["MATCHUP"].str.contains(teammate_filter, case=False, na=False)]
+                        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+                        df["TARGET"] = df[STAT_MAP[prop_type]]
+                        df["HIT"] = df["TARGET"] > line_value
+                        df["MARGIN"] = df["TARGET"] - line_value
+                        df["ROLLING_AVG"] = df["TARGET"].rolling(window=rolling_window).mean()
 
-                    next_opp_code = get_next_opponent(team_code)
-                    if next_opp_code:
-                        section(f"vs {next_opp_code} (Next Opponent)")
-                        df_opp = df[df["OPPONENT"].str.upper() == next_opp_code]
-                        if not df_opp.empty:
-                            o1, o2, o3 = st.columns(3)
-                            o1.metric("Avg Points", f"{df_opp['PTS'].mean():.1f}")
-                            o2.metric("Avg Rebounds", f"{df_opp['REB'].mean():.1f}")
-                            o3.metric("Avg Assists", f"{df_opp['AST'].mean():.1f}")
-                            st.caption(f"Based on {len(df_opp)} game(s) vs {next_opp_code}")
+                        pp_df = get_prizepicks_lines()
+                        pp_stat = PP_STAT_MAP.get(prop_type)
+                        banner_cols = st.columns(3)
+                        if not pp_df.empty and pp_stat:
+                            match = pp_df[
+                                (pp_df["player_name"].str.lower() == player_name.lower()) &
+                                (pp_df["stat_type"] == pp_stat)
+                            ]
+                            if not match.empty:
+                                pp_line = match.iloc[0]["line_score"]
+                                df["PP_HIT"] = df["TARGET"] > pp_line
+                                banner_cols[0].metric("PrizePicks Line", pp_line)
+                                banner_cols[1].metric("Hit Rate vs PP", f"{df['PP_HIT'].mean():.1%}")
+                        live_line = get_real_time_line(player_name, market=prop_type.lower())
+                        if live_line:
+                            df["LIVE_HIT"] = df["TARGET"] > live_line
+                            banner_cols[2].metric("Live Line", live_line)
+
+                        section("Performance Summary")
+                        m1, m2, m3 = st.columns(3)
+                        m1.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
+                        m2.metric("Avg Margin", f"{df['MARGIN'].mean():.2f}")
+                        m3.metric("Games", len(df))
+
+                        section("Trend")
+                        fig = px.line(df.reset_index(), y=["TARGET", "ROLLING_AVG"],
+                                      labels={"value": prop_type, "index": "Game"},
+                                      color_discrete_map={"TARGET": "#ffffff", "ROLLING_AVG": "#555"})
+                        fig.add_hline(y=line_value, line_dash="dot", line_color="#333",
+                                      annotation_text=f"Line {line_value}", annotation_font_color="#555")
+                        st.plotly_chart(nba_fig(fig), use_container_width=True)
+
+                        section("Predictive Stat Line")
+                        if len(df) >= rolling_window:
+                            pred = {c: df[c].rolling(rolling_window).mean().iloc[-1]
+                                    for c in ["PTS", "REB", "AST", "FG3M"]}
+                            c1, c2, c3, c4 = st.columns(4)
+                            c1.metric("Points", f"{pred['PTS']:.1f}")
+                            c2.metric("Rebounds", f"{pred['REB']:.1f}")
+                            c3.metric("Assists", f"{pred['AST']:.1f}")
+                            c4.metric("3PM", f"{pred['FG3M']:.1f}")
                         else:
-                            st.info(f"No historical data vs {next_opp_code} in selected seasons.")
+                            st.warning(f"Not enough games for rolling window of {rolling_window}.")
 
-# ═══════════════════════════════════════════════════════════════════════════
-# OPPONENT BREAKDOWN
-# ═══════════════════════════════════════════════════════════════════════════
-with tab_opp:
-    ctrl_col, main_col = st.columns([1, 2.8])
+                        next_opp_code = get_next_opponent(team_code)
+                        if next_opp_code:
+                            section(f"vs {next_opp_code} (Next Opponent)")
+                            df_opp = df[df["OPPONENT"].str.upper() == next_opp_code]
+                            if not df_opp.empty:
+                                o1, o2, o3 = st.columns(3)
+                                o1.metric("Avg Points", f"{df_opp['PTS'].mean():.1f}")
+                                o2.metric("Avg Rebounds", f"{df_opp['REB'].mean():.1f}")
+                                o3.metric("Avg Assists", f"{df_opp['AST'].mean():.1f}")
+                                st.caption(f"Based on {len(df_opp)} game(s)")
+                            else:
+                                st.info(f"No historical data vs {next_opp_code}.")
 
-    with ctrl_col:
-        section("Select Player")
-        team_names = sorted([t["full_name"] for t in teams.get_teams()])
-        selected_team = st.selectbox("Team", team_names, key="ob_team")
-        team_code = get_team_abbreviation(selected_team)
-        player_list = get_team_players(team_code)
-        player_name = st.selectbox("Player", player_list, key="ob_player")
+    # ── OPPONENT BREAKDOWN ────────────────────────────────────────────────────
+    with tab_opp:
+        ctrl_col, main_col = st.columns([1, 2.8])
+        with ctrl_col:
+            section("Select Player")
+            team_names = sorted([t["full_name"] for t in teams.get_teams()])
+            selected_team = st.selectbox("Team", team_names, key="ob_team")
+            team_code = get_team_abbreviation(selected_team)
+            player_list = get_team_players(team_code)
+            player_name = st.selectbox("Player", player_list, key="ob_player")
+            if player_name:
+                nba_player_card(player_name, team_code)
+            section("Parameters")
+            seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="ob_seasons")
+            line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ob_line")
+            prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="ob_prop")
 
-        if player_name:
-            player_card(player_name, team_code)
+        with main_col:
+            if player_name and seasons:
+                player_id = get_player_id(player_name)
+                if player_id:
+                    with st.spinner("Loading..."):
+                        df = get_gamelogs(player_id, tuple(seasons))
+                    if df.empty:
+                        st.warning("No data found.")
+                    else:
+                        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+                        df["TARGET"] = df[STAT_MAP[prop_type]]
+                        df["HIT"] = df["TARGET"] > line_value
+                        df["MARGIN"] = df["TARGET"] - line_value
+                        opp_stats = (
+                            df.groupby("OPPONENT")[["HIT", "MARGIN", "TARGET"]]
+                            .agg({"HIT": "mean", "MARGIN": "mean", "TARGET": ["mean", "count"]})
+                        )
+                        opp_stats.columns = ["Hit Rate", "Avg Margin", "Avg Stat", "Games"]
+                        opp_stats = opp_stats.sort_values("Hit Rate", ascending=False)
+                        section("Hit Rate by Opponent")
+                        fig = px.bar(opp_stats.reset_index(), x="Hit Rate", y="OPPONENT",
+                                     orientation="h", color="Hit Rate",
+                                     color_continuous_scale=["#222", "#555", "#ffffff"],
+                                     text=opp_stats["Games"].astype(str).values + " G")
+                        fig.add_vline(x=0.5, line_dash="dot", line_color="#333")
+                        fig.update_coloraxes(showscale=False)
+                        st.plotly_chart(nba_fig(fig), use_container_width=True)
+                        section("Data Table")
+                        st.dataframe(opp_stats.style.format(
+                            {"Hit Rate": "{:.1%}", "Avg Margin": "{:.2f}", "Avg Stat": "{:.1f}", "Games": "{:.0f}"}
+                        ), use_container_width=True)
 
-        section("Parameters")
-        seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="ob_seasons")
-        line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ob_line")
-        prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="ob_prop")
+    # ── BET SIMULATION ────────────────────────────────────────────────────────
+    with tab_sim:
+        ctrl_col, main_col = st.columns([1, 2.8])
+        with ctrl_col:
+            section("Select Player")
+            team_names = sorted([t["full_name"] for t in teams.get_teams()])
+            selected_team = st.selectbox("Team", team_names, key="sim_team")
+            team_code = get_team_abbreviation(selected_team)
+            player_list = get_team_players(team_code)
+            player_name = st.selectbox("Player", player_list, key="sim_player")
+            if player_name:
+                nba_player_card(player_name, team_code)
+            section("Parameters")
+            seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="sim_seasons")
+            line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="sim_line")
+            prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="sim_prop")
 
-    with main_col:
-        if player_name and seasons:
-            player_id = get_player_id(player_name)
-            if player_id:
-                with st.spinner("Loading..."):
-                    df = get_gamelogs(player_id, tuple(seasons))
+        with main_col:
+            if player_name and seasons:
+                player_id = get_player_id(player_name)
+                if player_id:
+                    with st.spinner("Running simulation..."):
+                        df = get_gamelogs(player_id, tuple(seasons))
+                    if df.empty:
+                        st.warning("No data found.")
+                    else:
+                        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+                        df["TARGET"] = df[STAT_MAP[prop_type]]
+                        df["HIT"] = df["TARGET"] > line_value
+                        df["CUMULATIVE_PROFIT"] = simulate_bets(df)
+                        section("Results")
+                        col1, col2, col3 = st.columns(3)
+                        col1.metric("Total Profit", f"{df['CUMULATIVE_PROFIT'].iloc[-1]:.0f} units")
+                        col2.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
+                        col3.metric("Games", len(df))
+                        section("Cumulative P&L")
+                        fig = px.line(df.reset_index(), y="CUMULATIVE_PROFIT",
+                                      labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
+                                      color_discrete_sequence=["#ffffff"])
+                        fig.add_hline(y=0, line_dash="dot", line_color="#333")
+                        st.plotly_chart(nba_fig(fig), use_container_width=True)
 
-                if df.empty:
-                    st.warning("No data found.")
-                else:
-                    df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-                    df["TARGET"] = df[STAT_MAP[prop_type]]
-                    df["HIT"] = df["TARGET"] > line_value
-                    df["MARGIN"] = df["TARGET"] - line_value
+    # ── FIRST BASKET ──────────────────────────────────────────────────────────
+    with tab_fb:
+        ctrl_col, main_col = st.columns([1, 2.8])
+        with ctrl_col:
+            section("Select Team & Player")
+            team_names_list = sorted([t["full_name"] for t in teams.get_teams()])
+            selected_team_full = st.selectbox("Team", team_names_list, key="fb_team")
+            team_code = get_team_abbreviation(selected_team_full)
+            player_list = get_team_players(team_code)
+            selected_player = st.selectbox("Player", player_list, key="fb_player")
+            if selected_player:
+                nba_player_card(selected_player, team_code)
 
-                    opp_stats = (
-                        df.groupby("OPPONENT")[["HIT", "MARGIN", "TARGET"]]
-                        .agg({"HIT": "mean", "MARGIN": "mean", "TARGET": ["mean", "count"]})
-                    )
-                    opp_stats.columns = ["Hit Rate", "Avg Margin", "Avg Stat", "Games"]
-                    opp_stats = opp_stats.sort_values("Hit Rate", ascending=False)
-
-                    section("Hit Rate by Opponent")
-                    fig = px.bar(
-                        opp_stats.reset_index(),
-                        x="Hit Rate", y="OPPONENT",
-                        orientation="h",
-                        color="Hit Rate",
-                        color_continuous_scale=["#222", "#555", "#ffffff"],
-                        text=opp_stats["Games"].astype(str).values + " G",
-                    )
-                    fig.add_vline(x=0.5, line_dash="dot", line_color="#333")
-                    fig.update_coloraxes(showscale=False)
-                    st.plotly_chart(dark_fig(fig), use_container_width=True)
-
-                    section("Data Table")
-                    st.dataframe(
-                        opp_stats.style.format({
-                            "Hit Rate": "{:.1%}",
-                            "Avg Margin": "{:.2f}",
-                            "Avg Stat": "{:.1f}",
-                            "Games": "{:.0f}",
-                        }),
-                        use_container_width=True,
-                    )
-
-# ═══════════════════════════════════════════════════════════════════════════
-# BET SIMULATION
-# ═══════════════════════════════════════════════════════════════════════════
-with tab_sim:
-    ctrl_col, main_col = st.columns([1, 2.8])
-
-    with ctrl_col:
-        section("Select Player")
-        team_names = sorted([t["full_name"] for t in teams.get_teams()])
-        selected_team = st.selectbox("Team", team_names, key="sim_team")
-        team_code = get_team_abbreviation(selected_team)
-        player_list = get_team_players(team_code)
-        player_name = st.selectbox("Player", player_list, key="sim_player")
-
-        if player_name:
-            player_card(player_name, team_code)
-
-        section("Parameters")
-        seasons = st.multiselect("Seasons", SEASONS, default=["2024-25"], key="sim_seasons")
-        line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="sim_line")
-        prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="sim_prop")
-
-    with main_col:
-        if player_name and seasons:
-            player_id = get_player_id(player_name)
-            if player_id:
-                with st.spinner("Running simulation..."):
-                    df = get_gamelogs(player_id, tuple(seasons))
-
-                if df.empty:
-                    st.warning("No data found.")
-                else:
-                    df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-                    df["TARGET"] = df[STAT_MAP[prop_type]]
-                    df["HIT"] = df["TARGET"] > line_value
-                    df["CUMULATIVE_PROFIT"] = simulate_bets(df)
-
-                    section("Results")
-                    col1, col2, col3 = st.columns(3)
-                    col1.metric("Total Profit", f"{df['CUMULATIVE_PROFIT'].iloc[-1]:.0f} units")
-                    col2.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
-                    col3.metric("Games", len(df))
-
-                    section("Cumulative P&L")
-                    fig = px.line(
-                        df.reset_index(),
-                        y="CUMULATIVE_PROFIT",
-                        labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
-                        color_discrete_sequence=["#ffffff"],
-                    )
-                    fig.add_hline(y=0, line_dash="dot", line_color="#333")
-                    st.plotly_chart(dark_fig(fig), use_container_width=True)
-
-# ═══════════════════════════════════════════════════════════════════════════
-# FIRST BASKET
-# ═══════════════════════════════════════════════════════════════════════════
-with tab_fb:
-    ctrl_col, main_col = st.columns([1, 2.8])
-
-    with ctrl_col:
-        section("Select Team & Player")
-        team_names_list = sorted([t["full_name"] for t in teams.get_teams()])
-        selected_team_full = st.selectbox("Team", team_names_list, key="fb_team")
-        team_code = get_team_abbreviation(selected_team_full)
-        player_list = get_team_players(team_code)
-        selected_player = st.selectbox("Player", player_list, key="fb_player")
-
-        if selected_player:
-            player_card(selected_player, team_code)
-
-    with main_col:
-        with st.spinner("Loading first basket data..."):
-            team_stats = get_first_basket_data()
-
-        df_team = pd.DataFrame.from_dict(team_stats, orient="index")
-        required_cols = {"First Basket", "Games", "Tip Wins"}
-
-        if not required_cols.issubset(df_team.columns):
-            st.warning(f"Missing columns: {required_cols - set(df_team.columns)}")
-            st.dataframe(df_team)
-        else:
-            df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
-            df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
-
-            team_data = team_stats.get(team_code, {"Games": 0, "First Basket": 0, "Tip Wins": 0})
-            team_fb_rate = team_data["First Basket"] / team_data["Games"] if team_data["Games"] else 0
-            team_tip_rate = team_data["Tip Wins"] / team_data["Games"] if team_data["Games"] else 0
-
-            section(f"{team_code} Metrics")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("First Basket Rate", f"{team_fb_rate:.1%}")
-            c2.metric("Tip-Off Win Rate", f"{team_tip_rate:.1%}")
-            c3.metric("Games Played", team_data["Games"])
-
-            section("Tip Win % vs First Basket % — All Teams")
-            fig_scatter = px.scatter(
-                df_team, x="Tip Win %", y="First Basket %",
-                text=df_team.index, trendline="ols",
-                color_discrete_sequence=["#ffffff"],
-            )
-            fig_scatter.update_traces(textfont_color="#666", marker_size=8)
-            st.plotly_chart(dark_fig(fig_scatter), use_container_width=True)
-
-            section("Full Team Table")
-            df_display = df_team.sort_values("First Basket %", ascending=False)
-            st.dataframe(
-                df_display.style.format({"First Basket %": "{:.1%}", "Tip Win %": "{:.1%}"}),
-                use_container_width=True,
-            )
-
-            section("Today's Matchups")
-            with st.spinner("Loading..."):
-                df_today = get_today_first_basket_stats()
-
-            if not df_today.empty:
-                extracted = df_today["Matchup"].str.extract(r'(\w+)\s+vs\s+(\w+)')
-                teams_today = sorted(set(
-                    extracted[0].dropna().tolist() + extracted[1].dropna().tolist()
-                ))
-                if teams_today:
-                    sel_today = st.selectbox("Filter by Team", teams_today, key="fb_today")
-                    team_df = df_today[df_today["Matchup"].str.contains(sel_today, na=False)]
-                    st.dataframe(team_df, use_container_width=True)
-                else:
-                    st.info("Could not parse team names from today's matchups.")
+        with main_col:
+            with st.spinner("Loading first basket data..."):
+                team_stats = get_first_basket_data()
+            df_team = pd.DataFrame.from_dict(team_stats, orient="index")
+            required_cols = {"First Basket", "Games", "Tip Wins"}
+            if not required_cols.issubset(df_team.columns):
+                st.warning(f"Missing columns: {required_cols - set(df_team.columns)}")
+                st.dataframe(df_team)
             else:
-                st.warning("No data available for today's matchups.")
+                df_team["First Basket %"] = df_team["First Basket"] / df_team["Games"]
+                df_team["Tip Win %"] = df_team["Tip Wins"] / df_team["Games"]
+                team_data = team_stats.get(team_code, {"Games": 0, "First Basket": 0, "Tip Wins": 0})
+                team_fb_rate = team_data["First Basket"] / team_data["Games"] if team_data["Games"] else 0
+                team_tip_rate = team_data["Tip Wins"] / team_data["Games"] if team_data["Games"] else 0
+                section(f"{team_code} Metrics")
+                c1, c2, c3 = st.columns(3)
+                c1.metric("First Basket Rate", f"{team_fb_rate:.1%}")
+                c2.metric("Tip-Off Win Rate", f"{team_tip_rate:.1%}")
+                c3.metric("Games Played", team_data["Games"])
+                section("Tip Win % vs First Basket % — All Teams")
+                fig_scatter = px.scatter(df_team, x="Tip Win %", y="First Basket %",
+                                         text=df_team.index, trendline="ols",
+                                         color_discrete_sequence=["#ffffff"])
+                fig_scatter.update_traces(textfont_color="#666", marker_size=8)
+                st.plotly_chart(nba_fig(fig_scatter), use_container_width=True)
+                section("Full Team Table")
+                st.dataframe(df_team.sort_values("First Basket %", ascending=False).style.format(
+                    {"First Basket %": "{:.1%}", "Tip Win %": "{:.1%}"}), use_container_width=True)
+                section("Today's Matchups")
+                with st.spinner("Loading..."):
+                    df_today = get_today_first_basket_stats()
+                if not df_today.empty:
+                    extracted = df_today["Matchup"].str.extract(r'(\w+)\s+vs\s+(\w+)')
+                    teams_today = sorted(set(extracted[0].dropna().tolist() + extracted[1].dropna().tolist()))
+                    if teams_today:
+                        sel_today = st.selectbox("Filter by Team", teams_today, key="fb_today")
+                        st.dataframe(df_today[df_today["Matchup"].str.contains(sel_today, na=False)],
+                                     use_container_width=True)
+                    else:
+                        st.info("Could not parse team names from today's matchups.")
+                else:
+                    st.warning("No data available for today's matchups.")
+                st.caption("Data: firstbasketstats.com")
 
-            st.caption("Data: firstbasketstats.com")
+    # ── PRIZEPICKS ────────────────────────────────────────────────────────────
+    with tab_pp:
+        with st.spinner("Loading PrizePicks projections..."):
+            pp_df = get_prizepicks_lines()
+        if pp_df.empty:
+            st.warning("No PrizePicks data available right now.")
+        else:
+            f1, f2 = st.columns([1, 2])
+            with f1:
+                stat_options = ["All"] + sorted(pp_df["stat_type"].dropna().unique().tolist())
+                selected_stat = st.selectbox("Stat Type", stat_options, key="pp_stat")
+            with f2:
+                search = st.text_input("Search Player", key="pp_search")
+            filtered = pp_df.copy()
+            if selected_stat != "All":
+                filtered = filtered[filtered["stat_type"] == selected_stat]
+            if search:
+                filtered = filtered[filtered["player_name"].str.contains(search, case=False, na=False)]
+            section(f"{len(filtered)} Projection(s)")
+            st.dataframe(
+                filtered[["player_name", "stat_type", "line_score", "status"]].rename(columns={
+                    "player_name": "Player", "stat_type": "Stat", "line_score": "Line", "status": "Status"
+                }).sort_values("Player"), use_container_width=True, hide_index=True)
 
-# ═══════════════════════════════════════════════════════════════════════════
-# PRIZEPICKS
-# ═══════════════════════════════════════════════════════════════════════════
-with tab_pp:
-    with st.spinner("Loading PrizePicks projections..."):
-        pp_df = get_prizepicks_lines()
+    # ── DISCLAIMER ────────────────────────────────────────────────────────────
+    with tab_disc:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("""
+        <p style='font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:#444;'>Disclaimer</p>
+        <p style='color:#888;font-size:0.9rem;line-height:1.7;max-width:600px;'>
+            This dashboard is for <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
+            It does not constitute betting advice or guarantee outcomes.
+            Konjure Analytics is not responsible for any financial decisions made based on this data.
+        </p>""", unsafe_allow_html=True)
 
-    if pp_df.empty:
-        st.warning("No PrizePicks data available right now.")
-    else:
-        f1, f2 = st.columns([1, 2])
-        with f1:
-            stat_options = ["All"] + sorted(pp_df["stat_type"].dropna().unique().tolist())
-            selected_stat = st.selectbox("Stat Type", stat_options, key="pp_stat")
-        with f2:
-            search = st.text_input("Search Player", key="pp_search")
 
-        filtered = pp_df.copy()
-        if selected_stat != "All":
-            filtered = filtered[filtered["stat_type"] == selected_stat]
-        if search:
-            filtered = filtered[filtered["player_name"].str.contains(search, case=False, na=False)]
+# ══════════════════════════════════════════════════════════════════════════════
+# ══════════════  MLB  ════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+else:
 
-        section(f"{len(filtered)} Projection(s)")
-        st.dataframe(
-            filtered[["player_name", "stat_type", "line_score", "status"]].rename(columns={
-                "player_name": "Player",
-                "stat_type": "Stat",
-                "line_score": "Line",
-                "status": "Status",
-            }).sort_values("Player"),
-            use_container_width=True,
-            hide_index=True,
-        )
+    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_disc_mlb = st.tabs([
+        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Disclaimer"
+    ])
 
-# ═══════════════════════════════════════════════════════════════════════════
-# DISCLAIMER
-# ═══════════════════════════════════════════════════════════════════════════
-with tab_disc:
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("""
-    <p style='font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:#444;'>Disclaimer</p>
-    <p style='color:#888;font-size:0.9rem;line-height:1.7;max-width:600px;'>
-        This dashboard is for <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
-        It does not constitute betting advice or guarantee outcomes.
-        Use at your own discretion. Konjure Analytics is not responsible for any financial
-        decisions made based on this data.
-    </p>
-    """, unsafe_allow_html=True)
+    # ── MLB HOME ──────────────────────────────────────────────────────────────
+    with tab_mlb_home:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("""
+        <p style='font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;color:#6b7c9e;'>
+            Welcome to Konjure Analytics — MLB Edition
+        </p>
+        <h2 style='color:#002D72;font-size:2rem;font-weight:700;margin:0.25rem 0 0.5rem 0;'>
+            MLB Predictive Analytics
+        </h2>
+        <p style='color:#6b7c9e;font-size:0.9rem;margin:0 0 1.5rem 0;'>
+            Hitter and pitcher projections powered by the official MLB Stats API.
+        </p>""", unsafe_allow_html=True)
+
+        hc1, hc2, hc3 = st.columns(3)
+        mlb_features = [
+            ("⚾", "#D50032", "Hitter Analysis",
+             "Rolling averages, opponent splits, and next-game projections for H, HR, RBI, K, BB."),
+            ("🎯", "#002D72", "Pitcher Analysis",
+             "Per-start K, IP, ERA, WHIP trends and opponent breakdowns for every pitcher."),
+            ("📸", "#1a7d3e", "Player Photos",
+             "Official MLB headshots pulled live from MLB's photo CDN for every active player."),
+        ]
+        for col, (icon, color, title, desc) in zip([hc1, hc2, hc3], mlb_features):
+            with col:
+                st.markdown(f"""
+                <div style='background:#fff;border:1px solid #dde6f0;border-radius:10px;
+                            padding:1.3rem 1.4rem;border-top:3px solid {color};'>
+                    <div style='font-size:1.5rem;margin-bottom:0.5rem;'>{icon}</div>
+                    <p style='font-size:0.76rem;font-weight:700;letter-spacing:0.1em;
+                              text-transform:uppercase;color:{color};margin:0 0 0.4rem 0;'>{title}</p>
+                    <p style='font-size:0.82rem;color:#6b7c9e;margin:0;line-height:1.5;'>{desc}</p>
+                </div>""", unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("""
+        <p style='font-size:0.68rem;color:#aab;letter-spacing:0.1em;text-transform:uppercase;'>
+            Data Source: MLB Stats API (statsapi.mlb.com) &nbsp;&middot;&nbsp; Free &nbsp;&middot;&nbsp; No API Key Required
+        </p>""", unsafe_allow_html=True)
+
+    # ── HITTER ANALYSIS ───────────────────────────────────────────────────────
+    with tab_hitter:
+        mlb_teams = get_mlb_teams()
+        h_roster, sel_hitter, sel_team = [], None, None
+        h_window, h_stat, h_line = 10, "H", 0.5
+
+        ctrl_col, main_col = st.columns([1, 2.8])
+        with ctrl_col:
+            mlb_section("Select Hitter")
+            if not mlb_teams:
+                st.warning("Could not load MLB teams.")
+            else:
+                sel_team_name = st.selectbox("Team", [t["name"] for t in mlb_teams], key="h_team")
+                sel_team = next(t for t in mlb_teams if t["name"] == sel_team_name)
+                with st.spinner("Loading roster..."):
+                    h_roster, _ = get_mlb_roster(sel_team["id"])
+                if not h_roster:
+                    st.warning("No hitters found.")
+                else:
+                    sel_h_name = st.selectbox("Hitter", [p["name"] for p in h_roster], key="h_player")
+                    sel_hitter = next(p for p in h_roster if p["name"] == sel_h_name)
+                    mlb_player_card(sel_hitter["name"], sel_hitter["pos"], sel_team["abbr"], sel_hitter["id"])
+                    mlb_section("Parameters")
+                    h_window = st.slider("Rolling Window (games)", 3, 20, 10, key="h_roll")
+                    h_stat = st.selectbox("Primary Stat", ["H", "HR", "RBI", "K", "BB"], key="h_stat")
+                    h_line = st.number_input("Prop Line", value=0.5, step=0.5, key="h_line")
+
+        with main_col:
+            if mlb_teams and h_roster and sel_hitter:
+                with st.spinner("Loading hitting logs..."):
+                    h_df = get_mlb_hitting_logs(sel_hitter["id"])
+
+                if h_df.empty:
+                    st.warning("No hitting data found for this player this season.")
+                else:
+                    # Projections
+                    proj = {c: rolling_projection(h_df, c, h_window) for c in ["H", "HR", "RBI", "K", "BB"]}
+
+                    mlb_section("Season Projections (Rolling Avg)")
+                    p1, p2, p3, p4, p5 = st.columns(5)
+                    p1.metric("Hits / Game", f"{proj['H']:.2f}")
+                    p2.metric("HR / Game", f"{proj['HR']:.2f}")
+                    p3.metric("RBI / Game", f"{proj['RBI']:.2f}")
+                    p4.metric("K / Game", f"{proj['K']:.2f}")
+                    p5.metric("BB / Game", f"{proj['BB']:.2f}")
+
+                    # Hit rate vs line
+                    h_df["HIT_PROP"] = h_df[h_stat] > h_line
+                    hit_rate = h_df["HIT_PROP"].mean()
+                    mlb_section(f"Hit Rate — {h_stat} Over {h_line}")
+                    r1, r2, r3 = st.columns(3)
+                    r1.metric("Hit Rate", f"{hit_rate:.1%}")
+                    r2.metric(f"Avg {h_stat}", f"{h_df[h_stat].mean():.2f}")
+                    r3.metric("Games", len(h_df))
+
+                    # Rolling trend chart
+                    h_df["ROLLING"] = h_df[h_stat].rolling(h_window).mean()
+                    mlb_section(f"{h_stat} Trend — Last {len(h_df)} Games")
+                    fig_h = px.line(
+                        h_df.reset_index(),
+                        x="date", y=[h_stat, "ROLLING"],
+                        labels={"value": h_stat, "date": "Date"},
+                        color_discrete_map={h_stat: "#002D72", "ROLLING": "#D50032"},
+                    )
+                    fig_h.add_hline(y=h_line, line_dash="dot", line_color="#bbb",
+                                    annotation_text=f"Line {h_line}", annotation_font_color="#aaa")
+                    st.plotly_chart(mlb_fig(fig_h), use_container_width=True)
+
+                    # Opponent breakdown
+                    if "opponent" in h_df.columns and h_df["opponent"].notna().any():
+                        mlb_section("Hit Rate by Opponent")
+                        opp_h = (h_df.groupby("opponent")[[h_stat]]
+                                 .agg(mean=(h_stat, "mean"), count=(h_stat, "count"))
+                                 .rename(columns={"mean": f"Avg {h_stat}", "count": "Games"})
+                                 .sort_values(f"Avg {h_stat}", ascending=False))
+                        fig_opp = px.bar(
+                            opp_h.reset_index(),
+                            x=f"Avg {h_stat}", y="opponent", orientation="h",
+                            color=f"Avg {h_stat}",
+                            color_continuous_scale=["#e8f0fa", "#002D72"],
+                            text=opp_h["Games"].astype(str).values + "G",
+                        )
+                        fig_opp.add_vline(x=h_df[h_stat].mean(), line_dash="dot", line_color="#D50032")
+                        fig_opp.update_coloraxes(showscale=False)
+                        st.plotly_chart(mlb_fig(fig_opp), use_container_width=True)
+
+                    # Recent game log table
+                    mlb_section("Recent Game Log")
+                    display_cols = ["date", "opponent", "AB", "H", "HR", "RBI", "BB", "K", "AVG", "OBP", "SLG"]
+                    st.dataframe(
+                        h_df[display_cols].tail(20).sort_values("date", ascending=False).style.format({
+                            "date": lambda x: x.strftime("%b %d"),
+                            "AVG": "{:.3f}", "OBP": "{:.3f}", "SLG": "{:.3f}",
+                        }),
+                        use_container_width=True, hide_index=True,
+                    )
+
+    # ── PITCHER ANALYSIS ──────────────────────────────────────────────────────
+    with tab_pitcher:
+        mlb_teams_p = get_mlb_teams()
+        p_roster, sel_pitcher, sel_team_p = [], None, None
+        p_window, p_stat, p_line = 5, "K", 5.5
+
+        ctrl_col, main_col = st.columns([1, 2.8])
+        with ctrl_col:
+            mlb_section("Select Pitcher")
+            if not mlb_teams_p:
+                st.warning("Could not load MLB teams.")
+            else:
+                sel_team_name_p = st.selectbox("Team", [t["name"] for t in mlb_teams_p], key="p_team")
+                sel_team_p = next(t for t in mlb_teams_p if t["name"] == sel_team_name_p)
+                with st.spinner("Loading roster..."):
+                    _, p_roster = get_mlb_roster(sel_team_p["id"])
+                if not p_roster:
+                    st.warning("No pitchers found.")
+                else:
+                    sel_p_name = st.selectbox("Pitcher", [p["name"] for p in p_roster], key="p_player")
+                    sel_pitcher = next(p for p in p_roster if p["name"] == sel_p_name)
+                    mlb_player_card(sel_pitcher["name"], sel_pitcher["pos"], sel_team_p["abbr"], sel_pitcher["id"])
+                    mlb_section("Parameters")
+                    p_window = st.slider("Rolling Window (starts)", 3, 15, 5, key="p_roll")
+                    p_stat = st.selectbox("Primary Stat", ["K", "IP", "ER", "BB", "H", "HR"], key="p_stat")
+                    p_line = st.number_input("Prop Line", value=5.5, step=0.5, key="p_line")
+
+        with main_col:
+            if mlb_teams_p and p_roster and sel_pitcher:
+                with st.spinner("Loading pitching logs..."):
+                    p_df = get_mlb_pitching_logs(sel_pitcher["id"])
+
+                if p_df.empty:
+                    st.warning("No pitching data found for this player this season.")
+                else:
+                    proj_p = {c: rolling_projection(p_df, c, p_window) for c in ["K", "IP", "ER", "BB", "ERA", "WHIP", "K9"]}
+
+                    mlb_section("Season Projections (Rolling Avg)")
+                    pp1, pp2, pp3, pp4 = st.columns(4)
+                    pp1.metric("K / Start", f"{proj_p['K']:.1f}")
+                    pp2.metric("IP / Start", f"{proj_p['IP']:.1f}")
+                    pp3.metric("ERA", f"{proj_p['ERA']:.2f}")
+                    pp4.metric("WHIP", f"{proj_p['WHIP']:.2f}")
+                    pp5, pp6 = st.columns(2)
+                    pp5.metric("K/9", f"{proj_p['K9']:.1f}")
+                    pp6.metric("BB / Start", f"{proj_p['BB']:.1f}")
+
+                    # Hit rate vs line
+                    p_df["HIT_PROP"] = p_df[p_stat] > p_line
+                    p_hit_rate = p_df["HIT_PROP"].mean()
+                    mlb_section(f"Hit Rate — {p_stat} Over {p_line}")
+                    pr1, pr2, pr3 = st.columns(3)
+                    pr1.metric("Hit Rate", f"{p_hit_rate:.1%}")
+                    pr2.metric(f"Avg {p_stat}", f"{p_df[p_stat].mean():.2f}")
+                    pr3.metric("Starts", len(p_df))
+
+                    # Rolling trend
+                    p_df["ROLLING"] = p_df[p_stat].rolling(p_window).mean()
+                    mlb_section(f"{p_stat} Trend — Last {len(p_df)} Starts")
+                    fig_p = px.line(
+                        p_df.reset_index(),
+                        x="date", y=[p_stat, "ROLLING"],
+                        labels={"value": p_stat, "date": "Date"},
+                        color_discrete_map={p_stat: "#002D72", "ROLLING": "#D50032"},
+                    )
+                    fig_p.add_hline(y=p_line, line_dash="dot", line_color="#bbb",
+                                    annotation_text=f"Line {p_line}", annotation_font_color="#aaa")
+                    st.plotly_chart(mlb_fig(fig_p), use_container_width=True)
+
+                    # Strikeout distribution
+                    mlb_section("K Distribution")
+                    fig_hist = px.histogram(
+                        p_df, x="K", nbins=12,
+                        color_discrete_sequence=["#002D72"],
+                    )
+                    fig_hist.add_vline(x=p_line, line_dash="dot", line_color="#D50032",
+                                       annotation_text=f"Line {p_line}", annotation_font_color="#D50032")
+                    st.plotly_chart(mlb_fig(fig_hist), use_container_width=True)
+
+                    # Opponent breakdown
+                    if "opponent" in p_df.columns and p_df["opponent"].notna().any():
+                        mlb_section("Stats by Opponent")
+                        opp_p = (p_df.groupby("opponent")[["K", "IP", "ER", "ERA"]]
+                                 .mean().round(2).sort_values("K", ascending=False))
+                        st.dataframe(opp_p.style.format("{:.2f}"), use_container_width=True)
+
+                    # Recent starts table
+                    mlb_section("Recent Starts")
+                    pcols = ["date", "opponent", "IP", "H", "ER", "BB", "K", "HR", "ERA", "WHIP"]
+                    st.dataframe(
+                        p_df[pcols].tail(15).sort_values("date", ascending=False).style.format({
+                            "date": lambda x: x.strftime("%b %d"),
+                            "ERA": "{:.2f}", "WHIP": "{:.2f}", "IP": "{:.1f}",
+                        }),
+                        use_container_width=True, hide_index=True,
+                    )
+
+    # ── VS OPPONENT ───────────────────────────────────────────────────────────
+    with tab_vs_opp:
+        with st.spinner("Loading today's games..."):
+            today_games = get_today_mlb_games()
+
+        if not today_games:
+            st.info("No MLB games scheduled for today.")
+        else:
+            vo_ctrl, vo_main = st.columns([1, 2.8])
+            vo_roster, vo_player, vo_team, vo_opp_abbr = [], None, None, ""
+            vo_player_type = "Hitter"
+
+            with vo_ctrl:
+                mlb_section("Today's Games")
+                game_labels = [g["label"] for g in today_games]
+                sel_game_label = st.selectbox("Select Game", game_labels, key="vo_game")
+                sel_game = next(g for g in today_games if g["label"] == sel_game_label)
+
+                team_choice = st.radio(
+                    "Analyze Team",
+                    [sel_game["away_name"], sel_game["home_name"]],
+                    key="vo_team_side",
+                )
+                if team_choice == sel_game["away_name"]:
+                    vo_team = {"id": sel_game["away_id"], "name": sel_game["away_name"], "abbr": sel_game["away_abbr"]}
+                    vo_opp_abbr = sel_game["home_abbr"]
+                else:
+                    vo_team = {"id": sel_game["home_id"], "name": sel_game["home_name"], "abbr": sel_game["home_abbr"]}
+                    vo_opp_abbr = sel_game["away_abbr"]
+
+                mlb_section("Player")
+                vo_player_type = st.radio("Type", ["Hitter", "Pitcher"], key="vo_ptype", horizontal=True)
+                with st.spinner("Loading roster..."):
+                    h_r, p_r = get_mlb_roster(vo_team["id"])
+                vo_roster = h_r if vo_player_type == "Hitter" else p_r
+
+                if not vo_roster:
+                    st.warning("No players found.")
+                else:
+                    vo_name = st.selectbox("Player", [p["name"] for p in vo_roster], key="vo_player")
+                    vo_player = next(p for p in vo_roster if p["name"] == vo_name)
+                    mlb_player_card(vo_player["name"], vo_player["pos"], vo_team["abbr"], vo_player["id"])
+                    mlb_section("Parameters")
+                    vo_window = st.slider("Rolling Window", 3, 20, 10, key="vo_window")
+
+            with vo_main:
+                if vo_player and vo_team:
+                    with st.spinner("Loading stats..."):
+                        if vo_player_type == "Hitter":
+                            vo_df = get_mlb_hitting_logs(vo_player["id"])
+                        else:
+                            vo_df = get_mlb_pitching_logs(vo_player["id"])
+
+                    if vo_df.empty:
+                        st.warning("No stats found for this player this season.")
+                    else:
+                        opp_display = vo_opp_abbr or "opponent"
+
+                        # ── Prediction card ──────────────────────────────────
+                        mlb_section(f"Prediction vs {opp_display} — Today")
+                        if vo_player_type == "Hitter":
+                            stat_keys = ["H", "HR", "RBI", "K", "BB"]
+                        else:
+                            stat_keys = ["K", "IP", "ER", "BB", "ERA"]
+
+                        proj = {c: rolling_projection(vo_df, c, vo_window) for c in stat_keys}
+                        vs_opp_df = vo_df[vo_df["opponent"].str.upper() == vo_opp_abbr.upper()] if vo_opp_abbr else pd.DataFrame()
+
+                        # Season projection row
+                        st.markdown("""
+                        <p style='font-size:0.68rem;color:#6b7c9e;letter-spacing:0.1em;
+                                  text-transform:uppercase;margin:0 0 0.5rem 0;'>
+                            Season Rolling Projection
+                        </p>""", unsafe_allow_html=True)
+                        pcols = st.columns(len(stat_keys))
+                        for col, key in zip(pcols, stat_keys):
+                            fmt = ".2f" if key in ("ERA", "WHIP") else ".1f"
+                            col.metric(key, f"{proj[key]:{fmt}}")
+
+                        # vs this opponent row
+                        if not vs_opp_df.empty:
+                            st.markdown(f"""
+                            <p style='font-size:0.68rem;color:#D50032;letter-spacing:0.1em;
+                                      text-transform:uppercase;margin:1rem 0 0.5rem 0;'>
+                                Historical vs {opp_display} ({len(vs_opp_df)} game(s))
+                            </p>""", unsafe_allow_html=True)
+                            vcols = st.columns(len(stat_keys))
+                            for col, key in zip(vcols, stat_keys):
+                                if key in vs_opp_df.columns:
+                                    avg = vs_opp_df[key].mean()
+                                    season_avg = vo_df[key].mean()
+                                    delta = avg - season_avg
+                                    fmt = ".2f" if key in ("ERA", "WHIP") else ".1f"
+                                    col.metric(f"vs {opp_display}", f"{avg:{fmt}}",
+                                               delta=f"{delta:+.2f} vs season avg",
+                                               delta_color="inverse" if key in ("K", "ER", "ERA", "WHIP", "BB") else "normal")
+                        else:
+                            st.info(f"No historical data vs {opp_display} in {MLB_SEASON}.")
+
+                        # ── Trend vs opponent chart ───────────────────────────
+                        primary = "H" if vo_player_type == "Hitter" else "K"
+                        vo_df["ROLLING"] = vo_df[primary].rolling(vo_window).mean()
+                        opp_mask = vo_df["opponent"].str.upper() == vo_opp_abbr.upper() if vo_opp_abbr else pd.Series(False, index=vo_df.index)
+
+                        mlb_section(f"{primary} Trend with {opp_display} Games Highlighted")
+                        fig_vo = px.line(vo_df.reset_index(), x="date", y=primary,
+                                         labels={primary: primary, "date": "Date"},
+                                         color_discrete_sequence=["#ccd8ea"])
+                        fig_vo.add_scatter(x=vo_df["date"], y=vo_df["ROLLING"],
+                                           mode="lines", name="Rolling Avg",
+                                           line=dict(color="#002D72", width=2))
+                        if opp_mask.any():
+                            fig_vo.add_scatter(
+                                x=vo_df.loc[opp_mask, "date"],
+                                y=vo_df.loc[opp_mask, primary],
+                                mode="markers", name=f"vs {opp_display}",
+                                marker=dict(color="#D50032", size=10, symbol="diamond"),
+                            )
+                        st.plotly_chart(mlb_fig(fig_vo), use_container_width=True)
+
+                        # ── Recent game log ────────────────────────────────────
+                        mlb_section("Recent Game Log")
+                        log_cols = (["date", "opponent", "AB", "H", "HR", "RBI", "BB", "K", "AVG"]
+                                    if vo_player_type == "Hitter"
+                                    else ["date", "opponent", "IP", "H", "ER", "BB", "K", "ERA", "WHIP"])
+                        available = [c for c in log_cols if c in vo_df.columns]
+                        fmt_map = {"AVG": "{:.3f}", "ERA": "{:.2f}", "WHIP": "{:.2f}", "IP": "{:.1f}"}
+                        display_fmt = {k: v for k, v in fmt_map.items() if k in available}
+                        st.dataframe(
+                            vo_df[available].tail(15).sort_values("date", ascending=False)
+                            .style.format({"date": lambda x: x.strftime("%b %d"), **display_fmt}),
+                            use_container_width=True, hide_index=True,
+                        )
+
+    # ── MLB DISCLAIMER ────────────────────────────────────────────────────────
+    with tab_disc_mlb:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("""
+        <p style='font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:#6b7c9e;'>Disclaimer</p>
+        <p style='color:#6b7c9e;font-size:0.9rem;line-height:1.7;max-width:600px;'>
+            This dashboard is for <strong style='color:#002D72;'>informational and entertainment purposes only.</strong>
+            It does not constitute betting advice or guarantee outcomes.
+            Konjure Analytics is not responsible for any financial decisions made based on this data.
+            MLB data is sourced from the official MLB Stats API.
+        </p>""", unsafe_allow_html=True)
