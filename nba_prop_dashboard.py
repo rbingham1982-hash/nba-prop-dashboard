@@ -787,28 +787,29 @@ def get_mlb_scoreboard():
 
 @st.cache_data(ttl=900)
 def get_sport_news(sport="nba"):
+    import re as _re, warnings as _w
+    _w.filterwarnings("ignore")
     try:
         url = f"https://www.espn.com/espn/rss/{sport}/news"
         resp = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
-        soup = BeautifulSoup(resp.content, "lxml-xml")
+        soup = BeautifulSoup(resp.content, "html.parser")
         items = soup.find_all("item")[:8]
         news = []
         for item in items:
+            raw = str(item)
+            # Title — strip CDATA wrapper if present
             title_tag = item.find("title")
+            title_text = _re.sub(r"<!\[CDATA\[|\]\]>", "", title_tag.get_text(strip=True)) if title_tag else ""
+            # Link — stored as CDATA after self-closing <link/> in ESPN RSS
+            link_match = _re.search(r"<link/>\s*<!\[CDATA\[(https?://[^\]]+)\]\]>", raw)
+            link_url = link_match.group(1).strip() if link_match else "#"
+            # Description
             desc_tag = item.find("description")
-            link_tag = item.find("link")
-            date_tag = item.find("pubDate")
-            raw_desc = desc_tag.get_text() if desc_tag else ""
-            clean_desc = BeautifulSoup(raw_desc, "html.parser").get_text()[:130] if raw_desc else ""
-            link_url = link_tag.get_text(strip=True) if link_tag else "#"
-            if not link_url.startswith("http"):
-                link_url = "#"
-            news.append({
-                "title": title_tag.get_text(strip=True) if title_tag else "",
-                "desc": clean_desc,
-                "link": link_url,
-                "date": (date_tag.get_text()[:16] if date_tag else ""),
-            })
+            desc_text = BeautifulSoup(desc_tag.get_text(strip=True), "html.parser").get_text()[:130] if desc_tag else ""
+            # Date
+            date_tag = item.find("pubdate") or item.find("pubDate")
+            date_text = date_tag.get_text(strip=True)[:22] if date_tag else ""
+            news.append({"title": title_text, "desc": desc_text, "link": link_url, "date": date_text})
         return [n for n in news if n["title"]]
     except Exception:
         return []
