@@ -1178,8 +1178,10 @@ def _pitcher_desc(stats):
     return f"{tier}{k_str}{ctrl_str} ({era:.2f} ERA / {whip:.2f} WHIP)"
 
 def _nba_game_html(g):
-    aw, hw = g["away"], g["home"]
-    ar, hr = g["away_record"], g["home_record"]
+    aw = g.get("away", "")
+    hw = g.get("home", "")
+    ar = g.get("away_record", "") or ""
+    hr = g.get("home_record", "") or ""
     ap, hp = _win_pct(ar), _win_pct(hr)
     rec_line = f"{ar} · {hr}" if ar and hr else ""
     if ap > 0.60 and hp > 0.60:
@@ -1193,7 +1195,9 @@ def _nba_game_html(g):
     else:
         ctx = "a tight, evenly-matched contest"
     venue = f" at {g['venue']}" if g.get("venue") else ""
-    body = (f"The {aw} ({ar}) travel to face the {hw} ({hr}){venue} in {ctx}. "
+    ar_str = f" ({ar})" if ar else ""
+    hr_str = f" ({hr})" if hr else ""
+    body = (f"The {aw}{ar_str} travel to face the {hw}{hr_str}{venue} in {ctx}. "
             f"Expect both teams' backcourt depth and three-point shooting to be decisive factors, "
             f"as the game-time status of any injured stars bears watching before tip-off.")
     return (f"<div class='blog-game-card'>"
@@ -1203,16 +1207,20 @@ def _nba_game_html(g):
             f"</div>")
 
 def _mlb_game_html(g):
-    aw, hw = g["away"], g["home"]
-    ar, hr = g["away_record"], g["home_record"]
-    ap_name = g["away_pitcher"]
-    hp_name = g["home_pitcher"]
+    aw = g.get("away", "")
+    hw = g.get("home", "")
+    ar = g.get("away_record", "") or ""
+    hr = g.get("home_record", "") or ""
+    ap_name = g.get("away_pitcher", "TBD") or "TBD"
+    hp_name = g.get("home_pitcher", "TBD") or "TBD"
     ap_desc = _pitcher_desc(g.get("away_p_stats", {}))
     hp_desc = _pitcher_desc(g.get("home_p_stats", {}))
     rec_line = f"{ar} · {hr}" if ar and hr else ""
     venue = f" at {g['venue']}" if g.get("venue") else ""
 
-    body = f"The {aw} ({ar}) visit the {hw} ({hr}){venue}. "
+    ar_str = f" ({ar})" if ar else ""
+    hr_str = f" ({hr})" if hr else ""
+    body = f"The {aw}{ar_str} visit the {hw}{hr_str}{venue}. "
     if ap_name != "TBD" and ap_desc:
         body += f"{ap_name} gets the ball for {aw} — {ap_desc}. "
     elif ap_name != "TBD":
@@ -1414,10 +1422,14 @@ def generate_mlb_blog():
         headline = (f"{g0['away_abbr']} vs. {g0['home_abbr']} Among {n} MLB Games — "
                     f"Today's Pitching Matchup Analysis")
 
+    _ar = g0.get('away_record', '') or ''
+    _hr = g0.get('home_record', '') or ''
+    _ap = g0.get('away_pitcher', 'TBD') or 'TBD'
+    _hp = g0.get('home_pitcher', 'TBD') or 'TBD'
     lead = (f"{weekday}'s MLB schedule features {n} {'game' if n == 1 else 'games'} across the league. "
-            f"{'The featured matchup' if n > 1 else 'The day'} has the {g0['away']} "
-            f"({g0['away_record']}) visiting the {g0['home']} ({g0['home_record']}), "
-            f"with {g0['away_pitcher']} squaring off against {g0['home_pitcher']}. "
+            f"{'The featured matchup' if n > 1 else 'The day'} has the {g0.get('away', '')} "
+            f"{f'({_ar}) ' if _ar else ''}visiting the {g0.get('home', '')}{f' ({_hr})' if _hr else ''}, "
+            f"with {_ap} squaring off against {_hp}. "
             f"Here's Konjure's game-by-game pitching breakdown and the bats worth tracking today.")
 
     games_html = "".join(_mlb_game_html(g) for g in games[:8])
