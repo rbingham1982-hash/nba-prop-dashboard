@@ -2332,7 +2332,16 @@ if sport == "🏀 NBA":
         (last 30 games, 2024-25 &amp; 2025-26 seasons). <strong style='color:var(--text-primary)'>Safe Parlays</strong>
         maximize probability of hitting. <strong style='color:#f59e0b;'>Value Parlays</strong>
         maximize expected value (probability × payout).
-        </p>""", unsafe_allow_html=True)
+        </p>
+        <div style='background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:0.75rem 1rem;max-width:680px;margin-bottom:1.25rem;'>
+            <p style='font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#f87171;margin:0 0 0.3rem 0;'>Disclaimer</p>
+            <p style='font-size:0.78rem;color:#9294a8;line-height:1.6;margin:0;'>
+                Parlay suggestions are generated from historical statistics and are for
+                <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
+                Past performance does not guarantee future results. This is not betting advice.
+                Always gamble responsibly and within your means.
+            </p>
+        </div>""", unsafe_allow_html=True)
 
         _pc1, _pc2, _pc3 = st.columns([1, 1, 2])
         with _pc1:
@@ -3017,7 +3026,16 @@ else:
         (last 20 games). Hitter and pitcher legs are analyzed separately using official MLB Stats API data.
         <strong style='color:var(--text-primary)'>Safe Parlays</strong> maximize probability.
         <strong style='color:#f59e0b;'>Value Parlays</strong> maximize expected value.
-        </p>""", unsafe_allow_html=True)
+        </p>
+        <div style='background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:0.75rem 1rem;max-width:680px;margin-bottom:1.25rem;'>
+            <p style='font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#f87171;margin:0 0 0.3rem 0;'>Disclaimer</p>
+            <p style='font-size:0.78rem;color:#9294a8;line-height:1.6;margin:0;'>
+                Parlay suggestions are generated from historical statistics and are for
+                <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
+                Past performance does not guarantee future results. This is not betting advice.
+                Always gamble responsibly and within your means.
+            </p>
+        </div>""", unsafe_allow_html=True)
 
         _mp1, _mp2, _mp3 = st.columns([1, 1, 2])
         with _mp1:
