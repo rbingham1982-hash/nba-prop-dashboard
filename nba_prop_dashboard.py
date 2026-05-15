@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Konjure Analytics — Multi-Sport Prop & Predictive Dashboard
 """
@@ -562,7 +562,7 @@ _PP_NBA_STAT_COL = {
 _PP_MLB_HIT_COL = {
     "Hits": "H", "Home Runs": "HR", "RBIs": "RBI",
     "Stolen Bases": "SB", "Strikeouts": "K", "Walks": "BB",
-    "Total Bases": "H",   # approximate with hits
+    "Total Bases": "TB",
 }
 _PP_MLB_PIT_COL = {
     "Pitcher Strikeouts": "K", "Strikeouts": "K",
@@ -868,16 +868,24 @@ def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
             rows = []
             for s in splits:
                 st_data = s.get("stat", {})
+                _h  = int(st_data.get("hits") or 0)
+                _hr = int(st_data.get("homeRuns") or 0)
+                _2b = int(st_data.get("doubles") or 0)
+                _3b = int(st_data.get("triples") or 0)
                 rows.append({
                     "date": s.get("date", ""),
                     "season": season,
                     "opponent": s.get("opponent", {}).get("abbreviation", ""),
-                    "AB": int(st_data.get("atBats") or 0),
-                    "H":  int(st_data.get("hits") or 0),
-                    "HR": int(st_data.get("homeRuns") or 0),
+                    "AB":  int(st_data.get("atBats") or 0),
+                    "H":   _h,
+                    "HR":  _hr,
+                    "2B":  _2b,
+                    "3B":  _3b,
                     "RBI": int(st_data.get("rbi") or 0),
-                    "BB": int(st_data.get("baseOnBalls") or 0),
-                    "K":  int(st_data.get("strikeOuts") or 0),
+                    "BB":  int(st_data.get("baseOnBalls") or 0),
+                    "K":   int(st_data.get("strikeOuts") or 0),
+                    "SB":  int(st_data.get("stolenBases") or 0),
+                    "TB":  int(st_data.get("totalBases") or (_h + _2b + 2 * _3b + 3 * _hr)),
                     "AVG": float(st_data.get("avg") or 0),
                     "OBP": float(st_data.get("obp") or 0),
                     "SLG": float(st_data.get("slg") or 0),
