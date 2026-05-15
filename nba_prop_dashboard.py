@@ -713,36 +713,52 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float):
     return round(rate, 3), n
 
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 12):
-    """Build safe (max prob) and value (max EV) parlay lists from leg dicts."""
+    """
+    Safe  — highest probability combos (most likely to hit).
+    Value — highest EV combos that are NOT already in Safe.
+             Because EV = prob*(payout+1)-1 and payout grows with pick count,
+             higher-pick combos naturally rise here even at lower probability,
+             so Safe and Value show genuinely different options.
+    Same player never appears twice in one parlay.
+    """
     from itertools import combinations
+
     results = []
     for n in range(min_legs, max_legs + 1):
+        if n > len(legs):
+            continue
         payout = PP_PAYOUTS.get(n, float(n) * 2.0)
         for combo in combinations(legs, n):
-            # PrizePicks does not allow the same player + same stat type twice in one parlay
-            player_stats = [(leg["player_name"], leg["stat_type"]) for leg in combo]
-            if len(player_stats) != len(set(player_stats)):
+            # No same player in one parlay (regardless of stat type)
+            if len({l["player_name"] for l in combo}) < n:
                 continue
             prob = 1.0
             for leg in combo:
-                prob *= leg["hit_rate"] if leg["sample_n"] >= 5 else 0.5
+                prob *= leg["hit_rate"]
             ev = round(prob * payout - (1.0 - prob), 4)
-            results.append({"legs": list(combo), "n": n, "prob": round(prob, 4),
-                             "payout": payout, "ev": ev})
-    seen: set = set()
-    safe, value = [], []
-    for p in sorted(results, key=lambda x: -x["prob"]):
-        k = frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
-        if k not in seen:
-            seen.add(k)
-            safe.append(p)
-    seen = set()
-    for p in sorted(results, key=lambda x: -x["ev"]):
-        k = frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
-        if k not in seen:
-            seen.add(k)
-            value.append(p)
-    return safe[:top_n], value[:top_n]
+            results.append({
+                "legs": list(combo), "n": n,
+                "prob": round(prob, 4), "payout": payout, "ev": ev,
+            })
+
+    def _top(pool, key_fn, exclude_keys=None):
+        seen: set = set()
+        out = []
+        for p in sorted(pool, key=key_fn, reverse=True):
+            k = frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
+            if k not in seen and (not exclude_keys or k not in exclude_keys):
+                seen.add(k)
+                out.append(p)
+        return out
+
+    safe_out  = _top(results, lambda x: x["prob"])[:top_n]
+    safe_keys = {frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
+                 for p in safe_out}
+    # Value: sorted by EV, excluding everything already in Safe
+    # Higher pick-count combos rise here because their EV formula uses a larger multiplier
+    value_out = _top(results, lambda x: x["ev"], exclude_keys=safe_keys)[:top_n]
+
+    return safe_out, value_out
 
 def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
     """Render a parlay dict as an HTML card."""
@@ -2470,21 +2486,21 @@ if sport == "🏀 NBA":
 
                     _cs, _cv = st.columns(2)
                     with _cs:
-                        st.markdown("<p class='pl-section-label'>Safe Parlays — Highest Probability</p>",
+                        st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
                                     unsafe_allow_html=True)
                         if _safe_p:
                             for _p in _safe_p:
                                 st.markdown(_parlay_card_html(_p, "safe"), unsafe_allow_html=True)
                         else:
-                            st.caption("No qualifying parlays found.")
+                            st.caption("Not enough legs with sufficient historical data. Try adding more stat types.")
                     with _cv:
-                        st.markdown("<p class='pl-section-label'>Value Parlays — Best Expected Value</p>",
+                        st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
                                     unsafe_allow_html=True)
                         if _value_p:
                             for _p in _value_p:
                                 st.markdown(_parlay_card_html(_p, "value"), unsafe_allow_html=True)
                         else:
-                            st.caption("No qualifying parlays found.")
+                            st.caption("No additional value parlays found beyond safe parlays.")
         else:
             st.info("Select your options above and click **Build NBA Parlays** to generate suggestions. "
                     "First build may take 1-2 minutes while historical data is fetched; subsequent builds are instant.")
@@ -3171,21 +3187,21 @@ else:
 
                     _cms, _cmv = st.columns(2)
                     with _cms:
-                        st.markdown("<p class='pl-section-label'>Safe Parlays — Highest Probability</p>",
+                        st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
                                     unsafe_allow_html=True)
                         if _safe_m:
                             for _pm in _safe_m:
                                 st.markdown(_parlay_card_html(_pm, "safe"), unsafe_allow_html=True)
                         else:
-                            st.caption("No qualifying parlays found.")
+                            st.caption("Not enough legs with sufficient historical data. Try adding more stat types.")
                     with _cmv:
-                        st.markdown("<p class='pl-section-label'>Value Parlays — Best Expected Value</p>",
+                        st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
                                     unsafe_allow_html=True)
                         if _value_m:
                             for _pm in _value_m:
                                 st.markdown(_parlay_card_html(_pm, "value"), unsafe_allow_html=True)
                         else:
-                            st.caption("No qualifying parlays found.")
+                            st.caption("No additional value parlays found beyond safe parlays.")
         else:
             st.info("Select your options above and click **Build MLB Parlays** to generate suggestions. "
                     "First build may take 1-2 minutes while player data is fetched; subsequent builds are instant.")
