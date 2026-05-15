@@ -677,6 +677,9 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
     for n in range(min_legs, max_legs + 1):
         payout = PP_PAYOUTS.get(n, float(n) * 2.0)
         for combo in combinations(legs, n):
+            # PrizePicks does not allow two legs from the same player
+            if len({leg["player_name"] for leg in combo}) < n:
+                continue
             prob = 1.0
             for leg in combo:
                 prob *= leg["hit_rate"] if leg["sample_n"] >= 5 else 0.5
@@ -864,7 +867,8 @@ def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
         try:
             url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=hitting"
             resp = requests.get(url, timeout=10)
-            splits = resp.json().get("stats", [{}])[0].get("splits", [])
+            _stats = resp.json().get("stats", [])
+            splits = _stats[0].get("splits", []) if _stats else []
             rows = []
             for s in splits:
                 st_data = s.get("stat", {})
@@ -907,7 +911,8 @@ def get_mlb_pitching_logs(player_id, seasons=(MLB_SEASON,)):
         try:
             url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=pitching"
             resp = requests.get(url, timeout=10)
-            splits = resp.json().get("stats", [{}])[0].get("splits", [])
+            _stats = resp.json().get("stats", [])
+            splits = _stats[0].get("splits", []) if _stats else []
             rows = []
             for s in splits:
                 st_data = s.get("stat", {})
