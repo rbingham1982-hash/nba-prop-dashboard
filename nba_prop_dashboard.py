@@ -471,8 +471,23 @@ def get_team_players(team_abbr):
         return []
 
 def get_player_id(player_name):
+    # Exact / regex match first
     match = players.find_players_by_full_name(player_name)
-    return match[0]['id'] if match else None
+    if match:
+        return match[0]['id']
+    # Fallback: last-name search then first-initial filter
+    parts = player_name.strip().split()
+    if len(parts) >= 2:
+        last = parts[-1]
+        candidates = players.find_players_by_last_name(last)
+        first_init = parts[0][0].lower()
+        filtered = [p for p in candidates
+                    if p['first_name'].lower().startswith(first_init)]
+        if len(filtered) == 1:
+            return filtered[0]['id']
+        if not filtered and len(candidates) == 1:
+            return candidates[0]['id']
+    return None
 
 @st.cache_data(ttl=3600)
 def get_gamelogs(player_id, seasons):
@@ -635,17 +650,44 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float):
     rate = float((recent[col] > line).sum()) / n if n else 0.5
     return round(rate, 3), n
 
-@st.cache_data(ttl=1800)
-def _mlb_player_id_by_name(name: str):
-    """Look up MLB Stats API player ID by name."""
+@st.cache_data(ttl=86400)
+def _get_mlb_player_map():
+    """Fetch all active MLB players for the current season and return a name→id dict."""
     try:
-        url = f"{MLB_BASE}/people/search?names={requests.utils.quote(name)}&sportId=1"
-        resp = requests.get(url, timeout=8)
-        people = resp.json().get("people", [])
-        if people:
-            return people[0].get("id")
+        resp = requests.get(
+            f"{MLB_BASE}/sports/1/players?season={MLB_SEASON}", timeout=15
+        )
+        return {
+            p["fullName"].lower().strip(): p["id"]
+            for p in resp.json().get("people", [])
+        }
     except Exception:
-        pass
+        return {}
+
+def _mlb_player_id_by_name(name: str):
+    """Resolve a player name to an MLB Stats API ID using the cached season roster."""
+    name_map = _get_mlb_player_map()
+    if not name_map:
+        return None
+    key = name.lower().strip()
+    # 1) exact match
+    if key in name_map:
+        return name_map[key]
+    # 2) last-name + first-initial match  e.g. "A. Judge" or slight spelling difference
+    parts = key.split()
+    if len(parts) >= 2:
+        first, last = parts[0].rstrip("."), parts[-1]
+        for full_name, pid in name_map.items():
+            fp = full_name.split()
+            if len(fp) >= 2 and fp[-1] == last and fp[0].startswith(first):
+                return pid
+    # 3) last-name-only match (only if unique)
+    if parts:
+        last = parts[-1]
+        hits = [pid for full_name, pid in name_map.items()
+                if full_name.split()[-1] == last]
+        if len(hits) == 1:
+            return hits[0]
     return None
 
 @st.cache_data(ttl=1800)
@@ -661,12 +703,6 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float):
     seasons = (MLB_SEASON,)
     try:
         df = get_mlb_pitching_logs(pid, seasons) if is_pitcher else get_mlb_hitting_logs(pid, seasons)
-        # Fall back to the other log type — handles two-way players and
-        # cases where PrizePicks labels a pitcher stat as a hitter stat or vice versa
-        if df.empty or col not in df.columns:
-            alt_df = get_mlb_hitting_logs(pid, seasons) if is_pitcher else get_mlb_pitching_logs(pid, seasons)
-            if not alt_df.empty and col in alt_df.columns:
-                df = alt_df
     except Exception:
         return 0.5, 0
     if df.empty or col not in df.columns:
@@ -2419,11 +2455,14 @@ if sport == "🏀 NBA":
                                        text=f"Analyzing {_row['player_name']}…")
                     _prog.empty()
 
-                    _safe_p, _value_p = _build_parlays(_legs_nba, min_legs=_b_min, max_legs=_b_max)
+                    # Only build from legs that have real historical data
+                    _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 5]
+                    _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
 
                     st.markdown(
                         f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
                         f"Analyzed <strong>{len(_legs_nba)}</strong> legs &nbsp;·&nbsp; "
+                        f"<strong>{len(_legs_nba_data)}</strong> with data &nbsp;·&nbsp; "
                         f"<strong>{len(_safe_p)}</strong> safe parlays &nbsp;·&nbsp; "
                         f"<strong>{len(_value_p)}</strong> value parlays</p>",
                         unsafe_allow_html=True,
@@ -3117,11 +3156,14 @@ else:
                                            text=f"Analyzing {_mrow['player_name']}…")
                     _mlb_prog.empty()
 
-                    _safe_m, _value_m = _build_parlays(_legs_mlb, min_legs=_mb_min, max_legs=_mb_max)
+                    # Only build from legs that have real historical data
+                    _legs_mlb_data = [l for l in _legs_mlb if l["sample_n"] >= 5]
+                    _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
 
                     st.markdown(
                         f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
                         f"Analyzed <strong>{len(_legs_mlb)}</strong> legs &nbsp;·&nbsp; "
+                        f"<strong>{len(_legs_mlb_data)}</strong> with data &nbsp;·&nbsp; "
                         f"<strong>{len(_safe_m)}</strong> safe parlays &nbsp;·&nbsp; "
                         f"<strong>{len(_value_m)}</strong> value parlays</p>",
                         unsafe_allow_html=True,
