@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.env
+
+# Streamlit logs
+streamlit_out.txt
+streamlit_err.txt
+
+# Claude session data
+.claude/
+
+# Android build output
+android/.gradle/
+android/app/build/
+android/build/
+android/app/release/*.apk
+android/app/release/*.aab
+android/local.properties
