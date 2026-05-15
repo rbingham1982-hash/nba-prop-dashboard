@@ -399,6 +399,26 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
     .feature-card-title { font-size: 0.62rem !important; }
     .feature-card-desc { font-size: 0.72rem !important; }
 }
+
+/* ── Parlay Cards ── */
+.pl-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 0.75rem; position: relative; overflow: hidden; }
+.pl-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.pl-card-safe::before { background: linear-gradient(90deg,#22c55e,#4ade80); }
+.pl-card-value::before { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+.pl-header { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.65rem; flex-wrap: wrap; }
+.pl-prob { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); }
+.pl-tag { font-size: 0.68rem; font-weight: 700; background: rgba(129,140,248,0.12); color: var(--accent); padding: 0.18rem 0.55rem; border-radius: 4px; letter-spacing: 0.06em; white-space: nowrap; }
+.pl-ev { font-size: 0.65rem; color: var(--text-muted); margin-left: auto; }
+.pl-leg { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 0.4rem; }
+.pl-leg:last-child { border-bottom: none; }
+.pl-name { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; flex-shrink: 0; }
+.pl-stat { font-size: 0.72rem; color: var(--text-muted); flex: 1; text-align: center; }
+.pl-rate { font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+.pl-rate-hi { color: #22c55e; }
+.pl-rate-mid { color: #f59e0b; }
+.pl-rate-lo { color: #f87171; }
+.pl-rate-none { color: var(--text-muted); font-weight: 400; }
+.pl-section-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.35rem 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -529,6 +549,184 @@ def get_prizepicks_lines(league_id=7):
     except Exception as e:
         st.warning(f"PrizePicks fetch failed: {e}")
         return pd.DataFrame()
+
+# ─── Parlay builder ───────────────────────────────────────────────────────────
+PP_PAYOUTS = {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0}
+
+_PP_NBA_STAT_COL = {
+    "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
+    "Pts+Rebs+Asts": "PRA", "Pts+Asts": "PA", "Pts+Rebs": "PR",
+    "3-PT Made": "FG3M", "Blocked Shots": "BLK", "Steals": "STL", "Turnovers": "TOV",
+    "Fantasy Score": None,
+}
+_PP_MLB_HIT_COL = {
+    "Hits": "H", "Home Runs": "HR", "RBIs": "RBI",
+    "Stolen Bases": "SB", "Strikeouts": "K", "Walks": "BB",
+    "Total Bases": "H",   # approximate with hits
+}
+_PP_MLB_PIT_COL = {
+    "Pitcher Strikeouts": "K", "Strikeouts": "K",
+    "Earned Runs Allowed": "ER", "Walks Allowed": "BB", "Hits Allowed": "H",
+}
+_PP_PITCHER_TYPES = {"Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed", "Hits Allowed"}
+
+@st.cache_data(ttl=600)
+def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
+    """PrizePicks fetch that also captures team abbreviation and game description."""
+    try:
+        url = f"https://api.prizepicks.com/projections?league_id={league_id}&per_page=500&single_stat=true"
+        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://app.prizepicks.com/"}
+        resp = requests.get(url, headers=headers, timeout=12)
+        if resp.status_code != 200:
+            return pd.DataFrame()
+        payload = resp.json()
+        player_map = {}
+        for item in payload.get("included", []):
+            if item.get("type") == "new_player":
+                a = item.get("attributes", {})
+                player_map[item["id"]] = {
+                    "name": a.get("display_name", ""),
+                    "team": a.get("team", a.get("team_name", "")),
+                }
+        rows = []
+        for proj in payload.get("data", []):
+            if proj.get("type") != "projection":
+                continue
+            attrs = proj.get("attributes", {})
+            pid = proj.get("relationships", {}).get("new_player", {}).get("data", {}).get("id", "")
+            pinfo = player_map.get(pid, {})
+            rows.append({
+                "player_name": pinfo.get("name", ""),
+                "team":        pinfo.get("team", ""),
+                "stat_type":   attrs.get("stat_type", ""),
+                "line_score":  attrs.get("line_score"),
+                "status":      attrs.get("status", ""),
+                "game_desc":   attrs.get("description", attrs.get("game_id", "")),
+            })
+        df = pd.DataFrame(rows)
+        return df[df["player_name"] != ""] if not df.empty else df
+    except Exception:
+        return pd.DataFrame()
+
+@st.cache_data(ttl=1800)
+def _nba_hit_rate(player_name: str, stat_type: str, line: float):
+    """Return (hit_rate, sample_n) for an NBA PrizePicks leg using last 2 seasons."""
+    col = _PP_NBA_STAT_COL.get(stat_type)
+    if col is None:
+        return 0.5, 0
+    pid = get_player_id(player_name)
+    if not pid:
+        return 0.5, 0
+    df = get_gamelogs(pid, ["2024-25", "2025-26"])
+    if df.empty:
+        return 0.5, 0
+    if col in ("PRA", "PA", "PR"):
+        df = df.copy()
+        if col == "PRA":
+            df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+        elif col == "PA":
+            df["PA"] = df["PTS"] + df["AST"]
+        else:
+            df["PR"] = df["PTS"] + df["REB"]
+    if col not in df.columns:
+        return 0.5, 0
+    recent = df.tail(30)
+    n = len(recent)
+    rate = float((recent[col] > line).sum()) / n if n else 0.5
+    return round(rate, 3), n
+
+@st.cache_data(ttl=1800)
+def _mlb_player_id_by_name(name: str):
+    """Look up MLB Stats API player ID by name."""
+    try:
+        url = f"{MLB_BASE}/people/search?names={requests.utils.quote(name)}&sportId=1"
+        resp = requests.get(url, timeout=8)
+        people = resp.json().get("people", [])
+        if people:
+            return people[0].get("id")
+    except Exception:
+        pass
+    return None
+
+@st.cache_data(ttl=1800)
+def _mlb_hit_rate(player_name: str, stat_type: str, line: float):
+    """Return (hit_rate, sample_n) for an MLB PrizePicks leg."""
+    is_pitcher = stat_type in _PP_PITCHER_TYPES
+    col = (_PP_MLB_PIT_COL if is_pitcher else _PP_MLB_HIT_COL).get(stat_type)
+    if col is None:
+        return 0.5, 0
+    pid = _mlb_player_id_by_name(player_name)
+    if not pid:
+        return 0.5, 0
+    seasons = (MLB_SEASON, str(int(MLB_SEASON) - 1))
+    try:
+        df = get_mlb_pitching_logs(pid, seasons) if is_pitcher else get_mlb_hitting_logs(pid, seasons)
+    except Exception:
+        return 0.5, 0
+    if df.empty or col not in df.columns:
+        return 0.5, 0
+    recent = df.tail(20)
+    n = len(recent)
+    rate = float((recent[col] > line).sum()) / n if n else 0.5
+    return round(rate, 3), n
+
+def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 12):
+    """Build safe (max prob) and value (max EV) parlay lists from leg dicts."""
+    from itertools import combinations
+    results = []
+    for n in range(min_legs, max_legs + 1):
+        payout = PP_PAYOUTS.get(n, float(n) * 2.0)
+        for combo in combinations(legs, n):
+            prob = 1.0
+            for leg in combo:
+                prob *= leg["hit_rate"] if leg["sample_n"] >= 5 else 0.5
+            ev = round(prob * payout - (1.0 - prob), 4)
+            results.append({"legs": list(combo), "n": n, "prob": round(prob, 4),
+                             "payout": payout, "ev": ev})
+    seen: set = set()
+    safe, value = [], []
+    for p in sorted(results, key=lambda x: -x["prob"]):
+        k = frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
+        if k not in seen:
+            seen.add(k)
+            safe.append(p)
+    seen = set()
+    for p in sorted(results, key=lambda x: -x["ev"]):
+        k = frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
+        if k not in seen:
+            seen.add(k)
+            value.append(p)
+    return safe[:top_n], value[:top_n]
+
+def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
+    """Render a parlay dict as an HTML card."""
+    legs_html = ""
+    for leg in parlay["legs"]:
+        r = leg["hit_rate"]
+        n = leg["sample_n"]
+        if n < 5:
+            rcls, rlbl = "pl-rate-none", "—"
+        else:
+            rcls = "pl-rate-hi" if r >= 0.60 else ("pl-rate-mid" if r >= 0.45 else "pl-rate-lo")
+            rlbl = f"{r*100:.0f}% ({n}g)"
+        legs_html += (
+            f"<div class='pl-leg'>"
+            f"<span class='pl-name'>{leg['player_name']}</span>"
+            f"<span class='pl-stat'>{leg['stat_type']} &gt; {leg['line_score']}</span>"
+            f"<span class='pl-rate {rcls}'>{rlbl}</span>"
+            f"</div>"
+        )
+    ev_str = f"+{parlay['ev']:.2f}" if parlay['ev'] >= 0 else f"{parlay['ev']:.2f}"
+    return (
+        f"<div class='pl-card pl-card-{kind}'>"
+        f"<div class='pl-header'>"
+        f"<span class='pl-prob'>{parlay['prob']*100:.1f}%</span>"
+        f"<span class='pl-tag'>{parlay['n']}-Pick &nbsp;·&nbsp; {parlay['payout']}x</span>"
+        f"<span class='pl-ev'>EV {ev_str}</span>"
+        f"</div>"
+        f"{legs_html}"
+        f"</div>"
+    )
 
 def get_real_time_line(player_name, market="points"):
     try:
@@ -1666,9 +1864,9 @@ if sport == "🏀 NBA":
         _nba_scores = get_nba_scoreboard(_scoreboard_date())
     render_score_ticker(_nba_scores)
 
-    tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_blog, tab_disc = st.tabs([
+    tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_parlays, tab_blog, tab_disc = st.tabs([
         "Home", "Player Stats", "Opponent Breakdown",
-        "Bet Simulation", "First Basket", "PrizePicks", "Daily Blog", "Disclaimer"
+        "Bet Simulation", "First Basket", "PrizePicks", "Parlays", "Daily Blog", "Disclaimer"
     ])
 
     # ── HOME ──────────────────────────────────────────────────────────────────
@@ -2112,6 +2310,103 @@ if sport == "🏀 NBA":
                     "player_name": "Player", "stat_type": "Stat", "line_score": "Line", "status": "Status"
                 }).sort_values("Player"), use_container_width=True, hide_index=True)
 
+    # ── PARLAYS ───────────────────────────────────────────────────────────────
+    with tab_parlays:
+        section("NBA Parlay Builder")
+        st.markdown("""
+        <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
+        Builds optimized PrizePicks parlays using today's NBA lines and historical hit rates
+        (last 30 games, 2024-25 &amp; 2025-26 seasons). <strong style='color:var(--text-primary)'>Safe Parlays</strong>
+        maximize probability of hitting. <strong style='color:#f59e0b;'>Value Parlays</strong>
+        maximize expected value (probability × payout).
+        </p>""", unsafe_allow_html=True)
+
+        _pc1, _pc2, _pc3 = st.columns([1, 1, 2])
+        with _pc1:
+            _par_min = st.selectbox("Min Picks", [2, 3], index=0, key="nba_par_min")
+        with _pc2:
+            _par_max = st.selectbox("Max Picks", [2, 3, 4], index=2, key="nba_par_max")
+        with _pc3:
+            _par_stats = st.multiselect(
+                "Stat Types",
+                options=list(_PP_NBA_STAT_COL.keys()),
+                default=["Points", "Rebounds", "Assists", "3-PT Made", "Pts+Rebs+Asts"],
+                key="nba_par_stats",
+            )
+
+        if st.button("Build NBA Parlays", type="primary", key="nba_build_parlays"):
+            st.session_state["nba_parlays_built"] = True
+            st.session_state["nba_par_min_val"] = _par_min
+            st.session_state["nba_par_max_val"] = _par_max
+            st.session_state["nba_par_stats_val"] = _par_stats
+
+        if st.session_state.get("nba_parlays_built"):
+            _b_min = st.session_state.get("nba_par_min_val", _par_min)
+            _b_max = st.session_state.get("nba_par_max_val", _par_max)
+            _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
+
+            with st.spinner("Fetching PrizePicks lines…"):
+                _pp_raw = get_prizepicks_with_team(league_id=7)
+
+            if _pp_raw.empty:
+                st.warning("PrizePicks NBA lines unavailable right now.")
+            else:
+                _pp_filt = _pp_raw[_pp_raw["stat_type"].isin(_b_stats)].copy()
+                if _pp_filt.empty:
+                    st.info("No active lines for the selected stat types.")
+                else:
+                    # Cap at 50 legs to keep analysis time reasonable
+                    _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(50)
+                    _legs_nba = []
+                    _prog = st.progress(0, text="Calculating hit rates…")
+                    for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
+                        _rate, _n = _nba_hit_rate(
+                            _row["player_name"], _row["stat_type"], float(_row["line_score"] or 0)
+                        )
+                        _legs_nba.append({
+                            "player_name": _row["player_name"],
+                            "team":        _row.get("team", ""),
+                            "stat_type":   _row["stat_type"],
+                            "line_score":  _row["line_score"],
+                            "game_desc":   _row.get("game_desc", ""),
+                            "hit_rate":    _rate,
+                            "sample_n":    _n,
+                        })
+                        _prog.progress((_i + 1) / len(_pp_filt),
+                                       text=f"Analyzing {_row['player_name']}…")
+                    _prog.empty()
+
+                    _safe_p, _value_p = _build_parlays(_legs_nba, min_legs=_b_min, max_legs=_b_max)
+
+                    st.markdown(
+                        f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
+                        f"Analyzed <strong>{len(_legs_nba)}</strong> legs &nbsp;·&nbsp; "
+                        f"<strong>{len(_safe_p)}</strong> safe parlays &nbsp;·&nbsp; "
+                        f"<strong>{len(_value_p)}</strong> value parlays</p>",
+                        unsafe_allow_html=True,
+                    )
+
+                    _cs, _cv = st.columns(2)
+                    with _cs:
+                        st.markdown("<p class='pl-section-label'>Safe Parlays — Highest Probability</p>",
+                                    unsafe_allow_html=True)
+                        if _safe_p:
+                            for _p in _safe_p:
+                                st.markdown(_parlay_card_html(_p, "safe"), unsafe_allow_html=True)
+                        else:
+                            st.caption("No qualifying parlays found.")
+                    with _cv:
+                        st.markdown("<p class='pl-section-label'>Value Parlays — Best Expected Value</p>",
+                                    unsafe_allow_html=True)
+                        if _value_p:
+                            for _p in _value_p:
+                                st.markdown(_parlay_card_html(_p, "value"), unsafe_allow_html=True)
+                        else:
+                            st.caption("No qualifying parlays found.")
+        else:
+            st.info("Select your options above and click **Build NBA Parlays** to generate suggestions. "
+                    "First build may take 1-2 minutes while historical data is fetched; subsequent builds are instant.")
+
     # ── DAILY BLOG ────────────────────────────────────────────────────────────
     with tab_blog:
         with st.spinner("Generating today's NBA brief..."):
@@ -2140,8 +2435,8 @@ else:
         _mlb_scores = get_mlb_scoreboard(_scoreboard_date())
     render_score_ticker(_mlb_scores)
 
-    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_pp_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
-        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "PrizePicks", "Daily Blog", "Disclaimer"
+    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_pp_mlb, tab_parlays_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
+        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "PrizePicks", "Parlays", "Daily Blog", "Disclaimer"
     ])
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
@@ -2699,6 +2994,103 @@ else:
                 }).sort_values("Player"),
                 use_container_width=True, hide_index=True,
             )
+
+    # ── MLB PARLAYS ───────────────────────────────────────────────────────────
+    with tab_parlays_mlb:
+        section("MLB Parlay Builder")
+        st.markdown("""
+        <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
+        Builds optimized PrizePicks parlays using today's MLB lines and historical hit rates
+        (last 20 games). Hitter and pitcher legs are analyzed separately using official MLB Stats API data.
+        <strong style='color:var(--text-primary)'>Safe Parlays</strong> maximize probability.
+        <strong style='color:#f59e0b;'>Value Parlays</strong> maximize expected value.
+        </p>""", unsafe_allow_html=True)
+
+        _mp1, _mp2, _mp3 = st.columns([1, 1, 2])
+        with _mp1:
+            _mlb_par_min = st.selectbox("Min Picks", [2, 3], index=0, key="mlb_par_min")
+        with _mp2:
+            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4], index=2, key="mlb_par_max")
+        with _mp3:
+            _all_mlb_stat_types = list(_PP_MLB_HIT_COL.keys()) + list(_PP_MLB_PIT_COL.keys())
+            _mlb_par_stats = st.multiselect(
+                "Stat Types",
+                options=sorted(set(_all_mlb_stat_types)),
+                default=["Hits", "Home Runs", "RBIs", "Pitcher Strikeouts"],
+                key="mlb_par_stats",
+            )
+
+        if st.button("Build MLB Parlays", type="primary", key="mlb_build_parlays"):
+            st.session_state["mlb_parlays_built"] = True
+            st.session_state["mlb_par_min_val"] = _mlb_par_min
+            st.session_state["mlb_par_max_val"] = _mlb_par_max
+            st.session_state["mlb_par_stats_val"] = _mlb_par_stats
+
+        if st.session_state.get("mlb_parlays_built"):
+            _mb_min = st.session_state.get("mlb_par_min_val", _mlb_par_min)
+            _mb_max = st.session_state.get("mlb_par_max_val", _mlb_par_max)
+            _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
+
+            with st.spinner("Fetching PrizePicks MLB lines…"):
+                _mlb_pp_raw = get_prizepicks_with_team(league_id=2)
+
+            if _mlb_pp_raw.empty:
+                st.warning("PrizePicks MLB lines unavailable right now.")
+            else:
+                _mlb_filt = _mlb_pp_raw[_mlb_pp_raw["stat_type"].isin(_mb_stats)].copy()
+                if _mlb_filt.empty:
+                    st.info("No active MLB lines for the selected stat types.")
+                else:
+                    _mlb_filt = _mlb_filt.sort_values("line_score", ascending=False).head(40)
+                    _legs_mlb = []
+                    _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
+                    for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
+                        _mrate, _mn = _mlb_hit_rate(
+                            _mrow["player_name"], _mrow["stat_type"], float(_mrow["line_score"] or 0)
+                        )
+                        _legs_mlb.append({
+                            "player_name": _mrow["player_name"],
+                            "team":        _mrow.get("team", ""),
+                            "stat_type":   _mrow["stat_type"],
+                            "line_score":  _mrow["line_score"],
+                            "game_desc":   _mrow.get("game_desc", ""),
+                            "hit_rate":    _mrate,
+                            "sample_n":    _mn,
+                        })
+                        _mlb_prog.progress((_mi + 1) / len(_mlb_filt),
+                                           text=f"Analyzing {_mrow['player_name']}…")
+                    _mlb_prog.empty()
+
+                    _safe_m, _value_m = _build_parlays(_legs_mlb, min_legs=_mb_min, max_legs=_mb_max)
+
+                    st.markdown(
+                        f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
+                        f"Analyzed <strong>{len(_legs_mlb)}</strong> legs &nbsp;·&nbsp; "
+                        f"<strong>{len(_safe_m)}</strong> safe parlays &nbsp;·&nbsp; "
+                        f"<strong>{len(_value_m)}</strong> value parlays</p>",
+                        unsafe_allow_html=True,
+                    )
+
+                    _cms, _cmv = st.columns(2)
+                    with _cms:
+                        st.markdown("<p class='pl-section-label'>Safe Parlays — Highest Probability</p>",
+                                    unsafe_allow_html=True)
+                        if _safe_m:
+                            for _pm in _safe_m:
+                                st.markdown(_parlay_card_html(_pm, "safe"), unsafe_allow_html=True)
+                        else:
+                            st.caption("No qualifying parlays found.")
+                    with _cmv:
+                        st.markdown("<p class='pl-section-label'>Value Parlays — Best Expected Value</p>",
+                                    unsafe_allow_html=True)
+                        if _value_m:
+                            for _pm in _value_m:
+                                st.markdown(_parlay_card_html(_pm, "value"), unsafe_allow_html=True)
+                        else:
+                            st.caption("No qualifying parlays found.")
+        else:
+            st.info("Select your options above and click **Build MLB Parlays** to generate suggestions. "
+                    "First build may take 1-2 minutes while player data is fetched; subsequent builds are instant.")
 
     # ── MLB DAILY BLOG ────────────────────────────────────────────────────────
     with tab_blog_mlb:
