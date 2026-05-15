@@ -661,6 +661,12 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float):
     seasons = (MLB_SEASON,)
     try:
         df = get_mlb_pitching_logs(pid, seasons) if is_pitcher else get_mlb_hitting_logs(pid, seasons)
+        # Fall back to the other log type — handles two-way players and
+        # cases where PrizePicks labels a pitcher stat as a hitter stat or vice versa
+        if df.empty or col not in df.columns:
+            alt_df = get_mlb_hitting_logs(pid, seasons) if is_pitcher else get_mlb_pitching_logs(pid, seasons)
+            if not alt_df.empty and col in alt_df.columns:
+                df = alt_df
     except Exception:
         return 0.5, 0
     if df.empty or col not in df.columns:
@@ -865,40 +871,45 @@ def get_mlb_roster(team_id):
 def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
     frames = []
     for season in seasons:
-        try:
-            url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=hitting"
-            resp = requests.get(url, timeout=10)
-            _stats = resp.json().get("stats", [])
-            splits = _stats[0].get("splits", []) if _stats else []
-            rows = []
-            for s in splits:
-                st_data = s.get("stat", {})
-                _h  = int(st_data.get("hits") or 0)
-                _hr = int(st_data.get("homeRuns") or 0)
-                _2b = int(st_data.get("doubles") or 0)
-                _3b = int(st_data.get("triples") or 0)
-                rows.append({
-                    "date": s.get("date", ""),
-                    "season": season,
-                    "opponent": s.get("opponent", {}).get("abbreviation", ""),
-                    "AB":  int(st_data.get("atBats") or 0),
-                    "H":   _h,
-                    "HR":  _hr,
-                    "2B":  _2b,
-                    "3B":  _3b,
-                    "RBI": int(st_data.get("rbi") or 0),
-                    "BB":  int(st_data.get("baseOnBalls") or 0),
-                    "K":   int(st_data.get("strikeOuts") or 0),
-                    "SB":  int(st_data.get("stolenBases") or 0),
-                    "TB":  int(st_data.get("totalBases") or (_h + _2b + 2 * _3b + 3 * _hr)),
-                    "AVG": float(st_data.get("avg") or 0),
-                    "OBP": float(st_data.get("obp") or 0),
-                    "SLG": float(st_data.get("slg") or 0),
-                })
-            if rows:
-                frames.append(pd.DataFrame(rows))
-        except Exception as e:
-            st.warning(f"Could not load hitting logs for {season}: {e}")
+        for attempt in range(2):
+            try:
+                url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=hitting"
+                resp = requests.get(url, timeout=15)
+                _stats = resp.json().get("stats", [])
+                splits = _stats[0].get("splits", []) if _stats else []
+                rows = []
+                for s in splits:
+                    st_data = s.get("stat", {})
+                    _h  = int(st_data.get("hits") or 0)
+                    _hr = int(st_data.get("homeRuns") or 0)
+                    _2b = int(st_data.get("doubles") or 0)
+                    _3b = int(st_data.get("triples") or 0)
+                    rows.append({
+                        "date": s.get("date", ""),
+                        "season": season,
+                        "opponent": s.get("opponent", {}).get("abbreviation", ""),
+                        "AB":  int(st_data.get("atBats") or 0),
+                        "H":   _h,
+                        "HR":  _hr,
+                        "2B":  _2b,
+                        "3B":  _3b,
+                        "RBI": int(st_data.get("rbi") or 0),
+                        "BB":  int(st_data.get("baseOnBalls") or 0),
+                        "K":   int(st_data.get("strikeOuts") or 0),
+                        "SB":  int(st_data.get("stolenBases") or 0),
+                        "TB":  int(st_data.get("totalBases") or (_h + _2b + 2 * _3b + 3 * _hr)),
+                        "AVG": float(st_data.get("avg") or 0),
+                        "OBP": float(st_data.get("obp") or 0),
+                        "SLG": float(st_data.get("slg") or 0),
+                    })
+                if rows:
+                    frames.append(pd.DataFrame(rows))
+                break
+            except Exception:
+                if attempt == 1:
+                    pass  # silently skip after two failed attempts
+                else:
+                    time.sleep(1)
     if not frames:
         return pd.DataFrame()
     df = pd.concat(frames, ignore_index=True)
@@ -909,39 +920,44 @@ def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
 def get_mlb_pitching_logs(player_id, seasons=(MLB_SEASON,)):
     frames = []
     for season in seasons:
-        try:
-            url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=pitching"
-            resp = requests.get(url, timeout=10)
-            _stats = resp.json().get("stats", [])
-            splits = _stats[0].get("splits", []) if _stats else []
-            rows = []
-            for s in splits:
-                st_data = s.get("stat", {})
-                ip_str = str(st_data.get("inningsPitched") or "0")
-                try:
-                    parts = ip_str.split(".")
-                    ip = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
-                except Exception:
-                    ip = 0.0
-                k9 = round((int(st_data.get("strikeOuts") or 0) / ip * 9), 2) if ip > 0 else 0
-                rows.append({
-                    "date": s.get("date", ""),
-                    "season": season,
-                    "opponent": s.get("opponent", {}).get("abbreviation", ""),
-                    "IP":  round(ip, 1),
-                    "H":  int(st_data.get("hits") or 0),
-                    "ER": int(st_data.get("earnedRuns") or 0),
-                    "BB": int(st_data.get("baseOnBalls") or 0),
-                    "K":  int(st_data.get("strikeOuts") or 0),
-                    "HR": int(st_data.get("homeRuns") or 0),
-                    "ERA": float(st_data.get("era") or 0),
-                    "WHIP": float(st_data.get("whip") or 0),
-                    "K9": k9,
-                })
-            if rows:
-                frames.append(pd.DataFrame(rows))
-        except Exception as e:
-            st.warning(f"Could not load pitching logs for {season}: {e}")
+        for attempt in range(2):
+            try:
+                url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=pitching"
+                resp = requests.get(url, timeout=15)
+                _stats = resp.json().get("stats", [])
+                splits = _stats[0].get("splits", []) if _stats else []
+                rows = []
+                for s in splits:
+                    st_data = s.get("stat", {})
+                    ip_str = str(st_data.get("inningsPitched") or "0")
+                    try:
+                        parts = ip_str.split(".")
+                        ip = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
+                    except Exception:
+                        ip = 0.0
+                    k9 = round((int(st_data.get("strikeOuts") or 0) / ip * 9), 2) if ip > 0 else 0
+                    rows.append({
+                        "date": s.get("date", ""),
+                        "season": season,
+                        "opponent": s.get("opponent", {}).get("abbreviation", ""),
+                        "IP":  round(ip, 1),
+                        "H":  int(st_data.get("hits") or 0),
+                        "ER": int(st_data.get("earnedRuns") or 0),
+                        "BB": int(st_data.get("baseOnBalls") or 0),
+                        "K":  int(st_data.get("strikeOuts") or 0),
+                        "HR": int(st_data.get("homeRuns") or 0),
+                        "ERA": float(st_data.get("era") or 0),
+                        "WHIP": float(st_data.get("whip") or 0),
+                        "K9": k9,
+                    })
+                if rows:
+                    frames.append(pd.DataFrame(rows))
+                break
+            except Exception:
+                if attempt == 1:
+                    pass  # silently skip after two failed attempts
+                else:
+                    time.sleep(1)
     if not frames:
         return pd.DataFrame()
     df = pd.concat(frames, ignore_index=True)
