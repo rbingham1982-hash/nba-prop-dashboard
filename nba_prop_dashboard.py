@@ -2345,15 +2345,19 @@ if sport == "🏀 NBA":
 
         _pc1, _pc2, _pc3 = st.columns([1, 1, 2])
         with _pc1:
-            _par_min = st.selectbox("Min Picks", [2, 3], index=0, key="nba_par_min")
+            st.markdown("**Minimum Picks**")
+            _par_min = st.selectbox("Min Picks", [2, 3], index=0, key="nba_par_min", label_visibility="collapsed")
         with _pc2:
-            _par_max = st.selectbox("Max Picks", [2, 3, 4], index=2, key="nba_par_max")
+            st.markdown("**Maximum Picks**")
+            _par_max = st.selectbox("Max Picks", [2, 3, 4], index=2, key="nba_par_max", label_visibility="collapsed")
         with _pc3:
+            st.markdown("**Stat Types to Include**")
             _par_stats = st.multiselect(
                 "Stat Types",
                 options=list(_PP_NBA_STAT_COL.keys()),
                 default=["Points", "Rebounds", "Assists", "3-PT Made", "Pts+Rebs+Asts"],
                 key="nba_par_stats",
+                label_visibility="collapsed",
             )
 
         if st.button("Build NBA Parlays", type="primary", key="nba_build_parlays"):
@@ -3039,16 +3043,20 @@ else:
 
         _mp1, _mp2, _mp3 = st.columns([1, 1, 2])
         with _mp1:
-            _mlb_par_min = st.selectbox("Min Picks", [2, 3], index=0, key="mlb_par_min")
+            st.markdown("**Minimum Picks**")
+            _mlb_par_min = st.selectbox("Min Picks", [2, 3], index=0, key="mlb_par_min", label_visibility="collapsed")
         with _mp2:
-            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4], index=2, key="mlb_par_max")
+            st.markdown("**Maximum Picks**")
+            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4], index=2, key="mlb_par_max", label_visibility="collapsed")
         with _mp3:
+            st.markdown("**Stat Types to Include**")
             _all_mlb_stat_types = list(_PP_MLB_HIT_COL.keys()) + list(_PP_MLB_PIT_COL.keys())
             _mlb_par_stats = st.multiselect(
                 "Stat Types",
                 options=sorted(set(_all_mlb_stat_types)),
                 default=["Hits", "Home Runs", "RBIs", "Pitcher Strikeouts"],
                 key="mlb_par_stats",
+                label_visibility="collapsed",
             )
 
         if st.button("Build MLB Parlays", type="primary", key="mlb_build_parlays"):
