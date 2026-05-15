@@ -658,7 +658,7 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float):
     pid = _mlb_player_id_by_name(player_name)
     if not pid:
         return 0.5, 0
-    seasons = (MLB_SEASON, str(int(MLB_SEASON) - 1))
+    seasons = (MLB_SEASON,)
     try:
         df = get_mlb_pitching_logs(pid, seasons) if is_pitcher else get_mlb_hitting_logs(pid, seasons)
     except Exception:
@@ -677,8 +677,9 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
     for n in range(min_legs, max_legs + 1):
         payout = PP_PAYOUTS.get(n, float(n) * 2.0)
         for combo in combinations(legs, n):
-            # PrizePicks does not allow two legs from the same player
-            if len({leg["player_name"] for leg in combo}) < n:
+            # PrizePicks does not allow the same player + same stat type twice in one parlay
+            player_stats = [(leg["player_name"], leg["stat_type"]) for leg in combo]
+            if len(player_stats) != len(set(player_stats)):
                 continue
             prob = 1.0
             for leg in combo:
@@ -821,7 +822,7 @@ def get_team_first_basket_history(team_abbr, num_games=20):
 # MLB DATA FUNCTIONS  (MLB Stats API — free, no key required)
 # ══════════════════════════════════════════════════════════════════════════════
 MLB_SEASON = "2026"
-MLB_SEASONS = ["2024", "2025", "2026"]
+MLB_SEASONS = ["2024", "2026"]
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
 @st.cache_data(ttl=3600)
