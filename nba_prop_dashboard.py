@@ -557,7 +557,7 @@ def get_prizepicks_lines(league_id=7):
                 "player_name": player_map.get(pid, ""),
                 "stat_type": attrs.get("stat_type", ""),
                 "line_score": attrs.get("line_score"),
-                "status": attrs.get("status", ""),
+                "odds_type": attrs.get("odds_type", "standard"),
             })
         df = pd.DataFrame(rows)
         return df[df["player_name"] != ""] if not df.empty else df
@@ -568,8 +568,9 @@ def get_prizepicks_lines(league_id=7):
 # ─── Parlay builder ───────────────────────────────────────────────────────────
 PP_PAYOUTS = {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0}
 
-# PrizePicks goblin/demon line adjustments (market signal)
-_PP_STATUS_ADJ = {"goblin": 0.06, "demon": -0.06}
+# PrizePicks implied over-probability by odds_type (market signal)
+# goblin = easier line (~62% implied), demon = harder line (~38% implied)
+_PP_ODDS_IMPLIED = {"goblin": 0.62, "standard": 0.50, "demon": 0.38}
 
 _PP_NBA_STAT_COL = {
     "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
@@ -609,19 +610,19 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
                     "team": a.get("team", a.get("team_name", "")),
                 }
 
-        # Build game map from league_game included items
+        # Build game map from 'game' included items
         game_map = {}
         for item in payload.get("included", []):
-            if item.get("type") == "league_game":
-                a = item.get("attributes", {})
-                away = a.get("away_team_display", a.get("away_team_abbreviation",
-                             a.get("away_team", "")))
-                home = a.get("home_team_display", a.get("home_team_abbreviation",
-                             a.get("home_team", "")))
+            if item.get("type") == "game":
+                a    = item.get("attributes", {})
+                meta = a.get("metadata", {})
+                teams = meta.get("game_info", {}).get("teams", {})
+                away  = teams.get("away", {}).get("abbreviation", "")
+                home  = teams.get("home", {}).get("abbreviation", "")
                 label = f"{away} @ {home}" if away and home else ""
                 game_map[item["id"]] = {
                     "label":      label,
-                    "start_time": a.get("scheduled_at", a.get("start_time", "")),
+                    "start_time": a.get("start_time", ""),
                 }
 
         rows = []
@@ -631,7 +632,7 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
             attrs  = proj.get("attributes", {})
             rels   = proj.get("relationships", {})
             pid    = rels.get("new_player", {}).get("data", {}).get("id", "")
-            gid    = rels.get("league_game", {}).get("data", {}).get("id", "")
+            gid    = rels.get("game", {}).get("data", {}).get("id", "")
             pinfo  = player_map.get(pid, {})
             ginfo  = game_map.get(gid, {})
             rows.append({
@@ -639,7 +640,7 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
                 "team":        pinfo.get("team", ""),
                 "stat_type":   attrs.get("stat_type", ""),
                 "line_score":  attrs.get("line_score"),
-                "status":      attrs.get("status", "normal"),
+                "odds_type":   attrs.get("odds_type", "standard"),
                 "game_id":     gid,
                 "game_label":  ginfo.get("label", ""),
                 "start_time":  ginfo.get("start_time", attrs.get("start_time", "")),
@@ -650,8 +651,8 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
         return pd.DataFrame()
 
 @st.cache_data(ttl=1800)
-def _nba_hit_rate(player_name: str, stat_type: str, line: float, status: str = "normal"):
-    """Weighted hit rate: 60% last-10 + 40% last-30, trend signal, status adjustment."""
+def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str = "standard"):
+    """Weighted hit rate: 70% historical (60/40 last-10/30 + trend) + 30% PP implied odds."""
     col = _PP_NBA_STAT_COL.get(stat_type)
     if col is None:
         return 0.5, 0
@@ -688,15 +689,17 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, status: str = "
     r30 = float((last30 > line).sum()) / len(last30)
     if len(last10) >= 5:
         r10 = float((last10 > line).sum()) / len(last10)
-        rate = 0.6 * r10 + 0.4 * r30
+        hist = 0.6 * r10 + 0.4 * r30
     else:
-        rate = r30
-    # Trend: boost/penalise based on last-10 vs prior-10 momentum
+        hist = r30
+        r10  = hist
+    # Trend momentum (last-10 vs prior-10)
     if len(last10) >= 5 and len(prev10) >= 5:
         r_prev = float((prev10 > line).sum()) / len(prev10)
-        rate = min(0.97, max(0.03, rate + (r10 - r_prev) * 0.1))
-    # Goblin / demon market signal
-    rate += _PP_STATUS_ADJ.get(status, 0.0)
+        hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
+    # Blend 70% historical + 30% PrizePicks implied market odds
+    implied = _PP_ODDS_IMPLIED.get(odds_type, 0.50)
+    rate = 0.7 * hist + 0.3 * implied
     return round(min(0.97, max(0.03, rate)), 3), n
 
 @st.cache_data(ttl=86400)
@@ -740,8 +743,8 @@ def _mlb_player_id_by_name(name: str):
     return None
 
 @st.cache_data(ttl=1800)
-def _mlb_hit_rate(player_name: str, stat_type: str, line: float, status: str = "normal"):
-    """Weighted hit rate: 60% last-10 + 40% last-20, trend signal, status adjustment."""
+def _mlb_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str = "standard"):
+    """Weighted hit rate: 70% historical (60/40 last-10/20 + trend) + 30% PP implied odds."""
     is_pitcher = stat_type in _PP_PITCHER_TYPES
     col = (_PP_MLB_PIT_COL if is_pitcher else _PP_MLB_HIT_COL).get(stat_type)
     if col is None:
@@ -766,15 +769,17 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float, status: str = "
     r20 = float((last20 > line).sum()) / len(last20)
     if len(last10) >= 5:
         r10 = float((last10 > line).sum()) / len(last10)
-        rate = 0.6 * r10 + 0.4 * r20
+        hist = 0.6 * r10 + 0.4 * r20
     else:
-        rate = r20
-    # Trend: last-10 vs prior-10 momentum
+        hist = r20
+        r10  = hist
+    # Trend momentum (last-10 vs prior-10)
     if len(last10) >= 5 and len(prev10) >= 5:
         r_prev = float((prev10 > line).sum()) / len(prev10)
-        rate = min(0.97, max(0.03, rate + (r10 - r_prev) * 0.1))
-    # Goblin / demon market signal
-    rate += _PP_STATUS_ADJ.get(status, 0.0)
+        hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
+    # Blend 70% historical + 30% PrizePicks implied market odds
+    implied = _PP_ODDS_IMPLIED.get(odds_type, 0.50)
+    rate = 0.7 * hist + 0.3 * implied
     return round(min(0.97, max(0.03, rate)), 3), n
 
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 12):
@@ -846,21 +851,37 @@ def _build_sgp(legs: list, min_legs: int = 2, max_legs: int = 5) -> list:
     return sgp_results
 
 
+_ODDS_BADGE_HTML = {
+    "goblin":   "<span style='font-size:0.62rem;font-weight:700;letter-spacing:0.08em;"
+                "color:#22c55e;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);"
+                "border-radius:4px;padding:1px 5px;margin-left:5px;'>GOBLIN</span>",
+    "demon":    "<span style='font-size:0.62rem;font-weight:700;letter-spacing:0.08em;"
+                "color:#f87171;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);"
+                "border-radius:4px;padding:1px 5px;margin-left:5px;'>DEMON</span>",
+    "standard": "",
+}
+
+
 def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
     """Render a parlay dict as an HTML card."""
     legs_html = ""
     for leg in parlay["legs"]:
-        r = leg["hit_rate"]
-        n = leg["sample_n"]
+        r  = leg["hit_rate"]
+        n  = leg["sample_n"]
+        ot = leg.get("odds_type", "standard")
         if n < 5:
             rcls, rlbl = "pl-rate-none", "—"
         else:
             rcls = "pl-rate-hi" if r >= 0.60 else ("pl-rate-mid" if r >= 0.45 else "pl-rate-lo")
             rlbl = f"{r*100:.0f}% ({n}g)"
+        implied_pct = int(_PP_ODDS_IMPLIED.get(ot, 0.50) * 100)
+        odds_badge  = _ODDS_BADGE_HTML.get(ot, "")
         legs_html += (
             f"<div class='pl-leg'>"
-            f"<span class='pl-name'>{leg['player_name']}</span>"
-            f"<span class='pl-stat'>{leg['stat_type']} &gt; {leg['line_score']}</span>"
+            f"<span class='pl-name'>{leg['player_name']}{odds_badge}</span>"
+            f"<span class='pl-stat'>{leg['stat_type']} &gt; {leg['line_score']}"
+            f"<span style='color:#6b7280;font-size:0.7rem;margin-left:6px;'>"
+            f"PP&nbsp;{implied_pct}%</span></span>"
             f"<span class='pl-rate {rcls}'>{rlbl}</span>"
             f"</div>"
         )
@@ -2458,7 +2479,7 @@ if sport == "🏀 NBA":
     # ── PRIZEPICKS ────────────────────────────────────────────────────────────
     with tab_pp:
         with st.spinner("Loading PrizePicks projections..."):
-            pp_df = get_prizepicks_lines()
+            pp_df = get_prizepicks_with_team(league_id=7)
         if pp_df.empty:
             st.warning("No PrizePicks data available right now.")
         else:
@@ -2473,11 +2494,21 @@ if sport == "🏀 NBA":
                 filtered = filtered[filtered["stat_type"] == selected_stat]
             if search:
                 filtered = filtered[filtered["player_name"].str.contains(search, case=False, na=False)]
+            # Map odds_type → display label + implied probability
+            _ot_label = {"goblin": "Goblin", "demon": "Demon", "standard": "Standard"}
+            filtered = filtered.copy()
+            filtered["Odds"] = filtered["odds_type"].map(_ot_label).fillna("Standard")
+            filtered["PP Implied"] = filtered["odds_type"].map(
+                lambda x: f"{int(_PP_ODDS_IMPLIED.get(x, 0.50)*100)}%"
+            )
             section(f"{len(filtered)} Projection(s)")
             st.dataframe(
-                filtered[["player_name", "stat_type", "line_score", "status"]].rename(columns={
-                    "player_name": "Player", "stat_type": "Stat", "line_score": "Line", "status": "Status"
-                }).sort_values("Player"), use_container_width=True, hide_index=True)
+                filtered[["player_name", "team", "stat_type", "line_score", "Odds", "PP Implied", "game_label"]].rename(columns={
+                    "player_name": "Player", "team": "Team", "stat_type": "Stat",
+                    "line_score": "Line", "game_label": "Game",
+                }).sort_values("Player"),
+                use_container_width=True, hide_index=True,
+            )
 
     # ── PARLAYS ───────────────────────────────────────────────────────────────
     with tab_parlays:
@@ -2542,16 +2573,18 @@ if sport == "🏀 NBA":
                     _legs_nba = []
                     _prog = st.progress(0, text="Calculating hit rates…")
                     for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
+                        _ot = _row.get("odds_type", "standard") or "standard"
                         _rate, _n = _nba_hit_rate(
                             _row["player_name"], _row["stat_type"],
                             float(_row["line_score"] or 0),
-                            status=_row.get("status", "normal"),
+                            odds_type=_ot,
                         )
                         _legs_nba.append({
                             "player_name": _row["player_name"],
                             "team":        _row.get("team", ""),
                             "stat_type":   _row["stat_type"],
                             "line_score":  _row["line_score"],
+                            "odds_type":   _ot,
                             "game_id":     _row.get("game_id", ""),
                             "game_label":  _row.get("game_label", ""),
                             "hit_rate":    _rate,
@@ -3176,7 +3209,7 @@ else:
     # ── MLB PRIZEPICKS ────────────────────────────────────────────────────────
     with tab_pp_mlb:
         with st.spinner("Loading PrizePicks MLB projections..."):
-            mlb_pp_df = get_prizepicks_lines(league_id=2)
+            mlb_pp_df = get_prizepicks_with_team(league_id=2)
 
         if mlb_pp_df.empty:
             st.info("No MLB PrizePicks lines available right now. Lines are typically posted on game days.")
@@ -3194,11 +3227,17 @@ else:
             if search_mlb:
                 filt = filt[filt["player_name"].str.contains(search_mlb, case=False, na=False)]
 
+            _ot_label_mlb = {"goblin": "Goblin", "demon": "Demon", "standard": "Standard"}
+            filt = filt.copy()
+            filt["Odds"] = filt["odds_type"].map(_ot_label_mlb).fillna("Standard")
+            filt["PP Implied"] = filt["odds_type"].map(
+                lambda x: f"{int(_PP_ODDS_IMPLIED.get(x, 0.50)*100)}%"
+            )
             mlb_section(f"{len(filt)} Projection(s)")
             st.dataframe(
-                filt[["player_name", "stat_type", "line_score", "status"]].rename(columns={
-                    "player_name": "Player", "stat_type": "Stat",
-                    "line_score": "Line", "status": "Status",
+                filt[["player_name", "team", "stat_type", "line_score", "Odds", "PP Implied", "game_label"]].rename(columns={
+                    "player_name": "Player", "team": "Team", "stat_type": "Stat",
+                    "line_score": "Line", "game_label": "Game",
                 }).sort_values("Player"),
                 use_container_width=True, hide_index=True,
             )
@@ -3266,16 +3305,18 @@ else:
                     _legs_mlb = []
                     _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
                     for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
+                        _mot = _mrow.get("odds_type", "standard") or "standard"
                         _mrate, _mn = _mlb_hit_rate(
                             _mrow["player_name"], _mrow["stat_type"],
                             float(_mrow["line_score"] or 0),
-                            status=_mrow.get("status", "normal"),
+                            odds_type=_mot,
                         )
                         _legs_mlb.append({
                             "player_name": _mrow["player_name"],
                             "team":        _mrow.get("team", ""),
                             "stat_type":   _mrow["stat_type"],
                             "line_score":  _mrow["line_score"],
+                            "odds_type":   _mot,
                             "game_id":     _mrow.get("game_id", ""),
                             "game_label":  _mrow.get("game_label", ""),
                             "hit_rate":    _mrate,
