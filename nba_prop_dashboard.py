@@ -568,16 +568,19 @@ def get_prizepicks_lines(league_id=7):
 # ─── Parlay builder ───────────────────────────────────────────────────────────
 PP_PAYOUTS = {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0}
 
+# PrizePicks goblin/demon line adjustments (market signal)
+_PP_STATUS_ADJ = {"goblin": 0.06, "demon": -0.06}
+
 _PP_NBA_STAT_COL = {
     "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
     "Pts+Rebs+Asts": "PRA", "Pts+Asts": "PA", "Pts+Rebs": "PR",
-    "3-PT Made": "FG3M", "Blocked Shots": "BLK", "Steals": "STL", "Turnovers": "TOV",
-    "Fantasy Score": None,
+    "3-PT Made": "FG3M", "Blocked Shots": "BLK", "Steals": "STL",
+    "Turnovers": "TOV", "Fantasy Score": "FS", "Spread": None,
 }
 _PP_MLB_HIT_COL = {
     "Hits": "H", "Home Runs": "HR", "RBIs": "RBI",
     "Stolen Bases": "SB", "Strikeouts": "K", "Walks": "BB",
-    "Total Bases": "TB",
+    "Total Bases": "TB", "Runs Scored": "R",
 }
 _PP_MLB_PIT_COL = {
     "Pitcher Strikeouts": "K", "Strikeouts": "K",
@@ -587,7 +590,7 @@ _PP_PITCHER_TYPES = {"Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed
 
 @st.cache_data(ttl=600)
 def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
-    """PrizePicks fetch that also captures team abbreviation and game description."""
+    """PrizePicks fetch capturing team, status, and game label for SGP grouping."""
     try:
         url = f"https://api.prizepicks.com/projections?league_id={league_id}&per_page=500&single_stat=true"
         headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://app.prizepicks.com/"}
@@ -595,6 +598,8 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
         if resp.status_code != 200:
             return pd.DataFrame()
         payload = resp.json()
+
+        # Build player map
         player_map = {}
         for item in payload.get("included", []):
             if item.get("type") == "new_player":
@@ -603,20 +608,41 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
                     "name": a.get("display_name", ""),
                     "team": a.get("team", a.get("team_name", "")),
                 }
+
+        # Build game map from league_game included items
+        game_map = {}
+        for item in payload.get("included", []):
+            if item.get("type") == "league_game":
+                a = item.get("attributes", {})
+                away = a.get("away_team_display", a.get("away_team_abbreviation",
+                             a.get("away_team", "")))
+                home = a.get("home_team_display", a.get("home_team_abbreviation",
+                             a.get("home_team", "")))
+                label = f"{away} @ {home}" if away and home else ""
+                game_map[item["id"]] = {
+                    "label":      label,
+                    "start_time": a.get("scheduled_at", a.get("start_time", "")),
+                }
+
         rows = []
         for proj in payload.get("data", []):
             if proj.get("type") != "projection":
                 continue
-            attrs = proj.get("attributes", {})
-            pid = proj.get("relationships", {}).get("new_player", {}).get("data", {}).get("id", "")
-            pinfo = player_map.get(pid, {})
+            attrs  = proj.get("attributes", {})
+            rels   = proj.get("relationships", {})
+            pid    = rels.get("new_player", {}).get("data", {}).get("id", "")
+            gid    = rels.get("league_game", {}).get("data", {}).get("id", "")
+            pinfo  = player_map.get(pid, {})
+            ginfo  = game_map.get(gid, {})
             rows.append({
                 "player_name": pinfo.get("name", ""),
                 "team":        pinfo.get("team", ""),
                 "stat_type":   attrs.get("stat_type", ""),
                 "line_score":  attrs.get("line_score"),
-                "status":      attrs.get("status", ""),
-                "game_desc":   attrs.get("description", attrs.get("game_id", "")),
+                "status":      attrs.get("status", "normal"),
+                "game_id":     gid,
+                "game_label":  ginfo.get("label", ""),
+                "start_time":  ginfo.get("start_time", attrs.get("start_time", "")),
             })
         df = pd.DataFrame(rows)
         return df[df["player_name"] != ""] if not df.empty else df
@@ -624,8 +650,8 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
         return pd.DataFrame()
 
 @st.cache_data(ttl=1800)
-def _nba_hit_rate(player_name: str, stat_type: str, line: float):
-    """Return (hit_rate, sample_n) for an NBA PrizePicks leg using last 2 seasons."""
+def _nba_hit_rate(player_name: str, stat_type: str, line: float, status: str = "normal"):
+    """Weighted hit rate: 60% last-10 + 40% last-30, trend signal, status adjustment."""
     col = _PP_NBA_STAT_COL.get(stat_type)
     if col is None:
         return 0.5, 0
@@ -635,20 +661,43 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float):
     df = get_gamelogs(pid, ["2024-25", "2025-26"])
     if df.empty:
         return 0.5, 0
-    if col in ("PRA", "PA", "PR"):
+    if col in ("PRA", "PA", "PR", "FS"):
         df = df.copy()
         if col == "PRA":
             df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
         elif col == "PA":
             df["PA"] = df["PTS"] + df["AST"]
-        else:
+        elif col == "PR":
             df["PR"] = df["PTS"] + df["REB"]
+        elif col == "FS":
+            df["FS"] = (df["PTS"]
+                        + 1.2 * df.get("REB", 0)
+                        + 1.5 * df.get("AST", 0)
+                        + 3.0 * df.get("STL", 0)
+                        + 3.0 * df.get("BLK", 0)
+                        - df.get("TOV", 0))
     if col not in df.columns:
         return 0.5, 0
-    recent = df.tail(30)
-    n = len(recent)
-    rate = float((recent[col] > line).sum()) / n if n else 0.5
-    return round(rate, 3), n
+    vals = df[col].values
+    last30 = vals[-30:] if len(vals) >= 5 else vals
+    last10 = vals[-10:] if len(vals) >= 10 else vals
+    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[: max(1, len(vals) // 2)]
+    n = len(last30)
+    if n == 0:
+        return 0.5, 0
+    r30 = float((last30 > line).sum()) / len(last30)
+    if len(last10) >= 5:
+        r10 = float((last10 > line).sum()) / len(last10)
+        rate = 0.6 * r10 + 0.4 * r30
+    else:
+        rate = r30
+    # Trend: boost/penalise based on last-10 vs prior-10 momentum
+    if len(last10) >= 5 and len(prev10) >= 5:
+        r_prev = float((prev10 > line).sum()) / len(prev10)
+        rate = min(0.97, max(0.03, rate + (r10 - r_prev) * 0.1))
+    # Goblin / demon market signal
+    rate += _PP_STATUS_ADJ.get(status, 0.0)
+    return round(min(0.97, max(0.03, rate)), 3), n
 
 @st.cache_data(ttl=86400)
 def _get_mlb_player_map():
@@ -691,8 +740,8 @@ def _mlb_player_id_by_name(name: str):
     return None
 
 @st.cache_data(ttl=1800)
-def _mlb_hit_rate(player_name: str, stat_type: str, line: float):
-    """Return (hit_rate, sample_n) for an MLB PrizePicks leg."""
+def _mlb_hit_rate(player_name: str, stat_type: str, line: float, status: str = "normal"):
+    """Weighted hit rate: 60% last-10 + 40% last-20, trend signal, status adjustment."""
     is_pitcher = stat_type in _PP_PITCHER_TYPES
     col = (_PP_MLB_PIT_COL if is_pitcher else _PP_MLB_HIT_COL).get(stat_type)
     if col is None:
@@ -707,10 +756,26 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float):
         return 0.5, 0
     if df.empty or col not in df.columns:
         return 0.5, 0
-    recent = df.tail(20)
-    n = len(recent)
-    rate = float((recent[col] > line).sum()) / n if n else 0.5
-    return round(rate, 3), n
+    vals = df[col].values
+    last20 = vals[-20:] if len(vals) >= 5 else vals
+    last10 = vals[-10:] if len(vals) >= 10 else vals
+    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[: max(1, len(vals) // 2)]
+    n = len(last20)
+    if n == 0:
+        return 0.5, 0
+    r20 = float((last20 > line).sum()) / len(last20)
+    if len(last10) >= 5:
+        r10 = float((last10 > line).sum()) / len(last10)
+        rate = 0.6 * r10 + 0.4 * r20
+    else:
+        rate = r20
+    # Trend: last-10 vs prior-10 momentum
+    if len(last10) >= 5 and len(prev10) >= 5:
+        r_prev = float((prev10 > line).sum()) / len(prev10)
+        rate = min(0.97, max(0.03, rate + (r10 - r_prev) * 0.1))
+    # Goblin / demon market signal
+    rate += _PP_STATUS_ADJ.get(status, 0.0)
+    return round(min(0.97, max(0.03, rate)), 3), n
 
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 12):
     """
@@ -759,6 +824,27 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
     value_out = _top(results, lambda x: x["ev"], exclude_keys=safe_keys)[:top_n]
 
     return safe_out, value_out
+
+def _build_sgp(legs: list, min_legs: int = 2, max_legs: int = 5) -> list:
+    """Group legs by game, return best parlay(s) per game sorted by probability."""
+    from collections import defaultdict
+    game_groups: dict = defaultdict(list)
+    for leg in legs:
+        gid = leg.get("game_id", "")
+        glabel = leg.get("game_label", leg.get("game_desc", "Unknown Game"))
+        if gid:
+            game_groups[(gid, glabel)].append(leg)
+    sgp_results = []
+    for (gid, glabel), game_legs in game_groups.items():
+        if len(game_legs) < min_legs:
+            continue
+        cap = min(max_legs, len(game_legs))
+        safe, _ = _build_parlays(game_legs, min_legs=min_legs, max_legs=cap, top_n=3)
+        if safe:
+            sgp_results.append({"game_label": glabel, "game_id": gid, "parlays": safe[:3]})
+    sgp_results.sort(key=lambda x: x["parlays"][0]["prob"] if x["parlays"] else 0, reverse=True)
+    return sgp_results
+
 
 def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
     """Render a parlay dict as an HTML card."""
@@ -949,6 +1035,7 @@ def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
                         "BB":  int(st_data.get("baseOnBalls") or 0),
                         "K":   int(st_data.get("strikeOuts") or 0),
                         "SB":  int(st_data.get("stolenBases") or 0),
+                        "R":   int(st_data.get("runs") or 0),
                         "TB":  int(st_data.get("totalBases") or (_h + _2b + 2 * _3b + 3 * _hr)),
                         "AVG": float(st_data.get("avg") or 0),
                         "OBP": float(st_data.get("obp") or 0),
@@ -2418,7 +2505,7 @@ if sport == "🏀 NBA":
             _par_min = st.selectbox("Min Picks", [2, 3], index=0, key="nba_par_min", label_visibility="collapsed")
         with _pc2:
             st.markdown("**Maximum Picks**")
-            _par_max = st.selectbox("Max Picks", [2, 3, 4], index=2, key="nba_par_max", label_visibility="collapsed")
+            _par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=2, key="nba_par_max", label_visibility="collapsed")
         with _pc3:
             st.markdown("**Stat Types to Include**")
             _par_stats = st.multiselect(
@@ -2450,20 +2537,23 @@ if sport == "🏀 NBA":
                 if _pp_filt.empty:
                     st.info("No active lines for the selected stat types.")
                 else:
-                    # Cap at 50 legs to keep analysis time reasonable
-                    _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(50)
+                    # Cap at 60 legs to keep analysis time reasonable
+                    _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(60)
                     _legs_nba = []
                     _prog = st.progress(0, text="Calculating hit rates…")
                     for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
                         _rate, _n = _nba_hit_rate(
-                            _row["player_name"], _row["stat_type"], float(_row["line_score"] or 0)
+                            _row["player_name"], _row["stat_type"],
+                            float(_row["line_score"] or 0),
+                            status=_row.get("status", "normal"),
                         )
                         _legs_nba.append({
                             "player_name": _row["player_name"],
                             "team":        _row.get("team", ""),
                             "stat_type":   _row["stat_type"],
                             "line_score":  _row["line_score"],
-                            "game_desc":   _row.get("game_desc", ""),
+                            "game_id":     _row.get("game_id", ""),
+                            "game_label":  _row.get("game_label", ""),
                             "hit_rate":    _rate,
                             "sample_n":    _n,
                         })
@@ -2501,6 +2591,26 @@ if sport == "🏀 NBA":
                                 st.markdown(_parlay_card_html(_p, "value"), unsafe_allow_html=True)
                         else:
                             st.caption("No additional value parlays found beyond safe parlays.")
+
+                    # ── Same-Game Parlays ─────────────────────────────────────
+                    st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
+                                unsafe_allow_html=True)
+                    st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
+                                unsafe_allow_html=True)
+                    _sgp_results = _build_sgp(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
+                    if _sgp_results:
+                        for _sgp in _sgp_results:
+                            st.markdown(
+                                f"<p style='font-size:0.78rem;font-weight:600;color:#818cf8;"
+                                f"margin:1rem 0 0.4rem;letter-spacing:0.06em;'>"
+                                f"{_sgp['game_label']}</p>",
+                                unsafe_allow_html=True,
+                            )
+                            for _sp in _sgp["parlays"]:
+                                st.markdown(_parlay_card_html(_sp, "safe"), unsafe_allow_html=True)
+                    else:
+                        st.caption("Same-game parlay data requires game grouping from PrizePicks. "
+                                   "No games with enough legs were found today.")
         else:
             st.info("Select your options above and click **Build NBA Parlays** to generate suggestions. "
                     "First build may take 1-2 minutes while historical data is fetched; subsequent builds are instant.")
@@ -3119,7 +3229,7 @@ else:
             _mlb_par_min = st.selectbox("Min Picks", [2, 3], index=0, key="mlb_par_min", label_visibility="collapsed")
         with _mp2:
             st.markdown("**Maximum Picks**")
-            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4], index=2, key="mlb_par_max", label_visibility="collapsed")
+            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=2, key="mlb_par_max", label_visibility="collapsed")
         with _mp3:
             st.markdown("**Stat Types to Include**")
             _all_mlb_stat_types = list(_PP_MLB_HIT_COL.keys()) + list(_PP_MLB_PIT_COL.keys())
@@ -3152,19 +3262,22 @@ else:
                 if _mlb_filt.empty:
                     st.info("No active MLB lines for the selected stat types.")
                 else:
-                    _mlb_filt = _mlb_filt.sort_values("line_score", ascending=False).head(40)
+                    _mlb_filt = _mlb_filt.sort_values("line_score", ascending=False).head(60)
                     _legs_mlb = []
                     _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
                     for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
                         _mrate, _mn = _mlb_hit_rate(
-                            _mrow["player_name"], _mrow["stat_type"], float(_mrow["line_score"] or 0)
+                            _mrow["player_name"], _mrow["stat_type"],
+                            float(_mrow["line_score"] or 0),
+                            status=_mrow.get("status", "normal"),
                         )
                         _legs_mlb.append({
                             "player_name": _mrow["player_name"],
                             "team":        _mrow.get("team", ""),
                             "stat_type":   _mrow["stat_type"],
                             "line_score":  _mrow["line_score"],
-                            "game_desc":   _mrow.get("game_desc", ""),
+                            "game_id":     _mrow.get("game_id", ""),
+                            "game_label":  _mrow.get("game_label", ""),
                             "hit_rate":    _mrate,
                             "sample_n":    _mn,
                         })
@@ -3202,6 +3315,26 @@ else:
                                 st.markdown(_parlay_card_html(_pm, "value"), unsafe_allow_html=True)
                         else:
                             st.caption("No additional value parlays found beyond safe parlays.")
+
+                    # ── Same-Game Parlays ─────────────────────────────────────
+                    st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
+                                unsafe_allow_html=True)
+                    st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
+                                unsafe_allow_html=True)
+                    _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
+                    if _mlb_sgp:
+                        for _sgpm in _mlb_sgp:
+                            st.markdown(
+                                f"<p style='font-size:0.78rem;font-weight:600;color:#3b82f6;"
+                                f"margin:1rem 0 0.4rem;letter-spacing:0.06em;'>"
+                                f"{_sgpm['game_label']}</p>",
+                                unsafe_allow_html=True,
+                            )
+                            for _spm in _sgpm["parlays"]:
+                                st.markdown(_parlay_card_html(_spm, "safe"), unsafe_allow_html=True)
+                    else:
+                        st.caption("Same-game parlay data requires game grouping from PrizePicks. "
+                                   "No games with enough legs were found today.")
         else:
             st.info("Select your options above and click **Build MLB Parlays** to generate suggestions. "
                     "First build may take 1-2 minutes while player data is fetched; subsequent builds are instant.")
