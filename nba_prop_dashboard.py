@@ -2058,8 +2058,8 @@ if sport == "🏀 NBA":
         _nba_scores = get_nba_scoreboard(_scoreboard_date())
     render_score_ticker(_nba_scores)
 
-    tab_home, tab_stats, tab_opp, tab_sim, tab_fb, tab_pp, tab_parlays, tab_blog, tab_disc = st.tabs([
-        "Home", "Player Stats", "Opponent Breakdown",
+    tab_home, tab_stats, tab_opp, tab_vs_opp_nba, tab_sim, tab_fb, tab_pp, tab_parlays, tab_blog, tab_disc = st.tabs([
+        "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
         "Bet Simulation", "First Basket", "PrizePicks", "Parlays", "Daily Blog", "Disclaimer"
     ])
 
@@ -2320,6 +2320,103 @@ if sport == "🏀 NBA":
                         st.dataframe(opp_stats.style.format(
                             {"Hit Rate": "{:.1%}", "Avg Margin": "{:.2f}", "Avg Stat": "{:.1f}", "Games": "{:.0f}"}
                         ), use_container_width=True)
+
+    # ── VS. OPPONENT ──────────────────────────────────────────────────────────
+    with tab_vs_opp_nba:
+        with st.spinner("Loading today's games..."):
+            _nba_today_sched = get_nba_scoreboard(_scoreboard_date())
+
+        if not _nba_today_sched:
+            st.info("No NBA games scheduled for today.")
+        else:
+            nvo_ctrl, nvo_main = st.columns([1, 2.8])
+            with nvo_ctrl:
+                section("Today's Games")
+                nvo_seasons = st.multiselect("Seasons", SEASONS, default=["2025-26"], key="nvo_seasons")
+                game_opts = [f"{g['away']} @ {g['home']}" for g in _nba_today_sched]
+                nvo_game_label = st.selectbox("Select Game", game_opts, key="nvo_game")
+                nvo_game = next(g for g in _nba_today_sched if f"{g['away']} @ {g['home']}" == nvo_game_label)
+                nvo_team_code = st.radio("Analyze Team",
+                    [nvo_game["away"], nvo_game["home"]], key="nvo_team_side", horizontal=True)
+                nvo_opp_code = nvo_game["home"] if nvo_team_code == nvo_game["away"] else nvo_game["away"]
+
+                section("Player")
+                nvo_players = get_team_players(nvo_team_code)
+                if not nvo_players:
+                    st.warning(f"Could not load roster for {nvo_team_code}.")
+                else:
+                    nvo_player = st.selectbox("Player", nvo_players, key="nvo_player")
+                    nba_player_card(nvo_player, nvo_team_code)
+                    section("Parameters")
+                    nvo_prop = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="nvo_prop")
+                    nvo_line = st.number_input("Prop Line", value=25.5, step=0.5, key="nvo_line")
+                    nvo_window = st.slider("Rolling Window", 3, 20, 10, key="nvo_window")
+
+            with nvo_main:
+                if nvo_players and nvo_seasons:
+                    nvo_pid = get_player_id(nvo_player)
+                    if nvo_pid:
+                        with st.spinner("Loading game logs..."):
+                            nvo_df = get_gamelogs(nvo_pid, tuple(nvo_seasons))
+                        if nvo_df.empty:
+                            st.warning("No stats found for this player.")
+                        else:
+                            nvo_df = nvo_df.copy()
+                            nvo_df["PRA"] = nvo_df["PTS"] + nvo_df["REB"] + nvo_df["AST"]
+                            nvo_col = STAT_MAP[nvo_prop]
+                            nvo_df["ROLLING"] = nvo_df[nvo_col].rolling(nvo_window).mean()
+                            opp_mask = nvo_df["OPPONENT"].str.upper() == nvo_opp_code.upper()
+                            vs_opp_df = nvo_df[opp_mask]
+                            proj_all = rolling_projection(nvo_df, nvo_col, nvo_window)
+                            hit_all = (nvo_df[nvo_col] > nvo_line).mean()
+
+                            section(f"Projection vs {nvo_opp_code} — Today")
+                            c1, c2, c3, c4 = st.columns(4)
+                            c1.metric("Season Rolling Avg", f"{proj_all:.1f}")
+                            c2.metric("Season Hit Rate", f"{hit_all:.1%}")
+                            if not vs_opp_df.empty:
+                                avg_vs = vs_opp_df[nvo_col].mean()
+                                hit_vs = (vs_opp_df[nvo_col] > nvo_line).mean()
+                                c3.metric(f"Avg vs {nvo_opp_code}",
+                                          f"{avg_vs:.1f}",
+                                          delta=f"{avg_vs - proj_all:+.1f} vs season",
+                                          delta_color="normal")
+                                c4.metric(f"Hit Rate vs {nvo_opp_code}",
+                                          f"{hit_vs:.1%}",
+                                          delta=f"{hit_vs - hit_all:+.1%} vs season",
+                                          delta_color="normal")
+                            else:
+                                c3.metric(f"vs {nvo_opp_code}", "No history")
+                                c4.metric("Games vs opp", "0")
+
+                            section(f"{nvo_prop} Trend — {nvo_opp_code} Games Highlighted")
+                            fig_nvo = px.line(nvo_df.reset_index(), y=nvo_col,
+                                              labels={nvo_col: nvo_prop, "index": "Game"},
+                                              color_discrete_sequence=["#3a4055"])
+                            fig_nvo.add_scatter(x=nvo_df.reset_index().index,
+                                                y=nvo_df["ROLLING"],
+                                                mode="lines", name="Rolling Avg",
+                                                line=dict(color="#818cf8", width=2))
+                            if opp_mask.any():
+                                opp_idx = nvo_df.reset_index().index[opp_mask.values]
+                                fig_nvo.add_scatter(x=opp_idx,
+                                                    y=vs_opp_df[nvo_col].values,
+                                                    mode="markers",
+                                                    name=f"vs {nvo_opp_code}",
+                                                    marker=dict(color="#a78bfa", size=10, symbol="diamond"))
+                            fig_nvo.add_hline(y=nvo_line, line_dash="dot", line_color="#3a4055",
+                                              annotation_text=f"Line {nvo_line}",
+                                              annotation_font_color="#5c6272")
+                            st.plotly_chart(nba_fig(fig_nvo), use_container_width=True, config=_CHART_CFG)
+
+                            if not vs_opp_df.empty:
+                                section(f"Game Log vs {nvo_opp_code}")
+                                st.dataframe(
+                                    vs_opp_df[["GAME_DATE", "MATCHUP", nvo_col]].rename(columns={
+                                        "GAME_DATE": "Date", "MATCHUP": "Matchup", nvo_col: nvo_prop
+                                    }),
+                                    use_container_width=True, hide_index=True,
+                                )
 
     # ── BET SIMULATION ────────────────────────────────────────────────────────
     with tab_sim:
@@ -2680,8 +2777,8 @@ else:
         _mlb_scores = get_mlb_scoreboard(_scoreboard_date())
     render_score_ticker(_mlb_scores)
 
-    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_pp_mlb, tab_parlays_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
-        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "PrizePicks", "Parlays", "Daily Blog", "Disclaimer"
+    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_sim_mlb, tab_pp_mlb, tab_parlays_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
+        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Bet Simulation", "PrizePicks", "Parlays", "Daily Blog", "Disclaimer"
     ])
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
@@ -3209,6 +3306,75 @@ else:
                             .style.format({"date": lambda x: x.strftime("%b %d"), **display_fmt}),
                             use_container_width=True, hide_index=True,
                         )
+
+    # ── MLB BET SIMULATION ───────────────────────────────────────────────────
+    with tab_sim_mlb:
+        _MLB_HIT_SIM_MAP = {
+            "Hits": "H", "Home Runs": "HR", "RBIs": "RBI",
+            "Strikeouts": "K", "Walks": "BB", "Total Bases": "TB", "Stolen Bases": "SB",
+        }
+        _MLB_PIT_SIM_MAP = {
+            "Strikeouts": "K", "Earned Runs": "ER", "Hits Allowed": "H", "Walks Allowed": "BB",
+        }
+        mlb_teams_sim = get_mlb_teams()
+        sim_ctrl, sim_main = st.columns([1, 2.8])
+        with sim_ctrl:
+            mlb_section("Select Player")
+            if not mlb_teams_sim:
+                st.warning("Could not load MLB teams.")
+            else:
+                sim_team_name = st.selectbox("Team", [t["name"] for t in mlb_teams_sim], key="mlbs_team")
+                sim_team = next(t for t in mlb_teams_sim if t["name"] == sim_team_name)
+                sim_ptype = st.radio("Player Type", ["Hitter", "Pitcher"], key="mlbs_ptype", horizontal=True)
+                with st.spinner("Loading roster..."):
+                    sim_h_roster, sim_p_roster = get_mlb_roster(sim_team["id"])
+                sim_roster = sim_h_roster if sim_ptype == "Hitter" else sim_p_roster
+                if not sim_roster:
+                    st.warning("No players found.")
+                else:
+                    sim_player_name = st.selectbox("Player", [p["name"] for p in sim_roster], key="mlbs_player")
+                    sim_player = next(p for p in sim_roster if p["name"] == sim_player_name)
+                    mlb_player_card(sim_player["name"], sim_player["pos"], sim_team["abbr"], sim_player["id"])
+                    mlb_section("Parameters")
+                    sim_stat_map = _MLB_HIT_SIM_MAP if sim_ptype == "Hitter" else _MLB_PIT_SIM_MAP
+                    sim_stat = st.selectbox("Stat Type", list(sim_stat_map.keys()), key="mlbs_stat")
+                    sim_line = st.number_input("Prop Line", value=0.5, step=0.5, key="mlbs_line")
+                    sim_seasons = st.multiselect("Seasons", MLB_SEASONS, default=[MLB_SEASON], key="mlbs_seasons")
+
+        with sim_main:
+            if mlb_teams_sim and sim_roster and sim_seasons:
+                _sim_col = sim_stat_map[sim_stat]
+                with st.spinner("Running simulation..."):
+                    _sim_seasons = tuple(sim_seasons) if sim_seasons else (MLB_SEASON,)
+                    if sim_ptype == "Pitcher":
+                        sim_df = get_mlb_pitching_logs(sim_player["id"], _sim_seasons)
+                    else:
+                        sim_df = get_mlb_hitting_logs(sim_player["id"], _sim_seasons)
+                if sim_df.empty or _sim_col not in sim_df.columns:
+                    st.warning("No data found for this player and stat.")
+                else:
+                    sim_df = sim_df.copy()
+                    sim_df["HIT"] = sim_df[_sim_col] > sim_line
+                    sim_df["CUMULATIVE_PROFIT"] = simulate_bets(sim_df)
+                    mlb_section("Results")
+                    rc1, rc2, rc3 = st.columns(3)
+                    rc1.metric("Total Profit", f"{sim_df['CUMULATIVE_PROFIT'].iloc[-1]:.0f} units")
+                    rc2.metric("Hit Rate", f"{sim_df['HIT'].mean():.1%}")
+                    rc3.metric("Games", len(sim_df))
+                    mlb_section("Cumulative P&L")
+                    fig_sim = px.line(sim_df.reset_index(), y="CUMULATIVE_PROFIT",
+                                      labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
+                                      color_discrete_sequence=["#3b82f6"])
+                    fig_sim.add_hline(y=0, line_dash="dot", line_color="#1e2d3d")
+                    st.plotly_chart(mlb_fig(fig_sim), use_container_width=True, config=_CHART_CFG)
+                    mlb_section("Game Log")
+                    st.dataframe(
+                        sim_df[["date", "opponent", _sim_col, "HIT"]].rename(columns={
+                            "date": "Date", "opponent": "Opponent",
+                            _sim_col: sim_stat, "HIT": "Hit",
+                        }),
+                        use_container_width=True, hide_index=True,
+                    )
 
     # ── MLB PRIZEPICKS ────────────────────────────────────────────────────────
     with tab_pp_mlb:
