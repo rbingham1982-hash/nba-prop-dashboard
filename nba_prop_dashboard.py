@@ -704,17 +704,18 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
 
 @st.cache_data(ttl=86400)
 def _get_mlb_player_map():
-    """Fetch all active MLB players for the current season and return a name→id dict."""
-    try:
-        resp = requests.get(
-            f"{MLB_BASE}/sports/1/players?season={MLB_SEASON}", timeout=15
-        )
-        return {
-            p["fullName"].lower().strip(): p["id"]
-            for p in resp.json().get("people", [])
-        }
-    except Exception:
-        return {}
+    """Fetch MLB players across 2025 and 2026 seasons and return a name→id dict."""
+    combined = {}
+    for season in ("2025", "2026"):
+        try:
+            resp = requests.get(
+                f"{MLB_BASE}/sports/1/players?season={season}", timeout=15
+            )
+            for p in resp.json().get("people", []):
+                combined[p["fullName"].lower().strip()] = p["id"]
+        except Exception:
+            pass
+    return combined
 
 def _mlb_player_id_by_name(name: str):
     """Resolve a player name to an MLB Stats API ID using the cached season roster."""
@@ -752,7 +753,7 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
     pid = _mlb_player_id_by_name(player_name)
     if not pid:
         return 0.5, 0
-    seasons = (MLB_SEASON,)
+    seasons = ("2025", "2026")
     try:
         df = get_mlb_pitching_logs(pid, seasons) if is_pitcher else get_mlb_hitting_logs(pid, seasons)
     except Exception:
@@ -990,7 +991,7 @@ def get_team_first_basket_history(team_abbr, num_games=20):
 # MLB DATA FUNCTIONS  (MLB Stats API — free, no key required)
 # ══════════════════════════════════════════════════════════════════════════════
 MLB_SEASON = "2026"
-MLB_SEASONS = ["2024", "2026"]
+MLB_SEASONS = ["2024", "2025", "2026"]
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
 @st.cache_data(ttl=3600)
