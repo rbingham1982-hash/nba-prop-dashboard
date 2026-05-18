@@ -828,9 +828,9 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
     safe_out  = _top(results, lambda x: x["prob"])[:top_n]
     safe_keys = {frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
                  for p in safe_out}
-    # Value: sorted by EV, excluding everything already in Safe
-    # Higher pick-count combos rise here because their EV formula uses a larger multiplier
-    value_out = _top(results, lambda x: x["ev"], exclude_keys=safe_keys)[:top_n]
+    # Value: 4+ legs only (10x–20x payout), sorted by EV, excluding Safe results
+    value_pool = [p for p in results if p["n"] >= 4]
+    value_out  = _top(value_pool, lambda x: x["ev"], exclude_keys=safe_keys)[:top_n]
 
     return safe_out, value_out
 
@@ -2731,7 +2731,7 @@ if sport == "🏀 NBA":
                                 unsafe_allow_html=True)
                     st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                                 unsafe_allow_html=True)
-                    _sgp_results = _build_sgp(_legs_nba_data, min_legs=5, max_legs=5)
+                    _sgp_results = _build_sgp(_legs_nba_data, min_legs=3, max_legs=5)
                     if _sgp_results:
                         for _sgp in _sgp_results:
                             st.markdown(
@@ -3532,7 +3532,7 @@ else:
                                 unsafe_allow_html=True)
                     st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                                 unsafe_allow_html=True)
-                    _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=5, max_legs=5)
+                    _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=3, max_legs=5)
                     if _mlb_sgp:
                         for _sgpm in _mlb_sgp:
                             st.markdown(
