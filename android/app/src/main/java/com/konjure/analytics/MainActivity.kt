@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         R.id.nav_nba_props    to 0,
         R.id.nav_first_basket to 1,
         R.id.nav_bet_sim      to 2,
-        R.id.nav_prizepicks   to 3,
+        R.id.nav_prizepicks   to 3,  // "Sportsbook" tab
         R.id.nav_daily_blog   to 4,
         R.id.nav_mlb          to 5,
         R.id.nav_disclaimer   to 6,
