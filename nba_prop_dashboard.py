@@ -799,8 +799,11 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
             continue
         payout = PP_PAYOUTS.get(n, float(n) * 2.0)
         for combo in combinations(legs, n):
-            # No same player in one parlay (regardless of stat type)
+            # No same player in one parlay
             if len({l["player_name"] for l in combo}) < n:
+                continue
+            # No duplicate stat types — enforce prop diversity
+            if len({l["stat_type"] for l in combo}) < n:
                 continue
             prob = 1.0
             for leg in combo:
