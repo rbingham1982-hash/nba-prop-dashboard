@@ -1166,15 +1166,16 @@ def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
         r  = leg["hit_rate"]
         n  = leg["sample_n"]
         ot = leg.get("odds_type", "standard")
-        if n < 5:
+        if n < 3:
             rcls, rlbl = "pl-rate-none", "—"
         else:
             rcls = "pl-rate-hi" if r >= 0.60 else ("pl-rate-mid" if r >= 0.45 else "pl-rate-lo")
             rlbl = f"{r*100:.0f}% ({n}g)"
         american = leg.get("american_odds")
         imp_prob = leg.get("implied_prob", -1.0)
-        if american is not None and ot == "standard" and imp_prob > 0:
-            # DK/FD: show American odds
+        sb = leg.get("sportsbook", "PrizePicks")
+        if sb in ("DraftKings", "FanDuel") and american is not None and imp_prob > 0:
+            # DK/FD: show American odds + implied%
             odds_disp = f"+{american}" if american > 0 else str(american)
             odds_suffix = f"<span style='color:#6b7280;font-size:0.7rem;margin-left:6px;'>{odds_disp} ({int(imp_prob*100)}%)</span>"
             odds_badge = ""
@@ -3023,6 +3024,7 @@ if sport == "🏀 NBA":
                         "odds_type":   _ot,
                         "american_odds": int(_row.get("american_odds", -110) if "american_odds" in _row.index else -110),
                         "implied_prob": _imp if _imp >= 0 else _PP_ODDS_IMPLIED.get(_ot, 0.50),
+                        "sportsbook":  str(_row.get("sportsbook", "PrizePicks") if "sportsbook" in _row.index else _sb_choice_nba),
                         "game_id":     _row.get("game_id", ""),
                         "game_label":  _row.get("game_label", ""),
                         "hit_rate":    _rate,
@@ -3862,6 +3864,7 @@ else:
                         "odds_type":   _mot,
                         "american_odds": int(_mrow.get("american_odds", -110) if "american_odds" in _mrow.index else -110),
                         "implied_prob": _mimp if _mimp >= 0 else _PP_ODDS_IMPLIED.get(_mot, 0.50),
+                        "sportsbook":  str(_mrow.get("sportsbook", "PrizePicks") if "sportsbook" in _mrow.index else _sb_choice_mlb),
                         "game_id":     _mrow.get("game_id", ""),
                         "game_label":  _mrow.get("game_label", ""),
                         "hit_rate":    _mrate,
