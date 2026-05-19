@@ -3044,7 +3044,7 @@ if sport == "🏀 NBA":
         with _sb_nba_col1:
             _sb_nba = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "Underdog", "DraftKings", "FanDuel"],
+                ["PrizePicks", "Underdog"],
                 horizontal=True,
                 key="sb_nba_select",
             )
@@ -3052,18 +3052,10 @@ if sport == "🏀 NBA":
             if st.button("🔄 Refresh Lines", key="nba_sb_refresh"):
                 if _sb_nba == "PrizePicks":
                     _pp_cache.clear(); _pp_cache_ts.clear()
-                elif _sb_nba == "Underdog":
-                    _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
                 else:
-                    _toa_cache.pop(f"nba_{_sb_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_nba}", None)
+                    _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
                 _safe_rerun()
         st.session_state["nba_sportsbook"] = _sb_nba
-        if _sb_nba in ("DraftKings", "FanDuel") and not _get_odds_api_key():
-            st.info(
-                f"**{_sb_nba} lines require an Odds API key.**  "
-                "Get a free key (500 req/month) at [the-odds-api.com](https://the-odds-api.com) "
-                "then add `ODDS_API_KEY = \"your_key\"` to `.streamlit/secrets.toml`."
-            )
         with st.spinner(f"Loading {_sb_nba} NBA projections..."):
             pp_df = get_sportsbook_props("nba", _sb_nba)
         if pp_df.empty:
@@ -3154,7 +3146,7 @@ if sport == "🏀 NBA":
             _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
 
             _nba_sb = st.session_state.get("nba_sportsbook", "PrizePicks")
-            _SB_OPTS = ["PrizePicks", "Underdog", "DraftKings", "FanDuel"]
+            _SB_OPTS = ["PrizePicks", "Underdog"]
             if _nba_sb not in _SB_OPTS:
                 _nba_sb = "PrizePicks"
             _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
@@ -3170,13 +3162,9 @@ if sport == "🏀 NBA":
                 if st.button("🔄 Refresh", key="nba_par_refresh"):
                     if _sb_choice_nba == "PrizePicks":
                         _pp_cache.clear(); _pp_cache_ts.clear()
-                    elif _sb_choice_nba == "Underdog":
-                        _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
                     else:
-                        _toa_cache.pop(f"nba_{_sb_choice_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_choice_nba}", None)
+                        _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
                     _safe_rerun()
-            if _sb_choice_nba in ("DraftKings", "FanDuel") and not _get_odds_api_key():
-                st.info(f"**{_sb_choice_nba} lines require an Odds API key.** Add `ODDS_API_KEY` to `.streamlit/secrets.toml`.")
             with st.spinner(f"Fetching {_sb_choice_nba} NBA lines…"):
                 _pp_raw = get_sportsbook_props("nba", _sb_choice_nba)
 
@@ -3913,7 +3901,7 @@ else:
         with _sb_mlb_col1:
             _sb_mlb = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "Underdog", "DraftKings", "FanDuel"],
+                ["PrizePicks", "Underdog"],
                 horizontal=True,
                 key="sb_mlb_select",
             )
@@ -3921,18 +3909,10 @@ else:
             if st.button("🔄 Refresh Lines", key="mlb_sb_refresh"):
                 if _sb_mlb == "PrizePicks":
                     _pp_cache.clear(); _pp_cache_ts.clear()
-                elif _sb_mlb == "Underdog":
-                    _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
                 else:
-                    _toa_cache.pop(f"mlb_{_sb_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_mlb}", None)
+                    _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
                 _safe_rerun()
         st.session_state["mlb_sportsbook"] = _sb_mlb
-        if _sb_mlb in ("DraftKings", "FanDuel") and not _get_odds_api_key():
-            st.info(
-                f"**{_sb_mlb} lines require an Odds API key.**  "
-                "Get a free key (500 req/month) at [the-odds-api.com](https://the-odds-api.com) "
-                "then add `ODDS_API_KEY = \"your_key\"` to `.streamlit/secrets.toml`."
-            )
         with st.spinner(f"Loading {_sb_mlb} MLB projections..."):
             mlb_pp_df = get_sportsbook_props("mlb", _sb_mlb)
 
@@ -4027,7 +4007,7 @@ else:
             _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
 
             _mlb_sb = st.session_state.get("mlb_sportsbook", "PrizePicks")
-            _MLB_SB_OPTS = ["PrizePicks", "Underdog", "DraftKings", "FanDuel"]
+            _MLB_SB_OPTS = ["PrizePicks", "Underdog"]
             if _mlb_sb not in _MLB_SB_OPTS:
                 _mlb_sb = "PrizePicks"
             _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
@@ -4043,13 +4023,9 @@ else:
                 if st.button("🔄 Refresh", key="mlb_par_refresh"):
                     if _sb_choice_mlb == "PrizePicks":
                         _pp_cache.clear(); _pp_cache_ts.clear()
-                    elif _sb_choice_mlb == "Underdog":
-                        _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
                     else:
-                        _toa_cache.pop(f"mlb_{_sb_choice_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_choice_mlb}", None)
+                        _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
                     _safe_rerun()
-            if _sb_choice_mlb in ("DraftKings", "FanDuel") and not _get_odds_api_key():
-                st.info(f"**{_sb_choice_mlb} lines require an Odds API key.** Add `ODDS_API_KEY` to `.streamlit/secrets.toml`.")
             with st.spinner(f"Fetching {_sb_choice_mlb} MLB lines…"):
                 _mlb_pp_raw = get_sportsbook_props("mlb", _sb_choice_mlb)
 
