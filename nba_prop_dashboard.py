@@ -599,7 +599,7 @@ _PP_MLB_PIT_COL = {
     "Earned Runs Allowed": "ER", "Walks Allowed": "BB", "Hits Allowed": "H",
     "Pitching Outs": "IP", "Pitches Thrown": "NP",
 }
-_PP_PITCHER_TYPES = {"Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed", "Hits Allowed"}
+_PP_PITCHER_TYPES = {"Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed", "Hits Allowed", "Pitching Outs", "Pitches Thrown"}
 
 _pp_cache: dict = {}
 _pp_cache_ts: dict = {}
@@ -3433,7 +3433,7 @@ if sport == "🏀 NBA":
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _sgp_results = _build_sgp(_legs_nba_data, min_legs=3, max_legs=5)
+            _sgp_results = _build_sgp(_legs_nba_data, min_legs=5, max_legs=5)
             if _sgp_results:
                 for _sgp in _sgp_results:
                     st.markdown(
@@ -4310,7 +4310,7 @@ else:
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=3, max_legs=5)
+            _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=5, max_legs=5)
             if _mlb_sgp:
                 for _sgpm in _mlb_sgp:
                     st.markdown(
