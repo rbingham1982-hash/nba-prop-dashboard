@@ -580,75 +580,97 @@ _PP_NBA_STAT_COL = {
 }
 _PP_MLB_HIT_COL = {
     "Hits": "H", "Home Runs": "HR", "RBIs": "RBI",
-    "Stolen Bases": "SB", "Strikeouts": "K", "Walks": "BB",
-    "Total Bases": "TB", "Runs Scored": "R",
+    "Stolen Bases": "SB", "Strikeouts": "K", "Hitter Strikeouts": "K",
+    "Walks": "BB", "Total Bases": "TB",
+    "Runs Scored": "R", "Runs": "R",
+    "Doubles": "2B", "Singles": "H",
+    "Hits+Runs+RBIs": "H", "Plate Appearances": "AB",
 }
 _PP_MLB_PIT_COL = {
     "Pitcher Strikeouts": "K", "Strikeouts": "K",
     "Earned Runs Allowed": "ER", "Walks Allowed": "BB", "Hits Allowed": "H",
+    "Pitching Outs": "IP", "Pitches Thrown": "NP",
 }
 _PP_PITCHER_TYPES = {"Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed", "Hits Allowed"}
 
-@st.cache_data(ttl=600)
+_pp_cache: dict = {}
+_pp_cache_ts: dict = {}
+_PP_CACHE_TTL = 300  # 5 minutes; only store non-empty results
+
 def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
-    """PrizePicks fetch capturing team, status, and game label for SGP grouping."""
-    try:
-        url = f"https://api.prizepicks.com/projections?league_id={league_id}&per_page=500&single_stat=true"
-        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://app.prizepicks.com/"}
-        resp = requests.get(url, headers=headers, timeout=12)
-        if resp.status_code != 200:
-            return pd.DataFrame()
-        payload = resp.json()
+    """PrizePicks fetch capturing team, status, and game label for SGP grouping.
+    Uses module-level cache so empty results are never cached."""
+    now = time.time()
+    cached = _pp_cache.get(league_id)
+    if cached is not None and not cached.empty and now - _pp_cache_ts.get(league_id, 0) < _PP_CACHE_TTL:
+        return cached
 
-        # Build player map
-        player_map = {}
-        for item in payload.get("included", []):
-            if item.get("type") == "new_player":
-                a = item.get("attributes", {})
-                player_map[item["id"]] = {
-                    "name": a.get("display_name", ""),
-                    "team": a.get("team", a.get("team_name", "")),
-                }
-
-        # Build game map from 'game' included items
-        game_map = {}
-        for item in payload.get("included", []):
-            if item.get("type") == "game":
-                a    = item.get("attributes", {})
-                meta = a.get("metadata", {})
-                teams = meta.get("game_info", {}).get("teams", {})
-                away  = teams.get("away", {}).get("abbreviation", "")
-                home  = teams.get("home", {}).get("abbreviation", "")
-                label = f"{away} @ {home}" if away and home else ""
-                game_map[item["id"]] = {
-                    "label":      label,
-                    "start_time": a.get("start_time", ""),
-                }
-
-        rows = []
-        for proj in payload.get("data", []):
-            if proj.get("type") != "projection":
+    for attempt in range(3):
+        try:
+            if attempt:
+                time.sleep(1.5)
+            url = f"https://api.prizepicks.com/projections?league_id={league_id}&per_page=500&single_stat=true"
+            headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://app.prizepicks.com/"}
+            resp = requests.get(url, headers=headers, timeout=15)
+            if resp.status_code != 200:
                 continue
-            attrs  = proj.get("attributes", {})
-            rels   = proj.get("relationships", {})
-            pid    = rels.get("new_player", {}).get("data", {}).get("id", "")
-            gid    = rels.get("game", {}).get("data", {}).get("id", "")
-            pinfo  = player_map.get(pid, {})
-            ginfo  = game_map.get(gid, {})
-            rows.append({
-                "player_name": pinfo.get("name", ""),
-                "team":        pinfo.get("team", ""),
-                "stat_type":   attrs.get("stat_type", ""),
-                "line_score":  attrs.get("line_score"),
-                "odds_type":   attrs.get("odds_type", "standard"),
-                "game_id":     gid,
-                "game_label":  ginfo.get("label", ""),
-                "start_time":  ginfo.get("start_time", attrs.get("start_time", "")),
-            })
-        df = pd.DataFrame(rows)
-        return df[df["player_name"] != ""] if not df.empty else df
-    except Exception:
-        return pd.DataFrame()
+            payload = resp.json()
+
+            # Build player map
+            player_map = {}
+            for item in payload.get("included", []):
+                if item.get("type") == "new_player":
+                    a = item.get("attributes", {})
+                    player_map[item["id"]] = {
+                        "name": a.get("display_name", ""),
+                        "team": a.get("team", a.get("team_name", "")),
+                    }
+
+            # Build game map from 'game' included items
+            game_map = {}
+            for item in payload.get("included", []):
+                if item.get("type") == "game":
+                    a    = item.get("attributes", {})
+                    meta = a.get("metadata", {})
+                    gteams = meta.get("game_info", {}).get("teams", {})
+                    away   = gteams.get("away", {}).get("abbreviation", "")
+                    home   = gteams.get("home", {}).get("abbreviation", "")
+                    label  = f"{away} @ {home}" if away and home else ""
+                    game_map[item["id"]] = {
+                        "label":      label,
+                        "start_time": a.get("start_time", ""),
+                    }
+
+            rows = []
+            for proj in payload.get("data", []):
+                if proj.get("type") != "projection":
+                    continue
+                attrs  = proj.get("attributes", {})
+                rels   = proj.get("relationships", {})
+                pid    = rels.get("new_player", {}).get("data", {}).get("id", "")
+                gid    = rels.get("game", {}).get("data", {}).get("id", "")
+                pinfo  = player_map.get(pid, {})
+                ginfo  = game_map.get(gid, {})
+                rows.append({
+                    "player_name": pinfo.get("name", ""),
+                    "team":        pinfo.get("team", ""),
+                    "stat_type":   attrs.get("stat_type", ""),
+                    "line_score":  attrs.get("line_score"),
+                    "odds_type":   attrs.get("odds_type", "standard"),
+                    "game_id":     gid,
+                    "game_label":  ginfo.get("label", ""),
+                    "start_time":  ginfo.get("start_time", attrs.get("start_time", "")),
+                })
+            df = pd.DataFrame(rows)
+            result = df[df["player_name"] != ""] if not df.empty else df
+            if not result.empty:
+                _pp_cache[league_id] = result
+                _pp_cache_ts[league_id] = now
+                return result
+        except Exception:
+            continue
+    # Return stale cache if available, else empty
+    return _pp_cache.get(league_id, pd.DataFrame())
 
 # ─── Sportsbook helpers ──────────────────────────────────────────────────────
 
@@ -693,142 +715,134 @@ _FD_MLB_STAT_MAP = {
     "Pitcher Earned Runs Allowed": "Earned Runs Allowed",
 }
 
-@st.cache_data(ttl=600)
-def get_draftkings_props(sport: str = "nba") -> pd.DataFrame:
-    """Fetch player props from DraftKings public API."""
-    EVENT_GROUPS = {"nba": 42648, "mlb": 84240}
-    STAT_MAPS = {"nba": _DK_NBA_STAT_MAP, "mlb": _DK_MLB_STAT_MAP}
-    eg = EVENT_GROUPS.get(sport, 42648)
-    stat_map = STAT_MAPS.get(sport, _DK_NBA_STAT_MAP)
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "Referer": "https://sportsbook.draftkings.com/",
-    }
+# ── The Odds API (aggregates DK + FD player props) ──────────────────────────
+_toa_cache: dict = {}
+_toa_cache_ts: dict = {}
+_TOA_CACHE_TTL = 600
+
+_TOA_NBA_MARKETS = [
+    "player_points", "player_rebounds", "player_assists",
+    "player_threes", "player_blocks", "player_steals", "player_turnovers",
+    "player_points_rebounds_assists", "player_points_rebounds", "player_points_assists",
+]
+_TOA_MLB_MARKETS = [
+    "batter_hits", "batter_home_runs", "batter_rbis",
+    "batter_total_bases", "batter_stolen_bases", "batter_walks",
+    "pitcher_strikeouts", "pitcher_walks", "pitcher_earned_runs",
+]
+_TOA_NBA_MARKET_MAP = {
+    "player_points": "Points",
+    "player_rebounds": "Rebounds",
+    "player_assists": "Assists",
+    "player_threes": "3-PT Made",
+    "player_blocks": "Blocked Shots",
+    "player_steals": "Steals",
+    "player_turnovers": "Turnovers",
+    "player_points_rebounds_assists": "Pts+Rebs+Asts",
+    "player_points_rebounds": "Pts+Rebs",
+    "player_points_assists": "Pts+Asts",
+}
+_TOA_MLB_MARKET_MAP = {
+    "batter_hits": "Hits",
+    "batter_home_runs": "Home Runs",
+    "batter_rbis": "RBIs",
+    "batter_total_bases": "Total Bases",
+    "batter_stolen_bases": "Stolen Bases",
+    "batter_walks": "Walks",
+    "pitcher_strikeouts": "Pitcher Strikeouts",
+    "pitcher_walks": "Walks Allowed",
+    "pitcher_earned_runs": "Earned Runs Allowed",
+}
+
+def _get_odds_api_key() -> str:
     try:
-        url = f"https://sportsbook.draftkings.com/sites/US-SB/api/v5/eventgroups/{eg}/categories/583"
-        resp = requests.get(url, headers=headers, timeout=15)
-        if resp.status_code != 200:
-            return pd.DataFrame()
-        data = resp.json()
-        event_map = {ev.get("eventId"): ev.get("name", "") for ev in data.get("eventGroup", {}).get("events", [])}
-        rows = []
-        for cat in data.get("eventGroup", {}).get("offerCategories", []):
-            cat_id = cat.get("offerCategoryId")
-            for subcat_desc in cat.get("offerSubcategoryDescriptors", []):
-                subcat_id = subcat_desc.get("subcategoryId")
-                raw_stat = subcat_desc.get("name", "")
-                stat_type = stat_map.get(raw_stat)
-                if stat_type is None:
-                    continue
-                try:
-                    sub_url = f"https://sportsbook.draftkings.com/sites/US-SB/api/v5/eventgroups/{eg}/categories/{cat_id}/subcategories/{subcat_id}"
-                    sub_resp = requests.get(sub_url, headers=headers, timeout=10)
-                    if sub_resp.status_code != 200:
-                        continue
-                    sub_data = sub_resp.json()
-                    for scd in sub_data.get("eventGroup", {}).get("offerSubcategoryDescriptors", []):
-                        for offer_group in scd.get("offerSubcategory", {}).get("offers", []):
-                            for offer in offer_group:
-                                eid = offer.get("eventId")
-                                outcomes = offer.get("outcomes", [])
-                                over = next((o for o in outcomes if "over" in o.get("label", "").lower()), None)
-                                if not over:
-                                    continue
-                                participant = over.get("participant") or ""
-                                line = over.get("line")
-                                try:
-                                    american = int(str(over.get("oddsAmerican", "-110")).replace("+", ""))
-                                except Exception:
-                                    american = -110
-                                if not participant or line is None:
-                                    continue
-                                rows.append({
-                                    "player_name": participant, "team": "",
-                                    "stat_type": stat_type, "line_score": float(line),
-                                    "odds_type": "standard", "american_odds": american,
-                                    "implied_prob": round(_american_to_implied(american), 3),
-                                    "game_id": str(eid) if eid else "",
-                                    "game_label": event_map.get(eid, ""),
-                                    "start_time": "", "sportsbook": "DraftKings",
-                                })
-                    time.sleep(0.15)
-                except Exception:
-                    continue
-        df = pd.DataFrame(rows)
-        if df.empty:
-            return df
-        return df[df["player_name"] != ""].drop_duplicates(["player_name", "stat_type"])
+        k = st.secrets.get("ODDS_API_KEY", "")
+        if k:
+            return k
     except Exception:
+        pass
+    return os.environ.get("ODDS_API_KEY", "")
+
+def get_the_odds_api_props(sport: str = "nba", sportsbook: str = "DraftKings") -> pd.DataFrame:
+    """Fetch DK or FD player props via The Odds API (the-odds-api.com).
+    Free tier: 500 req/month. Set ODDS_API_KEY in st.secrets or env var."""
+    api_key = _get_odds_api_key()
+    if not api_key:
         return pd.DataFrame()
 
-@st.cache_data(ttl=600)
-def get_fanduel_props(sport: str = "nba") -> pd.DataFrame:
-    """Fetch player props from FanDuel public API."""
-    SPORT_KEYS = {"nba": "BASKETBALL_NBA", "mlb": "BASEBALL_MLB"}
-    STAT_MAPS = {"nba": _FD_NBA_STAT_MAP, "mlb": _FD_MLB_STAT_MAP}
-    sport_key = SPORT_KEYS.get(sport, "BASKETBALL_NBA")
-    stat_map = STAT_MAPS.get(sport, _FD_NBA_STAT_MAP)
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "Referer": "https://sportsbook.fanduel.com/",
-    }
+    cache_key = f"{sport}_{sportsbook}"
+    now = time.time()
+    cached = _toa_cache.get(cache_key)
+    if cached is not None and not cached.empty and now - _toa_cache_ts.get(cache_key, 0) < _TOA_CACHE_TTL:
+        return cached
+
+    bk_key = "draftkings" if sportsbook == "DraftKings" else "fanduel"
+    sport_key = "basketball_nba" if sport == "nba" else "baseball_mlb"
+    markets_list = _TOA_NBA_MARKETS if sport == "nba" else _TOA_MLB_MARKETS
+    market_map = _TOA_NBA_MARKET_MAP if sport == "nba" else _TOA_MLB_MARKET_MAP
+
     try:
-        url = (
-            f"https://sbapi.sportsbook.fanduel.com/api/content-managed-page"
-            f"?page=SPORT&sport={sport_key}&_ak=FhMFpcPWXMeyZxOB&timezone=America%2FNew_York"
-        )
-        resp = requests.get(url, headers=headers, timeout=15)
-        if resp.status_code != 200:
+        url = f"https://api.the-odds-api.com/v4/sports/{sport_key}/odds"
+        params = {
+            "apiKey": api_key,
+            "regions": "us",
+            "markets": ",".join(markets_list),
+            "bookmakers": bk_key,
+            "oddsFormat": "american",
+        }
+        resp = requests.get(url, params=params, timeout=20)
+        if resp.status_code == 401:
             return pd.DataFrame()
-        data = resp.json()
-        markets = data.get("attachments", {}).get("markets", {})
-        events = data.get("attachments", {}).get("events", {})
-        event_label = {}
-        for eid, ev in events.items():
-            home = ev.get("homeTeam", {}).get("teamName", "")
-            away = ev.get("awayTeam", {}).get("teamName", "")
-            event_label[eid] = f"{away} @ {home}" if away and home else ev.get("name", "")
+        if resp.status_code != 200:
+            return _toa_cache.get(cache_key, pd.DataFrame())
+
+        events = resp.json()
         rows = []
-        for mkt_id, mkt in markets.items():
-            raw_name = mkt.get("marketType", {}).get("name", "")
-            stat_type = None
-            for raw_key, mapped in stat_map.items():
-                if raw_key.lower() in raw_name.lower():
-                    stat_type = mapped
-                    break
-            if stat_type is None:
-                continue
-            ev_id = str(mkt.get("eventId", ""))
-            game_label = event_label.get(ev_id, "")
-            for runner in mkt.get("runners", []):
-                runner_name = runner.get("runnerName", "")
-                if "over" not in runner_name.lower():
+        for event in events:
+            game_label = f"{event.get('away_team', '')} @ {event.get('home_team', '')}"
+            game_id = event.get("id", "")
+            start_time = event.get("commence_time", "")
+            for bm in event.get("bookmakers", []):
+                if bm.get("key") != bk_key:
                     continue
-                participant = runner_name.split(" Over")[0].split(" - Over")[0].strip()
-                handicap = runner.get("handicap")
-                american_str = runner.get("winRunnerOdds", {}).get("americanDisplayOdds", {}).get("americanOdds", "-110")
-                try:
-                    american = int(str(american_str).replace("+", ""))
-                except Exception:
-                    american = -110
-                if not participant or handicap is None:
-                    continue
-                rows.append({
-                    "player_name": participant, "team": "",
-                    "stat_type": stat_type, "line_score": float(handicap),
-                    "odds_type": "standard", "american_odds": american,
-                    "implied_prob": round(_american_to_implied(american), 3),
-                    "game_id": ev_id, "game_label": game_label,
-                    "start_time": "", "sportsbook": "FanDuel",
-                })
+                for mkt in bm.get("markets", []):
+                    stat_type = market_map.get(mkt.get("key"))
+                    if not stat_type:
+                        continue
+                    for outcome in mkt.get("outcomes", []):
+                        if outcome.get("name", "").lower() != "over":
+                            continue
+                        player_name = outcome.get("description", "")
+                        point = outcome.get("point")
+                        price = outcome.get("price")
+                        if not player_name or point is None or price is None:
+                            continue
+                        try:
+                            american = int(price)
+                        except Exception:
+                            american = -110
+                        rows.append({
+                            "player_name": player_name,
+                            "team": "",
+                            "stat_type": stat_type,
+                            "line_score": float(point),
+                            "odds_type": "standard",
+                            "american_odds": american,
+                            "implied_prob": round(_american_to_implied(american), 3),
+                            "game_id": game_id,
+                            "game_label": game_label,
+                            "start_time": start_time,
+                            "sportsbook": sportsbook,
+                        })
         df = pd.DataFrame(rows)
         if df.empty:
-            return df
-        return df[df["player_name"] != ""].drop_duplicates(["player_name", "stat_type"])
+            return _toa_cache.get(cache_key, pd.DataFrame())
+        result = df[df["player_name"] != ""].drop_duplicates(["player_name", "stat_type"])
+        _toa_cache[cache_key] = result
+        _toa_cache_ts[cache_key] = now
+        return result
     except Exception:
-        return pd.DataFrame()
+        return _toa_cache.get(cache_key, pd.DataFrame())
 
 def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> pd.DataFrame:
     """Unified prop fetch for any supported sportsbook. Returns normalized DataFrame."""
@@ -841,11 +855,11 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
                 dk_equiv = {"goblin": -162, "standard": -100, "demon": 162}
                 df["american_odds"] = df["odds_type"].map(dk_equiv).fillna(-100).astype(int)
                 df["implied_prob"] = df["odds_type"].map(_PP_ODDS_IMPLIED).fillna(0.50)
+            if "sportsbook" not in df.columns:
+                df["sportsbook"] = "PrizePicks"
         return df
-    elif sportsbook == "DraftKings":
-        return get_draftkings_props(sport)
-    elif sportsbook == "FanDuel":
-        return get_fanduel_props(sport)
+    elif sportsbook in ("DraftKings", "FanDuel"):
+        return get_the_odds_api_props(sport, sportsbook)
     return pd.DataFrame()
 
 @st.cache_data(ttl=1800)
@@ -2881,13 +2895,29 @@ if sport == "🏀 NBA":
 
     # ── SPORTSBOOK ────────────────────────────────────────────────────────────
     with tab_pp:
-        _sb_nba = st.radio(
-            "Sportsbook",
-            ["PrizePicks", "DraftKings", "FanDuel"],
-            horizontal=True,
-            key="sb_nba_select",
-        )
+        _sb_nba_col1, _sb_nba_col2 = st.columns([4, 1])
+        with _sb_nba_col1:
+            _sb_nba = st.radio(
+                "Sportsbook",
+                ["PrizePicks", "DraftKings", "FanDuel"],
+                horizontal=True,
+                key="sb_nba_select",
+            )
+        with _sb_nba_col2:
+            if st.button("🔄 Refresh Lines", key="nba_sb_refresh"):
+                if _sb_nba == "PrizePicks":
+                    _pp_cache.clear(); _pp_cache_ts.clear()
+                else:
+                    _toa_cache.pop(f"nba_{_sb_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_nba}", None)
+                st.rerun()
         st.session_state["nba_sportsbook"] = _sb_nba
+        if _sb_nba in ("DraftKings", "FanDuel") and not _get_odds_api_key():
+            st.info(
+                f"**{_sb_nba} lines require an Odds API key.**  "
+                "Get a free key (500 req/month) at [the-odds-api.com](https://the-odds-api.com) "
+                "then add `ODDS_API_KEY = \"your_key\"` to `.streamlit/secrets.toml`.",
+                icon="🔑",
+            )
         with st.spinner(f"Loading {_sb_nba} NBA projections..."):
             pp_df = get_sportsbook_props("nba", _sb_nba)
         if pp_df.empty:
@@ -2978,13 +3008,24 @@ if sport == "🏀 NBA":
             _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
 
             _nba_sb = st.session_state.get("nba_sportsbook", "PrizePicks")
-            _sb_choice_nba = st.radio(
-                "Sportsbook for Parlays",
-                ["PrizePicks", "DraftKings", "FanDuel"],
-                horizontal=True,
-                index=["PrizePicks", "DraftKings", "FanDuel"].index(_nba_sb),
-                key="nba_par_sb",
-            )
+            _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
+            with _par_sb_col1:
+                _sb_choice_nba = st.radio(
+                    "Sportsbook for Parlays",
+                    ["PrizePicks", "DraftKings", "FanDuel"],
+                    horizontal=True,
+                    index=["PrizePicks", "DraftKings", "FanDuel"].index(_nba_sb),
+                    key="nba_par_sb",
+                )
+            with _par_sb_col2:
+                if st.button("🔄 Refresh", key="nba_par_refresh"):
+                    if _sb_choice_nba == "PrizePicks":
+                        _pp_cache.clear(); _pp_cache_ts.clear()
+                    else:
+                        _toa_cache.pop(f"nba_{_sb_choice_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_choice_nba}", None)
+                    st.rerun()
+            if _sb_choice_nba in ("DraftKings", "FanDuel") and not _get_odds_api_key():
+                st.info(f"**{_sb_choice_nba} lines require an Odds API key.** Add `ODDS_API_KEY` to `.streamlit/secrets.toml`.", icon="🔑")
             with st.spinner(f"Fetching {_sb_choice_nba} NBA lines…"):
                 _pp_raw = get_sportsbook_props("nba", _sb_choice_nba)
 
@@ -3717,13 +3758,29 @@ else:
 
     # ── MLB PRIZEPICKS ────────────────────────────────────────────────────────
     with tab_pp_mlb:
-        _sb_mlb = st.radio(
-            "Sportsbook",
-            ["PrizePicks", "DraftKings", "FanDuel"],
-            horizontal=True,
-            key="sb_mlb_select",
-        )
+        _sb_mlb_col1, _sb_mlb_col2 = st.columns([4, 1])
+        with _sb_mlb_col1:
+            _sb_mlb = st.radio(
+                "Sportsbook",
+                ["PrizePicks", "DraftKings", "FanDuel"],
+                horizontal=True,
+                key="sb_mlb_select",
+            )
+        with _sb_mlb_col2:
+            if st.button("🔄 Refresh Lines", key="mlb_sb_refresh"):
+                if _sb_mlb == "PrizePicks":
+                    _pp_cache.clear(); _pp_cache_ts.clear()
+                else:
+                    _toa_cache.pop(f"mlb_{_sb_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_mlb}", None)
+                st.rerun()
         st.session_state["mlb_sportsbook"] = _sb_mlb
+        if _sb_mlb in ("DraftKings", "FanDuel") and not _get_odds_api_key():
+            st.info(
+                f"**{_sb_mlb} lines require an Odds API key.**  "
+                "Get a free key (500 req/month) at [the-odds-api.com](https://the-odds-api.com) "
+                "then add `ODDS_API_KEY = \"your_key\"` to `.streamlit/secrets.toml`.",
+                icon="🔑",
+            )
         with st.spinner(f"Loading {_sb_mlb} MLB projections..."):
             mlb_pp_df = get_sportsbook_props("mlb", _sb_mlb)
 
@@ -3818,13 +3875,24 @@ else:
             _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
 
             _mlb_sb = st.session_state.get("mlb_sportsbook", "PrizePicks")
-            _sb_choice_mlb = st.radio(
-                "Sportsbook for Parlays",
-                ["PrizePicks", "DraftKings", "FanDuel"],
-                horizontal=True,
-                index=["PrizePicks", "DraftKings", "FanDuel"].index(_mlb_sb),
-                key="mlb_par_sb",
-            )
+            _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
+            with _mlb_par_sb_col1:
+                _sb_choice_mlb = st.radio(
+                    "Sportsbook for Parlays",
+                    ["PrizePicks", "DraftKings", "FanDuel"],
+                    horizontal=True,
+                    index=["PrizePicks", "DraftKings", "FanDuel"].index(_mlb_sb),
+                    key="mlb_par_sb",
+                )
+            with _mlb_par_sb_col2:
+                if st.button("🔄 Refresh", key="mlb_par_refresh"):
+                    if _sb_choice_mlb == "PrizePicks":
+                        _pp_cache.clear(); _pp_cache_ts.clear()
+                    else:
+                        _toa_cache.pop(f"mlb_{_sb_choice_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_choice_mlb}", None)
+                    st.rerun()
+            if _sb_choice_mlb in ("DraftKings", "FanDuel") and not _get_odds_api_key():
+                st.info(f"**{_sb_choice_mlb} lines require an Odds API key.** Add `ODDS_API_KEY` to `.streamlit/secrets.toml`.", icon="🔑")
             with st.spinner(f"Fetching {_sb_choice_mlb} MLB lines…"):
                 _mlb_pp_raw = get_sportsbook_props("mlb", _sb_choice_mlb)
 
