@@ -5,6 +5,9 @@ __pycache__/
 venv/
 .env
 
+# Streamlit secrets (never commit API keys)
+.streamlit/secrets.toml
+
 # Streamlit logs
 streamlit_out.txt
 streamlit_err.txt
