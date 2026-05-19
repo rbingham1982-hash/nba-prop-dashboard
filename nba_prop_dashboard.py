@@ -758,6 +758,23 @@ _UD_MLB_STAT_MAP = {
     "Walks Allowed": "Walks Allowed", "Pitching Outs": "Pitching Outs",
 }
 
+# Dashboard stat selector → Underdog stat_type (as returned by get_underdog_props)
+_UD_NBA_PROP_LOOKUP = {
+    "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
+    "PRA": "Pts+Rebs+Asts", "3PM": "3-PT Made",
+    "Steals": "Steals", "Blocks": "Blocked Shots", "Turnovers": "Turnovers",
+}
+_UD_MLB_HITTER_LOOKUP = {
+    "H": "Hits", "HR": "Home Runs", "RBI": "RBIs",
+    "K": "Hitter Strikeouts", "BB": "Walks",
+}
+_UD_MLB_PITCHER_LOOKUP = {
+    "K": "Pitcher Strikeouts",
+    "ER": "Earned Runs Allowed",
+    "BB": "Walks Allowed",
+    "H": "Hits Allowed",
+}
+
 _ud_cache: dict = {}
 _ud_cache_ts: dict = {}
 _UD_CACHE_TTL = 300
@@ -1896,57 +1913,132 @@ def _scout_card(text):
 def _scout_card_nba(text): return _scout_card(text)
 def _scout_card_mlb(text): return _scout_card(text)
 
-def nba_scout_report(player_name, team_code, df, next_opp, prop_type, rolling_window):
+def nba_scout_report(player_name, team_code, df, next_opp, prop_type, rolling_window,
+                     line=None, ud_line=None, ud_odds=None, ud_implied=None):
     if df.empty or not next_opp:
         return None
-    season_pts = df["PTS"].mean()
-    season_reb = df["REB"].mean()
-    season_ast = df["AST"].mean()
+    stat_col = STAT_MAP.get(prop_type, "PTS")
+    season_stat = df[stat_col].mean() if stat_col in df.columns else 0
+    season_pts  = df["PTS"].mean()
+    season_reb  = df["REB"].mean()
+    season_ast  = df["AST"].mean()
     last10 = df.tail(10)
-    recent_pts = last10["PTS"].mean()
-    delta = recent_pts - season_pts
-    if delta > 2:
-        trend = f"trending upward at {recent_pts:.1f} PPG over the last 10 games (+{delta:.1f} vs season avg)"
-    elif delta < -2:
-        trend = f"trending downward at {recent_pts:.1f} PPG over the last 10 games ({delta:.1f} vs season avg)"
+    recent_stat = last10[stat_col].mean() if stat_col in last10.columns else season_stat
+    delta = recent_stat - season_stat
+    thresh = max(season_stat * 0.08, 1.0)
+    if delta > thresh:
+        trend = f"trending upward at {recent_stat:.1f} {prop_type}/G over the last 10 ({delta:+.1f} vs season avg)"
+    elif delta < -thresh:
+        trend = f"trending downward at {recent_stat:.1f} {prop_type}/G over the last 10 ({delta:+.1f} vs season avg)"
     else:
-        trend = f"consistent at {recent_pts:.1f} PPG over the last 10 games"
+        trend = f"consistent at {recent_stat:.1f} {prop_type}/G over the last 10 games"
+    # Opponent history for the selected prop
     opp_df = df[df["OPPONENT"].str.upper() == next_opp.upper()]
     if not opp_df.empty:
-        op = opp_df["PTS"].mean()
-        or_ = opp_df["REB"].mean()
-        oa = opp_df["AST"].mean()
+        op_stat = opp_df[stat_col].mean() if stat_col in opp_df.columns else 0
         n = len(opp_df)
-        quality = "favorable" if op - season_pts > 3 else ("difficult" if season_pts - op > 3 else "neutral")
-        opp_str = (f"Against {next_opp} in {n} game(s) from the selected seasons, {player_name} averaged "
-                   f"{op:.1f} PPG / {or_:.1f} RPG / {oa:.1f} APG — a historically {quality} matchup.")
+        quality = ("favorable" if op_stat > season_stat * 1.08
+                   else "difficult" if op_stat < season_stat * 0.92 else "neutral")
+        opp_str = (f"In {n} game(s) vs {next_opp}, {player_name} averaged "
+                   f"{op_stat:.1f} {prop_type} — a historically {quality} matchup for this prop.")
     else:
-        opp_str = f"No prior matchup data vs {next_opp} exists in the selected seasons, making this an uncharted assignment."
-    pred_pts = df["PTS"].rolling(rolling_window).mean().iloc[-1] if len(df) >= rolling_window else season_pts
-    pred_reb = df["REB"].rolling(rolling_window).mean().iloc[-1] if len(df) >= rolling_window else season_reb
-    pred_ast = df["AST"].rolling(rolling_window).mean().iloc[-1] if len(df) >= rolling_window else season_ast
-    last5_pts = df.tail(5)["PTS"].mean()
-    if last5_pts > season_pts * 1.1:
-        form = f"Momentum is on their side — {player_name} is running hot over the last 5 games ({last5_pts:.1f} PPG)."
-    elif last5_pts < season_pts * 0.9:
-        form = f"A note of caution: {player_name} has cooled over the last 5 games ({last5_pts:.1f} PPG)."
+        opp_str = f"No prior matchup data vs {next_opp} in the selected seasons."
+    # Streak and hit rate vs line
+    streak_str = hit_rate_str = ""
+    if line is not None and stat_col in df.columns:
+        over_series = (df[stat_col] > line).tolist()
+        streak_over = 0
+        for v in reversed(over_series):
+            if v: streak_over += 1
+            else: break
+        streak_under = 0
+        for v in reversed(over_series):
+            if not v: streak_under += 1
+            else: break
+        last10_hit = (last10[stat_col] > line).mean() if stat_col in last10.columns else 0
+        hit_rate_str = f"Hit rate vs {line} over the last 10 games: {last10_hit:.0%}."
+        if streak_over >= 3:
+            streak_str = f" {player_name} has cleared {line} in {streak_over} straight games — a hot streak."
+        elif streak_under >= 3:
+            streak_str = f" Warning: {player_name} has missed {line} in {streak_under} consecutive games."
+    # Home/away split for the prop
+    ha_str = ""
+    if "IS_HOME" in df.columns and stat_col in df.columns:
+        home_avg = df.loc[df["IS_HOME"], stat_col].mean()
+        away_avg = df.loc[~df["IS_HOME"], stat_col].mean()
+        if pd.notna(home_avg) and pd.notna(away_avg):
+            ha_str = f"Home/away split: {home_avg:.1f} at home vs {away_avg:.1f} on the road."
+    # Form last 5
+    last5_stat = df.tail(5)[stat_col].mean() if stat_col in df.columns else season_stat
+    if last5_stat > season_stat * 1.1:
+        form = f"Running hot over the last 5 games ({last5_stat:.1f} {prop_type}/G)."
+    elif last5_stat < season_stat * 0.9:
+        form = f"Cooled over the last 5 ({last5_stat:.1f} {prop_type}/G vs {season_stat:.1f} season avg)."
     else:
-        form = f"Recent 5-game form is steady ({last5_pts:.1f} PPG), lending reliability to the projection."
-    return (
-        f"{player_name} ({team_code}) heads into the upcoming matchup against {next_opp} averaging "
-        f"{season_pts:.1f} PPG, {season_reb:.1f} RPG, and {season_ast:.1f} APG this season. "
-        f"Scoring is {trend}. {opp_str} "
-        f"A {rolling_window}-game rolling model projects approximately "
-        f"{pred_pts:.1f} pts / {pred_reb:.1f} reb / {pred_ast:.1f} ast. {form}"
-    )
+        form = f"Steady form over the last 5 games ({last5_stat:.1f} {prop_type}/G)."
+    # Rolling model prediction
+    pred_str = ""
+    if len(df) >= rolling_window and stat_col in df.columns:
+        pred_val = df[stat_col].rolling(rolling_window).mean().iloc[-1]
+        pred_pts = df["PTS"].rolling(rolling_window).mean().iloc[-1]
+        pred_reb = df["REB"].rolling(rolling_window).mean().iloc[-1]
+        pred_ast = df["AST"].rolling(rolling_window).mean().iloc[-1]
+        pred_str = (f"A {rolling_window}-game rolling model projects {pred_val:.1f} {prop_type} "
+                    f"({pred_pts:.1f} pts / {pred_reb:.1f} reb / {pred_ast:.1f} ast).")
+    # Underdog market signal
+    ud_str = ""
+    if ud_line is not None and ud_odds is not None and ud_implied is not None:
+        odds_fmt = f"+{ud_odds}" if ud_odds > 0 else str(ud_odds)
+        lean = "leaning OVER" if ud_implied < 0.50 else "implying slight UNDER value"
+        ud_str = (f"Underdog Fantasy has this prop at {ud_line} ({odds_fmt}, {ud_implied:.0%} implied) "
+                  f"— the market is {lean}.")
+    parts = [
+        f"{player_name} ({team_code}) heads into the matchup vs {next_opp} averaging {season_stat:.1f} {prop_type}/G "
+        f"(context: {season_pts:.1f} PPG / {season_reb:.1f} RPG / {season_ast:.1f} APG) this season. "
+        f"Scoring is {trend}.",
+        opp_str, hit_rate_str, streak_str, ha_str, form, pred_str, ud_str,
+    ]
+    return " ".join(p for p in parts if p)
 
-def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id):
+def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id,
+                             line=None, prop_stat=None, ud_line=None, ud_odds=None, ud_implied=None):
     if df.empty:
         return None
+    _H_STAT_LABELS = {"H": "Hits", "HR": "Home Runs", "RBI": "RBIs", "K": "Strikeouts", "BB": "Walks"}
+    stat_col   = prop_stat or "H"
+    stat_label = _H_STAT_LABELS.get(stat_col, stat_col)
     avg = df["AVG"].mean()
     obp = df["OBP"].mean()
     slg = df["SLG"].mean()
     ops = obp + slg
+    season_stat = df[stat_col].mean() if stat_col in df.columns else 0
+    last10 = df.tail(10)
+    recent_stat = last10[stat_col].mean() if stat_col in last10.columns else season_stat
+    delta = recent_stat - season_stat
+    thresh = max(season_stat * 0.15, 0.1)
+    trend = (f"trending {'up' if delta > 0 else 'down'} at {recent_stat:.2f} {stat_label}/G "
+             f"({delta:+.2f} vs season avg) over the last 10 games"
+             if abs(delta) > thresh
+             else f"steady at {recent_stat:.2f} {stat_label}/G over the last 10 games")
+    # Streak and hit rate vs line
+    streak_str = hit_rate_str = ""
+    if line is not None and stat_col in df.columns:
+        over_series = (df[stat_col] > line).tolist()
+        streak_over = 0
+        for v in reversed(over_series):
+            if v: streak_over += 1
+            else: break
+        streak_under = 0
+        for v in reversed(over_series):
+            if not v: streak_under += 1
+            else: break
+        last10_hit = (last10[stat_col] > line).mean() if stat_col in last10.columns else 0
+        hit_rate_str = f"Hit rate vs {line} {stat_label} over the last 10 games: {last10_hit:.0%}."
+        if streak_over >= 3:
+            streak_str = f" {hitter_name} has cleared {line} in {streak_over} consecutive games."
+        elif streak_under >= 3:
+            streak_str = f" Warning: {hitter_name} has missed {line} in {streak_under} straight starts."
+    # Today's game context
     game = get_mlb_today_game_for_team(team_id)
     pitcher_txt = opp_hist_txt = ""
     if game:
@@ -1955,7 +2047,7 @@ def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id):
         opp_team = game["teams"][opp_side]["team"]
         opp_prob = game["teams"][opp_side].get("probablePitcher", {})
         opp_name = opp_team.get("name", "the opponent")
-        opp_abbr = opp_team.get("abbreviation", "")
+        opp_abbr_g = opp_team.get("abbreviation", "")
         opp_id = opp_team.get("id")
         if opp_prob:
             p_name = opp_prob.get("fullName", "the starter")
@@ -1967,51 +2059,94 @@ def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id):
                     p_era = float(ps.get("era") or 0)
                     p_whip = float(ps.get("whip") or 0)
                     p_k9 = float(ps.get("strikeoutsPer9Inn") or 0)
-                    pitcher_txt += f"{p_name} carries a {p_era:.2f} ERA, {p_whip:.2f} WHIP, and {p_k9:.1f} K/9. "
+                    pitcher_txt += f"{p_name}: {p_era:.2f} ERA / {p_whip:.2f} WHIP / {p_k9:.1f} K/9. "
                     if p_era < 3.50:
-                        pitcher_txt += "This is a tough draw at the plate. "
+                        pitcher_txt += "Tough draw — downside risk on hitting props. "
                     elif p_era > 5.00:
-                        pitcher_txt += "The numbers favor the hitter — this is an exploitable assignment. "
+                        pitcher_txt += "Favorable matchup — the numbers lean OVER. "
                     else:
-                        pitcher_txt += "The matchup is neutral on paper. "
+                        pitcher_txt += "Neutral matchup on paper. "
         else:
-            pitcher_txt = f"Today's opponent is the {opp_name}; no probable starter has been posted yet. "
-        if opp_abbr:
-            vs = df[df["opponent"].str.upper() == opp_abbr.upper()]
+            pitcher_txt = f"Today's opponent is the {opp_name}; no probable starter posted yet. "
+        if opp_abbr_g and stat_col in df.columns:
+            vs = df[df["opponent"].str.upper() == opp_abbr_g.upper()]
             if not vs.empty:
-                vs_avg = vs["H"].sum() / max(vs["AB"].sum(), 1)
-                opp_hist_txt = (f"Against the {opp_name} this season, {hitter_name} is batting "
-                                f".{int(vs_avg*1000):03d} ({vs['H'].sum()}-for-{vs['AB'].sum()}) "
-                                f"with {vs['HR'].sum()} HR. ")
-    recent10 = df.tail(10)
-    rh = recent10["H"].mean()
-    sh = df["H"].mean()
-    form = (f"Over the last 10 games, {hitter_name} is hot ({rh:.2f} H/G, up from {sh:.2f} season avg)."
-            if rh > sh * 1.2
-            else f"Over the last 10 games, {hitter_name} has cooled ({rh:.2f} H/G vs {sh:.2f} season avg)."
-            if rh < sh * 0.8
-            else f"Recent form is consistent ({rh:.2f} H/G over the last 10 games).")
-    pred_h = df["H"].rolling(10).mean().iloc[-1] if len(df) >= 10 else sh
-    pred_hr = df["HR"].rolling(10).mean().iloc[-1] if len(df) >= 10 else df["HR"].mean()
+                vs_stat_avg = vs[stat_col].mean()
+                vs_h_avg = vs["H"].sum() / max(vs["AB"].sum(), 1)
+                opp_hist_txt = (f"vs {opp_name} this season: {hitter_name} averages "
+                                f"{vs_stat_avg:.2f} {stat_label}/G across {len(vs)} game(s) "
+                                f"(.{int(vs_h_avg*1000):03d} AVG). ")
+    # Last 5 form
+    last5 = df.tail(5)
+    last5_stat = last5[stat_col].mean() if stat_col in last5.columns else season_stat
+    if last5_stat > season_stat * 1.2:
+        form = f"Running hot over the last 5 games ({last5_stat:.2f} {stat_label}/G vs {season_stat:.2f} season avg)."
+    elif last5_stat < season_stat * 0.8:
+        form = f"Cooled recently ({last5_stat:.2f} {stat_label}/G vs {season_stat:.2f} season avg over the last 5)."
+    else:
+        form = f"Consistent form over the last 5 games ({last5_stat:.2f} {stat_label}/G)."
+    # Rolling projection
+    pred_h   = df["H"].rolling(10).mean().iloc[-1]   if len(df) >= 10 else df["H"].mean()
+    pred_hr  = df["HR"].rolling(10).mean().iloc[-1]  if len(df) >= 10 else df["HR"].mean()
     pred_rbi = df["RBI"].rolling(10).mean().iloc[-1] if len(df) >= 10 else df["RBI"].mean()
+    # Underdog market signal
+    ud_str = ""
+    if ud_line is not None and ud_odds is not None and ud_implied is not None:
+        odds_fmt = f"+{ud_odds}" if ud_odds > 0 else str(ud_odds)
+        lean = "leaning OVER" if ud_implied < 0.50 else "implying slight UNDER value"
+        ud_str = (f"Underdog has this prop at {ud_line} {stat_label} "
+                  f"({odds_fmt}, {ud_implied:.0%} implied) — market is {lean}.")
     q = "elite" if avg > 0.290 else ("above-average" if avg > 0.260 else ("solid" if avg > 0.230 else "below-average"))
-    return (
-        f"{hitter_name} ({team_abbr}) brings an {q} slash line of "
-        f".{int(avg*1000):03d}/.{int(obp*1000):03d}/.{int(slg*1000):03d} (OPS {ops:.3f}) into today's game. "
-        f"{pitcher_txt}{opp_hist_txt}{form} "
-        f"10-game rolling projection: {pred_h:.1f} H / {pred_hr:.2f} HR / {pred_rbi:.1f} RBI."
-    )
+    parts = [
+        f"{hitter_name} ({team_abbr}) brings a {q} slash line "
+        f".{int(avg*1000):03d}/.{int(obp*1000):03d}/.{int(slg*1000):03d} (OPS {ops:.3f}), "
+        f"averaging {season_stat:.2f} {stat_label}/G this season — {trend}.",
+        pitcher_txt, opp_hist_txt,
+        hit_rate_str, streak_str, form,
+        f"10-game rolling projection: {pred_h:.1f} H / {pred_hr:.2f} HR / {pred_rbi:.1f} RBI.",
+        ud_str,
+    ]
+    return " ".join(p for p in parts if p)
 
-def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id):
+def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id,
+                              line=None, prop_stat=None, ud_line=None, ud_odds=None, ud_implied=None):
     if df.empty:
         return None
-    era = df["ERA"].mean()
+    _P_STAT_LABELS = {"K": "Strikeouts", "IP": "Innings", "ER": "Earned Runs",
+                      "BB": "Walks", "H": "Hits Allowed", "HR": "HR Allowed"}
+    stat_col   = prop_stat or "K"
+    stat_label = _P_STAT_LABELS.get(stat_col, stat_col)
+    era  = df["ERA"].mean()
     whip = df["WHIP"].mean()
-    k9 = df["K9"].mean()
-    tip = df["IP"].sum()
-    bb9 = df["BB"].sum() / tip * 9 if tip > 0 else 0
-    kbb = df["K"].sum() / max(df["BB"].sum(), 1)
-    qs = ((df["IP"] >= 6) & (df["ER"] <= 3)).mean() * 100
+    k9   = df["K9"].mean()
+    tip  = df["IP"].sum()
+    bb9  = df["BB"].sum() / tip * 9 if tip > 0 else 0
+    kbb  = df["K"].sum() / max(df["BB"].sum(), 1)
+    qs   = ((df["IP"] >= 6) & (df["ER"] <= 3)).mean() * 100
+    season_stat = df[stat_col].mean() if stat_col in df.columns else 0
+    # Recent form for selected prop
+    last5 = df.tail(5)
+    last10 = df.tail(10)
+    recent_stat = last5[stat_col].mean() if stat_col in last5.columns else season_stat
+    # Streak and hit rate vs line
+    streak_str = hit_rate_str = ""
+    if line is not None and stat_col in df.columns:
+        over_series = (df[stat_col] > line).tolist()
+        streak_over = 0
+        for v in reversed(over_series):
+            if v: streak_over += 1
+            else: break
+        streak_under = 0
+        for v in reversed(over_series):
+            if not v: streak_under += 1
+            else: break
+        last10_hit = (last10[stat_col] > line).mean() if stat_col in last10.columns else 0
+        hit_rate_str = f"Hit rate vs {line} {stat_label} over the last 10 starts: {last10_hit:.0%}."
+        if streak_over >= 3:
+            streak_str = f" {pitcher_name} has cleared {line} in {streak_over} consecutive starts."
+        elif streak_under >= 3:
+            streak_str = f" Warning: {pitcher_name} has missed {line} in {streak_under} straight starts."
+    # Today's game context
     game = get_mlb_today_game_for_team(team_id)
     opp_txt = bat_txt = ""
     if game:
@@ -2020,43 +2155,56 @@ def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id):
         opp_team = game["teams"][opp_side]["team"]
         opp_name = opp_team.get("name", "the opponent")
         opp_abbr = opp_team.get("abbreviation", "")
-        opp_id = opp_team.get("id")
+        opp_id   = opp_team.get("id")
         opp_txt = f"Today, {pitcher_name} takes the hill against the {opp_name}. "
         vs = df[df["opponent"].str.upper() == opp_abbr.upper()] if opp_abbr else pd.DataFrame()
         if not vs.empty:
-            opp_txt += (f"In {len(vs)} prior start(s) vs the {opp_name} this season, "
-                        f"{pitcher_name} posted a {vs['ERA'].mean():.2f} ERA with {vs['K'].mean():.1f} K/start. ")
+            vs_stat_avg = vs[stat_col].mean() if stat_col in vs.columns else 0
+            opp_txt += (f"In {len(vs)} prior start(s) vs {opp_name}, {pitcher_name} averaged "
+                        f"{vs_stat_avg:.1f} {stat_label} with a {vs['ERA'].mean():.2f} ERA. ")
         if opp_id:
             bat = get_mlb_team_batting_stats(opp_id)
             if bat:
                 t_avg = float(bat.get("avg") or 0)
                 t_ops = float(bat.get("ops") or 0)
                 if t_avg > 0.265:
-                    bat_txt = (f"The {opp_name} offense is dangerous ({t_avg:.3f} team AVG / {t_ops:.3f} OPS) "
-                               f"— precision will be essential. ")
+                    bat_txt = (f"The {opp_name} offense is dangerous ({t_avg:.3f} AVG / {t_ops:.3f} OPS) "
+                               f"— expect a competitive at-bat environment. ")
                 elif t_avg < 0.240:
-                    bat_txt = (f"The {opp_name} lineup has struggled offensively ({t_avg:.3f} AVG / {t_ops:.3f} OPS), "
-                               f"setting up a favorable strikeout environment. ")
+                    bat_txt = (f"The {opp_name} lineup has struggled ({t_avg:.3f} AVG / {t_ops:.3f} OPS), "
+                               f"a favorable strikeout setup. ")
                 else:
-                    bat_txt = f"The {opp_name} lineup is an average offensive unit ({t_avg:.3f} AVG / {t_ops:.3f} OPS). "
-    last5 = df.tail(5)
-    rk = last5["K"].mean()
+                    bat_txt = f"The {opp_name} lineup is an average unit ({t_avg:.3f} AVG / {t_ops:.3f} OPS). "
+    # Form and trend
     sk = df["K"].mean()
-    form = (f"Over the last 5 starts, {pitcher_name} has been dealing — {rk:.1f} K/start (up from {sk:.1f} season avg)."
-            if rk > sk * 1.15
-            else f"Strikeout output has dipped over the last 5 starts ({rk:.1f} vs {sk:.1f} season avg), worth monitoring."
-            if rk < sk * 0.85
-            else f"Strikeout production has been steady at {rk:.1f}/start over the last 5 outings.")
-    pred_k = df["K"].rolling(5).mean().iloc[-1] if len(df) >= 5 else sk
+    rk = last5["K"].mean()
+    if recent_stat > season_stat * 1.15 and stat_col != "ERA":
+        form = f"Over the last 5 starts, {pitcher_name} is running hot with {recent_stat:.1f} {stat_label}/start."
+    elif recent_stat < season_stat * 0.85 and stat_col not in ("ERA", "WHIP"):
+        form = f"Output has dipped over the last 5 starts ({recent_stat:.1f} {stat_label} vs {season_stat:.1f} season avg)."
+    else:
+        form = f"Production has been steady at {recent_stat:.1f} {stat_label}/start over the last 5 outings."
+    # Rolling projection
+    pred_k  = df["K"].rolling(5).mean().iloc[-1]  if len(df) >= 5 else sk
     pred_ip = df["IP"].rolling(5).mean().iloc[-1] if len(df) >= 5 else df["IP"].mean()
+    # Underdog market signal
+    ud_str = ""
+    if ud_line is not None and ud_odds is not None and ud_implied is not None:
+        odds_fmt = f"+{ud_odds}" if ud_odds > 0 else str(ud_odds)
+        lean = "leaning OVER" if ud_implied < 0.50 else "implying slight UNDER value"
+        ud_str = (f"Underdog has this prop at {ud_line} {stat_label} "
+                  f"({odds_fmt}, {ud_implied:.0%} implied) — market is {lean}.")
     tier = "elite" if era < 3.00 else ("solid" if era < 4.00 else ("middling" if era < 5.00 else "struggling"))
-    return (
-        f"{pitcher_name} ({team_abbr}) is a {tier} arm carrying a {era:.2f} ERA, "
-        f"{whip:.2f} WHIP, {k9:.1f} K/9, {bb9:.1f} BB/9, {kbb:.2f} K/BB ratio, "
-        f"and a {qs:.0f}% quality-start rate into today's outing. "
-        f"{opp_txt}{bat_txt}{form} "
-        f"5-start rolling projection: {pred_k:.1f} K / {pred_ip:.1f} IP."
-    )
+    parts = [
+        f"{pitcher_name} ({team_abbr}) is a {tier} arm: {era:.2f} ERA / {whip:.2f} WHIP / "
+        f"{k9:.1f} K/9 / {bb9:.1f} BB/9 / {kbb:.2f} K/BB / {qs:.0f}% QS rate. "
+        f"Season average: {season_stat:.1f} {stat_label}/start.",
+        opp_txt, bat_txt,
+        hit_rate_str, streak_str, form,
+        f"5-start rolling projection: {pred_k:.1f} K / {pred_ip:.1f} IP.",
+        ud_str,
+    ]
+    return " ".join(p for p in parts if p)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DAILY BLOG GENERATORS
@@ -2802,28 +2950,51 @@ if sport == "🏀 NBA":
 
                         pp_df = get_prizepicks_lines()
                         pp_stat = PP_STAT_MAP.get(prop_type)
-                        banner_cols = st.columns(3)
+                        ud_df_nba = get_underdog_props("nba")
+                        ud_stat_nba = _UD_NBA_PROP_LOOKUP.get(prop_type)
+
+                        # ── Market Lines ──────────────────────────────────
+                        section("Market Lines")
+                        _pp_line_val = None
                         if not pp_df.empty and pp_stat:
-                            match = pp_df[
+                            _pp_match = pp_df[
                                 (pp_df["player_name"].str.lower() == player_name.lower()) &
                                 (pp_df["stat_type"] == pp_stat)
                             ]
-                            if not match.empty:
-                                pp_line = match.iloc[0]["line_score"]
-                                df["PP_HIT"] = df["TARGET"] > pp_line
-                                banner_cols[0].metric("PrizePicks Line", pp_line)
-                                banner_cols[1].metric("Hit Rate vs PP", f"{df['PP_HIT'].mean():.1%}")
+                            if not _pp_match.empty:
+                                _pp_line_val = _pp_match.iloc[0]["line_score"]
+                                df["PP_HIT"] = df["TARGET"] > _pp_line_val
+                        _ud_line_val = _ud_odds_val = _ud_implied_val = None
+                        if not ud_df_nba.empty and ud_stat_nba:
+                            _ud_match = ud_df_nba[
+                                (ud_df_nba["player_name"].str.lower() == player_name.lower()) &
+                                (ud_df_nba["stat_type"] == ud_stat_nba)
+                            ]
+                            if not _ud_match.empty:
+                                _ud_row = _ud_match.iloc[0]
+                                _ud_line_val   = float(_ud_row["line_score"])
+                                _ud_odds_val   = int(_ud_row["american_odds"])
+                                _ud_implied_val = float(_ud_row["implied_prob"])
+                                df["UD_HIT"] = df["TARGET"] > _ud_line_val
                         live_line = get_real_time_line(player_name, market=prop_type.lower())
-                        if live_line:
-                            df["LIVE_HIT"] = df["TARGET"] > live_line
-                            banner_cols[2].metric("Live Line", live_line)
+                        _ud_odds_disp = (f"+{_ud_odds_val}" if _ud_odds_val is not None and _ud_odds_val > 0
+                                         else str(_ud_odds_val) if _ud_odds_val is not None else "—")
+                        _bcs = st.columns(6)
+                        _bcs[0].metric("PrizePicks Line", _pp_line_val if _pp_line_val is not None else "—")
+                        _bcs[1].metric("Hit Rate vs PP",  f"{df['PP_HIT'].mean():.1%}" if _pp_line_val is not None else "—")
+                        _bcs[2].metric("Underdog Line",   _ud_line_val if _ud_line_val is not None else "—")
+                        _bcs[3].metric("UD Odds",         _ud_odds_disp)
+                        _bcs[4].metric("UD Implied",      f"{_ud_implied_val:.0%}" if _ud_implied_val is not None else "—")
+                        _bcs[5].metric("Hit Rate vs UD",  f"{df['UD_HIT'].mean():.1%}" if _ud_line_val is not None else "—")
 
                         # ── Scout Report ──────────────────────────────────
+                        df["IS_HOME"] = df["MATCHUP"].str.contains(r"vs\.", na=False)
                         _nxt = get_next_opponent(team_code)
-                        _report = nba_scout_report(player_name, team_code, df,
-                                                   _nxt, prop_type, rolling_window)
+                        _report = nba_scout_report(player_name, team_code, df, _nxt, prop_type, rolling_window,
+                                                   line=line_value, ud_line=_ud_line_val,
+                                                   ud_odds=_ud_odds_val, ud_implied=_ud_implied_val)
                         if _report:
-                            section("Game Preview")
+                            section("Scout Report")
                             st.markdown(_scout_card_nba(_report), unsafe_allow_html=True)
 
                         # ── Analytical Breakdown ──────────────────────────
@@ -3613,11 +3784,37 @@ else:
                 if h_df.empty:
                     st.warning("No hitting data found for this player this season.")
                 else:
+                    # ── Underdog Market ───────────────────────────────────
+                    _ud_mlb_h_df = get_underdog_props("mlb")
+                    _ud_h_stat   = _UD_MLB_HITTER_LOOKUP.get(h_stat)
+                    _ud_h_line = _ud_h_odds = _ud_h_implied = None
+                    if not _ud_mlb_h_df.empty and _ud_h_stat:
+                        _ud_h_match = _ud_mlb_h_df[
+                            (_ud_mlb_h_df["player_name"].str.lower() == sel_hitter["name"].lower()) &
+                            (_ud_mlb_h_df["stat_type"] == _ud_h_stat)
+                        ]
+                        if not _ud_h_match.empty:
+                            _ud_h_row      = _ud_h_match.iloc[0]
+                            _ud_h_line     = float(_ud_h_row["line_score"])
+                            _ud_h_odds     = int(_ud_h_row["american_odds"])
+                            _ud_h_implied  = float(_ud_h_row["implied_prob"])
+                    if _ud_h_line is not None:
+                        mlb_section("Underdog Market")
+                        _udh_cols = st.columns(4)
+                        _ud_h_odds_disp = f"+{_ud_h_odds}" if _ud_h_odds > 0 else str(_ud_h_odds)
+                        _udh_cols[0].metric(f"UD Line ({h_stat})", _ud_h_line)
+                        _udh_cols[1].metric("UD Odds",  _ud_h_odds_disp)
+                        _udh_cols[2].metric("Implied",  f"{_ud_h_implied:.0%}")
+                        h_df["UD_HIT"] = h_df[h_stat] > _ud_h_line
+                        _udh_cols[3].metric("Hit Rate vs UD", f"{h_df['UD_HIT'].mean():.1%}")
+
                     # ── Scout Report ──────────────────────────────────────
                     _h_report = mlb_hitter_scout_report(
-                        sel_hitter["name"], sel_team["abbr"], h_df, sel_team["id"])
+                        sel_hitter["name"], sel_team["abbr"], h_df, sel_team["id"],
+                        line=h_line, prop_stat=h_stat,
+                        ud_line=_ud_h_line, ud_odds=_ud_h_odds, ud_implied=_ud_h_implied)
                     if _h_report:
-                        mlb_section("Game Preview")
+                        mlb_section("Scout Report")
                         st.markdown(_scout_card_mlb(_h_report), unsafe_allow_html=True)
 
                     # ── Analytical Breakdown ──────────────────────────────
@@ -3763,11 +3960,37 @@ else:
                 if p_df.empty:
                     st.warning("No pitching data found for this player this season.")
                 else:
+                    # ── Underdog Market ───────────────────────────────────
+                    _ud_mlb_p_df = get_underdog_props("mlb")
+                    _ud_p_stat   = _UD_MLB_PITCHER_LOOKUP.get(p_stat)
+                    _ud_p_line = _ud_p_odds = _ud_p_implied = None
+                    if not _ud_mlb_p_df.empty and _ud_p_stat:
+                        _ud_p_match = _ud_mlb_p_df[
+                            (_ud_mlb_p_df["player_name"].str.lower() == sel_pitcher["name"].lower()) &
+                            (_ud_mlb_p_df["stat_type"] == _ud_p_stat)
+                        ]
+                        if not _ud_p_match.empty:
+                            _ud_p_row      = _ud_p_match.iloc[0]
+                            _ud_p_line     = float(_ud_p_row["line_score"])
+                            _ud_p_odds     = int(_ud_p_row["american_odds"])
+                            _ud_p_implied  = float(_ud_p_row["implied_prob"])
+                    if _ud_p_line is not None:
+                        mlb_section("Underdog Market")
+                        _udp_cols = st.columns(4)
+                        _ud_p_odds_disp = f"+{_ud_p_odds}" if _ud_p_odds > 0 else str(_ud_p_odds)
+                        _udp_cols[0].metric(f"UD Line ({p_stat})", _ud_p_line)
+                        _udp_cols[1].metric("UD Odds",  _ud_p_odds_disp)
+                        _udp_cols[2].metric("Implied",  f"{_ud_p_implied:.0%}")
+                        p_df["UD_HIT"] = p_df[p_stat] > _ud_p_line
+                        _udp_cols[3].metric("Hit Rate vs UD", f"{p_df['UD_HIT'].mean():.1%}")
+
                     # ── Scout Report ──────────────────────────────────────
                     _p_report = mlb_pitcher_scout_report(
-                        sel_pitcher["name"], sel_team_p["abbr"], p_df, sel_team_p["id"])
+                        sel_pitcher["name"], sel_team_p["abbr"], p_df, sel_team_p["id"],
+                        line=p_line, prop_stat=p_stat,
+                        ud_line=_ud_p_line, ud_odds=_ud_p_odds, ud_implied=_ud_p_implied)
                     if _p_report:
-                        mlb_section("Game Preview")
+                        mlb_section("Scout Report")
                         st.markdown(_scout_card_mlb(_p_report), unsafe_allow_html=True)
 
                     # ── Analytical Breakdown ──────────────────────────────
