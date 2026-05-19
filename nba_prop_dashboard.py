@@ -2985,7 +2985,7 @@ if sport == "🏀 NBA":
                         _bcs[2].metric("Underdog Line",   _ud_line_val if _ud_line_val is not None else "—")
                         _bcs[3].metric("UD Odds",         _ud_odds_disp)
                         _bcs[4].metric("UD Implied",      f"{_ud_implied_val:.0%}" if _ud_implied_val is not None else "—")
-                        _bcs[5].metric("Hit Rate vs UD",  f"{df['UD_HIT'].mean():.1%}" if _ud_line_val is not None else "—")
+                        _bcs[5].metric("Hit Rate vs UD",  f"{df['UD_HIT'].mean():.1%}" if _ud_line_val is not None and "UD_HIT" in df.columns else "—")
 
                         # ── Scout Report ──────────────────────────────────
                         df["IS_HOME"] = df["MATCHUP"].str.contains(r"vs\.", na=False)
