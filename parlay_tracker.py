@@ -172,12 +172,8 @@ def _leg_is_resolvable(leg: dict, generated_at: str) -> bool:
             return datetime.now(timezone.utc).astimezone() >= game_start + timedelta(hours=4)
         except Exception:
             pass
-    # No start_time: resolve if parlay was generated > 8 hours ago
-    try:
-        gen = datetime.fromisoformat(generated_at)
-        return datetime.now() >= gen + timedelta(hours=8)
-    except Exception:
-        return False
+    # No start_time: always attempt — NBA API returns empty if game not yet posted
+    return True
 
 
 # ─────────────────────────────────────────────────────────────────────────────
