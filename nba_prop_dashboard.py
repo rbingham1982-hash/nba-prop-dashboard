@@ -15,6 +15,13 @@ from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv3
 from datetime import datetime, timedelta
 
+def _safe_rerun():
+    """st.rerun() was added in 1.27; fall back to experimental for older versions."""
+    if hasattr(st, "rerun"):
+        st.rerun()
+    else:
+        st.experimental_rerun()
+
 # ─── Page config ───────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Konjure Analytics",
@@ -2909,14 +2916,13 @@ if sport == "🏀 NBA":
                     _pp_cache.clear(); _pp_cache_ts.clear()
                 else:
                     _toa_cache.pop(f"nba_{_sb_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_nba}", None)
-                st.rerun()
+                _safe_rerun()
         st.session_state["nba_sportsbook"] = _sb_nba
         if _sb_nba in ("DraftKings", "FanDuel") and not _get_odds_api_key():
             st.info(
                 f"**{_sb_nba} lines require an Odds API key.**  "
                 "Get a free key (500 req/month) at [the-odds-api.com](https://the-odds-api.com) "
-                "then add `ODDS_API_KEY = \"your_key\"` to `.streamlit/secrets.toml`.",
-                icon="🔑",
+                "then add `ODDS_API_KEY = \"your_key\"` to `.streamlit/secrets.toml`."
             )
         with st.spinner(f"Loading {_sb_nba} NBA projections..."):
             pp_df = get_sportsbook_props("nba", _sb_nba)
@@ -3023,9 +3029,9 @@ if sport == "🏀 NBA":
                         _pp_cache.clear(); _pp_cache_ts.clear()
                     else:
                         _toa_cache.pop(f"nba_{_sb_choice_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_choice_nba}", None)
-                    st.rerun()
+                    _safe_rerun()
             if _sb_choice_nba in ("DraftKings", "FanDuel") and not _get_odds_api_key():
-                st.info(f"**{_sb_choice_nba} lines require an Odds API key.** Add `ODDS_API_KEY` to `.streamlit/secrets.toml`.", icon="🔑")
+                st.info(f"**{_sb_choice_nba} lines require an Odds API key.** Add `ODDS_API_KEY` to `.streamlit/secrets.toml`.")
             with st.spinner(f"Fetching {_sb_choice_nba} NBA lines…"):
                 _pp_raw = get_sportsbook_props("nba", _sb_choice_nba)
 
@@ -3772,14 +3778,13 @@ else:
                     _pp_cache.clear(); _pp_cache_ts.clear()
                 else:
                     _toa_cache.pop(f"mlb_{_sb_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_mlb}", None)
-                st.rerun()
+                _safe_rerun()
         st.session_state["mlb_sportsbook"] = _sb_mlb
         if _sb_mlb in ("DraftKings", "FanDuel") and not _get_odds_api_key():
             st.info(
                 f"**{_sb_mlb} lines require an Odds API key.**  "
                 "Get a free key (500 req/month) at [the-odds-api.com](https://the-odds-api.com) "
-                "then add `ODDS_API_KEY = \"your_key\"` to `.streamlit/secrets.toml`.",
-                icon="🔑",
+                "then add `ODDS_API_KEY = \"your_key\"` to `.streamlit/secrets.toml`."
             )
         with st.spinner(f"Loading {_sb_mlb} MLB projections..."):
             mlb_pp_df = get_sportsbook_props("mlb", _sb_mlb)
@@ -3890,9 +3895,9 @@ else:
                         _pp_cache.clear(); _pp_cache_ts.clear()
                     else:
                         _toa_cache.pop(f"mlb_{_sb_choice_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_choice_mlb}", None)
-                    st.rerun()
+                    _safe_rerun()
             if _sb_choice_mlb in ("DraftKings", "FanDuel") and not _get_odds_api_key():
-                st.info(f"**{_sb_choice_mlb} lines require an Odds API key.** Add `ODDS_API_KEY` to `.streamlit/secrets.toml`.", icon="🔑")
+                st.info(f"**{_sb_choice_mlb} lines require an Odds API key.** Add `ODDS_API_KEY` to `.streamlit/secrets.toml`.")
             with st.spinner(f"Fetching {_sb_choice_mlb} MLB lines…"):
                 _mlb_pp_raw = get_sportsbook_props("mlb", _sb_choice_mlb)
 
