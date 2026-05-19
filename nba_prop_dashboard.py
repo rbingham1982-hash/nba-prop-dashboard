@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup
 from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv3
 from datetime import datetime, timedelta
+import parlay_tracker
 
 def _safe_rerun():
     """st.rerun() was added in 1.27; fall back to experimental for older versions."""
@@ -687,6 +688,22 @@ def _american_to_implied(odds: int) -> float:
         return abs(odds) / (abs(odds) + 100)
     return 100 / (odds + 100)
 
+
+def _american_to_decimal(odds: int) -> float:
+    """American odds to decimal (European) odds."""
+    if odds >= 0:
+        return (odds / 100.0) + 1.0
+    return (100.0 / abs(odds)) + 1.0
+
+
+def _decimal_to_american(dec: float) -> int:
+    """Decimal odds to American odds."""
+    if dec >= 2.0:
+        return int(round((dec - 1.0) * 100))
+    if dec > 1.0:
+        return int(round(-100.0 / (dec - 1.0)))
+    return -9999
+
 _DK_NBA_STAT_MAP = {
     "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
     "Threes": "3-PT Made", "3-Point Field Goals Made": "3-PT Made",
@@ -1007,8 +1024,17 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
         return get_the_odds_api_props(sport, sportsbook)
     return pd.DataFrame()
 
+@st.cache_data(ttl=3600)
+def _load_calibration() -> dict:
+    """Load per-stat calibration factors from the parlay tracker (cached 1h)."""
+    try:
+        return parlay_tracker.get_calibration()
+    except Exception:
+        return {}
+
+
 @st.cache_data(ttl=1800)
-def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str = "standard", implied_override: float = -1.0):
+def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str = "standard", implied_override: float = -1.0, cal_factor: float = 1.0):
     """Weighted hit rate: 70% historical (60/40 last-10/30 + trend) + 30% sportsbook implied odds."""
     col = _PP_NBA_STAT_COL.get(stat_type)
     if col is None:
@@ -1057,6 +1083,7 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
     # Blend 70% historical + 30% sportsbook implied market odds
     implied = implied_override if implied_override >= 0 else _PP_ODDS_IMPLIED.get(odds_type, 0.50)
     rate = 0.7 * hist + 0.3 * implied
+    rate = rate * cal_factor
     return round(min(0.97, max(0.03, rate)), 3), n
 
 @st.cache_data(ttl=86400)
@@ -1101,7 +1128,7 @@ def _mlb_player_id_by_name(name: str):
     return None
 
 @st.cache_data(ttl=1800)
-def _mlb_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str = "standard", implied_override: float = -1.0):
+def _mlb_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str = "standard", implied_override: float = -1.0, cal_factor: float = 1.0):
     """Weighted hit rate: 70% historical (60/40 last-10/20 + trend) + 30% sportsbook implied odds."""
     is_pitcher = stat_type in _PP_PITCHER_TYPES
     col = (_PP_MLB_PIT_COL if is_pitcher else _PP_MLB_HIT_COL).get(stat_type)
@@ -1138,6 +1165,7 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
     # Blend 70% historical + 30% sportsbook implied market odds
     implied = implied_override if implied_override >= 0 else _PP_ODDS_IMPLIED.get(odds_type, 0.50)
     rate = 0.7 * hist + 0.3 * implied
+    rate = rate * cal_factor
     return round(min(0.97, max(0.03, rate)), 3), n
 
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 12):
@@ -1333,10 +1361,11 @@ def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
         american = leg.get("american_odds")
         imp_prob = leg.get("implied_prob", -1.0)
         sb = leg.get("sportsbook", "PrizePicks")
-        if sb in ("DraftKings", "FanDuel") and american is not None and imp_prob > 0:
-            # DK/FD: show American odds + implied%
+        if sb in ("DraftKings", "FanDuel", "Underdog") and american is not None and imp_prob > 0:
+            # Real sportsbook: show American odds + implied%
+            sb_lbl = "UD" if sb == "Underdog" else sb[:2].upper()
             odds_disp = f"+{american}" if american > 0 else str(american)
-            odds_suffix = f"<span style='color:#6b7280;font-size:0.7rem;margin-left:6px;'>{odds_disp} ({int(imp_prob*100)}%)</span>"
+            odds_suffix = f"<span style='color:#6b7280;font-size:0.7rem;margin-left:6px;'>{odds_disp} &nbsp;{sb_lbl}&nbsp;{int(imp_prob*100)}%</span>"
             odds_badge = ""
         else:
             implied_pct = int(_PP_ODDS_IMPLIED.get(ot, 0.50) * 100)
@@ -1350,12 +1379,23 @@ def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
             f"<span class='pl-rate {rcls}'>{rlbl}</span>"
             f"</div>"
         )
+    # Header: combined true odds for real-sportsbook parlays, PP multiplier otherwise
+    sb_first = parlay["legs"][0].get("sportsbook", "PrizePicks") if parlay["legs"] else "PrizePicks"
+    if sb_first != "PrizePicks":
+        dec_combined = 1.0
+        for leg in parlay["legs"]:
+            dec_combined *= _american_to_decimal(leg.get("american_odds", -110))
+        combined_am = _decimal_to_american(dec_combined)
+        odds_tag = f"+{combined_am}" if combined_am >= 0 else str(combined_am)
+        payout_span = f"<span class='pl-tag'>{parlay['n']}-Pick &nbsp;·&nbsp; {odds_tag}</span>"
+    else:
+        payout_span = f"<span class='pl-tag'>{parlay['n']}-Pick &nbsp;·&nbsp; {parlay['payout']}x</span>"
     ev_str = f"+{parlay['ev']:.2f}" if parlay['ev'] >= 0 else f"{parlay['ev']:.2f}"
     return (
         f"<div class='pl-card pl-card-{kind}'>"
         f"<div class='pl-header'>"
         f"<span class='pl-prob'>{parlay['prob']*100:.1f}%</span>"
-        f"<span class='pl-tag'>{parlay['n']}-Pick &nbsp;·&nbsp; {parlay['payout']}x</span>"
+        f"{payout_span}"
         f"<span class='pl-ev'>EV {ev_str}</span>"
         f"</div>"
         f"{legs_html}"
@@ -2509,6 +2549,137 @@ div[data-baseweb="tag"] { background-color: rgba(129,140,248,0.14) !important; b
 </style>"""
 st.markdown(_SHARED_CSS, unsafe_allow_html=True)
 
+
+def _render_accuracy_tab(sport_filter: str) -> None:
+    """Render the Accuracy tab content, filtered to a single sport."""
+    _cur_week = datetime.now().strftime("%G-W%V")
+    _c1, _c2 = st.columns([3, 1])
+    with _c2:
+        if st.button("🔄 Resolve Outcomes", type="secondary", key=f"acc_resolve_{sport_filter}"):
+            with st.spinner("Fetching game results…"):
+                try:
+                    if sport_filter == "NBA":
+                        _cnt = parlay_tracker.resolve_nba_legs()
+                        st.success(f"Resolved {_cnt} NBA leg(s).")
+                    else:
+                        _cnt = parlay_tracker._resolve_mlb_legs()
+                        st.success(f"Resolved {_cnt} MLB leg(s).")
+                    _load_calibration.clear()
+                except Exception as _e:
+                    st.error(f"Resolution error: {_e}")
+    with _c1:
+        _all_weeks = parlay_tracker.get_all_weeks()
+        if _cur_week not in _all_weeks:
+            _all_weeks = [_cur_week] + _all_weeks
+        _sel_week = st.selectbox(
+            "Week",
+            _all_weeks,
+            index=0,
+            format_func=lambda w: f"{w}  {'← current' if w == _cur_week else ''}",
+            key=f"acc_week_{sport_filter}",
+        )
+    st.divider()
+
+    # ── Weekly metrics ────────────────────────────────────────────────────────
+    _wsum = parlay_tracker.get_weekly_summary(_sel_week, sport=sport_filter)
+    _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
+    _mc1.metric("Parlays Generated", _wsum["total_parlays"])
+    _mc2.metric("Resolved", _wsum["resolved_parlays"])
+    _phit = f"{_wsum['parlay_hit_rate']*100:.1f}%" if _wsum["parlay_hit_rate"] is not None else "—"
+    _ppred = (f"pred {_wsum['avg_predicted_prob']*100:.1f}%"
+              if _wsum["avg_predicted_prob"] is not None else "")
+    _mc3.metric("Parlay Hit Rate", _phit, delta=_ppred or None)
+    _lhit = f"{_wsum['leg_hit_rate']*100:.1f}%" if _wsum["leg_hit_rate"] is not None else "—"
+    _mc4.metric("Leg Hit Rate", _lhit)
+    _mc5.metric("Legs Resolved", f"{_wsum['resolved_legs']} / {_wsum['total_legs']}")
+    st.divider()
+
+    # ── Per-stat breakdown ────────────────────────────────────────────────────
+    if _wsum["stat_breakdown"]:
+        st.markdown(f"#### Per-Stat Breakdown — {_sel_week}")
+        _sb_rows = []
+        for stat, d in sorted(_wsum["stat_breakdown"].items()):
+            b = d["bias"]
+            _sb_rows.append({
+                "Stat Type":      stat,
+                "Legs":           d["n"],
+                "Predicted Hit%": f"{d['predicted_hit_rate']*100:.1f}%",
+                "Actual Hit%":    f"{d['actual_hit_rate']*100:.1f}%",
+                "Bias":           f"{'+' if b >= 0 else ''}{b*100:.1f}%",
+            })
+        st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, use_container_width=True)
+    else:
+        st.info("No resolved legs for this week yet. Click **Resolve Outcomes** above, "
+                "or wait — outcomes auto-resolve once games finish.")
+    st.divider()
+
+    # ── All-time calibration ──────────────────────────────────────────────────
+    st.markdown("#### All-Time Model Calibration")
+    st.caption(
+        f"Active once a stat reaches ≥{parlay_tracker.CAL_MIN_SAMPLES} resolved legs. "
+        "Factor > 1.0 = model underestimates; < 1.0 = overestimates."
+    )
+    _cal_rows = parlay_tracker.get_all_time_calibration_table(sport=sport_filter)
+    if _cal_rows:
+        _cdf = pd.DataFrame(_cal_rows)
+        _cdf["Calibration Factor"] = _cdf["calibration_factor"].apply(
+            lambda x: (f"{x:.3f}  ✓" if x is not None
+                       else f"— (need {parlay_tracker.CAL_MIN_SAMPLES}+ samples)")
+        )
+        _cdf["Predicted Hit%"] = (_cdf["predicted_hit_rate"] * 100).round(1).astype(str) + "%"
+        _cdf["Actual Hit%"]    = (_cdf["actual_hit_rate"]    * 100).round(1).astype(str) + "%"
+        st.dataframe(
+            _cdf[["stat_type", "samples", "Predicted Hit%", "Actual Hit%", "Calibration Factor"]]
+            .rename(columns={"stat_type": "Stat Type", "samples": "Samples"}),
+            hide_index=True, use_container_width=True,
+        )
+    else:
+        st.info("No resolved leg data yet.")
+    st.divider()
+
+    # ── Full parlay log ───────────────────────────────────────────────────────
+    st.markdown(f"#### Parlay Log — {_sel_week}")
+    _log_data   = parlay_tracker._load()
+    _wk_parlays = [p for p in _log_data["parlays"]
+                   if p.get("iso_week") == _sel_week and p.get("sport") == sport_filter]
+    if _wk_parlays:
+        for _wp in _wk_parlays:
+            _hit_icon = ("✅ Hit" if _wp["parlay_hit"] is True
+                         else ("❌ Miss" if _wp["parlay_hit"] is False else "⏳ Pending"))
+            _label = (f"{_wp.get('sportsbook','?')} · {_wp.get('kind','safe').title()} · "
+                      f"{_wp['predicted_prob']*100:.1f}% predicted · {_hit_icon}")
+            with st.expander(_label):
+                for _wl in _wp["legs"]:
+                    _icon = ("✅" if _wl["outcome"] is True
+                             else ("❌" if _wl["outcome"] is False else "⏳"))
+                    _odds_s = ""
+                    if _wl.get("american_odds"):
+                        _a = _wl["american_odds"]
+                        _odds_s = f"  |  {'+' if _a > 0 else ''}{_a}"
+                    st.markdown(
+                        f"{_icon} **{_wl['player_name']}** — "
+                        f"{_wl['stat_type']} > {_wl['line_score']}"
+                        f"{_odds_s}  |  "
+                        f"predicted {_wl['predicted_hit_rate']*100:.0f}%  |  "
+                        f"game: {_wl.get('game_label','—')}"
+                    )
+    else:
+        st.caption("No parlays logged for this week yet.")
+    st.divider()
+
+    # ── CSV export ────────────────────────────────────────────────────────────
+    st.markdown("#### Export")
+    _csv_data = parlay_tracker.export_csv(_sel_week, sport=sport_filter)
+    st.download_button(
+        label=f"📥 Download {sport_filter} {_sel_week} CSV",
+        data=_csv_data,
+        file_name=f"konjure_{sport_filter.lower()}_parlays_{_sel_week}.csv",
+        mime="text/csv",
+        type="secondary",
+        key=f"acc_dl_{sport_filter}",
+    )
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ══════════════  NBA  ════════════════════════════════════════════════════════
 # ══════════════════════════════════════════════════════════════════════════════
@@ -2519,9 +2690,9 @@ if sport == "🏀 NBA":
         _nba_scores = get_nba_scoreboard(_scoreboard_date())
     render_score_ticker(_nba_scores)
 
-    tab_home, tab_stats, tab_opp, tab_vs_opp_nba, tab_sim, tab_fb, tab_pp, tab_parlays, tab_blog, tab_disc = st.tabs([
+    tab_home, tab_stats, tab_opp, tab_vs_opp_nba, tab_sim, tab_fb, tab_pp, tab_parlays, tab_accuracy_nba, tab_blog, tab_disc = st.tabs([
         "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
-        "Bet Simulation", "First Basket", "Sportsbook", "Parlays", "Daily Blog", "Disclaimer"
+        "Bet Simulation", "First Basket", "Sportsbook", "Parlays", "Accuracy", "Daily Blog", "Disclaimer"
     ])
 
     # ── HOME ──────────────────────────────────────────────────────────────────
@@ -3178,6 +3349,7 @@ if sport == "🏀 NBA":
                     st.info("No active lines for the selected stat types — switching to historical mode.")
                     _using_fallback_nba = True
 
+            _nba_cal = _load_calibration()
             if _using_fallback_nba:
                 with st.spinner("Loading historical data…"):
                     _legs_nba_data = _fallback_nba_legs(_b_stats)
@@ -3191,10 +3363,12 @@ if sport == "🏀 NBA":
                 for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
                     _ot = _row.get("odds_type", "standard") or "standard"
                     _imp = float(_row.get("implied_prob", -1.0) if "implied_prob" in _row.index else -1.0)
+                    _cal_f = _nba_cal.get(_row["stat_type"], 1.0)
                     _rate, _n = _nba_hit_rate(
                         _row["player_name"], _row["stat_type"],
                         float(_row["line_score"] or 0),
                         odds_type=_ot, implied_override=_imp,
+                        cal_factor=_cal_f,
                     )
                     _legs_nba.append({
                         "player_name": _row["player_name"],
@@ -3217,6 +3391,15 @@ if sport == "🏀 NBA":
                 # Build from legs that have real historical data (lowered threshold to 3)
                 _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 3]
                 _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
+
+            # Log generated parlays for accuracy tracking
+            try:
+                _logged = parlay_tracker.log_parlays(_safe_p, "NBA", _sb_choice_nba, kind="safe")
+                _logged += parlay_tracker.log_parlays(_value_p, "NBA", _sb_choice_nba, kind="value")
+                if _logged:
+                    st.caption(f"Logged {_logged} new parlay(s) to accuracy tracker.")
+            except Exception:
+                pass
 
             # --- DISPLAY (always runs) ---
             st.markdown(
@@ -3274,6 +3457,10 @@ if sport == "🏀 NBA":
             blog_html = generate_nba_blog()
         st.markdown(blog_html, unsafe_allow_html=True)
 
+    # ── NBA ACCURACY ──────────────────────────────────────────────────────────
+    with tab_accuracy_nba:
+        _render_accuracy_tab("NBA")
+
     # ── DISCLAIMER ────────────────────────────────────────────────────────────
     with tab_disc:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -3296,8 +3483,8 @@ else:
         _mlb_scores = get_mlb_scoreboard(_scoreboard_date())
     render_score_ticker(_mlb_scores)
 
-    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_sim_mlb, tab_pp_mlb, tab_parlays_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
-        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Bet Simulation", "Sportsbook", "Parlays", "Daily Blog", "Disclaimer"
+    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_sim_mlb, tab_pp_mlb, tab_parlays_mlb, tab_accuracy_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
+        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Bet Simulation", "Sportsbook", "Parlays", "Accuracy", "Daily Blog", "Disclaimer"
     ])
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
@@ -4039,6 +4226,7 @@ else:
                     st.info("No active MLB lines for the selected stat types — switching to historical mode.")
                     _using_fallback_mlb = True
 
+            _mlb_cal = _load_calibration()
             if _using_fallback_mlb:
                 with st.spinner("Loading historical MLB data…"):
                     _legs_mlb_data = _fallback_mlb_legs(_mb_stats)
@@ -4052,10 +4240,12 @@ else:
                 for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
                     _mot = _mrow.get("odds_type", "standard") or "standard"
                     _mimp = float(_mrow.get("implied_prob", -1.0) if "implied_prob" in _mrow.index else -1.0)
+                    _mcal_f = _mlb_cal.get(_mrow["stat_type"], 1.0)
                     _mrate, _mn = _mlb_hit_rate(
                         _mrow["player_name"], _mrow["stat_type"],
                         float(_mrow["line_score"] or 0),
                         odds_type=_mot, implied_override=_mimp,
+                        cal_factor=_mcal_f,
                     )
                     _legs_mlb.append({
                         "player_name": _mrow["player_name"],
@@ -4078,6 +4268,15 @@ else:
                 # Build from legs with data (lowered threshold to 3)
                 _legs_mlb_data = [l for l in _legs_mlb if l["sample_n"] >= 3]
                 _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
+
+            # Log generated parlays for accuracy tracking
+            try:
+                _mlogged = parlay_tracker.log_parlays(_safe_m, "MLB", _sb_choice_mlb, kind="safe")
+                _mlogged += parlay_tracker.log_parlays(_value_m, "MLB", _sb_choice_mlb, kind="value")
+                if _mlogged:
+                    st.caption(f"Logged {_mlogged} new parlay(s) to accuracy tracker.")
+            except Exception:
+                pass
 
             # --- DISPLAY (always runs) ---
             st.markdown(
@@ -4135,6 +4334,10 @@ else:
             blog_html_mlb = generate_mlb_blog()
         st.markdown(blog_html_mlb, unsafe_allow_html=True)
 
+    # ── MLB ACCURACY ──────────────────────────────────────────────────────────
+    with tab_accuracy_mlb:
+        _render_accuracy_tab("MLB")
+
     # ── MLB DISCLAIMER ────────────────────────────────────────────────────────
     with tab_disc_mlb:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -4146,3 +4349,4 @@ else:
             Konjure Analytics is not responsible for any financial decisions made based on this data.
             MLB data is sourced from the official MLB Stats API.
         </p>""", unsafe_allow_html=True)
+# END OF FILE — orphaned block removed

@@ -2,7 +2,7 @@ streamlit==1.57.0
 pandas==3.0.2
 plotly==6.7.0
 requests==2.33.1
-statsmodels==0.14.6
 nba_api==1.11.4
 beautifulsoup4==4.14.3
 lxml==5.3.0
+numpy==2.4.4

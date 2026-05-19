@@ -11,6 +11,15 @@ venv/
 # Streamlit logs
 streamlit_out.txt
 streamlit_err.txt
+streamlit.log
+streamlit_err.log
+
+# Parlay log (local data, not committed to repo)
+parlay_log.json
+
+# Test/debug scripts
+test_*.py
+inspect_pp.py
 
 # Claude session data
 .claude/
