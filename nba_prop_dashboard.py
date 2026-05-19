@@ -723,19 +723,20 @@ _FD_MLB_STAT_MAP = {
 }
 
 # ── The Odds API (aggregates DK + FD player props) ──────────────────────────
+# Free tier: 500 credits/month. Credits = bookmakers × markets per event call.
+# We use 1 bookmaker × 5 NBA markets or 4 MLB markets = 5-4 credits per event.
+# Events list is free. Cache 30 min and filter to today's games to stay within limit.
 _toa_cache: dict = {}
 _toa_cache_ts: dict = {}
-_TOA_CACHE_TTL = 600
+_TOA_CACHE_TTL = 1800  # 30 minutes — conserve free-tier credits
 
+# Slim market lists: 1 credit per market per event call
 _TOA_NBA_MARKETS = [
     "player_points", "player_rebounds", "player_assists",
-    "player_threes", "player_blocks", "player_steals", "player_turnovers",
-    "player_points_rebounds_assists", "player_points_rebounds", "player_points_assists",
+    "player_threes", "player_points_rebounds_assists",
 ]
 _TOA_MLB_MARKETS = [
-    "batter_hits", "batter_home_runs", "batter_rbis",
-    "batter_total_bases", "batter_stolen_bases", "batter_walks",
-    "pitcher_strikeouts", "pitcher_walks", "pitcher_earned_runs",
+    "batter_hits", "batter_home_runs", "pitcher_strikeouts", "batter_total_bases",
 ]
 _TOA_NBA_MARKET_MAP = {
     "player_points": "Points",
@@ -772,7 +773,8 @@ def _get_odds_api_key() -> str:
 
 def get_the_odds_api_props(sport: str = "nba", sportsbook: str = "DraftKings") -> pd.DataFrame:
     """Fetch DK or FD player props via The Odds API (the-odds-api.com).
-    Free tier: 500 req/month. Set ODDS_API_KEY in st.secrets or env var."""
+    Uses event-specific endpoint (player props not on /odds bulk endpoint).
+    Free tier: 500 credits/month. Credits = markets × bookmakers per call."""
     api_key = _get_odds_api_key()
     if not api_key:
         return pd.DataFrame()
@@ -789,27 +791,56 @@ def get_the_odds_api_props(sport: str = "nba", sportsbook: str = "DraftKings") -
     market_map = _TOA_NBA_MARKET_MAP if sport == "nba" else _TOA_MLB_MARKET_MAP
 
     try:
-        url = f"https://api.the-odds-api.com/v4/sports/{sport_key}/odds"
-        params = {
-            "apiKey": api_key,
-            "regions": "us",
-            "markets": ",".join(markets_list),
-            "bookmakers": bk_key,
-            "oddsFormat": "american",
-        }
-        resp = requests.get(url, params=params, timeout=20)
-        if resp.status_code == 401:
-            return pd.DataFrame()
-        if resp.status_code != 200:
+        # Step 1: get today's events (free — no credit cost)
+        events_resp = requests.get(
+            f"https://api.the-odds-api.com/v4/sports/{sport_key}/events",
+            params={"apiKey": api_key},
+            timeout=15,
+        )
+        if events_resp.status_code != 200:
             return _toa_cache.get(cache_key, pd.DataFrame())
+        all_events = events_resp.json()
 
-        events = resp.json()
+        # Filter to games starting within next 24 hours to limit credit spend
+        from datetime import timezone
+        cutoff = datetime.now(timezone.utc) + timedelta(hours=24)
+        today_events = []
+        for ev in all_events:
+            ct = ev.get("commence_time", "")
+            try:
+                dt = datetime.fromisoformat(ct.replace("Z", "+00:00"))
+                if dt <= cutoff:
+                    today_events.append(ev)
+            except Exception:
+                today_events.append(ev)
+        # Safety cap: never fetch more than 12 events per call
+        today_events = today_events[:12]
+
         rows = []
-        for event in events:
+        for event in today_events:
+            ev_id = event.get("id", "")
             game_label = f"{event.get('away_team', '')} @ {event.get('home_team', '')}"
-            game_id = event.get("id", "")
             start_time = event.get("commence_time", "")
-            for bm in event.get("bookmakers", []):
+
+            try:
+                props_resp = requests.get(
+                    f"https://api.the-odds-api.com/v4/sports/{sport_key}/events/{ev_id}/odds",
+                    params={
+                        "apiKey": api_key,
+                        "regions": "us",
+                        "markets": ",".join(markets_list),
+                        "bookmakers": bk_key,
+                        "oddsFormat": "american",
+                    },
+                    timeout=15,
+                )
+            except Exception:
+                continue
+            if props_resp.status_code != 200:
+                continue
+
+            event_data = props_resp.json()
+            for bm in event_data.get("bookmakers", []):
                 if bm.get("key") != bk_key:
                     continue
                 for mkt in bm.get("markets", []):
@@ -836,7 +867,7 @@ def get_the_odds_api_props(sport: str = "nba", sportsbook: str = "DraftKings") -
                             "odds_type": "standard",
                             "american_odds": american,
                             "implied_prob": round(_american_to_implied(american), 3),
-                            "game_id": game_id,
+                            "game_id": ev_id,
                             "game_label": game_label,
                             "start_time": start_time,
                             "sportsbook": sportsbook,
