@@ -722,6 +722,111 @@ _FD_MLB_STAT_MAP = {
     "Pitcher Earned Runs Allowed": "Earned Runs Allowed",
 }
 
+# ── Underdog Fantasy stat maps ───────────────────────────────────────────────
+_UD_NBA_STAT_MAP = {
+    "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
+    "3-Pointers Made": "3-PT Made", "Blocks": "Blocked Shots",
+    "Steals": "Steals", "Turnovers": "Turnovers",
+    "Pts + Rebs + Asts": "Pts+Rebs+Asts",
+    "Points + Rebounds": "Pts+Rebs", "Points + Assists": "Pts+Asts",
+}
+_UD_MLB_STAT_MAP = {
+    "Hits": "Hits", "Home Runs": "Home Runs", "RBIs": "RBIs",
+    "Runs": "Runs", "Total Bases": "Total Bases",
+    "Stolen Bases": "Stolen Bases", "Singles": "Singles", "Doubles": "Doubles",
+    "Hits + Runs + RBIs": "Hits+Runs+RBIs",
+    "Batter Strikeouts": "Hitter Strikeouts", "Batter Walks": "Walks",
+    "Strikeouts": "Pitcher Strikeouts", "Hits Allowed": "Hits Allowed",
+    "Earned Runs Allowed": "Earned Runs Allowed",
+    "Walks Allowed": "Walks Allowed", "Pitching Outs": "Pitching Outs",
+}
+
+_ud_cache: dict = {}
+_ud_cache_ts: dict = {}
+_UD_CACHE_TTL = 300
+
+def get_underdog_props(sport: str = "nba") -> pd.DataFrame:
+    """Fetch player props from Underdog Fantasy (free, no auth required)."""
+    now = time.time()
+    cached = _ud_cache.get(sport)
+    if cached is not None and not cached.empty and now - _ud_cache_ts.get(sport, 0) < _UD_CACHE_TTL:
+        return cached
+
+    sport_id = "NBA" if sport == "nba" else "MLB"
+    stat_map = _UD_NBA_STAT_MAP if sport == "nba" else _UD_MLB_STAT_MAP
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36",
+            "Accept": "application/json",
+        }
+        resp = requests.get(
+            "https://api.underdogfantasy.com/beta/v5/over_under_lines",
+            headers=headers, timeout=15,
+        )
+        if resp.status_code != 200:
+            return _ud_cache.get(sport, pd.DataFrame())
+        d = resp.json()
+
+        player_map     = {p["id"]: p for p in d.get("players", [])}
+        appearance_map = {a["id"]: a for a in d.get("appearances", [])}
+        game_map       = {g["id"]: g for g in d.get("games", [])}
+
+        rows = []
+        for line in d.get("over_under_lines", []):
+            if line.get("status") != "active":
+                continue
+            ou        = line.get("over_under", {})
+            app_stat  = ou.get("appearance_stat", {})
+            app_id    = app_stat.get("appearance_id", "")
+            stat_type = stat_map.get(app_stat.get("display_stat", "").strip())
+            if stat_type is None:
+                continue
+            app = appearance_map.get(app_id, {})
+            if not app:
+                continue
+            player = player_map.get(app.get("player_id", ""), {})
+            if not player or player.get("sport_id") != sport_id:
+                continue
+            try:
+                stat_value = float(line.get("stat_value", 0))
+            except Exception:
+                continue
+            game       = game_map.get(app.get("match_id"), {})
+            name       = f"{player.get('first_name','')} {player.get('last_name','')}".strip()
+            if not name:
+                continue
+            game_title = game.get("abbreviated_title", "")
+            team = ""
+            if " @ " in game_title:
+                away_abbr, home_abbr = game_title.split(" @ ", 1)
+                team = away_abbr if app.get("team_id") == game.get("away_team_id") else home_abbr
+            over_opt = next((o for o in line.get("options", []) if o.get("choice") == "higher"), None)
+            if not over_opt:
+                continue
+            try:
+                american = int(str(over_opt.get("american_price", "-110")).replace("+", ""))
+            except Exception:
+                american = -110
+            rows.append({
+                "player_name": name, "team": team,
+                "stat_type": stat_type, "line_score": stat_value,
+                "odds_type": "standard", "american_odds": american,
+                "implied_prob": round(_american_to_implied(american), 3),
+                "game_id": str(app.get("match_id", "")),
+                "game_label": game_title,
+                "start_time": game.get("scheduled_at", ""),
+                "sportsbook": "Underdog",
+            })
+        df = pd.DataFrame(rows)
+        if df.empty:
+            return _ud_cache.get(sport, pd.DataFrame())
+        result = df[df["player_name"] != ""].drop_duplicates(["player_name", "stat_type"])
+        _ud_cache[sport] = result
+        _ud_cache_ts[sport] = now
+        return result
+    except Exception:
+        return _ud_cache.get(sport, pd.DataFrame())
+
 # ── The Odds API (aggregates DK + FD player props) ──────────────────────────
 # Free tier: 500 credits/month. Credits = bookmakers × markets per event call.
 # We use 1 bookmaker × 5 NBA markets or 4 MLB markets = 5-4 credits per event.
@@ -896,6 +1001,8 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
             if "sportsbook" not in df.columns:
                 df["sportsbook"] = "PrizePicks"
         return df
+    elif sportsbook == "Underdog":
+        return get_underdog_props(sport)
     elif sportsbook in ("DraftKings", "FanDuel"):
         return get_the_odds_api_props(sport, sportsbook)
     return pd.DataFrame()
@@ -2937,7 +3044,7 @@ if sport == "🏀 NBA":
         with _sb_nba_col1:
             _sb_nba = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "DraftKings", "FanDuel"],
+                ["PrizePicks", "Underdog", "DraftKings", "FanDuel"],
                 horizontal=True,
                 key="sb_nba_select",
             )
@@ -2945,6 +3052,8 @@ if sport == "🏀 NBA":
             if st.button("🔄 Refresh Lines", key="nba_sb_refresh"):
                 if _sb_nba == "PrizePicks":
                     _pp_cache.clear(); _pp_cache_ts.clear()
+                elif _sb_nba == "Underdog":
+                    _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
                 else:
                     _toa_cache.pop(f"nba_{_sb_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_nba}", None)
                 _safe_rerun()
@@ -3049,15 +3158,17 @@ if sport == "🏀 NBA":
             with _par_sb_col1:
                 _sb_choice_nba = st.radio(
                     "Sportsbook for Parlays",
-                    ["PrizePicks", "DraftKings", "FanDuel"],
+                    ["PrizePicks", "Underdog", "DraftKings", "FanDuel"],
                     horizontal=True,
-                    index=["PrizePicks", "DraftKings", "FanDuel"].index(_nba_sb),
+                    index=["PrizePicks", "Underdog", "DraftKings", "FanDuel"].index(_nba_sb),
                     key="nba_par_sb",
                 )
             with _par_sb_col2:
                 if st.button("🔄 Refresh", key="nba_par_refresh"):
                     if _sb_choice_nba == "PrizePicks":
                         _pp_cache.clear(); _pp_cache_ts.clear()
+                    elif _sb_choice_nba == "Underdog":
+                        _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
                     else:
                         _toa_cache.pop(f"nba_{_sb_choice_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_choice_nba}", None)
                     _safe_rerun()
@@ -3799,7 +3910,7 @@ else:
         with _sb_mlb_col1:
             _sb_mlb = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "DraftKings", "FanDuel"],
+                ["PrizePicks", "Underdog", "DraftKings", "FanDuel"],
                 horizontal=True,
                 key="sb_mlb_select",
             )
@@ -3807,6 +3918,8 @@ else:
             if st.button("🔄 Refresh Lines", key="mlb_sb_refresh"):
                 if _sb_mlb == "PrizePicks":
                     _pp_cache.clear(); _pp_cache_ts.clear()
+                elif _sb_mlb == "Underdog":
+                    _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
                 else:
                     _toa_cache.pop(f"mlb_{_sb_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_mlb}", None)
                 _safe_rerun()
@@ -3915,15 +4028,17 @@ else:
             with _mlb_par_sb_col1:
                 _sb_choice_mlb = st.radio(
                     "Sportsbook for Parlays",
-                    ["PrizePicks", "DraftKings", "FanDuel"],
+                    ["PrizePicks", "Underdog", "DraftKings", "FanDuel"],
                     horizontal=True,
-                    index=["PrizePicks", "DraftKings", "FanDuel"].index(_mlb_sb),
+                    index=["PrizePicks", "Underdog", "DraftKings", "FanDuel"].index(_mlb_sb),
                     key="mlb_par_sb",
                 )
             with _mlb_par_sb_col2:
                 if st.button("🔄 Refresh", key="mlb_par_refresh"):
                     if _sb_choice_mlb == "PrizePicks":
                         _pp_cache.clear(); _pp_cache_ts.clear()
+                    elif _sb_choice_mlb == "Underdog":
+                        _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
                     else:
                         _toa_cache.pop(f"mlb_{_sb_choice_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_choice_mlb}", None)
                     _safe_rerun()
