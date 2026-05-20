@@ -1072,7 +1072,7 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
     pid = get_player_id(player_name)
     if not pid:
         return 0.5, 0
-    df = get_gamelogs(pid, ["2024-25", "2025-26"])
+    df = get_gamelogs(pid, ("2025-26",))
     if df.empty:
         return 0.5, 0
     if col in ("PRA", "PA", "PR", "FS"):
@@ -2866,11 +2866,19 @@ if sport == "🏀 NBA":
         section("Players to Watch")
         with st.spinner(""):
             _ptw_frames = []
-            for _ptw_sb in ["PrizePicks", "Underdog"]:
-                _ptw_src = get_sportsbook_props("nba", _ptw_sb)
-                if not _ptw_src.empty:
-                    _ptw_src = _ptw_src.copy(); _ptw_src["_source"] = _ptw_sb
-                    _ptw_frames.append(_ptw_src)
+            # PrizePicks: use lightweight cached fetch (avoids heavy module-level re-fetch)
+            _pp_ptw = get_prizepicks_lines()
+            if not _pp_ptw.empty:
+                _pp_ptw = _pp_ptw.copy()
+                _pp_ptw["_source"] = "PrizePicks"
+                _pp_ptw["team"] = ""
+                _pp_ptw["implied_prob"] = _pp_ptw["odds_type"].map(_PP_ODDS_IMPLIED).fillna(0.5)
+                _ptw_frames.append(_pp_ptw)
+            # Underdog + FanDuel: only include if already in cache (no forced fetch on home load)
+            _ud_cached_nba = _ud_cache.get("nba")
+            if _ud_cached_nba is not None and not _ud_cached_nba.empty:
+                _ud_c = _ud_cached_nba.copy(); _ud_c["_source"] = "Underdog"
+                _ptw_frames.append(_ud_c)
             _fd_cached = _toa_cache.get("nba_FanDuel")
             if _fd_cached is not None and not _fd_cached.empty:
                 _fd_c = _fd_cached.copy(); _fd_c["_source"] = "FanDuel"
@@ -3579,7 +3587,7 @@ if sport == "🏀 NBA":
                     st.caption("Using historical averages as prop lines (no live sportsbook data). Lines set at ~88% of rolling average.")
                 _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
             else:
-                _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(60)
+                _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(25)
                 _legs_nba = []
                 _prog = st.progress(0, text="Calculating hit rates…")
                 for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
