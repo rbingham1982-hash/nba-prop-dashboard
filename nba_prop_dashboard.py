@@ -2884,19 +2884,21 @@ if sport == "🏀 NBA":
         section("Players to Watch")
         with st.spinner(""):
             _ptw_frames = []
-            # PrizePicks: use lightweight cached fetch (avoids heavy module-level re-fetch)
-            _pp_ptw = get_prizepicks_lines()
-            if not _pp_ptw.empty:
-                _pp_ptw = _pp_ptw.copy()
-                _pp_ptw["_source"] = "PrizePicks"
-                _pp_ptw["team"] = ""
-                _pp_ptw["implied_prob"] = _pp_ptw["odds_type"].map(_PP_ODDS_IMPLIED).fillna(0.5)
-                _ptw_frames.append(_pp_ptw)
-            # Underdog + FanDuel: only include if already in cache (no forced fetch on home load)
-            _ud_cached_nba = _ud_cache.get("nba")
-            if _ud_cached_nba is not None and not _ud_cached_nba.empty:
-                _ud_c = _ud_cached_nba.copy(); _ud_c["_source"] = "Underdog"
-                _ptw_frames.append(_ud_c)
+            # Underdog is primary source — fast, reliable, no auth needed
+            _ud_ptw = get_underdog_props("nba")
+            if not _ud_ptw.empty:
+                _ud_ptw = _ud_ptw.copy(); _ud_ptw["_source"] = "Underdog"
+                _ptw_frames.append(_ud_ptw)
+            else:
+                # Fall back to PrizePicks if Underdog returned nothing
+                _pp_ptw = get_prizepicks_lines()
+                if not _pp_ptw.empty:
+                    _pp_ptw = _pp_ptw.copy()
+                    _pp_ptw["_source"] = "PrizePicks"
+                    _pp_ptw["team"] = ""
+                    _pp_ptw["implied_prob"] = _pp_ptw["odds_type"].map(_PP_ODDS_IMPLIED).fillna(0.5)
+                    _ptw_frames.append(_pp_ptw)
+            # FanDuel: include if already cached (avoid burning API credits on home load)
             _fd_cached = _toa_cache.get("nba_FanDuel")
             if _fd_cached is not None and not _fd_cached.empty:
                 _fd_c = _fd_cached.copy(); _fd_c["_source"] = "FanDuel"
@@ -3770,11 +3772,18 @@ else:
             _mlb_all_teams = get_mlb_teams()
             _mlb_abbr_to_name = {t["abbr"].upper(): t["name"] for t in _mlb_all_teams}
             _mlb_h_frames = []
-            for _ptw_sb in ["PrizePicks", "Underdog"]:
-                _mlb_src = get_sportsbook_props("mlb", _ptw_sb)
-                if not _mlb_src.empty:
-                    _mlb_src = _mlb_src.copy(); _mlb_src["_source"] = _ptw_sb
-                    _mlb_h_frames.append(_mlb_src)
+            # Underdog is primary source
+            _mlb_ud = get_sportsbook_props("mlb", "Underdog")
+            if not _mlb_ud.empty:
+                _mlb_ud = _mlb_ud.copy(); _mlb_ud["_source"] = "Underdog"
+                _mlb_h_frames.append(_mlb_ud)
+            else:
+                # Fall back to PrizePicks if Underdog returned nothing
+                _mlb_pp = get_sportsbook_props("mlb", "PrizePicks")
+                if not _mlb_pp.empty:
+                    _mlb_pp = _mlb_pp.copy(); _mlb_pp["_source"] = "PrizePicks"
+                    _mlb_h_frames.append(_mlb_pp)
+            # FanDuel: include if already cached
             _mlb_fd_cached = _toa_cache.get("mlb_FanDuel")
             if _mlb_fd_cached is not None and not _mlb_fd_cached.empty:
                 _mlb_fd_c = _mlb_fd_cached.copy(); _mlb_fd_c["_source"] = "FanDuel"
