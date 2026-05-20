@@ -615,6 +615,7 @@ _PP_PITCHER_TYPES = {"Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed
 
 _pp_cache: dict = {}
 _pp_cache_ts: dict = {}
+_pp_last_error: dict = {}
 _PP_CACHE_TTL = 300  # 5 minutes; only store non-empty results
 
 def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
@@ -688,10 +689,25 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
                 _pp_cache[league_id] = result
                 _pp_cache_ts[league_id] = now
                 return result
-        except Exception:
+        except Exception as _e:
+            _pp_last_error[league_id] = str(_e)
             continue
-    # Return stale cache if available, else empty
-    return _pp_cache.get(league_id, pd.DataFrame())
+    # Return stale cache if available
+    stale = _pp_cache.get(league_id)
+    if stale is not None:
+        return stale
+    # Last resort: fall back to the lighter cached endpoint (no team/game columns)
+    try:
+        fb = get_prizepicks_lines(league_id=league_id)
+        if not fb.empty:
+            fb = fb.copy()
+            for _col in ("team", "game_label", "game_id", "start_time"):
+                if _col not in fb.columns:
+                    fb[_col] = ""
+            return fb
+    except Exception:
+        pass
+    return pd.DataFrame()
 
 # ─── Sportsbook helpers ──────────────────────────────────────────────────────
 
@@ -914,6 +930,8 @@ _TOA_MLB_MARKET_MAP = {
     "pitcher_earned_runs": "Earned Runs Allowed",
 }
 
+_ODDS_API_KEY_DEFAULT = "3810f18fda845575c1185b2a0bc55405"
+
 def _get_odds_api_key() -> str:
     try:
         k = st.secrets.get("ODDS_API_KEY", "")
@@ -921,7 +939,7 @@ def _get_odds_api_key() -> str:
             return k
     except Exception:
         pass
-    return os.environ.get("ODDS_API_KEY", "")
+    return os.environ.get("ODDS_API_KEY", _ODDS_API_KEY_DEFAULT)
 
 def get_the_odds_api_props(sport: str = "nba", sportsbook: str = "DraftKings") -> pd.DataFrame:
     """Fetch DK or FD player props via The Odds API (the-odds-api.com).
@@ -3457,7 +3475,13 @@ if sport == "🏀 NBA":
         with st.spinner(f"Loading {_sb_nba} NBA projections..."):
             pp_df = get_sportsbook_props("nba", _sb_nba)
         if pp_df.empty:
-            st.warning(f"No {_sb_nba} NBA lines available right now. Lines are typically posted on game days.")
+            if _sb_nba in ("FanDuel", "DraftKings") and not _get_odds_api_key():
+                st.error(
+                    f"**{_sb_nba} requires an Odds API key.** "
+                    "Add `ODDS_API_KEY` to your app's secrets: Streamlit Cloud dashboard → your app → **Settings → Secrets**."
+                )
+            else:
+                st.warning(f"No {_sb_nba} NBA lines available right now. Lines are typically posted on game days.")
         else:
             f1, f2 = st.columns([1, 2])
             with f1:
@@ -4490,7 +4514,13 @@ else:
             mlb_pp_df = get_sportsbook_props("mlb", _sb_mlb)
 
         if mlb_pp_df.empty:
-            st.info(f"No {_sb_mlb} MLB lines available right now. Lines are typically posted on game days.")
+            if _sb_mlb in ("FanDuel", "DraftKings") and not _get_odds_api_key():
+                st.error(
+                    f"**{_sb_mlb} requires an Odds API key.** "
+                    "Add `ODDS_API_KEY` to your app's secrets: Streamlit Cloud dashboard → your app → **Settings → Secrets**."
+                )
+            else:
+                st.info(f"No {_sb_mlb} MLB lines available right now. Lines are typically posted on game days.")
         else:
             pf1, pf2 = st.columns([1, 2])
             with pf1:
