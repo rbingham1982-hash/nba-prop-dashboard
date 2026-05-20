@@ -1913,13 +1913,15 @@ def _verify_subscriber(username: str, password: str) -> bool:
     try:
         import bcrypt as _bcrypt
     except ImportError:
-        return False
-    subs = st.secrets.get("subscribers", {})
-    hashed = subs.get(username)
-    if not hashed:
+        st.warning("Server dependency missing: run `pip install bcrypt` and restart the app.")
         return False
     try:
-        return _bcrypt.checkpw(password.encode(), hashed.encode())
+        subs = st.secrets.get("subscribers", {})
+        # AttrDict (Streamlit secrets section) or plain dict both support [] / .get()
+        hashed = subs.get(username) if hasattr(subs, "get") else None
+        if not hashed:
+            return False
+        return _bcrypt.checkpw(password.encode(), str(hashed).encode())
     except Exception:
         return False
 
