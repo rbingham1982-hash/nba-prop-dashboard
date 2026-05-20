@@ -540,12 +540,21 @@ def get_next_opponent(team_code):
         st.warning(f"Opponent detection failed: {e}")
     return None
 
+_PP_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://app.prizepicks.com/",
+    "Origin": "https://app.prizepicks.com",
+    "Connection": "keep-alive",
+}
+_PP_DEAD_STATUSES = {"final", "cancelled", "failed", "lost", "won", "scored", "no_contest"}
+
 @st.cache_data(ttl=900)
 def get_prizepicks_lines(league_id=7):
     try:
         url = f"https://api.prizepicks.com/projections?league_id={league_id}&per_page=250&single_stat=true"
-        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://app.prizepicks.com/"}
-        resp = requests.get(url, headers=headers, timeout=10)
+        resp = requests.get(url, headers=_PP_HEADERS, timeout=10)
         if resp.status_code != 200:
             return pd.DataFrame()
         payload = resp.json()
@@ -559,6 +568,8 @@ def get_prizepicks_lines(league_id=7):
             if proj.get("type") != "projection":
                 continue
             attrs = proj.get("attributes", {})
+            if attrs.get("status", "pre_game") in _PP_DEAD_STATUSES:
+                continue
             rel = proj.get("relationships", {}).get("new_player", {}).get("data", {})
             pid = rel.get("id", "")
             rows.append({
@@ -618,8 +629,7 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
             if attempt:
                 time.sleep(1.5)
             url = f"https://api.prizepicks.com/projections?league_id={league_id}&per_page=500&single_stat=true"
-            headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://app.prizepicks.com/"}
-            resp = requests.get(url, headers=headers, timeout=15)
+            resp = requests.get(url, headers=_PP_HEADERS, timeout=15)
             if resp.status_code != 200:
                 continue
             payload = resp.json()
@@ -654,6 +664,8 @@ def get_prizepicks_with_team(league_id: int = 7) -> pd.DataFrame:
                 if proj.get("type") != "projection":
                     continue
                 attrs  = proj.get("attributes", {})
+                if attrs.get("status", "pre_game") in _PP_DEAD_STATUSES:
+                    continue
                 rels   = proj.get("relationships", {})
                 pid    = rels.get("new_player", {}).get("data", {}).get("id", "")
                 gid    = rels.get("game", {}).get("data", {}).get("id", "")
@@ -3488,7 +3500,7 @@ if sport == "🏀 NBA":
             _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
 
             _nba_sb = st.session_state.get("nba_sportsbook", "PrizePicks")
-            _SB_OPTS = ["PrizePicks", "Underdog"]
+            _SB_OPTS = ["PrizePicks", "Underdog", "FanDuel"]
             if _nba_sb not in _SB_OPTS:
                 _nba_sb = "PrizePicks"
             _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
@@ -3504,8 +3516,11 @@ if sport == "🏀 NBA":
                 if st.button("🔄 Refresh", key="nba_par_refresh"):
                     if _sb_choice_nba == "PrizePicks":
                         _pp_cache.clear(); _pp_cache_ts.clear()
-                    else:
+                    elif _sb_choice_nba == "Underdog":
                         _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
+                    else:
+                        _toa_cache.pop(f"nba_{_sb_choice_nba}", None)
+                        _toa_cache_ts.pop(f"nba_{_sb_choice_nba}", None)
                     _safe_rerun()
             with st.spinner(f"Fetching {_sb_choice_nba} NBA lines…"):
                 _pp_raw = get_sportsbook_props("nba", _sb_choice_nba)
@@ -4417,7 +4432,7 @@ else:
             _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
 
             _mlb_sb = st.session_state.get("mlb_sportsbook", "PrizePicks")
-            _MLB_SB_OPTS = ["PrizePicks", "Underdog"]
+            _MLB_SB_OPTS = ["PrizePicks", "Underdog", "FanDuel"]
             if _mlb_sb not in _MLB_SB_OPTS:
                 _mlb_sb = "PrizePicks"
             _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
@@ -4433,8 +4448,11 @@ else:
                 if st.button("🔄 Refresh", key="mlb_par_refresh"):
                     if _sb_choice_mlb == "PrizePicks":
                         _pp_cache.clear(); _pp_cache_ts.clear()
-                    else:
+                    elif _sb_choice_mlb == "Underdog":
                         _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
+                    else:
+                        _toa_cache.pop(f"mlb_{_sb_choice_mlb}", None)
+                        _toa_cache_ts.pop(f"mlb_{_sb_choice_mlb}", None)
                     _safe_rerun()
             with st.spinner(f"Fetching {_sb_choice_mlb} MLB lines…"):
                 _mlb_pp_raw = get_sportsbook_props("mlb", _sb_choice_mlb)
@@ -4533,7 +4551,7 @@ else:
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=5, max_legs=5)
+            _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=3, max_legs=5)
             if _mlb_sgp:
                 for _sgpm in _mlb_sgp:
                     st.markdown(
