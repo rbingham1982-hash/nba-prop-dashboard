@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1024px; height: 500px; overflow: hidden;
+    background: #0a0c14;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* ── Background layers ─────────────────────────────────────────── */
+  .bg-glow-left {
+    position: absolute; top: -120px; left: -80px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .bg-glow-right {
+    position: absolute; bottom: -140px; right: -60px;
+    width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .bg-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(129,140,248,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(129,140,248,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* ── Layout ────────────────────────────────────────────────────── */
+  .wrapper {
+    position: relative; z-index: 10;
+    display: flex; align-items: stretch;
+    width: 1024px; height: 500px;
+  }
+
+  /* ── Left panel ────────────────────────────────────────────────── */
+  .left {
+    flex: 0 0 480px;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0 0 0 64px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(129,140,248,0.12);
+    border: 1px solid rgba(129,140,248,0.3);
+    border-radius: 100px; padding: 5px 14px;
+    margin-bottom: 22px; width: fit-content;
+  }
+  .badge-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #818cf8;
+    box-shadow: 0 0 8px rgba(129,140,248,0.8);
+  }
+  .badge-text {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #818cf8;
+  }
+  .brand {
+    font-size: 52px; font-weight: 900; letter-spacing: 0.04em;
+    text-transform: uppercase; line-height: 1;
+    color: #f0f2ff;
+    margin-bottom: 10px;
+  }
+  .brand span { color: #818cf8; }
+  .tagline {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #6b7280;
+    margin-bottom: 32px; white-space: nowrap;
+  }
+  .pills { display: flex; gap: 8px; flex-wrap: nowrap; }
+  .pill {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 6px 11px;
+    font-size: 11px; font-weight: 600; color: #9ca3af;
+    letter-spacing: 0.04em; white-space: nowrap;
+  }
+  .pill.active {
+    background: rgba(129,140,248,0.15);
+    border-color: rgba(129,140,248,0.4);
+    color: #a5b4fc;
+  }
+
+  /* ── Right panel (mock UI cards) ──────────────────────────────── */
+  .right {
+    flex: 1;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 32px 40px 32px 20px;
+    gap: 12px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 18px;
+  }
+  .card-header {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: #818cf8; margin-bottom: 8px;
+  }
+  .card-row { display: flex; gap: 20px; }
+  .stat-block { flex: 1; }
+  .stat-label {
+    font-size: 9.5px; color: #4b5563; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px;
+  }
+  .stat-value { font-size: 20px; font-weight: 800; color: #e2e4f0; }
+  .stat-value.up { color: #34d399; }
+  .stat-value.purple { color: #a78bfa; }
+
+  .scout-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 3px solid #818cf8;
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+  .scout-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: #818cf8; margin-bottom: 6px;
+  }
+  .scout-text {
+    font-size: 11px; color: #6b7280; line-height: 1.55;
+  }
+  .scout-text strong { color: #9ca3af; }
+
+  .parlay-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 11px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .parlay-legs { display: flex; gap: 6px; }
+  .leg {
+    background: rgba(129,140,248,0.1);
+    border: 1px solid rgba(129,140,248,0.25);
+    border-radius: 6px; padding: 4px 9px;
+    font-size: 10px; font-weight: 700; color: #a5b4fc;
+  }
+  .parlay-meta { text-align: right; }
+  .parlay-prob { font-size: 18px; font-weight: 800; color: #34d399; }
+  .parlay-sub { font-size: 9px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* divider */
+  .divider {
+    position: absolute; left: 480px; top: 40px; bottom: 40px;
+    width: 1px; background: linear-gradient(to bottom, transparent, rgba(129,140,248,0.2) 30%, rgba(129,140,248,0.2) 70%, transparent);
+  }
+</style>
+</head>
+<body>
+  <div class="bg-glow-left"></div>
+  <div class="bg-glow-right"></div>
+  <div class="bg-grid"></div>
+  <div class="divider"></div>
+
+  <div class="wrapper">
+    <!-- LEFT -->
+    <div class="left">
+      <div class="badge">
+        <div class="badge-dot"></div>
+        <span class="badge-text">Live Data · Daily Updates</span>
+      </div>
+      <div class="brand">KONJURE<br><span>ANALYTICS</span></div>
+      <div class="tagline">Multi-Sport Prop Intelligence · Powered by Data</div>
+      <div class="pills">
+        <div class="pill active">🏀 NBA Props</div>
+        <div class="pill active">⚾ MLB Props</div>
+        <div class="pill">Parlay Builder</div>
+        <div class="pill">Scout Reports</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      <!-- Stats card -->
+      <div class="card">
+        <div class="card-header">Player Stats · L10 Rolling</div>
+        <div class="card-row">
+          <div class="stat-block">
+            <div class="stat-label">Points Avg</div>
+            <div class="stat-value up">28.4</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-label">Hit Rate</div>
+            <div class="stat-value purple">73%</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-label">Prop Line</div>
+            <div class="stat-value">25.5</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-label">UD Odds</div>
+            <div class="stat-value">-120</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scout report -->
+      <div class="scout-card">
+        <div class="scout-label">Scout Report</div>
+        <div class="scout-text">
+          Trending <strong>+3.1 pts above season avg</strong> over last 10 games.
+          Hit rate vs 25.5 line: <strong>7/10 (70%)</strong>. Favorable matchup tonight —
+          opponent allows <strong>top-5 points to position</strong>. OVER lean.
+        </div>
+      </div>
+
+      <!-- Parlay card -->
+      <div class="parlay-card">
+        <div>
+          <div style="font-size:9px;color:#4b5563;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Top Safe Parlay · 3-Leg</div>
+          <div class="parlay-legs">
+            <div class="leg">PTS OVER</div>
+            <div class="leg">REB OVER</div>
+            <div class="leg">K OVER</div>
+          </div>
+        </div>
+        <div class="parlay-meta">
+          <div class="parlay-prob">74%</div>
+          <div class="parlay-sub">Est. Hit Rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
