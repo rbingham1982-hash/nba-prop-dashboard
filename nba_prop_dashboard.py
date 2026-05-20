@@ -475,8 +475,7 @@ def get_team_players(team_abbr):
     try:
         roster = commonteamroster.CommonTeamRoster(team_id=team_id).get_data_frames()[0]
         return roster["PLAYER"].tolist()
-    except Exception as e:
-        st.warning(f"Could not load roster for {team_abbr}: {e}")
+    except Exception:
         return []
 
 def get_player_id(player_name):
