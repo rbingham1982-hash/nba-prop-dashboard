@@ -1217,9 +1217,6 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
             # No same player in one parlay
             if len({l["player_name"] for l in combo}) < n:
                 continue
-            # No duplicate stat types — enforce prop diversity
-            if len({l["stat_type"] for l in combo}) < n:
-                continue
             prob = 1.0
             for leg in combo:
                 prob *= leg["hit_rate"]
@@ -3556,6 +3553,11 @@ if sport == "🏀 NBA":
                         odds_type=_ot, implied_override=_imp,
                         cal_factor=_cal_f,
                     )
+                    # When player history is unavailable, fall back to implied odds
+                    if _n == 0:
+                        _eff_imp = _imp if _imp >= 0 else _PP_ODDS_IMPLIED.get(_ot, 0.50)
+                        _rate = round(min(0.97, max(0.03, _eff_imp)), 3)
+                        _n = 1
                     _legs_nba.append({
                         "player_name": _row["player_name"],
                         "team":        _row.get("team", ""),
@@ -3574,8 +3576,7 @@ if sport == "🏀 NBA":
                                    text=f"Analyzing {_row['player_name']}…")
                 _prog.empty()
 
-                # Build from legs that have real historical data (lowered threshold to 3)
-                _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 3]
+                _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 1]
                 _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
 
             # Log generated parlays for accuracy tracking
@@ -4488,6 +4489,11 @@ else:
                         odds_type=_mot, implied_override=_mimp,
                         cal_factor=_mcal_f,
                     )
+                    # When player history is unavailable, fall back to implied odds
+                    if _mn == 0:
+                        _eff_imp = _mimp if _mimp >= 0 else _PP_ODDS_IMPLIED.get(_mot, 0.50)
+                        _mrate = round(min(0.97, max(0.03, _eff_imp)), 3)
+                        _mn = 1
                     _legs_mlb.append({
                         "player_name": _mrow["player_name"],
                         "team":        _mrow.get("team", ""),
@@ -4506,8 +4512,12 @@ else:
                                        text=f"Analyzing {_mrow['player_name']}…")
                 _mlb_prog.empty()
 
-                # Build from legs with data (lowered threshold to 3)
-                _legs_mlb_data = [l for l in _legs_mlb if l["sample_n"] >= 3]
+                _legs_mlb_data = [l for l in _legs_mlb if l["sample_n"] >= 1]
+                # If live data is still too sparse, supplement with historical legs
+                if len(_legs_mlb_data) < max(_mb_min, 3):
+                    with st.spinner("Supplementing with historical MLB data…"):
+                        _hist_legs_m = _fallback_mlb_legs(_mb_stats)
+                    _legs_mlb_data = _legs_mlb_data + _hist_legs_m
                 _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
 
             # Log generated parlays for accuracy tracking
