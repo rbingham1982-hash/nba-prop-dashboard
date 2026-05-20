@@ -190,8 +190,10 @@ class MainActivity : AppCompatActivity() {
     """.trimIndent()
 
     companion object {
-        // Emulator localhost → 10.0.2.2
-        // Physical device on same Wi-Fi → use your PC's LAN IP, e.g. "http://192.168.1.X:8501"
+        // TODO: Update to your Streamlit Cloud URL before Play Store submission
+        //   e.g. "https://your-app-name.streamlit.app"
+        // Local dev: physical device on same Wi-Fi → "http://192.168.X.X:8501"
+        // Local dev: emulator → "http://10.0.2.2:8501"
         const val BASE_URL = "http://10.0.0.71:8501"
     }
 }

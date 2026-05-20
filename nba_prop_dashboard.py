@@ -1906,6 +1906,63 @@ def get_sport_news(sport="nba"):
         return []
 
 # ══════════════════════════════════════════════════════════════════════════════
+# SUBSCRIBER AUTHENTICATION
+# ══════════════════════════════════════════════════════════════════════════════
+def _verify_subscriber(username: str, password: str) -> bool:
+    """Return True if username+password match a stored bcrypt hash in st.secrets."""
+    try:
+        import bcrypt as _bcrypt
+    except ImportError:
+        return False
+    subs = st.secrets.get("subscribers", {})
+    hashed = subs.get(username)
+    if not hashed:
+        return False
+    try:
+        return _bcrypt.checkpw(password.encode(), hashed.encode())
+    except Exception:
+        return False
+
+def _subscriber_gate(section_key: str) -> bool:
+    """Show a login wall; return True once the subscriber is authenticated."""
+    sess_key = "subscriber_authed"
+    if st.session_state.get(sess_key):
+        return True
+
+    st.markdown("""
+    <div style='background:linear-gradient(135deg,#1a1d2e 0%,#13151f 100%);
+         border:1px solid #252a35;border-radius:14px;padding:2.25rem 2.5rem;
+         max-width:440px;margin:2.5rem auto;text-align:center;'>
+        <div style='font-size:2.5rem;margin-bottom:0.75rem;'>🔒</div>
+        <p style='font-size:0.58rem;font-weight:700;letter-spacing:0.22em;
+           text-transform:uppercase;color:#818cf8;margin:0 0 0.5rem;'>Subscribers Only</p>
+        <p style='color:#9294a8;font-size:0.86rem;line-height:1.7;margin:0 0 1.5rem;'>
+            This section is available to
+            <strong style='color:#c8cad4;'>Konjure Analytics subscribers</strong>.<br>
+            Sign in to unlock Parlay Builder &amp; Accuracy Tracker.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.form(key=f"_login_{section_key}", clear_on_submit=False):
+        _u = st.text_input("Username", key=f"_sub_u_{section_key}")
+        _p = st.text_input("Password", type="password", key=f"_sub_p_{section_key}")
+        if st.form_submit_button("Sign In", use_container_width=True):
+            if _verify_subscriber(_u.strip(), _p):
+                st.session_state[sess_key] = True
+                _safe_rerun()
+            else:
+                st.error("Invalid username or password.")
+
+    st.markdown(
+        "<p style='text-align:center;color:#555;font-size:0.75rem;margin-top:0.5rem;'>"
+        "No account? Contact <a style='color:#818cf8;' href='mailto:support@konjureanalytics.com'>"
+        "support@konjureanalytics.com</a></p>",
+        unsafe_allow_html=True,
+    )
+    return False
+
+# ══════════════════════════════════════════════════════════════════════════════
 # SCOUT REPORT GENERATORS
 # ══════════════════════════════════════════════════════════════════════════════
 def _scout_card(text):
@@ -2664,7 +2721,7 @@ def rolling_projection(df, col, window):
 # ══════════════════════════════════════════════════════════════════════════════
 # HEADER + SPORT SELECTOR
 # ══════════════════════════════════════════════════════════════════════════════
-hdr_col, sport_col = st.columns([5, 1])
+hdr_col, sport_col, auth_col = st.columns([5, 1, 1])
 with hdr_col:
     st.markdown("""
     <div class="konjure-header">
@@ -2673,6 +2730,16 @@ with hdr_col:
     </div>""", unsafe_allow_html=True)
 with sport_col:
     sport = st.selectbox("Sport", ["🏀 NBA", "⚾ MLB"], key="sport_selector")
+with auth_col:
+    if st.session_state.get("subscriber_authed"):
+        st.markdown("<p style='font-size:0.72rem;color:#818cf8;margin:0.5rem 0 0.2rem;'>Subscriber</p>",
+                    unsafe_allow_html=True)
+        if st.button("Sign Out", key="sub_signout", use_container_width=True):
+            st.session_state["subscriber_authed"] = False
+            _safe_rerun()
+    else:
+        st.markdown("<p style='font-size:0.72rem;color:#555;margin:0.5rem 0 0.2rem;'>Not signed in</p>",
+                    unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SPORT-SPECIFIC CSS INJECTION
@@ -3450,193 +3517,194 @@ if sport == "🏀 NBA":
 
     # ── PARLAYS ───────────────────────────────────────────────────────────────
     with tab_parlays:
-        section("NBA Parlay Builder")
-        st.markdown("""
-        <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
-        Builds optimized PrizePicks parlays using today's NBA lines and historical hit rates
-        (last 30 games, 2024-25 &amp; 2025-26 seasons). <strong style='color:var(--text-primary)'>Safe Parlays</strong>
-        maximize probability of hitting. <strong style='color:#f59e0b;'>Value Parlays</strong>
-        maximize expected value (probability × payout).
-        </p>
-        <div style='background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:0.75rem 1rem;max-width:680px;margin-bottom:1.25rem;'>
-            <p style='font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#f87171;margin:0 0 0.3rem 0;'>Disclaimer</p>
-            <p style='font-size:0.78rem;color:#9294a8;line-height:1.6;margin:0;'>
-                Parlay suggestions are generated from historical statistics and are for
-                <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
-                Past performance does not guarantee future results. This is not betting advice.
-                Always gamble responsibly and within your means.
+        if _subscriber_gate("nba_parlays"):
+            section("NBA Parlay Builder")
+            st.markdown("""
+            <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
+            Builds optimized PrizePicks parlays using today's NBA lines and historical hit rates
+            (last 30 games, 2024-25 &amp; 2025-26 seasons). <strong style='color:var(--text-primary)'>Safe Parlays</strong>
+            maximize probability of hitting. <strong style='color:#f59e0b;'>Value Parlays</strong>
+            maximize expected value (probability × payout).
             </p>
-        </div>""", unsafe_allow_html=True)
+            <div style='background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:0.75rem 1rem;max-width:680px;margin-bottom:1.25rem;'>
+                <p style='font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#f87171;margin:0 0 0.3rem 0;'>Disclaimer</p>
+                <p style='font-size:0.78rem;color:#9294a8;line-height:1.6;margin:0;'>
+                    Parlay suggestions are generated from historical statistics and are for
+                    <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
+                    Past performance does not guarantee future results. This is not betting advice.
+                    Always gamble responsibly and within your means.
+                </p>
+            </div>""", unsafe_allow_html=True)
 
-        _pc1, _pc2, _pc3 = st.columns([1, 1, 2])
-        with _pc1:
-            st.markdown("**Minimum Picks**")
-            _par_min = st.selectbox("Min Picks", [2, 3], index=0, key="nba_par_min", label_visibility="collapsed")
-        with _pc2:
-            st.markdown("**Maximum Picks**")
-            _par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=2, key="nba_par_max", label_visibility="collapsed")
-        with _pc3:
-            st.markdown("**Stat Types to Include**")
-            _par_stats = st.multiselect(
-                "Stat Types",
-                options=list(_PP_NBA_STAT_COL.keys()),
-                default=["Points", "Rebounds", "Assists", "3-PT Made", "Pts+Rebs+Asts"],
-                key="nba_par_stats",
-                label_visibility="collapsed",
-            )
-
-        if st.button("Build NBA Parlays", type="primary", key="nba_build_parlays"):
-            st.session_state["nba_parlays_built"] = True
-            st.session_state["nba_par_min_val"] = _par_min
-            st.session_state["nba_par_max_val"] = _par_max
-            st.session_state["nba_par_stats_val"] = _par_stats
-
-        if st.session_state.get("nba_parlays_built"):
-            _b_min = st.session_state.get("nba_par_min_val", _par_min)
-            _b_max = st.session_state.get("nba_par_max_val", _par_max)
-            _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
-
-            _nba_sb = st.session_state.get("nba_sportsbook", "PrizePicks")
-            _SB_OPTS = ["PrizePicks", "Underdog", "FanDuel"]
-            if _nba_sb not in _SB_OPTS:
-                _nba_sb = "PrizePicks"
-            _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
-            with _par_sb_col1:
-                _sb_choice_nba = st.radio(
-                    "Sportsbook for Parlays",
-                    _SB_OPTS,
-                    horizontal=True,
-                    index=_SB_OPTS.index(_nba_sb),
-                    key="nba_par_sb",
+            _pc1, _pc2, _pc3 = st.columns([1, 1, 2])
+            with _pc1:
+                st.markdown("**Minimum Picks**")
+                _par_min = st.selectbox("Min Picks", [2, 3], index=0, key="nba_par_min", label_visibility="collapsed")
+            with _pc2:
+                st.markdown("**Maximum Picks**")
+                _par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=2, key="nba_par_max", label_visibility="collapsed")
+            with _pc3:
+                st.markdown("**Stat Types to Include**")
+                _par_stats = st.multiselect(
+                    "Stat Types",
+                    options=list(_PP_NBA_STAT_COL.keys()),
+                    default=["Points", "Rebounds", "Assists", "3-PT Made", "Pts+Rebs+Asts"],
+                    key="nba_par_stats",
+                    label_visibility="collapsed",
                 )
-            with _par_sb_col2:
-                if st.button("🔄 Refresh", key="nba_par_refresh"):
-                    if _sb_choice_nba == "PrizePicks":
-                        _pp_cache.clear(); _pp_cache_ts.clear()
-                    elif _sb_choice_nba == "Underdog":
-                        _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
-                    else:
-                        _toa_cache.pop(f"nba_{_sb_choice_nba}", None)
-                        _toa_cache_ts.pop(f"nba_{_sb_choice_nba}", None)
-                    _safe_rerun()
-            with st.spinner(f"Fetching {_sb_choice_nba} NBA lines…"):
-                _pp_raw = get_sportsbook_props("nba", _sb_choice_nba)
 
-            _using_fallback_nba = False
-            if _pp_raw.empty:
-                st.info(f"No live {_sb_choice_nba} NBA lines found — building parlays from historical data.")
-                _using_fallback_nba = True
-            else:
-                _pp_filt = _pp_raw[_pp_raw["stat_type"].isin(_b_stats)].copy()
-                if _pp_filt.empty:
-                    st.info("No active lines for the selected stat types — switching to historical mode.")
+            if st.button("Build NBA Parlays", type="primary", key="nba_build_parlays"):
+                st.session_state["nba_parlays_built"] = True
+                st.session_state["nba_par_min_val"] = _par_min
+                st.session_state["nba_par_max_val"] = _par_max
+                st.session_state["nba_par_stats_val"] = _par_stats
+
+            if st.session_state.get("nba_parlays_built"):
+                _b_min = st.session_state.get("nba_par_min_val", _par_min)
+                _b_max = st.session_state.get("nba_par_max_val", _par_max)
+                _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
+
+                _nba_sb = st.session_state.get("nba_sportsbook", "PrizePicks")
+                _SB_OPTS = ["PrizePicks", "Underdog", "FanDuel"]
+                if _nba_sb not in _SB_OPTS:
+                    _nba_sb = "PrizePicks"
+                _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
+                with _par_sb_col1:
+                    _sb_choice_nba = st.radio(
+                        "Sportsbook for Parlays",
+                        _SB_OPTS,
+                        horizontal=True,
+                        index=_SB_OPTS.index(_nba_sb),
+                        key="nba_par_sb",
+                    )
+                with _par_sb_col2:
+                    if st.button("🔄 Refresh", key="nba_par_refresh"):
+                        if _sb_choice_nba == "PrizePicks":
+                            _pp_cache.clear(); _pp_cache_ts.clear()
+                        elif _sb_choice_nba == "Underdog":
+                            _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
+                        else:
+                            _toa_cache.pop(f"nba_{_sb_choice_nba}", None)
+                            _toa_cache_ts.pop(f"nba_{_sb_choice_nba}", None)
+                        _safe_rerun()
+                with st.spinner(f"Fetching {_sb_choice_nba} NBA lines…"):
+                    _pp_raw = get_sportsbook_props("nba", _sb_choice_nba)
+
+                _using_fallback_nba = False
+                if _pp_raw.empty:
+                    st.info(f"No live {_sb_choice_nba} NBA lines found — building parlays from historical data.")
                     _using_fallback_nba = True
-
-            _nba_cal = _load_calibration()
-            if _using_fallback_nba:
-                with st.spinner("Loading historical data…"):
-                    _legs_nba_data = _fallback_nba_legs(_b_stats)
-                if _legs_nba_data:
-                    st.caption("Using historical averages as prop lines (no live sportsbook data). Lines set at ~88% of rolling average.")
-                _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
-            else:
-                _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(60)
-                _legs_nba = []
-                _prog = st.progress(0, text="Calculating hit rates…")
-                for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
-                    _ot = _row.get("odds_type", "standard") or "standard"
-                    _imp = float(_row.get("implied_prob", -1.0) if "implied_prob" in _row.index else -1.0)
-                    _cal_f = _nba_cal.get(_row["stat_type"], 1.0)
-                    _rate, _n = _nba_hit_rate(
-                        _row["player_name"], _row["stat_type"],
-                        float(_row["line_score"] or 0),
-                        odds_type=_ot, implied_override=_imp,
-                        cal_factor=_cal_f,
-                    )
-                    # When player history is unavailable, fall back to implied odds
-                    if _n == 0:
-                        _eff_imp = _imp if _imp >= 0 else _PP_ODDS_IMPLIED.get(_ot, 0.50)
-                        _rate = round(min(0.97, max(0.03, _eff_imp)), 3)
-                        _n = 1
-                    _legs_nba.append({
-                        "player_name": _row["player_name"],
-                        "team":        _row.get("team", ""),
-                        "stat_type":   _row["stat_type"],
-                        "line_score":  _row["line_score"],
-                        "odds_type":   _ot,
-                        "american_odds": int(_row.get("american_odds", -110) if "american_odds" in _row.index else -110),
-                        "implied_prob": _imp if _imp >= 0 else _PP_ODDS_IMPLIED.get(_ot, 0.50),
-                        "sportsbook":  str(_row.get("sportsbook", "PrizePicks") if "sportsbook" in _row.index else _sb_choice_nba),
-                        "game_id":     _row.get("game_id", ""),
-                        "game_label":  _row.get("game_label", ""),
-                        "hit_rate":    _rate,
-                        "sample_n":    _n,
-                    })
-                    _prog.progress((_i + 1) / len(_pp_filt),
-                                   text=f"Analyzing {_row['player_name']}…")
-                _prog.empty()
-
-                _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 1]
-                _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
-
-            # Log generated parlays for accuracy tracking
-            try:
-                _logged = parlay_tracker.log_parlays(_safe_p, "NBA", _sb_choice_nba, kind="safe")
-                _logged += parlay_tracker.log_parlays(_value_p, "NBA", _sb_choice_nba, kind="value")
-                if _logged:
-                    st.caption(f"Logged {_logged} new parlay(s) to accuracy tracker.")
-            except Exception:
-                pass
-
-            # --- DISPLAY (always runs) ---
-            st.markdown(
-                f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
-                f"Analyzed <strong>{len(_legs_nba_data)}</strong> legs with data &nbsp;·&nbsp; "
-                f"<strong>{len(_safe_p)}</strong> safe parlays &nbsp;·&nbsp; "
-                f"<strong>{len(_value_p)}</strong> value parlays</p>",
-                unsafe_allow_html=True,
-            )
-
-            _cs, _cv = st.columns(2)
-            with _cs:
-                st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
-                            unsafe_allow_html=True)
-                if _safe_p:
-                    for _p in _safe_p:
-                        st.markdown(_parlay_card_html(_p, "safe"), unsafe_allow_html=True)
                 else:
-                    st.caption("Not enough legs with sufficient historical data. Try adding more stat types.")
-            with _cv:
-                st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
-                            unsafe_allow_html=True)
-                if _value_p:
-                    for _p in _value_p:
-                        st.markdown(_parlay_card_html(_p, "value"), unsafe_allow_html=True)
-                else:
-                    st.caption("No additional value parlays found beyond safe parlays.")
+                    _pp_filt = _pp_raw[_pp_raw["stat_type"].isin(_b_stats)].copy()
+                    if _pp_filt.empty:
+                        st.info("No active lines for the selected stat types — switching to historical mode.")
+                        _using_fallback_nba = True
 
-            # ── Same-Game Parlays ─────────────────────────────────────────────
-            st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
-                        unsafe_allow_html=True)
-            st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
-                        unsafe_allow_html=True)
-            _sgp_results = _build_sgp(_legs_nba_data, min_legs=5, max_legs=5)
-            if _sgp_results:
-                for _sgp in _sgp_results:
-                    st.markdown(
-                        f"<p style='font-size:0.78rem;font-weight:600;color:#818cf8;"
-                        f"margin:1rem 0 0.4rem;letter-spacing:0.06em;'>"
-                        f"{_sgp['game_label']}</p>",
-                        unsafe_allow_html=True,
-                    )
-                    for _sp in _sgp["parlays"]:
-                        st.markdown(_parlay_card_html(_sp, "safe"), unsafe_allow_html=True)
+                _nba_cal = _load_calibration()
+                if _using_fallback_nba:
+                    with st.spinner("Loading historical data…"):
+                        _legs_nba_data = _fallback_nba_legs(_b_stats)
+                    if _legs_nba_data:
+                        st.caption("Using historical averages as prop lines (no live sportsbook data). Lines set at ~88% of rolling average.")
+                    _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
+                else:
+                    _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(60)
+                    _legs_nba = []
+                    _prog = st.progress(0, text="Calculating hit rates…")
+                    for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
+                        _ot = _row.get("odds_type", "standard") or "standard"
+                        _imp = float(_row.get("implied_prob", -1.0) if "implied_prob" in _row.index else -1.0)
+                        _cal_f = _nba_cal.get(_row["stat_type"], 1.0)
+                        _rate, _n = _nba_hit_rate(
+                            _row["player_name"], _row["stat_type"],
+                            float(_row["line_score"] or 0),
+                            odds_type=_ot, implied_override=_imp,
+                            cal_factor=_cal_f,
+                        )
+                        # When player history is unavailable, fall back to implied odds
+                        if _n == 0:
+                            _eff_imp = _imp if _imp >= 0 else _PP_ODDS_IMPLIED.get(_ot, 0.50)
+                            _rate = round(min(0.97, max(0.03, _eff_imp)), 3)
+                            _n = 1
+                        _legs_nba.append({
+                            "player_name": _row["player_name"],
+                            "team":        _row.get("team", ""),
+                            "stat_type":   _row["stat_type"],
+                            "line_score":  _row["line_score"],
+                            "odds_type":   _ot,
+                            "american_odds": int(_row.get("american_odds", -110) if "american_odds" in _row.index else -110),
+                            "implied_prob": _imp if _imp >= 0 else _PP_ODDS_IMPLIED.get(_ot, 0.50),
+                            "sportsbook":  str(_row.get("sportsbook", "PrizePicks") if "sportsbook" in _row.index else _sb_choice_nba),
+                            "game_id":     _row.get("game_id", ""),
+                            "game_label":  _row.get("game_label", ""),
+                            "hit_rate":    _rate,
+                            "sample_n":    _n,
+                        })
+                        _prog.progress((_i + 1) / len(_pp_filt),
+                                       text=f"Analyzing {_row['player_name']}…")
+                    _prog.empty()
+
+                    _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 1]
+                    _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
+
+                # Log generated parlays for accuracy tracking
+                try:
+                    _logged = parlay_tracker.log_parlays(_safe_p, "NBA", _sb_choice_nba, kind="safe")
+                    _logged += parlay_tracker.log_parlays(_value_p, "NBA", _sb_choice_nba, kind="value")
+                    if _logged:
+                        st.caption(f"Logged {_logged} new parlay(s) to accuracy tracker.")
+                except Exception:
+                    pass
+
+                # --- DISPLAY (always runs) ---
+                st.markdown(
+                    f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
+                    f"Analyzed <strong>{len(_legs_nba_data)}</strong> legs with data &nbsp;·&nbsp; "
+                    f"<strong>{len(_safe_p)}</strong> safe parlays &nbsp;·&nbsp; "
+                    f"<strong>{len(_value_p)}</strong> value parlays</p>",
+                    unsafe_allow_html=True,
+                )
+
+                _cs, _cv = st.columns(2)
+                with _cs:
+                    st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
+                                unsafe_allow_html=True)
+                    if _safe_p:
+                        for _p in _safe_p:
+                            st.markdown(_parlay_card_html(_p, "safe"), unsafe_allow_html=True)
+                    else:
+                        st.caption("Not enough legs with sufficient historical data. Try adding more stat types.")
+                with _cv:
+                    st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
+                                unsafe_allow_html=True)
+                    if _value_p:
+                        for _p in _value_p:
+                            st.markdown(_parlay_card_html(_p, "value"), unsafe_allow_html=True)
+                    else:
+                        st.caption("No additional value parlays found beyond safe parlays.")
+
+                # ── Same-Game Parlays ─────────────────────────────────────────────
+                st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
+                            unsafe_allow_html=True)
+                st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
+                            unsafe_allow_html=True)
+                _sgp_results = _build_sgp(_legs_nba_data, min_legs=5, max_legs=5)
+                if _sgp_results:
+                    for _sgp in _sgp_results:
+                        st.markdown(
+                            f"<p style='font-size:0.78rem;font-weight:600;color:#818cf8;"
+                            f"margin:1rem 0 0.4rem;letter-spacing:0.06em;'>"
+                            f"{_sgp['game_label']}</p>",
+                            unsafe_allow_html=True,
+                        )
+                        for _sp in _sgp["parlays"]:
+                            st.markdown(_parlay_card_html(_sp, "safe"), unsafe_allow_html=True)
+                else:
+                    st.caption("Same-game parlay data requires game grouping from live sportsbook. "
+                               "No games with enough legs were found today.")
             else:
-                st.caption("Same-game parlay data requires game grouping from live sportsbook. "
-                           "No games with enough legs were found today.")
-        else:
-            st.info("Select your options above and click **Build NBA Parlays** to generate suggestions. "
-                    "First build may take 1-2 minutes while historical data is fetched; subsequent builds are instant.")
+                st.info("Select your options above and click **Build NBA Parlays** to generate suggestions. "
+                        "First build may take 1-2 minutes while historical data is fetched; subsequent builds are instant.")
 
     # ── DAILY BLOG ────────────────────────────────────────────────────────────
     with tab_blog:
@@ -3646,7 +3714,8 @@ if sport == "🏀 NBA":
 
     # ── NBA ACCURACY ──────────────────────────────────────────────────────────
     with tab_accuracy_nba:
-        _render_accuracy_tab("NBA")
+        if _subscriber_gate("nba_accuracy"):
+            _render_accuracy_tab("NBA")
 
     # ── DISCLAIMER ────────────────────────────────────────────────────────────
     with tab_disc:
@@ -4385,199 +4454,200 @@ else:
 
     # ── MLB PARLAYS ───────────────────────────────────────────────────────────
     with tab_parlays_mlb:
-        section("MLB Parlay Builder")
-        st.markdown("""
-        <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
-        Builds optimized PrizePicks parlays using today's MLB lines and historical hit rates
-        (last 20 games). Hitter and pitcher legs are analyzed separately using official MLB Stats API data.
-        <strong style='color:var(--text-primary)'>Safe Parlays</strong> maximize probability.
-        <strong style='color:#f59e0b;'>Value Parlays</strong> maximize expected value.
-        </p>
-        <div style='background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:0.75rem 1rem;max-width:680px;margin-bottom:1.25rem;'>
-            <p style='font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#f87171;margin:0 0 0.3rem 0;'>Disclaimer</p>
-            <p style='font-size:0.78rem;color:#9294a8;line-height:1.6;margin:0;'>
-                Parlay suggestions are generated from historical statistics and are for
-                <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
-                Past performance does not guarantee future results. This is not betting advice.
-                Always gamble responsibly and within your means.
+        if _subscriber_gate("mlb_parlays"):
+            section("MLB Parlay Builder")
+            st.markdown("""
+            <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
+            Builds optimized PrizePicks parlays using today's MLB lines and historical hit rates
+            (last 20 games). Hitter and pitcher legs are analyzed separately using official MLB Stats API data.
+            <strong style='color:var(--text-primary)'>Safe Parlays</strong> maximize probability.
+            <strong style='color:#f59e0b;'>Value Parlays</strong> maximize expected value.
             </p>
-        </div>""", unsafe_allow_html=True)
+            <div style='background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:0.75rem 1rem;max-width:680px;margin-bottom:1.25rem;'>
+                <p style='font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#f87171;margin:0 0 0.3rem 0;'>Disclaimer</p>
+                <p style='font-size:0.78rem;color:#9294a8;line-height:1.6;margin:0;'>
+                    Parlay suggestions are generated from historical statistics and are for
+                    <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
+                    Past performance does not guarantee future results. This is not betting advice.
+                    Always gamble responsibly and within your means.
+                </p>
+            </div>""", unsafe_allow_html=True)
 
-        _mp1, _mp2, _mp3 = st.columns([1, 1, 2])
-        with _mp1:
-            st.markdown("**Minimum Picks**")
-            _mlb_par_min = st.selectbox("Min Picks", [2, 3], index=0, key="mlb_par_min", label_visibility="collapsed")
-        with _mp2:
-            st.markdown("**Maximum Picks**")
-            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=2, key="mlb_par_max", label_visibility="collapsed")
-        with _mp3:
-            st.markdown("**Stat Types to Include**")
-            _all_mlb_stat_types = list(_PP_MLB_HIT_COL.keys()) + list(_PP_MLB_PIT_COL.keys())
-            _mlb_par_stats = st.multiselect(
-                "Stat Types",
-                options=sorted(set(_all_mlb_stat_types)),
-                default=["Hits", "Home Runs", "RBIs", "Pitcher Strikeouts"],
-                key="mlb_par_stats",
-                label_visibility="collapsed",
-            )
-
-        if st.button("Build MLB Parlays", type="primary", key="mlb_build_parlays"):
-            st.session_state["mlb_parlays_built"] = True
-            st.session_state["mlb_par_min_val"] = _mlb_par_min
-            st.session_state["mlb_par_max_val"] = _mlb_par_max
-            st.session_state["mlb_par_stats_val"] = _mlb_par_stats
-
-        if st.session_state.get("mlb_parlays_built"):
-            _mb_min = st.session_state.get("mlb_par_min_val", _mlb_par_min)
-            _mb_max = st.session_state.get("mlb_par_max_val", _mlb_par_max)
-            _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
-
-            _mlb_sb = st.session_state.get("mlb_sportsbook", "PrizePicks")
-            _MLB_SB_OPTS = ["PrizePicks", "Underdog", "FanDuel"]
-            if _mlb_sb not in _MLB_SB_OPTS:
-                _mlb_sb = "PrizePicks"
-            _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
-            with _mlb_par_sb_col1:
-                _sb_choice_mlb = st.radio(
-                    "Sportsbook for Parlays",
-                    _MLB_SB_OPTS,
-                    horizontal=True,
-                    index=_MLB_SB_OPTS.index(_mlb_sb),
-                    key="mlb_par_sb",
+            _mp1, _mp2, _mp3 = st.columns([1, 1, 2])
+            with _mp1:
+                st.markdown("**Minimum Picks**")
+                _mlb_par_min = st.selectbox("Min Picks", [2, 3], index=0, key="mlb_par_min", label_visibility="collapsed")
+            with _mp2:
+                st.markdown("**Maximum Picks**")
+                _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=2, key="mlb_par_max", label_visibility="collapsed")
+            with _mp3:
+                st.markdown("**Stat Types to Include**")
+                _all_mlb_stat_types = list(_PP_MLB_HIT_COL.keys()) + list(_PP_MLB_PIT_COL.keys())
+                _mlb_par_stats = st.multiselect(
+                    "Stat Types",
+                    options=sorted(set(_all_mlb_stat_types)),
+                    default=["Hits", "Home Runs", "RBIs", "Pitcher Strikeouts"],
+                    key="mlb_par_stats",
+                    label_visibility="collapsed",
                 )
-            with _mlb_par_sb_col2:
-                if st.button("🔄 Refresh", key="mlb_par_refresh"):
-                    if _sb_choice_mlb == "PrizePicks":
-                        _pp_cache.clear(); _pp_cache_ts.clear()
-                    elif _sb_choice_mlb == "Underdog":
-                        _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
-                    else:
-                        _toa_cache.pop(f"mlb_{_sb_choice_mlb}", None)
-                        _toa_cache_ts.pop(f"mlb_{_sb_choice_mlb}", None)
-                    _safe_rerun()
-            with st.spinner(f"Fetching {_sb_choice_mlb} MLB lines…"):
-                _mlb_pp_raw = get_sportsbook_props("mlb", _sb_choice_mlb)
 
-            _using_fallback_mlb = False
-            if _mlb_pp_raw.empty:
-                st.info(f"No live {_sb_choice_mlb} MLB lines found — building parlays from historical data.")
-                _using_fallback_mlb = True
-            else:
-                _mlb_filt = _mlb_pp_raw[_mlb_pp_raw["stat_type"].isin(_mb_stats)].copy()
-                if _mlb_filt.empty:
-                    st.info("No active MLB lines for the selected stat types — switching to historical mode.")
+            if st.button("Build MLB Parlays", type="primary", key="mlb_build_parlays"):
+                st.session_state["mlb_parlays_built"] = True
+                st.session_state["mlb_par_min_val"] = _mlb_par_min
+                st.session_state["mlb_par_max_val"] = _mlb_par_max
+                st.session_state["mlb_par_stats_val"] = _mlb_par_stats
+
+            if st.session_state.get("mlb_parlays_built"):
+                _mb_min = st.session_state.get("mlb_par_min_val", _mlb_par_min)
+                _mb_max = st.session_state.get("mlb_par_max_val", _mlb_par_max)
+                _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
+
+                _mlb_sb = st.session_state.get("mlb_sportsbook", "PrizePicks")
+                _MLB_SB_OPTS = ["PrizePicks", "Underdog", "FanDuel"]
+                if _mlb_sb not in _MLB_SB_OPTS:
+                    _mlb_sb = "PrizePicks"
+                _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
+                with _mlb_par_sb_col1:
+                    _sb_choice_mlb = st.radio(
+                        "Sportsbook for Parlays",
+                        _MLB_SB_OPTS,
+                        horizontal=True,
+                        index=_MLB_SB_OPTS.index(_mlb_sb),
+                        key="mlb_par_sb",
+                    )
+                with _mlb_par_sb_col2:
+                    if st.button("🔄 Refresh", key="mlb_par_refresh"):
+                        if _sb_choice_mlb == "PrizePicks":
+                            _pp_cache.clear(); _pp_cache_ts.clear()
+                        elif _sb_choice_mlb == "Underdog":
+                            _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
+                        else:
+                            _toa_cache.pop(f"mlb_{_sb_choice_mlb}", None)
+                            _toa_cache_ts.pop(f"mlb_{_sb_choice_mlb}", None)
+                        _safe_rerun()
+                with st.spinner(f"Fetching {_sb_choice_mlb} MLB lines…"):
+                    _mlb_pp_raw = get_sportsbook_props("mlb", _sb_choice_mlb)
+
+                _using_fallback_mlb = False
+                if _mlb_pp_raw.empty:
+                    st.info(f"No live {_sb_choice_mlb} MLB lines found — building parlays from historical data.")
                     _using_fallback_mlb = True
-
-            _mlb_cal = _load_calibration()
-            if _using_fallback_mlb:
-                with st.spinner("Loading historical MLB data…"):
-                    _legs_mlb_data = _fallback_mlb_legs(_mb_stats)
-                if _legs_mlb_data:
-                    st.caption("Using historical averages as prop lines (no live sportsbook data).")
-                _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
-            else:
-                _mlb_filt = _mlb_filt.sort_values("line_score", ascending=False).head(60)
-                _legs_mlb = []
-                _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
-                for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
-                    _mot = _mrow.get("odds_type", "standard") or "standard"
-                    _mimp = float(_mrow.get("implied_prob", -1.0) if "implied_prob" in _mrow.index else -1.0)
-                    _mcal_f = _mlb_cal.get(_mrow["stat_type"], 1.0)
-                    _mrate, _mn = _mlb_hit_rate(
-                        _mrow["player_name"], _mrow["stat_type"],
-                        float(_mrow["line_score"] or 0),
-                        odds_type=_mot, implied_override=_mimp,
-                        cal_factor=_mcal_f,
-                    )
-                    # When player history is unavailable, fall back to implied odds
-                    if _mn == 0:
-                        _eff_imp = _mimp if _mimp >= 0 else _PP_ODDS_IMPLIED.get(_mot, 0.50)
-                        _mrate = round(min(0.97, max(0.03, _eff_imp)), 3)
-                        _mn = 1
-                    _legs_mlb.append({
-                        "player_name": _mrow["player_name"],
-                        "team":        _mrow.get("team", ""),
-                        "stat_type":   _mrow["stat_type"],
-                        "line_score":  _mrow["line_score"],
-                        "odds_type":   _mot,
-                        "american_odds": int(_mrow.get("american_odds", -110) if "american_odds" in _mrow.index else -110),
-                        "implied_prob": _mimp if _mimp >= 0 else _PP_ODDS_IMPLIED.get(_mot, 0.50),
-                        "sportsbook":  str(_mrow.get("sportsbook", "PrizePicks") if "sportsbook" in _mrow.index else _sb_choice_mlb),
-                        "game_id":     _mrow.get("game_id", ""),
-                        "game_label":  _mrow.get("game_label", ""),
-                        "hit_rate":    _mrate,
-                        "sample_n":    _mn,
-                    })
-                    _mlb_prog.progress((_mi + 1) / len(_mlb_filt),
-                                       text=f"Analyzing {_mrow['player_name']}…")
-                _mlb_prog.empty()
-
-                _legs_mlb_data = [l for l in _legs_mlb if l["sample_n"] >= 1]
-                # If live data is still too sparse, supplement with historical legs
-                if len(_legs_mlb_data) < max(_mb_min, 3):
-                    with st.spinner("Supplementing with historical MLB data…"):
-                        _hist_legs_m = _fallback_mlb_legs(_mb_stats)
-                    _legs_mlb_data = _legs_mlb_data + _hist_legs_m
-                _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
-
-            # Log generated parlays for accuracy tracking
-            try:
-                _mlogged = parlay_tracker.log_parlays(_safe_m, "MLB", _sb_choice_mlb, kind="safe")
-                _mlogged += parlay_tracker.log_parlays(_value_m, "MLB", _sb_choice_mlb, kind="value")
-                if _mlogged:
-                    st.caption(f"Logged {_mlogged} new parlay(s) to accuracy tracker.")
-            except Exception:
-                pass
-
-            # --- DISPLAY (always runs) ---
-            st.markdown(
-                f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
-                f"Analyzed <strong>{len(_legs_mlb_data)}</strong> legs with data &nbsp;·&nbsp; "
-                f"<strong>{len(_safe_m)}</strong> safe parlays &nbsp;·&nbsp; "
-                f"<strong>{len(_value_m)}</strong> value parlays</p>",
-                unsafe_allow_html=True,
-            )
-
-            _cms, _cmv = st.columns(2)
-            with _cms:
-                st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
-                            unsafe_allow_html=True)
-                if _safe_m:
-                    for _pm in _safe_m:
-                        st.markdown(_parlay_card_html(_pm, "safe"), unsafe_allow_html=True)
                 else:
-                    st.caption("Not enough legs with sufficient historical data. Try adding more stat types.")
-            with _cmv:
-                st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
-                            unsafe_allow_html=True)
-                if _value_m:
-                    for _pm in _value_m:
-                        st.markdown(_parlay_card_html(_pm, "value"), unsafe_allow_html=True)
-                else:
-                    st.caption("No additional value parlays found beyond safe parlays.")
+                    _mlb_filt = _mlb_pp_raw[_mlb_pp_raw["stat_type"].isin(_mb_stats)].copy()
+                    if _mlb_filt.empty:
+                        st.info("No active MLB lines for the selected stat types — switching to historical mode.")
+                        _using_fallback_mlb = True
 
-            # ── Same-Game Parlays ─────────────────────────────────────────────
-            st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
-                        unsafe_allow_html=True)
-            st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
-                        unsafe_allow_html=True)
-            _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=3, max_legs=5)
-            if _mlb_sgp:
-                for _sgpm in _mlb_sgp:
-                    st.markdown(
-                        f"<p style='font-size:0.78rem;font-weight:600;color:#3b82f6;"
-                        f"margin:1rem 0 0.4rem;letter-spacing:0.06em;'>"
-                        f"{_sgpm['game_label']}</p>",
-                        unsafe_allow_html=True,
-                    )
-                    for _spm in _sgpm["parlays"]:
-                        st.markdown(_parlay_card_html(_spm, "safe"), unsafe_allow_html=True)
+                _mlb_cal = _load_calibration()
+                if _using_fallback_mlb:
+                    with st.spinner("Loading historical MLB data…"):
+                        _legs_mlb_data = _fallback_mlb_legs(_mb_stats)
+                    if _legs_mlb_data:
+                        st.caption("Using historical averages as prop lines (no live sportsbook data).")
+                    _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
+                else:
+                    _mlb_filt = _mlb_filt.sort_values("line_score", ascending=False).head(60)
+                    _legs_mlb = []
+                    _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
+                    for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
+                        _mot = _mrow.get("odds_type", "standard") or "standard"
+                        _mimp = float(_mrow.get("implied_prob", -1.0) if "implied_prob" in _mrow.index else -1.0)
+                        _mcal_f = _mlb_cal.get(_mrow["stat_type"], 1.0)
+                        _mrate, _mn = _mlb_hit_rate(
+                            _mrow["player_name"], _mrow["stat_type"],
+                            float(_mrow["line_score"] or 0),
+                            odds_type=_mot, implied_override=_mimp,
+                            cal_factor=_mcal_f,
+                        )
+                        # When player history is unavailable, fall back to implied odds
+                        if _mn == 0:
+                            _eff_imp = _mimp if _mimp >= 0 else _PP_ODDS_IMPLIED.get(_mot, 0.50)
+                            _mrate = round(min(0.97, max(0.03, _eff_imp)), 3)
+                            _mn = 1
+                        _legs_mlb.append({
+                            "player_name": _mrow["player_name"],
+                            "team":        _mrow.get("team", ""),
+                            "stat_type":   _mrow["stat_type"],
+                            "line_score":  _mrow["line_score"],
+                            "odds_type":   _mot,
+                            "american_odds": int(_mrow.get("american_odds", -110) if "american_odds" in _mrow.index else -110),
+                            "implied_prob": _mimp if _mimp >= 0 else _PP_ODDS_IMPLIED.get(_mot, 0.50),
+                            "sportsbook":  str(_mrow.get("sportsbook", "PrizePicks") if "sportsbook" in _mrow.index else _sb_choice_mlb),
+                            "game_id":     _mrow.get("game_id", ""),
+                            "game_label":  _mrow.get("game_label", ""),
+                            "hit_rate":    _mrate,
+                            "sample_n":    _mn,
+                        })
+                        _mlb_prog.progress((_mi + 1) / len(_mlb_filt),
+                                           text=f"Analyzing {_mrow['player_name']}…")
+                    _mlb_prog.empty()
+
+                    _legs_mlb_data = [l for l in _legs_mlb if l["sample_n"] >= 1]
+                    # If live data is still too sparse, supplement with historical legs
+                    if len(_legs_mlb_data) < max(_mb_min, 3):
+                        with st.spinner("Supplementing with historical MLB data…"):
+                            _hist_legs_m = _fallback_mlb_legs(_mb_stats)
+                        _legs_mlb_data = _legs_mlb_data + _hist_legs_m
+                    _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
+
+                # Log generated parlays for accuracy tracking
+                try:
+                    _mlogged = parlay_tracker.log_parlays(_safe_m, "MLB", _sb_choice_mlb, kind="safe")
+                    _mlogged += parlay_tracker.log_parlays(_value_m, "MLB", _sb_choice_mlb, kind="value")
+                    if _mlogged:
+                        st.caption(f"Logged {_mlogged} new parlay(s) to accuracy tracker.")
+                except Exception:
+                    pass
+
+                # --- DISPLAY (always runs) ---
+                st.markdown(
+                    f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
+                    f"Analyzed <strong>{len(_legs_mlb_data)}</strong> legs with data &nbsp;·&nbsp; "
+                    f"<strong>{len(_safe_m)}</strong> safe parlays &nbsp;·&nbsp; "
+                    f"<strong>{len(_value_m)}</strong> value parlays</p>",
+                    unsafe_allow_html=True,
+                )
+
+                _cms, _cmv = st.columns(2)
+                with _cms:
+                    st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
+                                unsafe_allow_html=True)
+                    if _safe_m:
+                        for _pm in _safe_m:
+                            st.markdown(_parlay_card_html(_pm, "safe"), unsafe_allow_html=True)
+                    else:
+                        st.caption("Not enough legs with sufficient historical data. Try adding more stat types.")
+                with _cmv:
+                    st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
+                                unsafe_allow_html=True)
+                    if _value_m:
+                        for _pm in _value_m:
+                            st.markdown(_parlay_card_html(_pm, "value"), unsafe_allow_html=True)
+                    else:
+                        st.caption("No additional value parlays found beyond safe parlays.")
+
+                # ── Same-Game Parlays ─────────────────────────────────────────────
+                st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
+                            unsafe_allow_html=True)
+                st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
+                            unsafe_allow_html=True)
+                _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=3, max_legs=5)
+                if _mlb_sgp:
+                    for _sgpm in _mlb_sgp:
+                        st.markdown(
+                            f"<p style='font-size:0.78rem;font-weight:600;color:#3b82f6;"
+                            f"margin:1rem 0 0.4rem;letter-spacing:0.06em;'>"
+                            f"{_sgpm['game_label']}</p>",
+                            unsafe_allow_html=True,
+                        )
+                        for _spm in _sgpm["parlays"]:
+                            st.markdown(_parlay_card_html(_spm, "safe"), unsafe_allow_html=True)
+                else:
+                    st.caption("Same-game parlay data requires game grouping from live sportsbook. "
+                               "No games with enough legs were found today.")
             else:
-                st.caption("Same-game parlay data requires game grouping from live sportsbook. "
-                           "No games with enough legs were found today.")
-        else:
-            st.info("Select your options above and click **Build MLB Parlays** to generate suggestions. "
-                    "First build may take 1-2 minutes while player data is fetched; subsequent builds are instant.")
+                st.info("Select your options above and click **Build MLB Parlays** to generate suggestions. "
+                        "First build may take 1-2 minutes while player data is fetched; subsequent builds are instant.")
 
     # ── MLB DAILY BLOG ────────────────────────────────────────────────────────
     with tab_blog_mlb:
@@ -4587,7 +4657,8 @@ else:
 
     # ── MLB ACCURACY ──────────────────────────────────────────────────────────
     with tab_accuracy_mlb:
-        _render_accuracy_tab("MLB")
+        if _subscriber_gate("mlb_accuracy"):
+            _render_accuracy_tab("MLB")
 
     # ── MLB DISCLAIMER ────────────────────────────────────────────────────────
     with tab_disc_mlb:

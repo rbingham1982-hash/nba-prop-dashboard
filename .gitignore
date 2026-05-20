@@ -31,3 +31,6 @@ android/build/
 android/app/release/*.apk
 android/app/release/*.aab
 android/local.properties
+
+# Android release keystore (contains private key — never commit)
+android/konjure-release.jks
