@@ -7,6 +7,7 @@ import os
 import re
 import time
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import plotly.express as px
 import requests
@@ -2854,32 +2855,65 @@ if sport == "🏀 NBA":
 
     # ── HOME ──────────────────────────────────────────────────────────────────
     with tab_home:
+        if st.session_state.pop("_nba_ptw_nav", False):
+            components.html(
+                "<script>setTimeout(function(){"
+                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+                "if(t.length>1)t[1].click();"
+                "},150);</script>",
+                height=0,
+            )
         section("Players to Watch")
         with st.spinner(""):
-            _ptw_df = get_prizepicks_lines()
-        if not _ptw_df.empty:
+            _ptw_frames = []
+            for _ptw_sb in ["PrizePicks", "Underdog"]:
+                _ptw_src = get_sportsbook_props("nba", _ptw_sb)
+                if not _ptw_src.empty:
+                    _ptw_src = _ptw_src.copy(); _ptw_src["_source"] = _ptw_sb
+                    _ptw_frames.append(_ptw_src)
+            _fd_cached = _toa_cache.get("nba_FanDuel")
+            if _fd_cached is not None and not _fd_cached.empty:
+                _fd_c = _fd_cached.copy(); _fd_c["_source"] = "FanDuel"
+                _ptw_frames.append(_fd_c)
+        if _ptw_frames:
+            _ptw_all = pd.concat(_ptw_frames, ignore_index=True)
             _ptw_stats = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "Pts+Asts", "Pts+Rebs", "3-PT Made", "Blocked Shots", "Steals"]
-            _ptw = (
-                _ptw_df[_ptw_df["stat_type"].isin(_ptw_stats)]
-                .sort_values("line_score", ascending=False)
-                .drop_duplicates("player_name")
-                .head(10)
-            )
-            _ptw_cards = "<div class='ptw-grid'>"
-            for _, _r in _ptw.iterrows():
-                _st = str(_r.get("status") or "normal").lower()
-                _bcls = "ptw-badge-goblin" if _st == "goblin" else ("ptw-badge-demon" if _st == "demon" else "ptw-badge-normal")
-                _blbl = _st.capitalize() if _st in ("goblin", "demon") else "Normal"
-                _ptw_cards += (
-                    f"<div class='ptw-card'>"
-                    f"<p class='ptw-player-name'>{_r['player_name']}</p>"
-                    f"<p class='ptw-team'>{_r['stat_type']}</p>"
-                    f"<p class='ptw-line'>{_r['line_score']}</p>"
-                    f"<span class='ptw-badge {_bcls}'>{_blbl}</span>"
-                    f"</div>"
-                )
-            _ptw_cards += "</div>"
-            st.markdown(_ptw_cards, unsafe_allow_html=True)
+            _ptw_all = _ptw_all[_ptw_all["stat_type"].isin(_ptw_stats)].copy()
+            if "implied_prob" not in _ptw_all.columns:
+                _ptw_all["implied_prob"] = 0.5
+            _ptw_all["implied_prob"] = pd.to_numeric(_ptw_all["implied_prob"], errors="coerce").fillna(0.5)
+            _ptw_all = _ptw_all.sort_values("implied_prob", ascending=False)
+            _ptw_all = _ptw_all.drop_duplicates(["player_name", "stat_type"]).drop_duplicates("player_name")
+            _ptw = _ptw_all.head(10).reset_index(drop=True)
+            _nba_abbr_to_full = {t["abbreviation"].upper(): t["full_name"] for t in teams.get_teams()}
+            _ptw_list = list(_ptw.iterrows())
+            for _rs in range(0, len(_ptw_list), 5):
+                _chunk = _ptw_list[_rs:_rs + 5]
+                _tcols = st.columns(len(_chunk))
+                for _ci, (_, _r) in enumerate(_chunk):
+                    with _tcols[_ci]:
+                        _otype = str(_r.get("odds_type") or "standard").lower()
+                        _bcls = "ptw-badge-goblin" if _otype == "goblin" else ("ptw-badge-demon" if _otype == "demon" else "ptw-badge-normal")
+                        _blbl = _otype.capitalize() if _otype in ("goblin", "demon") else "Standard"
+                        _imp_pct = int(float(_r.get("implied_prob", 0.5)) * 100)
+                        _src_lbl = str(_r.get("_source", ""))
+                        st.markdown(f"""
+                        <div class='ptw-card'>
+                            <p class='ptw-player-name'>{_r['player_name']}</p>
+                            <p class='ptw-team'>{_r.get('team', '')} &nbsp;·&nbsp; {_r['stat_type']}</p>
+                            <p class='ptw-line'>{_r['line_score']}</p>
+                            <span class='ptw-badge {_bcls}'>{_blbl} &nbsp;{_imp_pct}%</span>
+                            <p style='font-size:0.68rem;color:var(--text-muted);margin:0.25rem 0 0.5rem;'>{_src_lbl}</p>
+                        </div>""", unsafe_allow_html=True)
+                        _btn_key = f"nba_ptw_{''.join(c for c in _r['player_name'] if c.isalnum())}"
+                        if st.button("→ Profile", key=_btn_key, use_container_width=True):
+                            _abbr = str(_r.get("team", "")).upper()
+                            _full = _nba_abbr_to_full.get(_abbr, "")
+                            if _full:
+                                st.session_state["ps_team"] = _full
+                            st.session_state["_ps_player_hint"] = _r["player_name"]
+                            st.session_state["_nba_ptw_nav"] = True
+                            _safe_rerun()
         else:
             st.caption("Sportsbook lines unavailable right now. Visit the Sportsbook tab to load lines.")
 
@@ -2930,6 +2964,9 @@ if sport == "🏀 NBA":
             selected_team = st.selectbox("Team", team_names, key="ps_team")
             team_code = get_team_abbreviation(selected_team)
             player_list = get_team_players(team_code)
+            _ps_hint = st.session_state.pop("_ps_player_hint", None)
+            if _ps_hint and _ps_hint in player_list:
+                st.session_state["ps_player"] = _ps_hint
             player_name = st.selectbox("Player", player_list, key="ps_player")
             if player_name:
                 nba_player_card(player_name, team_code)
@@ -3395,7 +3432,7 @@ if sport == "🏀 NBA":
         with _sb_nba_col1:
             _sb_nba = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "Underdog"],
+                ["PrizePicks", "Underdog", "FanDuel"],
                 horizontal=True,
                 key="sb_nba_select",
             )
@@ -3403,8 +3440,10 @@ if sport == "🏀 NBA":
             if st.button("🔄 Refresh Lines", key="nba_sb_refresh"):
                 if _sb_nba == "PrizePicks":
                     _pp_cache.clear(); _pp_cache_ts.clear()
-                else:
+                elif _sb_nba == "Underdog":
                     _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
+                else:
+                    _toa_cache.pop("nba_FanDuel", None); _toa_cache_ts.pop("nba_FanDuel", None)
                 _safe_rerun()
         st.session_state["nba_sportsbook"] = _sb_nba
         with st.spinner(f"Loading {_sb_nba} NBA projections..."):
@@ -3676,51 +3715,141 @@ else:
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
     with tab_mlb_home:
+        _mlb_ptw_nav = st.session_state.pop("_mlb_ptw_nav", None)
+        if _mlb_ptw_nav == "hitter":
+            components.html(
+                "<script>setTimeout(function(){"
+                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+                "if(t.length>1)t[1].click();"
+                "},150);</script>",
+                height=0,
+            )
+        elif _mlb_ptw_nav == "pitcher":
+            components.html(
+                "<script>setTimeout(function(){"
+                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+                "if(t.length>2)t[2].click();"
+                "},150);</script>",
+                height=0,
+            )
         section("Players to Watch")
         with st.spinner(""):
             _mlb_ptw_games = get_mlb_today_with_pitchers()
-            _mlb_pp = get_prizepicks_lines(league_id=2)
-        _mlb_ptw_cards = "<div class='ptw-grid'>"
-        # Today's starting pitchers
-        for _g in _mlb_ptw_games[:5]:
+            _mlb_all_teams = get_mlb_teams()
+            _mlb_abbr_to_name = {t["abbr"].upper(): t["name"] for t in _mlb_all_teams}
+            _mlb_h_frames = []
+            for _ptw_sb in ["PrizePicks", "Underdog"]:
+                _mlb_src = get_sportsbook_props("mlb", _ptw_sb)
+                if not _mlb_src.empty:
+                    _mlb_src = _mlb_src.copy(); _mlb_src["_source"] = _ptw_sb
+                    _mlb_h_frames.append(_mlb_src)
+            _mlb_fd_cached = _toa_cache.get("mlb_FanDuel")
+            if _mlb_fd_cached is not None and not _mlb_fd_cached.empty:
+                _mlb_fd_c = _mlb_fd_cached.copy(); _mlb_fd_c["_source"] = "FanDuel"
+                _mlb_h_frames.append(_mlb_fd_c)
+
+        # Build opponent ERA lookup: team_abbr -> opponent_pitcher_era
+        _opp_era_lookup = {}
+        for _g in _mlb_ptw_games:
+            _a = str(_g.get("away_abbr", "")).upper()
+            _h = str(_g.get("home_abbr", "")).upper()
+            _h_era = float(_g.get("home_p_stats", {}).get("era", 0) or 0)
+            _a_era = float(_g.get("away_p_stats", {}).get("era", 0) or 0)
+            if _a:
+                _opp_era_lookup[_a] = _h_era
+            if _h:
+                _opp_era_lookup[_h] = _a_era
+
+        # Build pitcher tiles from today's games, ranked by K/9
+        _mlb_pitcher_tiles = []
+        for _g in _mlb_ptw_games[:6]:
             for _side in ("away", "home"):
                 _pname = _g.get(f"{_side}_pitcher", "TBD")
-                _pteam = _g.get(f"{_side}_abbr", "")
+                if _pname == "TBD":
+                    continue
+                _pteam = str(_g.get(f"{_side}_abbr", ""))
                 _pstats = _g.get(f"{_side}_p_stats") or {}
                 _era = _pstats.get("era", "—")
-                _mlb_ptw_cards += (
-                    f"<div class='ptw-card'>"
-                    f"<p class='ptw-player-name'>{_pname}</p>"
-                    f"<p class='ptw-team'>{_pteam} &nbsp;·&nbsp; SP</p>"
-                    f"<p class='ptw-line' style='font-size:0.88rem'>ERA {_era}</p>"
-                    f"<span class='ptw-badge ptw-badge-normal'>Starting</span>"
-                    f"</div>"
-                )
-        # Top hitters from PrizePicks MLB
-        if not _mlb_pp.empty:
-            _mlb_h_stats = ["Hits", "Home Runs", "RBI", "Hits+Runs+RBI", "Total Bases", "Strikeouts"]
-            _mlb_top = (
-                _mlb_pp[_mlb_pp["stat_type"].isin(_mlb_h_stats)]
-                .sort_values("line_score", ascending=False)
-                .drop_duplicates("player_name")
-                .head(6)
-            )
-            for _, _r in _mlb_top.iterrows():
-                _st = str(_r.get("status") or "normal").lower()
-                _bcls = "ptw-badge-goblin" if _st == "goblin" else ("ptw-badge-demon" if _st == "demon" else "ptw-badge-normal")
-                _blbl = _st.capitalize() if _st in ("goblin", "demon") else "Normal"
-                _mlb_ptw_cards += (
-                    f"<div class='ptw-card'>"
-                    f"<p class='ptw-player-name'>{_r['player_name']}</p>"
-                    f"<p class='ptw-team'>{_r['stat_type']}</p>"
-                    f"<p class='ptw-line'>{_r['line_score']}</p>"
-                    f"<span class='ptw-badge {_bcls}'>{_blbl}</span>"
-                    f"</div>"
-                )
-        _mlb_ptw_cards += "</div>"
-        if _mlb_ptw_games or not _mlb_pp.empty:
-            st.markdown(_mlb_ptw_cards, unsafe_allow_html=True)
-        else:
+                _so = int(_pstats.get("strikeOuts", 0) or 0)
+                try:
+                    _ip = float(_pstats.get("inningsPitched", 0) or 0)
+                except Exception:
+                    _ip = 0
+                _k9 = round((_so / _ip * 9) if _ip > 0 else 0, 1)
+                _mlb_pitcher_tiles.append({
+                    "player_name": _pname, "team": _pteam,
+                    "era": _era, "_k9": _k9,
+                })
+        _mlb_pitcher_tiles.sort(key=lambda x: x["_k9"], reverse=True)
+
+        # Build hitter tiles from all sportsbooks, scored by implied_prob + opp ERA
+        _mlb_h_stats = ["Hits", "Home Runs", "RBIs", "Hits+Runs+RBIs", "Total Bases", "Stolen Bases", "RBI"]
+        _top_hitters = []
+        if _mlb_h_frames:
+            _all_mlb_h = pd.concat(_mlb_h_frames, ignore_index=True)
+            _all_mlb_h = _all_mlb_h[_all_mlb_h["stat_type"].isin(_mlb_h_stats)].copy()
+            if "implied_prob" not in _all_mlb_h.columns:
+                _all_mlb_h["implied_prob"] = 0.5
+            _all_mlb_h["implied_prob"] = pd.to_numeric(_all_mlb_h["implied_prob"], errors="coerce").fillna(0.5)
+            _all_mlb_h["opp_era"] = _all_mlb_h["team"].str.upper().map(_opp_era_lookup).fillna(0)
+            _all_mlb_h["_ptw_score"] = _all_mlb_h["implied_prob"] + _all_mlb_h["opp_era"] / 20.0
+            _all_mlb_h = _all_mlb_h.sort_values("_ptw_score", ascending=False)
+            _all_mlb_h = _all_mlb_h.drop_duplicates(["player_name", "stat_type"]).drop_duplicates("player_name")
+            _top_hitters = _all_mlb_h.head(6).to_dict("records")
+
+        if _mlb_pitcher_tiles:
+            mlb_section("Starting Pitchers")
+            for _rs in range(0, len(_mlb_pitcher_tiles), 5):
+                _chunk = _mlb_pitcher_tiles[_rs:_rs + 5]
+                _tcols = st.columns(len(_chunk))
+                for _ci, _r in enumerate(_chunk):
+                    with _tcols[_ci]:
+                        st.markdown(f"""
+                        <div class='ptw-card'>
+                            <p class='ptw-player-name'>{_r['player_name']}</p>
+                            <p class='ptw-team'>{_r['team']} &nbsp;·&nbsp; SP</p>
+                            <p class='ptw-line' style='font-size:0.85rem'>ERA {_r['era']}</p>
+                            <span class='ptw-badge ptw-badge-normal'>K/9: {_r['_k9']}</span>
+                        </div>""", unsafe_allow_html=True)
+                        _p_btn_key = f"mlb_ptw_p_{''.join(c for c in _r['player_name'] if c.isalnum())}"
+                        if st.button("→ Profile", key=_p_btn_key, use_container_width=True):
+                            _mlb_full = _mlb_abbr_to_name.get(_r["team"].upper(), "")
+                            if _mlb_full:
+                                st.session_state["p_team"] = _mlb_full
+                            st.session_state["_mlb_p_player_hint"] = _r["player_name"]
+                            st.session_state["_mlb_ptw_nav"] = "pitcher"
+                            _safe_rerun()
+
+        if _top_hitters:
+            mlb_section("Hitters to Watch")
+            for _rs in range(0, len(_top_hitters), 5):
+                _chunk = _top_hitters[_rs:_rs + 5]
+                _tcols = st.columns(len(_chunk))
+                for _ci, _r in enumerate(_chunk):
+                    with _tcols[_ci]:
+                        _otype = str(_r.get("odds_type") or "standard").lower()
+                        _bcls = "ptw-badge-goblin" if _otype == "goblin" else ("ptw-badge-demon" if _otype == "demon" else "ptw-badge-normal")
+                        _blbl = _otype.capitalize() if _otype in ("goblin", "demon") else "Standard"
+                        _opp_e = float(_r.get("opp_era", 0))
+                        _era_note = f"Opp ERA {_opp_e:.2f}" if _opp_e > 0 else ""
+                        st.markdown(f"""
+                        <div class='ptw-card'>
+                            <p class='ptw-player-name'>{_r['player_name']}</p>
+                            <p class='ptw-team'>{_r.get('team', '')} &nbsp;·&nbsp; {_r['stat_type']}</p>
+                            <p class='ptw-line'>{_r['line_score']}</p>
+                            <span class='ptw-badge {_bcls}'>{_blbl}</span>
+                            {f"<p style='font-size:0.68rem;color:var(--text-muted);margin:0.25rem 0 0.5rem;'>{_era_note}</p>" if _era_note else ""}
+                        </div>""", unsafe_allow_html=True)
+                        _h_btn_key = f"mlb_ptw_h_{''.join(c for c in _r['player_name'] if c.isalnum())}"
+                        if st.button("→ Profile", key=_h_btn_key, use_container_width=True):
+                            _mlb_full = _mlb_abbr_to_name.get(str(_r.get("team", "")).upper(), "")
+                            if _mlb_full:
+                                st.session_state["h_team"] = _mlb_full
+                            st.session_state["_mlb_h_player_hint"] = _r["player_name"]
+                            st.session_state["_mlb_ptw_nav"] = "hitter"
+                            _safe_rerun()
+
+        if not _mlb_pitcher_tiles and not _top_hitters:
             st.caption("Player data unavailable right now.")
 
         st.markdown("""
@@ -3783,7 +3912,11 @@ else:
                 if not h_roster:
                     st.warning("No hitters found.")
                 else:
-                    sel_h_name = st.selectbox("Hitter", [p["name"] for p in h_roster], key="h_player")
+                    _h_hint = st.session_state.pop("_mlb_h_player_hint", None)
+                    _h_names = [p["name"] for p in h_roster]
+                    if _h_hint and _h_hint in _h_names:
+                        st.session_state["h_player"] = _h_hint
+                    sel_h_name = st.selectbox("Hitter", _h_names, key="h_player")
                     sel_hitter = next(p for p in h_roster if p["name"] == sel_h_name)
                     mlb_player_card(sel_hitter["name"], sel_hitter["pos"], sel_team["abbr"], sel_hitter["id"])
                     mlb_section("Parameters")
@@ -3959,7 +4092,11 @@ else:
                 if not p_roster:
                     st.warning("No pitchers found.")
                 else:
-                    sel_p_name = st.selectbox("Pitcher", [p["name"] for p in p_roster], key="p_player")
+                    _p_hint = st.session_state.pop("_mlb_p_player_hint", None)
+                    _p_names = [p["name"] for p in p_roster]
+                    if _p_hint and _p_hint in _p_names:
+                        st.session_state["p_player"] = _p_hint
+                    sel_p_name = st.selectbox("Pitcher", _p_names, key="p_player")
                     sel_pitcher = next(p for p in p_roster if p["name"] == sel_p_name)
                     mlb_player_card(sel_pitcher["name"], sel_pitcher["pos"], sel_team_p["abbr"], sel_pitcher["id"])
                     mlb_section("Parameters")
@@ -4327,7 +4464,7 @@ else:
         with _sb_mlb_col1:
             _sb_mlb = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "Underdog"],
+                ["PrizePicks", "Underdog", "FanDuel"],
                 horizontal=True,
                 key="sb_mlb_select",
             )
@@ -4335,8 +4472,10 @@ else:
             if st.button("🔄 Refresh Lines", key="mlb_sb_refresh"):
                 if _sb_mlb == "PrizePicks":
                     _pp_cache.clear(); _pp_cache_ts.clear()
-                else:
+                elif _sb_mlb == "Underdog":
                     _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
+                else:
+                    _toa_cache.pop("mlb_FanDuel", None); _toa_cache_ts.pop("mlb_FanDuel", None)
                 _safe_rerun()
         st.session_state["mlb_sportsbook"] = _sb_mlb
         with st.spinner(f"Loading {_sb_mlb} MLB projections..."):
