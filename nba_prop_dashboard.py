@@ -1328,11 +1328,16 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
     ]
     legs = []
 
-    # Pre-warm gamelogs in parallel before the sequential stat loop
+    # Pre-warm both gamelog cache keys in parallel:
+    #   ("2024-25","2025-26") — used by this function for line calculation
+    #   ("2025-26",)          — used internally by _nba_hit_rate
     _fb_ids = [(p, get_player_id(p)) for p in TOP]
     _fb_ids = [(p, pid) for p, pid in _fb_ids if pid]
-    with ThreadPoolExecutor(max_workers=6) as _fb_ex:
-        _fb_futs = [_fb_ex.submit(get_gamelogs, pid, ("2024-25", "2025-26")) for _, pid in _fb_ids]
+    with ThreadPoolExecutor(max_workers=8) as _fb_ex:
+        _fb_futs = []
+        for _, pid in _fb_ids:
+            _fb_futs.append(_fb_ex.submit(get_gamelogs, pid, ("2024-25", "2025-26")))
+            _fb_futs.append(_fb_ex.submit(get_gamelogs, pid, ("2025-26",)))
         for _ff in _fb_futs:
             try:
                 _ff.result()
