@@ -541,22 +541,36 @@ def get_next_opponent(team_code):
     return None
 
 _PP_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
     "Referer": "https://app.prizepicks.com/",
     "Origin": "https://app.prizepicks.com",
     "Connection": "keep-alive",
+    "Sec-Ch-Ua": '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Windows"',
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-site",
 }
 _PP_DEAD_STATUSES = {"final", "cancelled", "failed", "lost", "won", "scored", "no_contest"}
 
-@st.cache_data(ttl=900)
+_pp_lite_cache: dict = {}
+_pp_lite_cache_ts: dict = {}
+_PP_LITE_CACHE_TTL = 300  # 5 min; never cache empty results
+
 def get_prizepicks_lines(league_id=7):
+    now = time.time()
+    cached = _pp_lite_cache.get(league_id)
+    if cached is not None and not cached.empty and now - _pp_lite_cache_ts.get(league_id, 0) < _PP_LITE_CACHE_TTL:
+        return cached
     try:
         url = f"https://api.prizepicks.com/projections?league_id={league_id}&per_page=250&single_stat=true"
-        resp = requests.get(url, headers=_PP_HEADERS, timeout=10)
+        resp = requests.get(url, headers=_PP_HEADERS, timeout=12)
         if resp.status_code != 200:
-            return pd.DataFrame()
+            return _pp_lite_cache.get(league_id, pd.DataFrame())
         payload = resp.json()
         player_map = {
             item["id"]: item["attributes"].get("display_name", "")
@@ -579,10 +593,13 @@ def get_prizepicks_lines(league_id=7):
                 "odds_type": attrs.get("odds_type", "standard"),
             })
         df = pd.DataFrame(rows)
-        return df[df["player_name"] != ""] if not df.empty else df
-    except Exception as e:
-        st.warning(f"PrizePicks fetch failed: {e}")
-        return pd.DataFrame()
+        result = df[df["player_name"] != ""] if not df.empty else df
+        if not result.empty:
+            _pp_lite_cache[league_id] = result
+            _pp_lite_cache_ts[league_id] = now
+        return result if not result.empty else _pp_lite_cache.get(league_id, pd.DataFrame())
+    except Exception:
+        return _pp_lite_cache.get(league_id, pd.DataFrame())
 
 # ─── Parlay builder ───────────────────────────────────────────────────────────
 PP_PAYOUTS = {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0}
@@ -940,9 +957,10 @@ def _get_odds_api_key() -> str:
         pass
     return os.environ.get("ODDS_API_KEY", _ODDS_API_KEY_DEFAULT)
 
+_TOA_CREDITS_REMAINING: dict = {}  # tracks x-requests-remaining per api key
+
 def get_the_odds_api_props(sport: str = "nba", sportsbook: str = "DraftKings") -> pd.DataFrame:
-    """Fetch DK or FD player props via The Odds API (the-odds-api.com).
-    Uses event-specific endpoint (player props not on /odds bulk endpoint).
+    """Fetch DK / FD / Bet365 player props via The Odds API (the-odds-api.com).
     Free tier: 500 credits/month. Credits = markets × bookmakers per call."""
     api_key = _get_odds_api_key()
     if not api_key:
@@ -954,7 +972,8 @@ def get_the_odds_api_props(sport: str = "nba", sportsbook: str = "DraftKings") -
     if cached is not None and not cached.empty and now - _toa_cache_ts.get(cache_key, 0) < _TOA_CACHE_TTL:
         return cached
 
-    bk_key = "draftkings" if sportsbook == "DraftKings" else "fanduel"
+    _BK_KEY_MAP = {"DraftKings": "draftkings", "FanDuel": "fanduel", "Bet365": "bet365"}
+    bk_key = _BK_KEY_MAP.get(sportsbook, "fanduel")
     sport_key = "basketball_nba" if sport == "nba" else "baseball_mlb"
     markets_list = _TOA_NBA_MARKETS if sport == "nba" else _TOA_MLB_MARKETS
     market_map = _TOA_NBA_MARKET_MAP if sport == "nba" else _TOA_MLB_MARKET_MAP
@@ -966,8 +985,17 @@ def get_the_odds_api_props(sport: str = "nba", sportsbook: str = "DraftKings") -
             params={"apiKey": api_key},
             timeout=15,
         )
+        if events_resp.status_code == 401:
+            _toa_cache[f"_err_{cache_key}"] = "invalid_key"
+            return _toa_cache.get(cache_key, pd.DataFrame())
+        if events_resp.status_code == 422:
+            _toa_cache[f"_err_{cache_key}"] = "quota_exceeded"
+            return _toa_cache.get(cache_key, pd.DataFrame())
         if events_resp.status_code != 200:
             return _toa_cache.get(cache_key, pd.DataFrame())
+        rem = events_resp.headers.get("x-requests-remaining")
+        if rem is not None:
+            _TOA_CREDITS_REMAINING[api_key] = int(rem)
         all_events = events_resp.json()
 
         # Filter to games starting within next 24 hours to limit credit spend
@@ -1067,7 +1095,7 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
         return df
     elif sportsbook == "Underdog":
         return get_underdog_props(sport)
-    elif sportsbook in ("DraftKings", "FanDuel"):
+    elif sportsbook in ("DraftKings", "FanDuel", "Bet365"):
         return get_the_odds_api_props(sport, sportsbook)
     return pd.DataFrame()
 
@@ -2645,8 +2673,13 @@ def render_score_ticker(games):
         return
     items_html = ""
     for g in games:
-        has_score = g["away_score"] != "" or g["home_score"] != ""
-        score = f"{g['away_score']} – {g['home_score']}" if has_score else "–"
+        is_pregame = not g["live"] and not g.get("completed", False)
+        if is_pregame:
+            score = g["status"]
+        elif g["away_score"] != "" or g["home_score"] != "":
+            score = f"{g['away_score']} – {g['home_score']}"
+        else:
+            score = "–"
         status_cls = "sg-live" if g["live"] else ""
         items_html += (
             f"<div class='sg-item'>"
@@ -3005,9 +3038,13 @@ if sport == "🏀 NBA":
             teammate_filter = st.text_input("Matchup Filter (optional)", key="ps_filter")
 
         with main_col:
-            if player_name and seasons:
+            if not player_name or not seasons:
+                st.info("Select a player and season from the sidebar to view stats.")
+            elif player_name and seasons:
                 player_id = get_player_id(player_name)
-                if player_id:
+                if not player_id:
+                    st.warning(f"Could not find player ID for **{player_name}**. Try searching by full name.")
+                else:
                     with st.spinner("Loading..."):
                         df = get_gamelogs(player_id, tuple(seasons))
                     if df.empty:
@@ -3021,10 +3058,35 @@ if sport == "🏀 NBA":
                         df["MARGIN"] = df["TARGET"] - line_value
                         df["ROLLING_AVG"] = df["TARGET"].rolling(window=rolling_window).mean()
 
-                        pp_df = get_prizepicks_lines()
+                        pp_df = get_prizepicks_with_team()
                         pp_stat = PP_STAT_MAP.get(prop_type)
                         ud_df_nba = get_underdog_props("nba")
                         ud_stat_nba = _UD_NBA_PROP_LOOKUP.get(prop_type)
+                        # FD / DK / B365 — fetch live; fall back to cache to protect credits
+                        def _toa_lookup(sb_name):
+                            cached = _toa_cache.get(f"nba_{sb_name}")
+                            if cached is not None and not cached.empty:
+                                return cached
+                            return get_the_odds_api_props("nba", sb_name)
+                        fd_df_nba  = _toa_lookup("FanDuel")
+                        dk_df_nba  = _toa_lookup("DraftKings")
+                        b365_df_nba = _toa_lookup("Bet365")
+                        toa_stat = _TOA_NBA_MARKET_MAP.get(
+                            next((k for k, v in _TOA_NBA_MARKET_MAP.items() if v == PP_STAT_MAP.get(prop_type, prop_type)), ""),
+                            PP_STAT_MAP.get(prop_type, prop_type)
+                        )
+
+                        def _toa_match(source_df, stat):
+                            if source_df.empty or not stat:
+                                return None, None, None
+                            m = source_df[
+                                (source_df["player_name"].str.lower() == player_name.lower()) &
+                                (source_df["stat_type"] == stat)
+                            ]
+                            if m.empty:
+                                return None, None, None
+                            row = m.iloc[0]
+                            return float(row["line_score"]), int(row.get("american_odds", -110)), float(row.get("implied_prob", 0.5))
 
                         # ── Market Lines ──────────────────────────────────
                         section("Market Lines")
@@ -3049,16 +3111,36 @@ if sport == "🏀 NBA":
                                 _ud_odds_val   = int(_ud_row["american_odds"])
                                 _ud_implied_val = float(_ud_row["implied_prob"])
                                 df["UD_HIT"] = df["TARGET"] > _ud_line_val
+                        _fd_line, _fd_odds, _fd_imp  = _toa_match(fd_df_nba,   toa_stat)
+                        _dk_line, _dk_odds, _dk_imp  = _toa_match(dk_df_nba,   toa_stat)
+                        _b365_line, _b365_odds, _b365_imp = _toa_match(b365_df_nba, toa_stat)
+                        for _col_name, _hit_col, _line_v in [
+                            ("FD_HIT", "FD_HIT", _fd_line),
+                            ("DK_HIT", "DK_HIT", _dk_line),
+                            ("B365_HIT", "B365_HIT", _b365_line),
+                        ]:
+                            if _line_v is not None:
+                                df[_col_name] = df["TARGET"] > _line_v
+
+                        def _fmt_odds(o): return f"+{o}" if o is not None and o > 0 else (str(o) if o is not None else "—")
+                        def _fmt_hr(col): return f"{df[col].mean():.1%}" if col in df.columns else "—"
+
                         live_line = get_real_time_line(player_name, market=prop_type.lower())
-                        _ud_odds_disp = (f"+{_ud_odds_val}" if _ud_odds_val is not None and _ud_odds_val > 0
-                                         else str(_ud_odds_val) if _ud_odds_val is not None else "—")
+                        _ud_odds_disp = _fmt_odds(_ud_odds_val)
                         _bcs = st.columns(6)
                         _bcs[0].metric("PrizePicks Line", _pp_line_val if _pp_line_val is not None else "—")
                         _bcs[1].metric("Hit Rate vs PP",  f"{df['PP_HIT'].mean():.1%}" if _pp_line_val is not None else "—")
                         _bcs[2].metric("Underdog Line",   _ud_line_val if _ud_line_val is not None else "—")
                         _bcs[3].metric("UD Odds",         _ud_odds_disp)
                         _bcs[4].metric("UD Implied",      f"{_ud_implied_val:.0%}" if _ud_implied_val is not None else "—")
-                        _bcs[5].metric("Hit Rate vs UD",  f"{df['UD_HIT'].mean():.1%}" if _ud_line_val is not None and "UD_HIT" in df.columns else "—")
+                        _bcs[5].metric("Hit Rate vs UD",  _fmt_hr("UD_HIT") if _ud_line_val is not None else "—")
+                        _bcs2 = st.columns(6)
+                        _bcs2[0].metric("FanDuel Line",   _fd_line   if _fd_line   is not None else "—")
+                        _bcs2[1].metric("Hit Rate vs FD", _fmt_hr("FD_HIT")   if _fd_line   is not None else "—")
+                        _bcs2[2].metric("DraftKings Line",_dk_line   if _dk_line   is not None else "—")
+                        _bcs2[3].metric("Hit Rate vs DK", _fmt_hr("DK_HIT")   if _dk_line   is not None else "—")
+                        _bcs2[4].metric("Bet365 Line",    _b365_line if _b365_line is not None else "—")
+                        _bcs2[5].metric("Hit Rate vs B365",_fmt_hr("B365_HIT") if _b365_line is not None else "—")
 
                         # ── Scout Report ──────────────────────────────────
                         df["IS_HOME"] = df["MATCHUP"].str.contains(r"vs\.", na=False)
@@ -3262,7 +3344,7 @@ if sport == "🏀 NBA":
                                           delta=f"{hit_vs - hit_all:+.1%} vs season",
                                           delta_color="normal")
                             else:
-                                c3.metric(f"vs {nvo_opp_code}", "No history")
+                                c3.metric(f"vs {nvo_opp_code}", "—", help="No historical matchup data")
                                 c4.metric("Games vs opp", "0")
 
                             section(f"{nvo_prop} Trend — {nvo_opp_code} Games Highlighted")
@@ -3459,7 +3541,7 @@ if sport == "🏀 NBA":
         with _sb_nba_col1:
             _sb_nba = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "Underdog", "FanDuel"],
+                ["PrizePicks", "Underdog", "FanDuel", "DraftKings", "Bet365"],
                 horizontal=True,
                 key="sb_nba_select",
             )
@@ -3467,20 +3549,26 @@ if sport == "🏀 NBA":
             if st.button("🔄 Refresh Lines", key="nba_sb_refresh"):
                 if _sb_nba == "PrizePicks":
                     _pp_cache.clear(); _pp_cache_ts.clear()
+                    _pp_lite_cache.clear(); _pp_lite_cache_ts.clear()
                 elif _sb_nba == "Underdog":
                     _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
                 else:
-                    _toa_cache.pop("nba_FanDuel", None); _toa_cache_ts.pop("nba_FanDuel", None)
+                    _toa_cache.pop(f"nba_{_sb_nba}", None); _toa_cache_ts.pop(f"nba_{_sb_nba}", None)
                 _safe_rerun()
         st.session_state["nba_sportsbook"] = _sb_nba
         with st.spinner(f"Loading {_sb_nba} NBA projections..."):
             pp_df = get_sportsbook_props("nba", _sb_nba)
+        _toa_err = _toa_cache.get(f"_err_nba_{_sb_nba}", "")
+        _toa_rem = _TOA_CREDITS_REMAINING.get(_get_odds_api_key())
+        if _sb_nba in ("FanDuel", "DraftKings", "Bet365") and _toa_rem is not None:
+            st.caption(f"Odds API credits remaining this month: **{_toa_rem}**")
         if pp_df.empty:
-            if _sb_nba in ("FanDuel", "DraftKings") and not _get_odds_api_key():
-                st.error(
-                    f"**{_sb_nba} requires an Odds API key.** "
-                    "Add `ODDS_API_KEY` to your app's secrets: Streamlit Cloud dashboard → your app → **Settings → Secrets**."
-                )
+            if _toa_err == "quota_exceeded":
+                st.error(f"**{_sb_nba} API quota exhausted.** The Odds API free tier allows 500 credits/month. Add a new `ODDS_API_KEY` in Secrets to restore access.")
+            elif _toa_err == "invalid_key":
+                st.error(f"**{_sb_nba} API key is invalid.** Update `ODDS_API_KEY` in Streamlit Secrets.")
+            elif _sb_nba in ("FanDuel", "DraftKings", "Bet365") and not _get_odds_api_key():
+                st.error(f"**{_sb_nba} requires an Odds API key.** Add `ODDS_API_KEY` to Streamlit Secrets.")
             else:
                 st.warning(f"No {_sb_nba} NBA lines available right now. Lines are typically posted on game days.")
         else:
@@ -3569,7 +3657,7 @@ if sport == "🏀 NBA":
             _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
 
             _nba_sb = st.session_state.get("nba_sportsbook", "PrizePicks")
-            _SB_OPTS = ["PrizePicks", "Underdog", "FanDuel"]
+            _SB_OPTS = ["PrizePicks", "Underdog", "FanDuel", "DraftKings", "Bet365"]
             if _nba_sb not in _SB_OPTS:
                 _nba_sb = "PrizePicks"
             _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
@@ -4504,7 +4592,7 @@ else:
         with _sb_mlb_col1:
             _sb_mlb = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "Underdog", "FanDuel"],
+                ["PrizePicks", "Underdog", "FanDuel", "DraftKings", "Bet365"],
                 horizontal=True,
                 key="sb_mlb_select",
             )
@@ -4512,21 +4600,26 @@ else:
             if st.button("🔄 Refresh Lines", key="mlb_sb_refresh"):
                 if _sb_mlb == "PrizePicks":
                     _pp_cache.clear(); _pp_cache_ts.clear()
+                    _pp_lite_cache.clear(); _pp_lite_cache_ts.clear()
                 elif _sb_mlb == "Underdog":
                     _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
                 else:
-                    _toa_cache.pop("mlb_FanDuel", None); _toa_cache_ts.pop("mlb_FanDuel", None)
+                    _toa_cache.pop(f"mlb_{_sb_mlb}", None); _toa_cache_ts.pop(f"mlb_{_sb_mlb}", None)
                 _safe_rerun()
         st.session_state["mlb_sportsbook"] = _sb_mlb
         with st.spinner(f"Loading {_sb_mlb} MLB projections..."):
             mlb_pp_df = get_sportsbook_props("mlb", _sb_mlb)
-
+        _mlb_toa_err = _toa_cache.get(f"_err_mlb_{_sb_mlb}", "")
+        _mlb_toa_rem = _TOA_CREDITS_REMAINING.get(_get_odds_api_key())
+        if _sb_mlb in ("FanDuel", "DraftKings", "Bet365") and _mlb_toa_rem is not None:
+            st.caption(f"Odds API credits remaining this month: **{_mlb_toa_rem}**")
         if mlb_pp_df.empty:
-            if _sb_mlb in ("FanDuel", "DraftKings") and not _get_odds_api_key():
-                st.error(
-                    f"**{_sb_mlb} requires an Odds API key.** "
-                    "Add `ODDS_API_KEY` to your app's secrets: Streamlit Cloud dashboard → your app → **Settings → Secrets**."
-                )
+            if _mlb_toa_err == "quota_exceeded":
+                st.error(f"**{_sb_mlb} API quota exhausted.** The Odds API free tier allows 500 credits/month. Add a new `ODDS_API_KEY` in Secrets.")
+            elif _mlb_toa_err == "invalid_key":
+                st.error(f"**{_sb_mlb} API key is invalid.** Update `ODDS_API_KEY` in Streamlit Secrets.")
+            elif _sb_mlb in ("FanDuel", "DraftKings", "Bet365") and not _get_odds_api_key():
+                st.error(f"**{_sb_mlb} requires an Odds API key.** Add `ODDS_API_KEY` to Streamlit Secrets.")
             else:
                 st.info(f"No {_sb_mlb} MLB lines available right now. Lines are typically posted on game days.")
         else:
@@ -4618,7 +4711,7 @@ else:
             _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
 
             _mlb_sb = st.session_state.get("mlb_sportsbook", "PrizePicks")
-            _MLB_SB_OPTS = ["PrizePicks", "Underdog", "FanDuel"]
+            _MLB_SB_OPTS = ["PrizePicks", "Underdog", "FanDuel", "DraftKings", "Bet365"]
             if _mlb_sb not in _MLB_SB_OPTS:
                 _mlb_sb = "PrizePicks"
             _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
