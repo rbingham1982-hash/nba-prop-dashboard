@@ -7,6 +7,7 @@ import os
 import re
 import time
 import streamlit as st
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import streamlit.components.v1 as components
 import pandas as pd
 import plotly.express as px
@@ -1326,11 +1327,23 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
         "Paolo Banchero", "Tyrese Haliburton", "Bam Adebayo", "Trae Young",
     ]
     legs = []
+
+    # Pre-warm gamelogs in parallel before the sequential stat loop
+    _fb_ids = [(p, get_player_id(p)) for p in TOP]
+    _fb_ids = [(p, pid) for p, pid in _fb_ids if pid]
+    with ThreadPoolExecutor(max_workers=6) as _fb_ex:
+        _fb_futs = [_fb_ex.submit(get_gamelogs, pid, ("2024-25", "2025-26")) for _, pid in _fb_ids]
+        for _ff in _fb_futs:
+            try:
+                _ff.result()
+            except Exception:
+                pass
+
     for player in TOP:
         pid = get_player_id(player)
         if not pid:
             continue
-        df = get_gamelogs(pid, ["2024-25", "2025-26"])
+        df = get_gamelogs(pid, ("2024-25", "2025-26"))
         if df.empty:
             continue
         for stat in stat_types:
@@ -3700,8 +3713,24 @@ if sport == "🏀 NBA":
                     st.caption("Using historical averages as prop lines (no live sportsbook data). Lines set at ~88% of rolling average.")
                 _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
             else:
-                _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(25)
+                _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(20)
                 _legs_nba = []
+
+                # Pre-warm gamelogs in parallel — avoids 20×2s sequential NBA API calls
+                _warm_ids = [(r["player_name"], get_player_id(r["player_name"])) for _, r in _pp_filt.iterrows()]
+                _warm_ids = [(n, p) for n, p in _warm_ids if p]
+                _warm_prog = st.progress(0, text=f"Loading {len(_warm_ids)} player histories…")
+                with ThreadPoolExecutor(max_workers=6) as _wex:
+                    _wfutures = {_wex.submit(get_gamelogs, pid, ("2025-26",)): name for name, pid in _warm_ids}
+                    _wdone = 0
+                    for _wf in as_completed(_wfutures):
+                        _wdone += 1
+                        _warm_prog.progress(
+                            _wdone / max(1, len(_warm_ids)),
+                            text=f"Loading histories… ({_wdone}/{len(_warm_ids)})",
+                        )
+                _warm_prog.empty()
+
                 _prog = st.progress(0, text="Calculating hit rates…")
                 for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
                     _ot = _row.get("odds_type", "standard") or "standard"
