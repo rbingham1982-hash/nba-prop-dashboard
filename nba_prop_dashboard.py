@@ -506,7 +506,7 @@ def get_gamelogs(player_id, seasons):
             try:
                 logs = playergamelog.PlayerGameLog(
                     player_id=player_id, season=season,
-                    season_type_all_star=s_type,
+                    season_type_all_star=s_type, timeout=10,
                 ).get_data_frames()[0]
                 if logs.empty:
                     continue
@@ -1120,6 +1120,8 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
         return 0.5, 0
     df = get_gamelogs(pid, ("2025-26",))
     if df.empty:
+        df = get_gamelogs(pid, ("2024-25",))
+    if df.empty:
         return 0.5, 0
     if col in ("PRA", "PA", "PR", "FS"):
         df = df.copy()
@@ -1328,19 +1330,16 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
     ]
     legs = []
 
-    # Pre-warm both gamelog cache keys in parallel:
-    #   ("2024-25","2025-26") — used by this function for line calculation
-    #   ("2025-26",)          — used internally by _nba_hit_rate
+    # Pre-warm 2024-25 gamelogs in parallel (complete season, fast, no rate-limit risk).
+    # We fetch 2024-25 only here — hit rate is computed inline using the same df,
+    # so we never trigger a slow 2025-26 API call in the fallback path.
     _fb_ids = [(p, get_player_id(p)) for p in TOP]
     _fb_ids = [(p, pid) for p, pid in _fb_ids if pid]
-    with ThreadPoolExecutor(max_workers=8) as _fb_ex:
-        _fb_futs = []
-        for _, pid in _fb_ids:
-            _fb_futs.append(_fb_ex.submit(get_gamelogs, pid, ("2024-25", "2025-26")))
-            _fb_futs.append(_fb_ex.submit(get_gamelogs, pid, ("2025-26",)))
+    with ThreadPoolExecutor(max_workers=5) as _fb_ex:
+        _fb_futs = [_fb_ex.submit(get_gamelogs, pid, ("2024-25",)) for _, pid in _fb_ids]
         for _ff in _fb_futs:
             try:
-                _ff.result()
+                _ff.result(timeout=30)
             except Exception:
                 pass
 
@@ -1348,7 +1347,8 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
         pid = get_player_id(player)
         if not pid:
             continue
-        df = get_gamelogs(pid, ("2024-25", "2025-26"))
+        # Use 2024-25 directly — it's pre-warmed and complete. Avoids slow 2025-26 API call.
+        df = get_gamelogs(pid, ("2024-25",))
         if df.empty:
             continue
         for stat in stat_types:
@@ -1359,9 +1359,15 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
             if len(vals) < 3:
                 continue
             line = round(float(vals.mean()) * 0.88, 1)
-            rate, n = _nba_hit_rate(player, stat, line, odds_type="standard")
+            # Inline hit rate using the same df — avoids _nba_hit_rate's internal get_gamelogs call
+            last30 = vals[-30:] if len(vals) >= 5 else vals
+            last10 = vals[-10:] if len(vals) >= 10 else vals
+            n = len(last30)
             if n < 3:
                 continue
+            r30 = float((last30 > line).sum()) / len(last30)
+            r10 = float((last10 > line).sum()) / len(last10) if len(last10) >= 5 else r30
+            rate = round(min(0.97, max(0.03, 0.7 * (0.6 * r10 + 0.4 * r30) + 0.3 * 0.5)), 3)
             legs.append({
                 "player_name": player, "team": "", "stat_type": stat,
                 "line_score": line, "odds_type": "standard", "american_odds": -110,
@@ -3721,14 +3727,14 @@ if sport == "🏀 NBA":
                 _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(20)
                 _legs_nba = []
 
-                # Pre-warm gamelogs in parallel — avoids 20×2s sequential NBA API calls
+                # Pre-warm gamelogs in parallel — 3 workers avoids NBA API rate-limiting
                 _warm_ids = [(r["player_name"], get_player_id(r["player_name"])) for _, r in _pp_filt.iterrows()]
                 _warm_ids = [(n, p) for n, p in _warm_ids if p]
                 _warm_prog = st.progress(0, text=f"Loading {len(_warm_ids)} player histories…")
-                with ThreadPoolExecutor(max_workers=6) as _wex:
+                with ThreadPoolExecutor(max_workers=3) as _wex:
                     _wfutures = {_wex.submit(get_gamelogs, pid, ("2025-26",)): name for name, pid in _warm_ids}
                     _wdone = 0
-                    for _wf in as_completed(_wfutures):
+                    for _wf in as_completed(_wfutures, timeout=120):
                         _wdone += 1
                         _warm_prog.progress(
                             _wdone / max(1, len(_warm_ids)),
