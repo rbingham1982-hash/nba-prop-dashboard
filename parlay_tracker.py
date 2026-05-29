@@ -450,6 +450,15 @@ def get_all_weeks() -> list:
     return sorted({p["iso_week"] for p in data["parlays"]}, reverse=True)
 
 
+def get_sport_weeks(sport: str) -> list:
+    """Return ISO weeks that have logged parlays for a specific sport, most-recent first."""
+    data = _load()
+    return sorted(
+        {p["iso_week"] for p in data["parlays"] if p.get("sport") == sport},
+        reverse=True,
+    )
+
+
 def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dict:
     """Compute accuracy metrics for a given ISO week (defaults to current week).
     Pass sport='NBA' or sport='MLB' to filter."""

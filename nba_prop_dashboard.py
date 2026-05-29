@@ -2800,13 +2800,19 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                 except Exception as _e:
                     st.error(f"Resolution error: {_e}")
     with _c1:
-        _all_weeks = parlay_tracker.get_all_weeks()
-        if _cur_week not in _all_weeks:
-            _all_weeks = [_cur_week] + _all_weeks
+        # Build week list filtered to this sport so we default to a week that has data
+        _all_weeks_raw = parlay_tracker.get_all_weeks()
+        _sport_weeks = parlay_tracker.get_sport_weeks(sport_filter)
+        # Merge: current week first, then all weeks that have any parlays
+        _all_weeks = list({_cur_week} | set(_all_weeks_raw))
+        _all_weeks = sorted(_all_weeks, reverse=True)
+        # Default index: prefer most recent week this sport has parlays; fall back to current
+        _default_week = _sport_weeks[0] if _sport_weeks else _cur_week
+        _default_idx = _all_weeks.index(_default_week) if _default_week in _all_weeks else 0
         _sel_week = st.selectbox(
             "Week",
             _all_weeks,
-            index=0,
+            index=_default_idx,
             format_func=lambda w: f"{w}  {'← current' if w == _cur_week else ''}",
             key=f"acc_week_{sport_filter}",
         )
@@ -2840,9 +2846,17 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                 "Bias":           f"{'+' if b >= 0 else ''}{b*100:.1f}%",
             })
         st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, use_container_width=True)
+    elif _wsum["total_legs"] > 0:
+        _pending = _wsum["total_legs"] - _wsum["resolved_legs"]
+        st.info(
+            f"**{_pending} leg(s) pending resolution** for {_sel_week}. "
+            f"Click **🔄 Resolve Outcomes** above to fetch game results and populate hit-rate stats."
+        )
     else:
-        st.info("No resolved legs for this week yet. Click **Resolve Outcomes** above, "
-                "or wait — outcomes auto-resolve once games finish.")
+        st.info(
+            f"No {sport_filter} parlays logged for this week. "
+            "Build parlays on the **Parlays** tab to start tracking accuracy."
+        )
     st.divider()
 
     # ── All-time calibration ──────────────────────────────────────────────────
