@@ -1431,6 +1431,55 @@ def _fallback_mlb_legs(stat_types: list = None) -> list:
     return legs
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def _compute_todays_best_plays_mlb() -> list:
+    """Score today's Underdog MLB props; return top 5 plays (2 pitchers + 3 hitters)."""
+    try:
+        ud = get_underdog_props("mlb")
+        if ud.empty:
+            return []
+        FD_STATS = {"Hits", "Home Runs", "RBIs", "Total Bases", "Pitcher Strikeouts", "Hits Allowed"}
+        df = ud[ud["stat_type"].isin(FD_STATS)].copy()
+        df = df.drop_duplicates(["player_name", "stat_type"]).reset_index(drop=True)
+        scored = []
+        for _, row in df.iterrows():
+            try:
+                rate, n = _mlb_hit_rate(
+                    row["player_name"], row["stat_type"], float(row["line_score"] or 0),
+                    odds_type=str(row.get("odds_type", "standard") or "standard"),
+                    implied_override=float(
+                        row.get("implied_prob", -1.0) if row.get("implied_prob") is not None else -1.0
+                    ),
+                )
+                if n < 5:
+                    continue
+                direction = "OVER" if rate >= 0.5 else "UNDER"
+                edge = max(rate, 1.0 - rate)
+                scored.append({
+                    "player": row["player_name"],
+                    "team": str(row.get("team", "") or ""),
+                    "stat": row["stat_type"],
+                    "line": float(row["line_score"]),
+                    "hit_rate": rate,
+                    "edge": edge,
+                    "direction": direction,
+                    "n": n,
+                    "game": str(row.get("game_label", "") or ""),
+                    "is_pitcher": row["stat_type"] in _PP_PITCHER_TYPES,
+                })
+            except Exception:
+                continue
+        if not scored:
+            return []
+        pitchers = sorted([s for s in scored if s["is_pitcher"]], key=lambda x: x["edge"], reverse=True)
+        hitters  = sorted([s for s in scored if not s["is_pitcher"]], key=lambda x: x["edge"], reverse=True)
+        best = pitchers[:2] + hitters[:3]
+        best.sort(key=lambda x: x["edge"], reverse=True)
+        return best[:5]
+    except Exception:
+        return []
+
+
 _ODDS_BADGE_HTML = {
     "goblin":   "<span style='font-size:0.62rem;font-weight:700;letter-spacing:0.08em;"
                 "color:#22c55e;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);"
@@ -4034,6 +4083,41 @@ else:
         if not _mlb_pitcher_tiles and not _top_hitters:
             st.caption("Player data unavailable right now.")
 
+        # ── Today's Best Plays ────────────────────────────────────────────────
+        with st.spinner("Analyzing today's best plays…"):
+            _tbp = _compute_todays_best_plays_mlb()
+        if _tbp:
+            mlb_section("Today's Best Plays")
+            st.markdown(
+                "<p style='font-size:0.75rem;color:var(--text-muted);margin:-0.25rem 0 0.9rem;'>"
+                "Top-edge props from Underdog Fantasy lines · 2 pitchers + 3 hitters · refreshed hourly</p>",
+                unsafe_allow_html=True,
+            )
+            _tbp_cols = st.columns(len(_tbp))
+            for _tcol, _tp in zip(_tbp_cols, _tbp):
+                with _tcol:
+                    _is_over = _tp["direction"] == "OVER"
+                    _dir_color = "#22c55e" if _is_over else "#f87171"
+                    _dir_bg    = "rgba(34,197,94,0.1)" if _is_over else "rgba(248,113,113,0.1)"
+                    _conf_pct  = int(_tp["edge"] * 100)
+                    _role      = "SP" if _tp["is_pitcher"] else "Hitter"
+                    st.markdown(f"""
+                    <div class='ptw-card' style='border-color:{_dir_color}44;'>
+                        <p class='ptw-player-name'>{_tp['player']}</p>
+                        <p class='ptw-team'>{_tp['team']} &nbsp;·&nbsp; {_role}</p>
+                        <p class='ptw-line' style='font-size:0.92rem;margin-bottom:0.3rem;'>
+                            {_tp['stat']} &nbsp;<span style='color:var(--text-muted);font-size:0.82rem;font-weight:500;'>{_tp['line']}</span>
+                        </p>
+                        <span style='display:inline-block;font-size:0.6rem;font-weight:700;letter-spacing:0.09em;
+                                     text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:4px;
+                                     color:{_dir_color};background:{_dir_bg};border:1px solid {_dir_color}40;'>
+                            {_tp['direction']}
+                        </span>
+                        <p style='font-size:0.64rem;color:var(--text-muted);margin:0.35rem 0 0;'>
+                            {_conf_pct}% confidence &nbsp;·&nbsp; {_tp['n']}G sample
+                        </p>
+                    </div>""", unsafe_allow_html=True)
+
         st.markdown("""
         <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
             <div class="sport-hero-watermark">⚾</div>
@@ -4764,10 +4848,10 @@ else:
             _mb_max = st.session_state.get("mlb_par_max_val", _mlb_par_max)
             _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
 
-            _mlb_sb = st.session_state.get("mlb_sportsbook", "PrizePicks")
-            _MLB_SB_OPTS = ["PrizePicks", "Underdog", "FanDuel", "DraftKings", "Bet365"]
+            _mlb_sb = st.session_state.get("mlb_sportsbook", "Underdog")
+            _MLB_SB_OPTS = ["Underdog", "PrizePicks", "FanDuel", "DraftKings", "Bet365"]
             if _mlb_sb not in _MLB_SB_OPTS:
-                _mlb_sb = "PrizePicks"
+                _mlb_sb = "Underdog"
             _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
             with _mlb_par_sb_col1:
                 _sb_choice_mlb = st.radio(
@@ -4808,7 +4892,7 @@ else:
                     st.caption("Using historical averages as prop lines (no live sportsbook data).")
                 _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
             else:
-                _mlb_filt = _mlb_filt.sort_values("line_score", ascending=False).head(60)
+                _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(25)
                 _legs_mlb = []
                 _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
                 for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
