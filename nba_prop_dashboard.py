@@ -14,7 +14,7 @@ import plotly.express as px
 import requests
 from bs4 import BeautifulSoup
 from nba_api.stats.static import teams, players
-from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv3
+from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv3, commonallplayers
 from datetime import datetime, timedelta
 import parlay_tracker
 
@@ -468,6 +468,20 @@ def get_team_id(team_abbr):
     team = next((t for t in teams.get_teams() if t["abbreviation"].upper() == team_abbr.upper()), None)
     return team["id"] if team else None
 
+# ESPN scoreboard returns shorter abbreviations for some teams; map them to nba_api format
+_ESPN_TO_NBA_ABBR = {
+    "NY":   "NYK",
+    "SA":   "SAS",
+    "GS":   "GSW",
+    "NO":   "NOP",
+    "WSH":  "WAS",
+    "PHO":  "PHX",
+    "UTAH": "UTA",
+}
+
+def _resolve_nba_abbr(espn_abbr: str) -> str:
+    return _ESPN_TO_NBA_ABBR.get(espn_abbr.upper(), espn_abbr.upper())
+
 @st.cache_data(ttl=3600)
 def get_team_players(team_abbr):
     team_id = get_team_id(team_abbr)
@@ -478,6 +492,18 @@ def get_team_players(team_abbr):
         return roster["PLAYER"].tolist()
     except Exception:
         return []
+
+@st.cache_data(ttl=86400)
+def _get_current_season_player_ids() -> dict:
+    """Live fallback: name→id map from CommonAllPlayers for players missing from the static db."""
+    try:
+        df = commonallplayers.CommonAllPlayers(
+            is_only_current_season=1, league_id="00", season="2025-26"
+        ).get_data_frames()[0]
+        return {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
+                for _, row in df.iterrows()}
+    except Exception:
+        return {}
 
 def get_player_id(player_name):
     # Exact / regex match first
@@ -496,7 +522,9 @@ def get_player_id(player_name):
             return filtered[0]['id']
         if not filtered and len(candidates) == 1:
             return candidates[0]['id']
-    return None
+    # Final fallback: live API lookup for recent players not yet in the static database
+    live_map = _get_current_season_player_ids()
+    return live_map.get(player_name.strip().lower())
 
 @st.cache_data(ttl=3600)
 def get_gamelogs(player_id, seasons):
@@ -545,16 +573,7 @@ _PP_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
     "Referer": "https://app.prizepicks.com/",
-    "Origin": "https://app.prizepicks.com",
-    "Connection": "keep-alive",
-    "Sec-Ch-Ua": '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
-    "Sec-Ch-Ua-Mobile": "?0",
-    "Sec-Ch-Ua-Platform": '"Windows"',
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-site",
 }
 _PP_DEAD_STATUSES = {"final", "cancelled", "failed", "lost", "won", "scored", "no_contest"}
 
@@ -907,6 +926,308 @@ def get_underdog_props(sport: str = "nba") -> pd.DataFrame:
     except Exception:
         return _ud_cache.get(sport, pd.DataFrame())
 
+# ── DraftKings public sportsbook endpoint (no auth, unofficial) ─────────────
+_DK_MLB_EVENT_GROUP = 84240
+_DK_NBA_EVENT_GROUP = 42648
+_DK_CACHE_TTL = 300  # 5 minutes
+
+_DK_MLB_MARKET_MAP = {
+    "Batter Hits": "Hits",
+    "Batter Home Runs": "Home Runs",
+    "Batter RBIs": "RBIs",
+    "Batter Total Bases": "Total Bases",
+    "Batter Stolen Bases": "Stolen Bases",
+    "Batter Walks": "Walks",
+    "Pitcher Strikeouts": "Pitcher Strikeouts",
+    "Pitcher Hits Allowed": "Hits Allowed",
+    "Pitcher Earned Runs Allowed": "Earned Runs Allowed",
+    "Pitcher Walks Allowed": "Walks Allowed",
+    "Pitcher Outs Recorded": "Pitching Outs",
+    # Aliases DK sometimes uses
+    "Hits": "Hits",
+    "Home Runs": "Home Runs",
+    "RBIs": "RBIs",
+    "Total Bases": "Total Bases",
+    "Stolen Bases": "Stolen Bases",
+    "Strikeouts": "Pitcher Strikeouts",
+}
+
+_dk_cache: dict = {}
+_dk_cache_ts: dict = {}
+
+
+def get_draftkings_props(sport: str = "mlb") -> pd.DataFrame:
+    """Fetch MLB/NBA player props from DraftKings' public (unofficial) sportsbook API.
+    No API key required. Falls back through NJ → IL → PA state endpoints."""
+    now = time.time()
+    cached = _dk_cache.get(sport)
+    if cached is not None and not cached.empty and now - _dk_cache_ts.get(sport, 0) < _DK_CACHE_TTL:
+        return cached
+
+    group_id = _DK_MLB_EVENT_GROUP if sport == "mlb" else _DK_NBA_EVENT_GROUP
+    market_map = _DK_MLB_MARKET_MAP
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+    }
+
+    resp = None
+    for state in ("US-NJ-SB", "US-IL-SB", "US-PA-SB"):
+        try:
+            url = f"https://sportsbook.draftkings.com/sites/{state}/api/v1/eventgroup/{group_id}/full"
+            r = requests.get(url, params={"format": "json"}, headers=headers, timeout=20)
+            if r.status_code == 200:
+                resp = r
+                break
+        except Exception:
+            continue
+
+    if resp is None:
+        return _dk_cache.get(sport, pd.DataFrame())
+
+    # DK returns HTML when their API is inaccessible from server-side requests
+    ct = resp.headers.get("Content-Type", "")
+    if "html" in ct or resp.text.lstrip().startswith("<!"):
+        return _dk_cache.get(sport, pd.DataFrame())
+
+    try:
+        data = resp.json()
+    except Exception:
+        return _dk_cache.get(sport, pd.DataFrame())
+
+    eg = data.get("eventGroup", {})
+
+    # Build event id → metadata map
+    event_map = {}
+    for ev in eg.get("events", []):
+        eid = str(ev.get("eventId", ""))
+        event_map[eid] = {
+            "game_label": ev.get("name", ""),
+            "start_time": ev.get("startDate", ""),
+        }
+
+    rows = []
+    for cat in eg.get("offerCategories", []):
+        for sub in cat.get("offerSubcategories", []):
+            stat_type = market_map.get(sub.get("name", ""))
+            if not stat_type:
+                continue
+
+            # offers can be a list of lists (one inner list per event) or flat
+            flat_offers = []
+            for item in sub.get("offers", []):
+                if isinstance(item, list):
+                    flat_offers.extend(item)
+                elif isinstance(item, dict):
+                    flat_offers.append(item)
+
+            for offer in flat_offers:
+                ev_id = str(offer.get("eventId", ""))
+                ev_info = event_map.get(ev_id, {})
+                game_label = ev_info.get("game_label", "")
+                start_time = ev_info.get("start_time", "")
+
+                for outcome in offer.get("outcomes", []):
+                    if outcome.get("label", "").lower() != "over":
+                        continue
+                    player_name = outcome.get("participant", "") or outcome.get("metadata", {}).get("player", "")
+                    line_val = outcome.get("line")
+                    odds_str = str(outcome.get("oddsAmerican", "-110"))
+                    if not player_name or line_val is None:
+                        continue
+                    try:
+                        american = int(odds_str.replace("+", ""))
+                    except Exception:
+                        american = -110
+                    try:
+                        line_score = float(line_val)
+                    except Exception:
+                        continue
+                    rows.append({
+                        "player_name": player_name,
+                        "team": "",
+                        "stat_type": stat_type,
+                        "line_score": line_score,
+                        "odds_type": "standard",
+                        "american_odds": american,
+                        "implied_prob": round(_american_to_implied(american), 3),
+                        "game_id": ev_id,
+                        "game_label": game_label,
+                        "start_time": start_time,
+                        "sportsbook": "DraftKings",
+                    })
+
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return _dk_cache.get(sport, pd.DataFrame())
+    result = df[df["player_name"] != ""].drop_duplicates(["player_name", "stat_type"])
+    _dk_cache[sport] = result
+    _dk_cache_ts[sport] = now
+    return result
+
+
+# ── SharpAPI (free tier: DK + FD, no credit card, 12 req/min) ───────────────
+# Sign up at sharpapi.io — free tier gives DraftKings + FanDuel player props.
+# Add your key to .streamlit/secrets.toml as SHARP_API_KEY = "sk_live_xxx"
+
+_SHARP_API_BASE = "https://api.sharpapi.io/api/v1"
+_SHARP_CACHE_TTL = 300  # 5 minutes
+
+# SharpAPI market_type → our normalized stat_type
+_SHARP_MLB_MARKET_MAP = {
+    "pitcher_strikeouts":      "Pitcher Strikeouts",
+    "pitcher_walks_allowed":   "Walks Allowed",
+    "pitcher_earned_runs":     "Earned Runs Allowed",
+    "hitting_hits":            "Hits",
+    "hitting_home_runs":       "Home Runs",
+    "hitting_rbis":            "RBIs",
+    "hitting_total_bases":     "Total Bases",
+    "hitting_doubles":         "Doubles",
+    "hitting_runs_scored":     "Runs",
+    # Alternate label spellings SharpAPI may use
+    "batter_hits":             "Hits",
+    "batter_home_runs":        "Home Runs",
+    "batter_rbis":             "RBIs",
+    "batter_total_bases":      "Total Bases",
+}
+
+_sharp_cache: dict = {}
+_sharp_cache_ts: dict = {}
+
+
+def _get_sharp_api_key() -> str:
+    try:
+        k = st.secrets.get("SHARP_API_KEY", "")
+        if k:
+            return k
+    except Exception:
+        pass
+    return os.environ.get("SHARP_API_KEY", "")
+
+
+def get_sharpapi_props(sport: str = "mlb", sportsbook: str = "DraftKings") -> pd.DataFrame:
+    """Fetch MLB/NBA player props from SharpAPI (free tier: DK + FD, no CC required).
+    Register at sharpapi.io and add SHARP_API_KEY to .streamlit/secrets.toml."""
+    api_key = _get_sharp_api_key()
+    if not api_key:
+        return pd.DataFrame()
+
+    _SB_KEY_MAP = {
+        "DraftKings": "draftkings",
+        "FanDuel":    "fanduel",
+        "BetMGM":     "betmgm",
+        "Caesars":    "caesars",
+    }
+    sb_key = _SB_KEY_MAP.get(sportsbook, sportsbook.lower())
+    league = "mlb" if sport == "mlb" else "nba"
+    cache_key = f"{league}_{sb_key}"
+
+    now = time.time()
+    cached = _sharp_cache.get(cache_key)
+    if cached is not None and not cached.empty and now - _sharp_cache_ts.get(cache_key, 0) < _SHARP_CACHE_TTL:
+        return cached
+
+    market_map = _SHARP_MLB_MARKET_MAP
+
+    headers = {
+        "X-API-Key": api_key,
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0",
+    }
+
+    try:
+        rows = []
+        offset = 0
+        limit = 200
+        while True:
+            resp = requests.get(
+                f"{_SHARP_API_BASE}/odds",
+                headers=headers,
+                params={
+                    "league":      league,
+                    "sportsbook":  sb_key,
+                    "market":      "player_props",
+                    "limit":       limit,
+                    "offset":      offset,
+                },
+                timeout=15,
+            )
+            if resp.status_code == 401:
+                _sharp_cache[f"_err_{cache_key}"] = "invalid_key"
+                break
+            if resp.status_code == 429:
+                # Rate limited — return whatever we have so far
+                break
+            if resp.status_code != 200:
+                break
+
+            data = resp.json()
+            items = data.get("data", [])
+            if not items:
+                break
+
+            for item in items:
+                mtype = item.get("market_type", "")
+                stat_type = market_map.get(mtype)
+                if not stat_type:
+                    continue
+                player_name = item.get("selection", "")
+                if not player_name:
+                    continue
+                # SharpAPI returns the line embedded in selection or a separate field
+                line_val = item.get("line") or item.get("point") or item.get("handicap")
+                if line_val is None:
+                    continue
+                try:
+                    line_score = float(line_val)
+                except Exception:
+                    continue
+                american = item.get("odds_american", -110)
+                try:
+                    american = int(american)
+                except Exception:
+                    american = -110
+                implied = item.get("odds_probability")
+                if implied is None:
+                    implied = round(_american_to_implied(american), 3)
+                else:
+                    implied = round(float(implied), 3)
+
+                home = item.get("home_team", "")
+                away = item.get("away_team", "")
+                game_label = f"{away} @ {home}" if away and home else ""
+                rows.append({
+                    "player_name":  player_name,
+                    "team":         "",
+                    "stat_type":    stat_type,
+                    "line_score":   line_score,
+                    "odds_type":    "standard",
+                    "american_odds": american,
+                    "implied_prob": implied,
+                    "game_id":      str(item.get("event_id", "")),
+                    "game_label":   game_label,
+                    "start_time":   str(item.get("updated_at", "")),
+                    "sportsbook":   sportsbook,
+                })
+
+            pagination = data.get("pagination", {})
+            if not pagination.get("has_more", False):
+                break
+            offset += limit
+            time.sleep(0.1)  # stay well under 12 req/min
+
+        if not rows:
+            return _sharp_cache.get(cache_key, pd.DataFrame())
+
+        df = pd.DataFrame(rows)
+        result = df[df["player_name"] != ""].drop_duplicates(["player_name", "stat_type"])
+        _sharp_cache[cache_key] = result
+        _sharp_cache_ts[cache_key] = now
+        return result
+    except Exception:
+        return _sharp_cache.get(cache_key, pd.DataFrame())
+
+
 # ── The Odds API (aggregates DK + FD player props) ──────────────────────────
 # Free tier: 500 credits/month. Credits = bookmakers × markets per event call.
 # We use 1 bookmaker × 5 NBA markets or 4 MLB markets = 5-4 credits per event.
@@ -1096,8 +1417,22 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
         return df
     elif sportsbook == "Underdog":
         return get_underdog_props(sport)
-    elif sportsbook in ("DraftKings", "FanDuel", "Bet365"):
-        return get_the_odds_api_props(sport, sportsbook)
+    elif sportsbook == "DraftKings":
+        # Try SharpAPI first (free, no CC); fall back to direct endpoint (currently blocked)
+        if _get_sharp_api_key():
+            df = get_sharpapi_props(sport, "DraftKings")
+            if not df.empty:
+                return df
+        return get_draftkings_props(sport)
+    elif sportsbook == "FanDuel":
+        # Try SharpAPI first (free, no CC); fall back to The Odds API
+        if _get_sharp_api_key():
+            df = get_sharpapi_props(sport, "FanDuel")
+            if not df.empty:
+                return df
+        return get_the_odds_api_props(sport, "FanDuel")
+    elif sportsbook == "Bet365":
+        return get_the_odds_api_props(sport, "Bet365")
     return pd.DataFrame()
 
 @st.cache_data(ttl=3600)
@@ -2668,7 +3003,7 @@ SEASONS = ["2022-23", "2023-24", "2024-25", "2025-26"]
 
 _SHARED_CHART = dict(
     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#191c23",
-    font_color="#5c6272", title_font_color="#dfe1ea", title_font_size=13,
+    font_color="#5c6272", title_font_color="#dfe1ea", title_font_size=13, title_text="",
     font=dict(family="Inter, sans-serif", size=11),
     xaxis=dict(gridcolor="#252a35", linecolor="#252a35", zerolinecolor="#252a35",
                tickfont=dict(size=10, color="#5c6272"), showspikes=True,
@@ -3384,6 +3719,9 @@ if sport == "🏀 NBA":
                 nvo_team_code = st.radio("Analyze Team",
                     [nvo_game["away"], nvo_game["home"]], key="nvo_team_side", horizontal=True)
                 nvo_opp_code = nvo_game["home"] if nvo_team_code == nvo_game["away"] else nvo_game["away"]
+                # Resolve ESPN abbreviations (e.g. "NY"→"NYK", "SA"→"SAS") for nba_api calls
+                nvo_team_code = _resolve_nba_abbr(nvo_team_code)
+                nvo_opp_code = _resolve_nba_abbr(nvo_opp_code)
 
                 section("Player")
                 nvo_players = get_team_players(nvo_team_code)
@@ -3762,6 +4100,11 @@ if sport == "🏀 NBA":
                         _pp_cache.clear(); _pp_cache_ts.clear()
                     elif _sb_choice_nba == "Underdog":
                         _ud_cache.pop("nba", None); _ud_cache_ts.pop("nba", None)
+                    elif _sb_choice_nba == "DraftKings":
+                        _sharp_cache.pop("nba_draftkings", None); _sharp_cache_ts.pop("nba_draftkings", None)
+                    elif _sb_choice_nba == "FanDuel":
+                        _sharp_cache.pop("nba_fanduel", None); _sharp_cache_ts.pop("nba_fanduel", None)
+                        _toa_cache.pop("nba_FanDuel", None); _toa_cache_ts.pop("nba_FanDuel", None)
                     else:
                         _toa_cache.pop(f"nba_{_sb_choice_nba}", None)
                         _toa_cache_ts.pop(f"nba_{_sb_choice_nba}", None)
@@ -3771,6 +4114,12 @@ if sport == "🏀 NBA":
 
             _using_fallback_nba = False
             if _pp_raw.empty:
+                if _sb_choice_nba in ("DraftKings", "FanDuel") and not _get_sharp_api_key():
+                    st.warning(
+                        f"**{_sb_choice_nba} requires a SharpAPI key** (free, no credit card). "
+                        "Register at [sharpapi.io](https://sharpapi.io) then add "
+                        "`SHARP_API_KEY = \"sk_live_xxx\"` to `.streamlit/secrets.toml`."
+                    )
                 st.info(f"No live {_sb_choice_nba} NBA lines found — building parlays from historical data.")
                 _using_fallback_nba = True
             else:
@@ -4867,6 +5216,12 @@ else:
                         _pp_cache.clear(); _pp_cache_ts.clear()
                     elif _sb_choice_mlb == "Underdog":
                         _ud_cache.pop("mlb", None); _ud_cache_ts.pop("mlb", None)
+                    elif _sb_choice_mlb == "DraftKings":
+                        _dk_cache.pop("mlb", None); _dk_cache_ts.pop("mlb", None)
+                        _sharp_cache.pop("mlb_draftkings", None); _sharp_cache_ts.pop("mlb_draftkings", None)
+                    elif _sb_choice_mlb == "FanDuel":
+                        _sharp_cache.pop("mlb_fanduel", None); _sharp_cache_ts.pop("mlb_fanduel", None)
+                        _toa_cache.pop("mlb_FanDuel", None); _toa_cache_ts.pop("mlb_FanDuel", None)
                     else:
                         _toa_cache.pop(f"mlb_{_sb_choice_mlb}", None)
                         _toa_cache_ts.pop(f"mlb_{_sb_choice_mlb}", None)
@@ -4876,6 +5231,12 @@ else:
 
             _using_fallback_mlb = False
             if _mlb_pp_raw.empty:
+                if _sb_choice_mlb in ("DraftKings", "FanDuel") and not _get_sharp_api_key():
+                    st.warning(
+                        f"**{_sb_choice_mlb} requires a SharpAPI key** (free, no credit card). "
+                        "Register at [sharpapi.io](https://sharpapi.io) then add "
+                        "`SHARP_API_KEY = \"sk_live_xxx\"` to `.streamlit/secrets.toml`."
+                    )
                 st.info(f"No live {_sb_choice_mlb} MLB lines found — building parlays from historical data.")
                 _using_fallback_mlb = True
             else:
