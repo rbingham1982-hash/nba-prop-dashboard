@@ -3387,78 +3387,97 @@ _WNBA_ABBR_TO_ESPN_SLUG = {
 def _wnba_espn_slug(abbr: str) -> str:
     return _WNBA_ABBR_TO_ESPN_SLUG.get(abbr.upper(), abbr.lower())
 
+# Module-level ESPN player ID cache: name.lower() -> espn_id (str)
+# Populated lazily as team rosters are fetched.
+_wnba_espn_player_ids: dict = {}
+
 @st.cache_data(ttl=3600)
 def get_wnba_team_players(team_abbr: str):
-    """Fetch WNBA roster from ESPN API (nba_api CommonTeamRoster unreliable for WNBA)."""
+    """Fetch WNBA roster from ESPN and cache name→ESPN_ID mapping."""
     slug = _wnba_espn_slug(team_abbr)
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{slug}/roster"
         resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
         if resp.status_code == 200:
             athletes = resp.json().get("athletes", [])
-            players = [a.get("displayName") or a.get("fullName", "") for a in athletes
-                       if a.get("displayName") or a.get("fullName")]
+            players = []
+            for a in athletes:
+                name = a.get("displayName") or a.get("fullName", "")
+                espn_id = str(a.get("id", ""))
+                if name:
+                    players.append(name)
+                    if espn_id:
+                        _wnba_espn_player_ids[name.lower()] = espn_id
             if players:
                 return players
     except Exception:
         pass
-    # nba_api fallback
-    team_id = get_wnba_team_id(team_abbr)
-    if team_id:
-        try:
-            roster = commonteamroster.CommonTeamRoster(
-                team_id=team_id, season="2025", league_id="10"
-            ).get_data_frames()[0]
-            return roster["PLAYER"].tolist()
-        except Exception:
-            pass
     return []
 
-@st.cache_data(ttl=86400)
-def _get_current_wnba_player_ids() -> dict:
-    for current_only in (1, 0):
-        try:
-            df = commonallplayers.CommonAllPlayers(
-                is_only_current_season=current_only, league_id="10"
-            ).get_data_frames()[0]
-            if not df.empty:
-                return {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
-                        for _, row in df.iterrows()}
-        except Exception:
-            continue
-    return {}
-
 def get_wnba_player_id(player_name: str):
-    live_map = _get_current_wnba_player_ids()
-    return live_map.get(player_name.strip().lower())
+    """Return ESPN player ID for a WNBA player. Triggers roster fetch if not yet cached."""
+    key = player_name.strip().lower()
+    if key in _wnba_espn_player_ids:
+        return _wnba_espn_player_ids[key]
+    # Try to find by loading all team rosters
+    for t in _WNBA_TEAMS:
+        get_wnba_team_players(t["abbreviation"])
+        if key in _wnba_espn_player_ids:
+            return _wnba_espn_player_ids[key]
+    return None
 
 @st.cache_data(ttl=3600)
-def get_wnba_gamelogs(player_id, seasons):
-    from nba_api.stats.endpoints import playergamelog
+def get_wnba_gamelogs(espn_player_id, seasons):
+    """Fetch WNBA game logs from ESPN athlete gamelog API."""
+    if not espn_player_id:
+        return pd.DataFrame()
+    _STAT_ABBR_MAP = {
+        "PTS": "PTS", "REB": "REB", "AST": "AST", "STL": "STL", "BLK": "BLK",
+        "3PM": "FG3M", "3PTM": "FG3M", "FG3M": "FG3M", "MIN": "MIN",
+    }
     frames = []
     for season in seasons:
         try:
-            logs = playergamelog.PlayerGameLog(
-                player_id=player_id, season=season,
-                season_type_all_star="Regular Season", league_id="10", timeout=10,
-            ).get_data_frames()[0]
-            if not logs.empty:
-                frames.append(logs)
+            url = (f"https://site.api.espn.com/apis/site/v2/sports/basketball"
+                   f"/wnba/athletes/{espn_player_id}/gamelog?season={season}")
+            resp = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.status_code != 200:
+                continue
+            data = resp.json()
+            # Build ordered column list from categories
+            col_abbrs = []
+            for cat in data.get("categories", []):
+                for s in cat.get("stats", []):
+                    col_abbrs.append(s.get("abbreviation", s.get("name", "?")))
+            rows = []
+            for ev in data.get("events", []):
+                raw_stats = ev.get("stats", [])
+                row = {col_abbrs[i]: raw_stats[i] for i in range(min(len(col_abbrs), len(raw_stats)))}
+                opp = ev.get("opponent", {})
+                at_vs = ev.get("atVs", "")
+                row["GAME_DATE"] = ev.get("gameDate", "")
+                row["MATCHUP"]   = f"{at_vs} {opp.get('abbreviation','')}"
+                result = ev.get("result") or {}
+                row["WL"] = result.get("shortDisplayName", "") if isinstance(result, dict) else ""
+                rows.append(row)
+            if rows:
+                frames.append(pd.DataFrame(rows))
         except Exception:
-            pass
+            continue
     if not frames:
         return pd.DataFrame()
     df = pd.concat(frames, ignore_index=True)
-    df = df.rename(columns={"MATCHUP": "MATCHUP", "WL": "WL"})
-    opp_col = "MATCHUP"
-    if opp_col in df.columns:
-        df["OPPONENT"] = df[opp_col].str.extract(r"(?:vs\.|@)\s*([A-Z]+)")
-    if "FG3M" not in df.columns:
-        df["FG3M"] = 0
+    # Normalise stat column names
+    for raw, norm in _STAT_ABBR_MAP.items():
+        if raw in df.columns and norm not in df.columns:
+            df[norm] = pd.to_numeric(df[raw], errors="coerce").fillna(0)
     for col in ["PTS", "REB", "AST", "STL", "BLK", "FG3M"]:
         if col not in df.columns:
-            df[col] = 0
+            df[col] = 0.0
+        else:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
     df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+    df["OPPONENT"] = df["MATCHUP"].str.extract(r"(?:vs\.|@|vs )\s*([A-Z]+)")
     return df
 
 @st.cache_data(ttl=60)
