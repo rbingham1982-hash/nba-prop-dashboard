@@ -3377,18 +3377,42 @@ def get_wnba_team_abbreviation(team_name: str) -> str | None:
 def get_wnba_team_id(abbr: str) -> int | None:
     return _WNBA_ABBR_TO_ID.get(abbr.upper())
 
+# ESPN WNBA roster slugs differ from our canonical abbreviations for a few teams
+_WNBA_ABBR_TO_ESPN_SLUG = {
+    "LVA": "lv",
+    "NYL": "ny",
+    "GSV": "gs",
+}
+
+def _wnba_espn_slug(abbr: str) -> str:
+    return _WNBA_ABBR_TO_ESPN_SLUG.get(abbr.upper(), abbr.lower())
+
 @st.cache_data(ttl=3600)
 def get_wnba_team_players(team_abbr: str):
-    team_id = get_wnba_team_id(team_abbr)
-    if not team_id:
-        return []
+    """Fetch WNBA roster from ESPN API (nba_api CommonTeamRoster unreliable for WNBA)."""
+    slug = _wnba_espn_slug(team_abbr)
     try:
-        roster = commonteamroster.CommonTeamRoster(
-            team_id=team_id, season="2025", league_id="10"
-        ).get_data_frames()[0]
-        return roster["PLAYER"].tolist()
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{slug}/roster"
+        resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        if resp.status_code == 200:
+            athletes = resp.json().get("athletes", [])
+            players = [a.get("displayName") or a.get("fullName", "") for a in athletes
+                       if a.get("displayName") or a.get("fullName")]
+            if players:
+                return players
     except Exception:
-        return []
+        pass
+    # nba_api fallback
+    team_id = get_wnba_team_id(team_abbr)
+    if team_id:
+        try:
+            roster = commonteamroster.CommonTeamRoster(
+                team_id=team_id, season="2025", league_id="10"
+            ).get_data_frames()[0]
+            return roster["PLAYER"].tolist()
+        except Exception:
+            pass
+    return []
 
 @st.cache_data(ttl=86400)
 def _get_current_wnba_player_ids() -> dict:
