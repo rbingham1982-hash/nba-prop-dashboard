@@ -3048,7 +3048,7 @@ def nba_player_card(player_name, team_code):
         <div style="flex:1;">
             <p class="player-card-name">{player_name}</p>
             <div style="display:flex;align-items:center;gap:0.45rem;margin-top:0.2rem;">
-                <img src="{logo}" style="width:18px;height:18px;object-fit:contain;border:none;border-radius:0;background:transparent;" onerror="this.style.display='none'" />
+                <img src="{logo}" style="width:18px;height:18px;object-fit:contain;border:none;border-radius:0;background:transparent;" />
                 <p class="player-card-team" style="margin:0;">{team_code}</p>
             </div>
         </div>
@@ -3416,14 +3416,17 @@ def get_wnba_team_players(team_abbr: str):
 
 @st.cache_data(ttl=86400)
 def _get_current_wnba_player_ids() -> dict:
-    try:
-        df = commonallplayers.CommonAllPlayers(
-            is_only_current_season=1, league_id="10", season="2025"
-        ).get_data_frames()[0]
-        return {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
-                for _, row in df.iterrows()}
-    except Exception:
-        return {}
+    for current_only in (1, 0):
+        try:
+            df = commonallplayers.CommonAllPlayers(
+                is_only_current_season=current_only, league_id="10"
+            ).get_data_frames()[0]
+            if not df.empty:
+                return {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
+                        for _, row in df.iterrows()}
+        except Exception:
+            continue
+    return {}
 
 def get_wnba_player_id(player_name: str):
     live_map = _get_current_wnba_player_ids()
@@ -3516,12 +3519,12 @@ def wnba_player_card(player_name: str, team_code: str):
     st.markdown(f"""
     <div class="player-card">
         <div class="player-card-left">
-            <img src="{headshot}" class="player-headshot" onerror="this.style.display='none'">
+            <img src="{headshot}" class="player-headshot">
         </div>
         <div class="player-card-right">
             <p class="player-card-name">{player_name}</p>
             <p class="player-card-team">
-                <img src="{logo}" class="team-logo-inline" onerror="this.style.display='none'">
+                <img src="{logo}" class="team-logo-inline">
                 {team_code}
             </p>
         </div>
