@@ -851,8 +851,12 @@ def get_underdog_props(sport: str = "nba") -> pd.DataFrame:
     if cached is not None and not cached.empty and now - _ud_cache_ts.get(sport, 0) < _UD_CACHE_TTL:
         return cached
 
-    sport_id = "NBA" if sport == "nba" else "MLB"
-    stat_map = _UD_NBA_STAT_MAP if sport == "nba" else _UD_MLB_STAT_MAP
+    if sport == "nba":
+        sport_id, stat_map = "NBA", _UD_NBA_STAT_MAP
+    elif sport == "wnba":
+        sport_id, stat_map = "WNBA", _UD_NBA_STAT_MAP  # WNBA uses same stat names
+    else:
+        sport_id, stat_map = "MLB", _UD_MLB_STAT_MAP
     try:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36",
@@ -2316,7 +2320,7 @@ def get_mlb_today_with_pitchers():
 def get_sport_news(sport="nba"):
     import re as _re
     # ESPN JSON news API — works from cloud servers (no scraping)
-    _ESPN_SPORT = {"nba": "basketball/nba", "mlb": "baseball/mlb"}
+    _ESPN_SPORT = {"nba": "basketball/nba", "mlb": "baseball/mlb", "wnba": "basketball/wnba"}
     sport_path = _ESPN_SPORT.get(sport, f"basketball/{sport}")
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/{sport_path}/news?limit=10"
@@ -3131,7 +3135,7 @@ with hdr_col:
         <p class="konjure-sub">Multi-Sport Prop Intelligence &nbsp;&middot;&nbsp; Powered by Data</p>
     </div>""", unsafe_allow_html=True)
 with sport_col:
-    sport = st.selectbox("Sport", ["🏀 NBA", "⚾ MLB"], key="sport_selector")
+    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB"], key="sport_selector")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SPORT-SPECIFIC CSS INJECTION
@@ -3308,6 +3312,203 @@ def _render_accuracy_tab(sport_filter: str) -> None:
         type="secondary",
         key=f"acc_dl_{sport_filter}",
     )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# WNBA DATA LAYER
+# ══════════════════════════════════════════════════════════════════════════════
+
+_WNBA_SEASONS = ["2022", "2023", "2024", "2025"]
+
+_WNBA_STAT_MAP = {
+    "Points":        "PTS",
+    "Rebounds":      "REB",
+    "Assists":       "AST",
+    "Steals":        "STL",
+    "Blocks":        "BLK",
+    "3-PT Made":     "FG3M",
+    "Pts+Rebs+Asts": "PTS",   # computed below
+    "Pts+Rebs":      "PTS",
+    "Pts+Asts":      "PTS",
+}
+
+_WNBA_PP_STAT_MAP = {
+    "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
+    "Steals": "Steals", "Blocks": "Blocked Shots", "3-PT Made": "3-Pointers Made",
+    "Pts+Rebs+Asts": "Pts+Rebs+Asts", "Pts+Rebs": "Pts+Rebs", "Pts+Asts": "Pts+Asts",
+}
+
+# Static WNBA team table — nba_api team IDs for CommonTeamRoster
+_WNBA_TEAMS = [
+    {"full_name": "Atlanta Dream",          "abbreviation": "ATL", "id": 1611661328},
+    {"full_name": "Chicago Sky",            "abbreviation": "CHI", "id": 1611661320},
+    {"full_name": "Connecticut Sun",        "abbreviation": "CON", "id": 1611661319},
+    {"full_name": "Dallas Wings",           "abbreviation": "DAL", "id": 1611661323},
+    {"full_name": "Golden State Valkyries", "abbreviation": "GSV", "id": 1611661396},
+    {"full_name": "Indiana Fever",          "abbreviation": "IND", "id": 1611661325},
+    {"full_name": "Las Vegas Aces",         "abbreviation": "LVA", "id": 1611661330},
+    {"full_name": "Los Angeles Sparks",     "abbreviation": "LA",  "id": 1611661316},
+    {"full_name": "Minnesota Lynx",         "abbreviation": "MIN", "id": 1611661322},
+    {"full_name": "New York Liberty",       "abbreviation": "NYL", "id": 1611661317},
+    {"full_name": "Phoenix Mercury",        "abbreviation": "PHX", "id": 1611661324},
+    {"full_name": "Seattle Storm",          "abbreviation": "SEA", "id": 1611661329},
+    {"full_name": "Washington Mystics",     "abbreviation": "WAS", "id": 1611661321},
+]
+_WNBA_ABBR_TO_FULL = {t["abbreviation"].upper(): t["full_name"] for t in _WNBA_TEAMS}
+_WNBA_FULL_TO_ABBR = {t["full_name"]: t["abbreviation"] for t in _WNBA_TEAMS}
+_WNBA_ABBR_TO_ID   = {t["abbreviation"].upper(): t["id"]        for t in _WNBA_TEAMS}
+
+# ESPN may return short abbreviations; map to our canonical ones
+_ESPN_TO_WNBA_ABBR = {
+    "LV":  "LVA",
+    "NY":  "NYL",
+    "LA":  "LA",
+    "GS":  "GSV",
+    "CON": "CON",
+    "WSH": "WAS",
+}
+
+def _resolve_wnba_abbr(espn_abbr: str) -> str:
+    return _ESPN_TO_WNBA_ABBR.get(espn_abbr.upper(), espn_abbr.upper())
+
+def get_wnba_team_abbreviation(team_name: str) -> str | None:
+    return _WNBA_FULL_TO_ABBR.get(team_name)
+
+def get_wnba_team_id(abbr: str) -> int | None:
+    return _WNBA_ABBR_TO_ID.get(abbr.upper())
+
+@st.cache_data(ttl=3600)
+def get_wnba_team_players(team_abbr: str):
+    team_id = get_wnba_team_id(team_abbr)
+    if not team_id:
+        return []
+    try:
+        roster = commonteamroster.CommonTeamRoster(
+            team_id=team_id, season="2025", league_id="10"
+        ).get_data_frames()[0]
+        return roster["PLAYER"].tolist()
+    except Exception:
+        return []
+
+@st.cache_data(ttl=86400)
+def _get_current_wnba_player_ids() -> dict:
+    try:
+        df = commonallplayers.CommonAllPlayers(
+            is_only_current_season=1, league_id="10", season="2025"
+        ).get_data_frames()[0]
+        return {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
+                for _, row in df.iterrows()}
+    except Exception:
+        return {}
+
+def get_wnba_player_id(player_name: str):
+    live_map = _get_current_wnba_player_ids()
+    return live_map.get(player_name.strip().lower())
+
+@st.cache_data(ttl=3600)
+def get_wnba_gamelogs(player_id, seasons):
+    from nba_api.stats.endpoints import playergamelog
+    frames = []
+    for season in seasons:
+        try:
+            logs = playergamelog.PlayerGameLog(
+                player_id=player_id, season=season,
+                season_type_all_star="Regular Season", league_id="10", timeout=10,
+            ).get_data_frames()[0]
+            if not logs.empty:
+                frames.append(logs)
+        except Exception:
+            pass
+    if not frames:
+        return pd.DataFrame()
+    df = pd.concat(frames, ignore_index=True)
+    df = df.rename(columns={"MATCHUP": "MATCHUP", "WL": "WL"})
+    opp_col = "MATCHUP"
+    if opp_col in df.columns:
+        df["OPPONENT"] = df[opp_col].str.extract(r"(?:vs\.|@)\s*([A-Z]+)")
+    if "FG3M" not in df.columns:
+        df["FG3M"] = 0
+    for col in ["PTS", "REB", "AST", "STL", "BLK", "FG3M"]:
+        if col not in df.columns:
+            df[col] = 0
+    df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+    return df
+
+@st.cache_data(ttl=60)
+def get_wnba_scoreboard(game_date: str):
+    try:
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard?dates={game_date}"
+        resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        games = []
+        for ev in resp.json().get("events", []):
+            comp = ev["competitions"][0]
+            comps = comp["competitors"]
+            home = next((c for c in comps if c["homeAway"] == "home"), comps[0])
+            away = next((c for c in comps if c["homeAway"] == "away"), comps[-1])
+            st_type = ev["status"]["type"]
+            games.append({
+                "away": away["team"]["abbreviation"],
+                "home": home["team"]["abbreviation"],
+                "away_score": away.get("score", ""),
+                "home_score": home.get("score", ""),
+                "status": st_type.get("shortDetail", st_type.get("description", "")),
+                "live": st_type.get("state", "") == "in",
+                "completed": st_type.get("completed", False),
+            })
+        return games
+    except Exception:
+        return []
+
+@st.cache_data(ttl=3600)
+def get_wnba_scoreboard_full(game_date: str):
+    try:
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard?dates={game_date}"
+        resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        out = []
+        for ev in resp.json().get("events", []):
+            comp = ev["competitions"][0]
+            comps = comp["competitors"]
+            home = next((c for c in comps if c["homeAway"] == "home"), comps[0])
+            away = next((c for c in comps if c["homeAway"] == "away"), comps[-1])
+            out.append({
+                "name":       ev.get("shortName", ev.get("name", "")),
+                "away":       away["team"]["displayName"],
+                "away_abbr":  away["team"]["abbreviation"],
+                "away_record": ((away.get("records") or [{}])[0].get("summary", "")),
+                "home":       home["team"]["displayName"],
+                "home_abbr":  home["team"]["abbreviation"],
+                "home_record": ((home.get("records") or [{}])[0].get("summary", "")),
+                "status":     ev["status"]["type"].get("shortDetail", ""),
+                "venue":      comp.get("venue", {}).get("fullName", ""),
+            })
+        return out
+    except Exception:
+        return []
+
+def wnba_player_card(player_name: str, team_code: str):
+    pid = get_wnba_player_id(player_name)
+    headshot = f"https://cdn.nba.com/headshots/wnba/latest/1040x760/{pid}.png" if pid else ""
+    logo = f"https://a.espncdn.com/i/teamlogos/wnba/500/{team_code.lower()}.png"
+    st.markdown(f"""
+    <div class="player-card">
+        <div class="player-card-left">
+            <img src="{headshot}" class="player-headshot" onerror="this.style.display='none'">
+        </div>
+        <div class="player-card-right">
+            <p class="player-card-name">{player_name}</p>
+            <p class="player-card-team">
+                <img src="{logo}" class="team-logo-inline" onerror="this.style.display='none'">
+                {team_code}
+            </p>
+        </div>
+    </div>""", unsafe_allow_html=True)
+
+def _wnba_scoreboard_date():
+    from datetime import timezone, timedelta as _td
+    cst = datetime.now(timezone(_td(hours=-6)))
+    if cst.hour < 2:
+        cst = cst - _td(days=1)
+    return cst.strftime("%Y%m%d")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -4272,10 +4473,581 @@ if sport == "🏀 NBA":
         </p>""", unsafe_allow_html=True)
 
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ══════════════  WNBA  ═══════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+elif sport == "🏀 WNBA":
+
+    with st.spinner(""):
+        _wnba_scores = get_wnba_scoreboard(_wnba_scoreboard_date())
+    render_score_ticker(_wnba_scores)
+
+    (tab_w_home, tab_w_stats, tab_w_opp, tab_w_vs, tab_w_sim,
+     tab_w_pp, tab_w_parlays, tab_w_accuracy, tab_w_blog, tab_w_disc) = st.tabs([
+        "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
+        "Bet Simulation", "Sportsbook", "Parlays", "Accuracy", "Daily Blog", "Disclaimer"
+    ])
+
+    # ── HOME ──────────────────────────────────────────────────────────────────
+    with tab_w_home:
+        section("Players to Watch")
+        with st.spinner(""):
+            _wptw_frames = []
+            _wud = get_underdog_props("wnba")
+            if not _wud.empty:
+                _wud2 = _wud.copy(); _wud2["_source"] = "Underdog"
+                _wptw_frames.append(_wud2)
+            _wpp = get_prizepicks_with_team(league_id=6)
+            if not _wpp.empty:
+                _wpp2 = _wpp.copy(); _wpp2["_source"] = "PrizePicks"
+                if "implied_prob" not in _wpp2.columns:
+                    _wpp2["implied_prob"] = 0.5
+                _wptw_frames.append(_wpp2)
+        if _wptw_frames:
+            _wptw_all = pd.concat(_wptw_frames, ignore_index=True)
+            _wptw_stats = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "Steals", "Blocks", "3-PT Made"]
+            _wptw_all = _wptw_all[_wptw_all["stat_type"].isin(_wptw_stats)].copy()
+            if "implied_prob" not in _wptw_all.columns:
+                _wptw_all["implied_prob"] = 0.5
+            _wptw_all["implied_prob"] = pd.to_numeric(_wptw_all["implied_prob"], errors="coerce").fillna(0.5)
+            _wptw_all = _wptw_all.sort_values("implied_prob", ascending=False)
+            _wptw_all = _wptw_all.drop_duplicates(["player_name", "stat_type"]).drop_duplicates("player_name")
+            _wptw = _wptw_all.head(10).reset_index(drop=True)
+            for _wrs in range(0, len(_wptw), 5):
+                _wchunk = list(_wptw.iloc[_wrs:_wrs + 5].iterrows())
+                _wtcols = st.columns(len(_wchunk))
+                for _wci, (_, _wr) in enumerate(_wchunk):
+                    with _wtcols[_wci]:
+                        _wotype = str(_wr.get("odds_type") or "standard").lower()
+                        _wbcls = "ptw-badge-goblin" if _wotype == "goblin" else ("ptw-badge-demon" if _wotype == "demon" else "ptw-badge-normal")
+                        _wblbl = _wotype.capitalize() if _wotype in ("goblin", "demon") else "Standard"
+                        _wimp = int(float(_wr.get("implied_prob", 0.5)) * 100)
+                        _wsrc = str(_wr.get("_source", ""))
+                        st.markdown(f"""
+                        <div class='ptw-card'>
+                            <p class='ptw-player-name'>{_wr['player_name']}</p>
+                            <p class='ptw-team'>{_wr.get('team', '')} &nbsp;·&nbsp; {_wr['stat_type']}</p>
+                            <p class='ptw-line'>{_wr['line_score']}</p>
+                            <span class='ptw-badge {_wbcls}'>{_wblbl} &nbsp;{_wimp}%</span>
+                            <p style='font-size:0.68rem;color:var(--text-muted);margin:0.25rem 0 0.5rem;'>{_wsrc}</p>
+                        </div>""", unsafe_allow_html=True)
+                        _wbtn_key = f"wnba_ptw_{''.join(c for c in _wr['player_name'] if c.isalnum())}"
+                        if st.button("→ Profile", key=_wbtn_key, use_container_width=True):
+                            _wabbr = str(_wr.get("team", "")).upper()
+                            _wfull = _WNBA_ABBR_TO_FULL.get(_wabbr, "")
+                            if _wfull:
+                                st.session_state["wps_team"] = _wfull
+                            st.session_state["_wps_player_hint"] = _wr["player_name"]
+                            st.session_state["_wnba_ptw_nav"] = True
+                            _safe_rerun()
+        else:
+            st.caption("Sportsbook lines unavailable right now. Check back closer to game time.")
+
+        st.markdown("""
+        <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#1d1528 55%,#111318 100%);">
+            <div class="sport-hero-watermark">🏀</div>
+            <div class="sport-hero-content">
+                <p class="sport-hero-label">Konjure Analytics &nbsp;·&nbsp; WNBA Edition</p>
+                <h2 class="sport-hero-title">WNBA Prop Intelligence</h2>
+                <p class="sport-hero-sub">
+                    Real-time player tracking &nbsp;·&nbsp; Rolling predictive models &nbsp;·&nbsp;
+                    PrizePicks integration &nbsp;·&nbsp; Scout reports
+                </p>
+            </div>
+        </div>""", unsafe_allow_html=True)
+
+        feat_col_w, news_col_w = st.columns([1.5, 1])
+        with feat_col_w:
+            section("Platform Features")
+            wfc1, wfc2 = st.columns(2)
+            wfeatures = [
+                (wfc1, "📊", "Player Stats", "Hit rates, rolling averages, and next-opponent predictions."),
+                (wfc2, "📈", "Opponent Breakdown", "Player performance split by every opponent faced."),
+                (wfc1, "🎯", "Bet Simulation", "Simulate flat-unit profit and loss across a season."),
+                (wfc2, "🟣", "PrizePicks", "Today's live WNBA prop lines from PrizePicks."),
+                (wfc1, "🃏", "Parlays", "Build optimized WNBA parlays from today's lines."),
+            ]
+            for col, icon, title, desc in wfeatures:
+                with col:
+                    st.markdown(f"""
+                    <div class="feature-card">
+                        <div class="feature-card-icon">{icon}</div>
+                        <p class="feature-card-title">{title}</p>
+                        <p class="feature-card-desc">{desc}</p>
+                    </div>""", unsafe_allow_html=True)
+        with news_col_w:
+            section("WNBA News")
+            with st.spinner("Loading news..."):
+                _wnba_news = get_sport_news("wnba")
+            render_news_panel(_wnba_news)
+
+    # ── PLAYER STATS ──────────────────────────────────────────────────────────
+    with tab_w_stats:
+        if st.session_state.pop("_wnba_ptw_nav", False):
+            components.html(
+                "<script>setTimeout(function(){"
+                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+                "if(t.length>1)t[1].click();"
+                "},150);</script>",
+                height=0,
+            )
+        wctrl, wmain = st.columns([1, 2.8])
+        with wctrl:
+            section("Select Player")
+            wteam_names = sorted([t["full_name"] for t in _WNBA_TEAMS])
+            wsel_team = st.selectbox("Team", wteam_names, key="wps_team")
+            wteam_code = get_wnba_team_abbreviation(wsel_team)
+            wplayer_list = get_wnba_team_players(wteam_code) if wteam_code else []
+            _wps_hint = st.session_state.pop("_wps_player_hint", None)
+            if _wps_hint and _wps_hint in wplayer_list:
+                st.session_state["wps_player"] = _wps_hint
+            wplayer_name = st.selectbox("Player", wplayer_list, key="wps_player")
+            if wplayer_name:
+                wnba_player_card(wplayer_name, wteam_code or "")
+            section("Parameters")
+            wseasons = st.multiselect("Seasons", _WNBA_SEASONS, default=["2025"], key="wps_seasons")
+            wprop_type = st.selectbox("Prop Type", list(_WNBA_STAT_MAP.keys()), key="wps_prop")
+            wline_value = st.number_input("Prop Line", value=15.5, step=0.5, key="wps_line")
+            wrolling_window = st.slider("Rolling Window", 1, 10, 5, key="wps_roll")
+
+        with wmain:
+            if not wplayer_name or not wseasons:
+                st.info("Select a player and season to view stats.")
+            else:
+                wpid = get_wnba_player_id(wplayer_name)
+                if not wpid:
+                    st.warning(f"Could not find player ID for **{wplayer_name}**.")
+                else:
+                    with st.spinner("Loading..."):
+                        wdf = get_wnba_gamelogs(wpid, tuple(wseasons))
+                    if wdf.empty:
+                        st.warning("No game log data found.")
+                    else:
+                        wdf = wdf.copy()
+                        wdf["PRA"] = wdf["PTS"] + wdf["REB"] + wdf["AST"]
+                        wcol_key = _WNBA_STAT_MAP.get(wprop_type, "PTS")
+                        if wprop_type == "Pts+Rebs+Asts":
+                            wdf["TARGET"] = wdf["PRA"]
+                        elif wprop_type == "Pts+Rebs":
+                            wdf["TARGET"] = wdf["PTS"] + wdf["REB"]
+                        elif wprop_type == "Pts+Asts":
+                            wdf["TARGET"] = wdf["PTS"] + wdf["AST"]
+                        else:
+                            wdf["TARGET"] = wdf[wcol_key]
+                        wdf["HIT"] = wdf["TARGET"] > wline_value
+                        wdf["MARGIN"] = wdf["TARGET"] - wline_value
+                        wdf["ROLLING_AVG"] = wdf["TARGET"].rolling(window=wrolling_window).mean()
+
+                        # Market lines from PrizePicks
+                        section("Market Lines")
+                        _wpp_live = get_prizepicks_with_team(league_id=6)
+                        _wpp_stat = _WNBA_PP_STAT_MAP.get(wprop_type)
+                        _wud_live = get_underdog_props("wnba")
+                        _wud_stat = wprop_type
+                        wline_cols = st.columns(4)
+                        wlines_shown = 0
+                        for _wsb, _wsb_df, _wsb_stat in [
+                            ("PrizePicks", _wpp_live, _wpp_stat),
+                            ("Underdog", _wud_live, _wud_stat),
+                        ]:
+                            if _wsb_df is not None and not _wsb_df.empty and _wsb_stat:
+                                _wm = _wsb_df[
+                                    (_wsb_df["player_name"].str.lower() == wplayer_name.lower()) &
+                                    (_wsb_df["stat_type"] == _wsb_stat)
+                                ]
+                                if not _wm.empty:
+                                    _wr0 = _wm.iloc[0]
+                                    _wl = float(_wr0["line_score"])
+                                    _wi = float(_wr0.get("implied_prob", 0.5))
+                                    wline_cols[wlines_shown].metric(_wsb, f"{_wl}", f"{_wi:.0%} implied")
+                                    wlines_shown += 1
+                        if wlines_shown == 0:
+                            st.info("No live lines found for this player/prop.")
+
+                        section("Performance Chart")
+                        wfig = px.line(wdf.reset_index(), x=wdf.index, y=["TARGET", "ROLLING_AVG"],
+                                      labels={"value": wprop_type, "index": "Game"},
+                                      color_discrete_map={"TARGET": "#818cf8", "ROLLING_AVG": "#a78bfa"})
+                        wfig.add_hline(y=wline_value, line_dash="dot", line_color="#ef4444",
+                                      annotation_text=f"Line: {wline_value}")
+                        st.plotly_chart(nba_fig(wfig), use_container_width=True, config=_CHART_CFG)
+
+                        section("Summary Stats")
+                        ws1, ws2, ws3, ws4 = st.columns(4)
+                        ws1.metric("Hit Rate", f"{wdf['HIT'].mean():.1%}")
+                        ws2.metric("Avg", f"{wdf['TARGET'].mean():.1f}")
+                        ws3.metric("Last 5 Avg", f"{wdf['TARGET'].head(5).mean():.1f}")
+                        ws4.metric("Games", len(wdf))
+
+                        section("Game Log")
+                        wlog_cols = ["GAME_DATE", "MATCHUP", "WL", "TARGET", "HIT", "MARGIN"]
+                        wlog_cols = [c for c in wlog_cols if c in wdf.columns]
+                        st.dataframe(wdf[wlog_cols].style.format(
+                            {c: "{:.1f}" for c in ["TARGET", "MARGIN"] if c in wlog_cols}
+                        ), use_container_width=True, hide_index=True)
+
+    # ── OPPONENT BREAKDOWN ────────────────────────────────────────────────────
+    with tab_w_opp:
+        wobctrl, wobmain = st.columns([1, 2.8])
+        with wobctrl:
+            section("Select Player")
+            wobteam_names = sorted([t["full_name"] for t in _WNBA_TEAMS])
+            wobsel_team = st.selectbox("Team", wobteam_names, key="wob_team")
+            wobteam_code = get_wnba_team_abbreviation(wobsel_team)
+            wobplayer_list = get_wnba_team_players(wobteam_code) if wobteam_code else []
+            wobplayer_name = st.selectbox("Player", wobplayer_list, key="wob_player")
+            if wobplayer_name:
+                wnba_player_card(wobplayer_name, wobteam_code or "")
+            section("Parameters")
+            wobseasons = st.multiselect("Seasons", _WNBA_SEASONS, default=["2025"], key="wob_seasons")
+            wobprop = st.selectbox("Prop Type", list(_WNBA_STAT_MAP.keys()), key="wob_prop")
+            wobline = st.number_input("Prop Line", value=15.5, step=0.5, key="wob_line")
+
+        with wobmain:
+            if wobplayer_name and wobseasons:
+                wobpid = get_wnba_player_id(wobplayer_name)
+                if not wobpid:
+                    st.warning(f"Could not find player ID for **{wobplayer_name}**.")
+                else:
+                    with st.spinner("Loading..."):
+                        wobdf = get_wnba_gamelogs(wobpid, tuple(wobseasons))
+                    if wobdf.empty:
+                        st.warning("No game log data found.")
+                    else:
+                        wobdf = wobdf.copy()
+                        wobdf["PRA"] = wobdf["PTS"] + wobdf["REB"] + wobdf["AST"]
+                        wobcol = _WNBA_STAT_MAP.get(wobprop, "PTS")
+                        if wobprop == "Pts+Rebs+Asts":
+                            wobdf["TARGET"] = wobdf["PRA"]
+                        elif wobprop == "Pts+Rebs":
+                            wobdf["TARGET"] = wobdf["PTS"] + wobdf["REB"]
+                        elif wobprop == "Pts+Asts":
+                            wobdf["TARGET"] = wobdf["PTS"] + wobdf["AST"]
+                        else:
+                            wobdf["TARGET"] = wobdf[wobcol]
+                        wobdf["HIT"] = wobdf["TARGET"] > wobline
+                        if "OPPONENT" not in wobdf.columns or wobdf["OPPONENT"].isna().all():
+                            st.info("Opponent data not available for this player's logs.")
+                        else:
+                            wob_grouped = wobdf.groupby("OPPONENT").agg(
+                                Hit_Rate=("HIT", "mean"),
+                                Avg_Margin=("MARGIN", "mean") if "MARGIN" in wobdf.columns else ("TARGET", "mean"),
+                                Avg_Stat=("TARGET", "mean"),
+                                Games=("TARGET", "count"),
+                            )
+                            wob_grouped = wob_grouped.sort_values("Hit_Rate", ascending=False)
+                            section(f"Hit Rate by Opponent — {wobprop}")
+                            wob_fig = px.bar(wob_grouped.reset_index(), x="Hit_Rate", y="OPPONENT",
+                                            orientation="h", color="Hit_Rate",
+                                            color_continuous_scale=["#252a35", "#4a5280", "#818cf8"],
+                                            text=wob_grouped["Games"].astype(str).values + " G")
+                            wob_fig.add_vline(x=0.5, line_dash="dot", line_color="#3a4055")
+                            wob_fig.update_coloraxes(showscale=False)
+                            st.plotly_chart(nba_fig(wob_fig), use_container_width=True, config=_CHART_CFG)
+                            section("Data Table")
+                            st.dataframe(wob_grouped.style.format(
+                                {"Hit_Rate": "{:.1%}", "Avg_Margin": "{:.2f}", "Avg_Stat": "{:.1f}"}
+                            ), use_container_width=True)
+
+    # ── VS. OPPONENT ──────────────────────────────────────────────────────────
+    with tab_w_vs:
+        with st.spinner("Loading today's games..."):
+            _wnba_today = get_wnba_scoreboard(_wnba_scoreboard_date())
+        if not _wnba_today:
+            st.info("No WNBA games scheduled for today.")
+        else:
+            wvo_ctrl, wvo_main = st.columns([1, 2.8])
+            with wvo_ctrl:
+                section("Today's Games")
+                wvo_seasons = st.multiselect("Seasons", _WNBA_SEASONS, default=["2025"], key="wvo_seasons")
+                wvo_opts = [f"{g['away']} @ {g['home']}" for g in _wnba_today]
+                wvo_label = st.selectbox("Select Game", wvo_opts, key="wvo_game")
+                wvo_game = next(g for g in _wnba_today if f"{g['away']} @ {g['home']}" == wvo_label)
+                wvo_team_raw = st.radio("Analyze Team",
+                    [wvo_game["away"], wvo_game["home"]], key="wvo_team_side", horizontal=True)
+                wvo_opp_raw = wvo_game["home"] if wvo_team_raw == wvo_game["away"] else wvo_game["away"]
+                wvo_team_code = _resolve_wnba_abbr(wvo_team_raw)
+                wvo_opp_code  = _resolve_wnba_abbr(wvo_opp_raw)
+
+                section("Player")
+                wvo_players = get_wnba_team_players(wvo_team_code)
+                if not wvo_players:
+                    st.warning(f"Could not load roster for {wvo_team_code}.")
+                else:
+                    wvo_player = st.selectbox("Player", wvo_players, key="wvo_player")
+                    wnba_player_card(wvo_player, wvo_team_code)
+                    section("Parameters")
+                    wvo_prop = st.selectbox("Stat Type", list(_WNBA_STAT_MAP.keys()), key="wvo_prop")
+                    wvo_line = st.number_input("Prop Line", value=15.5, step=0.5, key="wvo_line")
+                    wvo_window = st.slider("Rolling Window", 3, 20, 10, key="wvo_window")
+
+            with wvo_main:
+                if wvo_players and wvo_seasons:
+                    wvo_pid = get_wnba_player_id(wvo_player)
+                    if wvo_pid:
+                        with st.spinner("Loading game logs..."):
+                            wvo_df = get_wnba_gamelogs(wvo_pid, tuple(wvo_seasons))
+                        if wvo_df.empty:
+                            st.warning("No stats found for this player.")
+                        else:
+                            wvo_df = wvo_df.copy()
+                            wvo_df["PRA"] = wvo_df["PTS"] + wvo_df["REB"] + wvo_df["AST"]
+                            wvo_col = _WNBA_STAT_MAP.get(wvo_prop, "PTS")
+                            if wvo_prop == "Pts+Rebs+Asts":
+                                wvo_df["TARGET"] = wvo_df["PRA"]
+                            elif wvo_prop == "Pts+Rebs":
+                                wvo_df["TARGET"] = wvo_df["PTS"] + wvo_df["REB"]
+                            elif wvo_prop == "Pts+Asts":
+                                wvo_df["TARGET"] = wvo_df["PTS"] + wvo_df["AST"]
+                            else:
+                                wvo_df["TARGET"] = wvo_df[wvo_col]
+                            wvo_df["ROLLING"] = wvo_df["TARGET"].rolling(wvo_window).mean()
+                            opp_mask = wvo_df["OPPONENT"].str.upper() == wvo_opp_code.upper() if "OPPONENT" in wvo_df.columns else pd.Series([False] * len(wvo_df))
+                            vs_opp_df = wvo_df[opp_mask]
+                            proj_all = wvo_df["TARGET"].rolling(wvo_window).mean().iloc[-1] if len(wvo_df) >= wvo_window else wvo_df["TARGET"].mean()
+                            hit_all = (wvo_df["TARGET"] > wvo_line).mean()
+
+                            section(f"Projection vs {wvo_opp_code} — Today")
+                            wc1, wc2, wc3, wc4 = st.columns(4)
+                            wc1.metric("Season Rolling Avg", f"{proj_all:.1f}")
+                            wc2.metric("Season Hit Rate", f"{hit_all:.1%}")
+                            if not vs_opp_df.empty:
+                                avg_vs = vs_opp_df["TARGET"].mean()
+                                hit_vs = (vs_opp_df["TARGET"] > wvo_line).mean()
+                                wc3.metric(f"Avg vs {wvo_opp_code}", f"{avg_vs:.1f}",
+                                          delta=f"{avg_vs - proj_all:+.1f} vs season", delta_color="normal")
+                                wc4.metric(f"Hit Rate vs {wvo_opp_code}", f"{hit_vs:.1%}",
+                                          delta=f"{hit_vs - hit_all:+.1%} vs season", delta_color="normal")
+                            else:
+                                wc3.metric(f"Avg vs {wvo_opp_code}", "—")
+                                wc4.metric(f"Hit Rate vs {wvo_opp_code}", "—")
+
+                            section("Rolling Performance")
+                            wvo_fig = px.line(wvo_df.reset_index(), x=wvo_df.index, y=["TARGET", "ROLLING"],
+                                             color_discrete_map={"TARGET": "#818cf8", "ROLLING": "#a78bfa"})
+                            wvo_fig.add_hline(y=wvo_line, line_dash="dot", line_color="#ef4444")
+                            st.plotly_chart(nba_fig(wvo_fig), use_container_width=True, config=_CHART_CFG)
+                    else:
+                        st.warning(f"Could not find player ID for {wvo_player}.")
+
+    # ── BET SIMULATION ────────────────────────────────────────────────────────
+    with tab_w_sim:
+        wsim_ctrl, wsim_main = st.columns([1, 2.8])
+        with wsim_ctrl:
+            section("Select Player")
+            wsim_teams = sorted([t["full_name"] for t in _WNBA_TEAMS])
+            wsim_team = st.selectbox("Team", wsim_teams, key="wsim_team")
+            wsim_tcode = get_wnba_team_abbreviation(wsim_team)
+            wsim_players = get_wnba_team_players(wsim_tcode) if wsim_tcode else []
+            wsim_player = st.selectbox("Player", wsim_players, key="wsim_player")
+            if wsim_player:
+                wnba_player_card(wsim_player, wsim_tcode or "")
+            section("Parameters")
+            wsim_seasons = st.multiselect("Seasons", _WNBA_SEASONS, default=["2025"], key="wsim_seasons")
+            wsim_line = st.number_input("Prop Line", value=15.5, step=0.5, key="wsim_line")
+            wsim_prop = st.selectbox("Prop Type", list(_WNBA_STAT_MAP.keys()), key="wsim_prop")
+
+        with wsim_main:
+            if wsim_player and wsim_seasons:
+                wsim_pid = get_wnba_player_id(wsim_player)
+                if not wsim_pid:
+                    st.warning(f"Could not find player ID for **{wsim_player}**.")
+                else:
+                    with st.spinner("Loading..."):
+                        wsim_df = get_wnba_gamelogs(wsim_pid, tuple(wsim_seasons))
+                    if wsim_df.empty:
+                        st.warning("No game log data found.")
+                    else:
+                        wsim_df = wsim_df.copy()
+                        wsim_df["PRA"] = wsim_df["PTS"] + wsim_df["REB"] + wsim_df["AST"]
+                        wsim_col = _WNBA_STAT_MAP.get(wsim_prop, "PTS")
+                        if wsim_prop == "Pts+Rebs+Asts":
+                            wsim_df["TARGET"] = wsim_df["PRA"]
+                        elif wsim_prop == "Pts+Rebs":
+                            wsim_df["TARGET"] = wsim_df["PTS"] + wsim_df["REB"]
+                        elif wsim_prop == "Pts+Asts":
+                            wsim_df["TARGET"] = wsim_df["PTS"] + wsim_df["AST"]
+                        else:
+                            wsim_df["TARGET"] = wsim_df[wsim_col]
+                        wsim_df["HIT"] = wsim_df["TARGET"] > wsim_line
+                        wsim_df["PROFIT"] = wsim_df["HIT"].apply(lambda x: 1.0 if x else -1.0)
+                        wsim_df["CUMULATIVE"] = wsim_df["PROFIT"].cumsum()
+                        section("Cumulative P&L")
+                        wsim_fig = px.line(wsim_df.reset_index(), x=wsim_df.index, y="CUMULATIVE",
+                                          color_discrete_sequence=["#818cf8"])
+                        wsim_fig.add_hline(y=0, line_dash="dot", line_color="#3a4055")
+                        st.plotly_chart(nba_fig(wsim_fig), use_container_width=True, config=_CHART_CFG)
+                        ws1, ws2, ws3, ws4 = st.columns(4)
+                        ws1.metric("Hit Rate", f"{wsim_df['HIT'].mean():.1%}")
+                        ws2.metric("Net Units", f"{wsim_df['CUMULATIVE'].iloc[-1]:+.1f}")
+                        ws3.metric("Games", len(wsim_df))
+                        ws4.metric("Avg", f"{wsim_df['TARGET'].mean():.1f}")
+
+    # ── SPORTSBOOK ────────────────────────────────────────────────────────────
+    with tab_w_pp:
+        _wsb_col1, _wsb_col2 = st.columns([4, 1])
+        with _wsb_col1:
+            _wsb_choice = st.radio("Sportsbook", ["PrizePicks", "Underdog"], key="wsb_choice", horizontal=True)
+        with _wsb_col2:
+            if st.button("⟳ Refresh", key="wsb_refresh"):
+                _ud_cache.pop("wnba", None)
+        with st.spinner("Loading WNBA lines..."):
+            if _wsb_choice == "PrizePicks":
+                _wsb_df = get_prizepicks_with_team(league_id=6)
+            else:
+                _wsb_df = get_underdog_props("wnba")
+        if _wsb_df is None or _wsb_df.empty:
+            st.info(f"No WNBA lines available on {_wsb_choice} right now. Lines are typically posted closer to game time.")
+        else:
+            _wsb_df2 = _wsb_df.copy()
+            _wsb_teams = sorted(_wsb_df2["team"].dropna().unique().tolist()) if "team" in _wsb_df2.columns else []
+            _wsb_stats = sorted(_wsb_df2["stat_type"].dropna().unique().tolist())
+            wfilt1, wfilt2 = st.columns(2)
+            with wfilt1:
+                _wsb_stat_sel = st.multiselect("Stat Type", _wsb_stats, default=_wsb_stats[:3] if len(_wsb_stats) >= 3 else _wsb_stats, key="wsb_stat_filter")
+            with wfilt2:
+                _wsb_team_sel = st.multiselect("Team", _wsb_teams, key="wsb_team_filter")
+            if _wsb_stat_sel:
+                _wsb_df2 = _wsb_df2[_wsb_df2["stat_type"].isin(_wsb_stat_sel)]
+            if _wsb_team_sel and "team" in _wsb_df2.columns:
+                _wsb_df2 = _wsb_df2[_wsb_df2["team"].isin(_wsb_team_sel)]
+            _wsb_display_cols = ["player_name", "team", "stat_type", "line_score"]
+            if "implied_prob" in _wsb_df2.columns:
+                _wsb_display_cols.append("implied_prob")
+            _wsb_display_cols = [c for c in _wsb_display_cols if c in _wsb_df2.columns]
+            st.dataframe(
+                _wsb_df2[_wsb_display_cols].sort_values("implied_prob", ascending=False) if "implied_prob" in _wsb_df2.columns else _wsb_df2[_wsb_display_cols],
+                use_container_width=True, hide_index=True
+            )
+
+    # ── PARLAYS ───────────────────────────────────────────────────────────────
+    with tab_w_parlays:
+        section("WNBA Parlay Builder")
+        st.markdown("""
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">
+            Builds optimized PrizePicks parlays using today's WNBA lines and historical hit rates.
+            <strong>Safe Parlays</strong> maximize probability of hitting.
+            <strong>Value Parlays</strong> maximize expected value (probability × payout).
+        </div>""", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="border:1px solid #ef4444;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.75rem;color:#fca5a5;">
+            <strong style="color:#ef4444;">DISCLAIMER</strong><br>
+            Parlay suggestions are generated from historical statistics and are for <strong>informational and entertainment purposes only.</strong>
+            Past performance does not guarantee future results. This is not betting advice. Always gamble responsibly and within your means.
+        </div>""", unsafe_allow_html=True)
+        wpar_c1, wpar_c2, wpar_c3 = st.columns(3)
+        with wpar_c1:
+            wpar_min = st.selectbox("Minimum Picks", [2, 3, 4], index=0, key="wpar_min")
+        with wpar_c2:
+            wpar_max = st.selectbox("Maximum Picks", [3, 4, 5], index=1, key="wpar_max")
+        with wpar_c3:
+            wpar_stats = st.multiselect("Stat Types", ["Points", "Rebounds", "Assists", "Steals", "Blocks", "3-PT Made"],
+                                        default=["Points", "Rebounds", "Assists"], key="wpar_stats")
+        if st.button("BUILD WNBA PARLAYS", key="wpar_build", type="primary"):
+            with st.spinner("Building parlays..."):
+                _wpar_lines = get_prizepicks_with_team(league_id=6)
+                if _wpar_lines.empty:
+                    _wpar_lines = get_underdog_props("wnba")
+            if _wpar_lines.empty:
+                st.warning("No WNBA lines available right now.")
+            else:
+                _wpar_filtered = _wpar_lines[_wpar_lines["stat_type"].isin(wpar_stats)] if wpar_stats else _wpar_lines
+                if _wpar_filtered.empty:
+                    st.info("No lines match your stat type selection.")
+                else:
+                    _wpar_filtered = _wpar_filtered.copy()
+                    if "implied_prob" not in _wpar_filtered.columns:
+                        _wpar_filtered["implied_prob"] = 0.5
+                    _wpar_filtered["implied_prob"] = pd.to_numeric(_wpar_filtered["implied_prob"], errors="coerce").fillna(0.5)
+                    _wpar_filtered = _wpar_filtered.sort_values("implied_prob", ascending=False).drop_duplicates("player_name")
+                    top_legs = _wpar_filtered.head(wpar_max)
+                    section("Suggested Parlay")
+                    for _, leg in top_legs.iterrows():
+                        implied = float(leg.get("implied_prob", 0.5))
+                        st.markdown(f"""
+                        <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;
+                             padding:0.6rem 1rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <span style="font-weight:700;color:var(--text-primary);">{leg['player_name']}</span>
+                                <span style="color:var(--text-muted);margin-left:0.5rem;font-size:0.8rem;">
+                                    {leg.get('team','')} · {leg['stat_type']} O{leg['line_score']}
+                                </span>
+                            </div>
+                            <span style="color:var(--accent);font-weight:600;">{implied:.0%}</span>
+                        </div>""", unsafe_allow_html=True)
+                    combo_prob = 1.0
+                    for _, leg in top_legs.iterrows():
+                        combo_prob *= float(leg.get("implied_prob", 0.5))
+                    st.metric("Combined Probability", f"{combo_prob:.1%}")
+        else:
+            st.info("Select your options above and click **BUILD WNBA PARLAYS** to generate suggestions.")
+
+    # ── ACCURACY ──────────────────────────────────────────────────────────────
+    with tab_w_accuracy:
+        st.info("Accuracy tracking uses parlay history. Build parlays on the Parlays tab to start tracking.")
+
+    # ── DAILY BLOG ────────────────────────────────────────────────────────────
+    with tab_w_blog:
+        with st.spinner("Generating today's WNBA preview..."):
+            _wnba_blog_games = get_wnba_scoreboard_full(_wnba_scoreboard_date())
+            _wnba_blog_news  = get_sport_news("wnba")
+        today = datetime.now()
+        date_str = today.strftime("%B %d, %Y")
+        n = len(_wnba_blog_games)
+        if n == 0:
+            st.info("No WNBA games today.")
+        else:
+            g0 = _wnba_blog_games[0]
+            if n == 1:
+                headline = f"{g0['away_abbr']} vs. {g0['home_abbr']}: Breaking Down Tonight's WNBA Showdown"
+            else:
+                headline = f"{n} Games Tonight: Konjure's Breakdown of Today's WNBA Slate"
+            st.markdown(f"""
+            <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+               color:var(--accent);margin:0 0 0.5rem 0;">WNBA Daily Brief &nbsp;·&nbsp; {date_str}</p>
+            <h1 style="font-size:2rem;font-weight:800;color:var(--text-primary);margin:0 0 0.3rem 0;
+               line-height:1.2;">{headline}</h1>
+            <p style="font-size:0.72rem;color:var(--text-muted);margin:0 0 1.5rem 0;">
+                {date_str} &nbsp;|&nbsp; Konjure Analytics</p>
+            <hr style="border:none;border-top:1px solid var(--border);margin-bottom:1.5rem;">
+            """, unsafe_allow_html=True)
+            st.markdown('<h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">TODAY\'S MATCHUPS</h2>', unsafe_allow_html=True)
+            for g in _wnba_blog_games:
+                st.markdown(f"""
+                <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;
+                     padding:1rem 1.25rem;margin-bottom:0.75rem;">
+                    <p style="font-weight:700;color:var(--text-primary);margin:0 0 0.2rem 0;">
+                        {g.get('away','')} @ {g.get('home','')}
+                    </p>
+                    <p style="font-size:0.72rem;color:var(--text-muted);margin:0 0 0.5rem 0;">
+                        {g.get('away_record','')} · {g.get('home_record','')}
+                    </p>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">
+                        {g.get('venue','')}
+                    </p>
+                </div>""", unsafe_allow_html=True)
+        section("WNBA News")
+        render_news_panel(_wnba_blog_news)
+
+    # ── DISCLAIMER ────────────────────────────────────────────────────────────
+    with tab_w_disc:
+        st.markdown("""
+        <h3 style="color:var(--text-primary);">Disclaimer</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;">
+            Konjure Analytics provides data-driven insights for informational and entertainment purposes only.
+            All statistics, projections, and prop suggestions are based on historical data and publicly available
+            information. Nothing on this platform constitutes financial, legal, or betting advice.
+            Users are solely responsible for their own decisions.
+            It does not constitute betting advice or guarantee outcomes.
+            Konjure Analytics is not responsible for any financial decisions made based on this data.
+        </p>""", unsafe_allow_html=True)
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ══════════════  MLB  ════════════════════════════════════════════════════════
 # ══════════════════════════════════════════════════════════════════════════════
-else:
+elif sport == "⚾ MLB":
 
     # ── MLB score ticker (shown on all MLB tabs) ───────────────────────────────
     with st.spinner(""):
