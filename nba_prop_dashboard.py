@@ -3557,6 +3557,126 @@ def _wnba_scoreboard_date():
     return cst.strftime("%Y%m%d")
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# WNBA PARLAY HELPERS  (module-level so they're available before elif block)
+# ──────────────────────────────────────────────────────────────────────────────
+_WNBA_PARLAY_COL_MAP = {
+    "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
+    "Steals": "STL", "Blocks": "BLK", "3-PT Made": "FG3M",
+    "Pts+Rebs+Asts": "PRA", "Pts+Rebs": "PR", "Pts+Asts": "PA",
+}
+
+@st.cache_data(ttl=1800)
+def _wnba_hit_rate(player_name: str, stat_type: str, line: float,
+                   odds_type: str = "standard", implied_override: float = -1.0):
+    """Weighted WNBA hit rate: 70% ESPN game log history + 30% sportsbook implied."""
+    col = _WNBA_PARLAY_COL_MAP.get(stat_type)
+    if not col:
+        return 0.5, 0
+    pid = get_wnba_player_id(player_name)
+    if not pid:
+        return 0.5, 0
+    df = get_wnba_gamelogs(pid, ("2025",))
+    if df.empty:
+        df = get_wnba_gamelogs(pid, ("2024",))
+    if df.empty:
+        return 0.5, 0
+    if col in ("PRA", "PR", "PA"):
+        df = df.copy()
+        if col == "PRA":
+            df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+        elif col == "PR":
+            df["PR"] = df["PTS"] + df["REB"]
+        elif col == "PA":
+            df["PA"] = df["PTS"] + df["AST"]
+    if col not in df.columns:
+        return 0.5, 0
+    vals = df[col].values
+    last30 = vals[-30:] if len(vals) >= 5 else vals
+    last10 = vals[-10:] if len(vals) >= 10 else vals
+    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[:max(1, len(vals) // 2)]
+    n = len(last30)
+    if n == 0:
+        return 0.5, 0
+    r30 = float((last30 > line).sum()) / len(last30)
+    if len(last10) >= 5:
+        r10  = float((last10 > line).sum()) / len(last10)
+        hist = 0.6 * r10 + 0.4 * r30
+    else:
+        hist = r30
+        r10  = hist
+    if len(last10) >= 5 and len(prev10) >= 5:
+        r_prev = float((prev10 > line).sum()) / len(prev10)
+        hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
+    implied = implied_override if implied_override >= 0 else _PP_ODDS_IMPLIED.get(odds_type, 0.50)
+    rate = 0.7 * hist + 0.3 * implied
+    return round(min(0.97, max(0.03, rate)), 3), n
+
+
+def _fallback_wnba_legs(stat_types: list = None) -> list:
+    """Build WNBA parlay legs from top players using ESPN historical averages as lines."""
+    if stat_types is None:
+        stat_types = ["Points", "Rebounds", "Assists", "3-PT Made"]
+    TOP_WNBA = [
+        "A'ja Wilson", "Caitlin Clark", "Breanna Stewart", "Sabrina Ionescu",
+        "Alyssa Thomas", "Kelsey Plum", "Jewell Loyd", "Rhyne Howard",
+        "Napheesa Collier", "Jonquel Jones", "DeWanna Bonner", "Nneka Ogwumike",
+        "Jackie Young", "Dearica Hamby", "Kahleah Copper",
+    ]
+    _fw_ids = [(p, get_wnba_player_id(p)) for p in TOP_WNBA]
+    _fw_ids = [(p, pid) for p, pid in _fw_ids if pid]
+    with ThreadPoolExecutor(max_workers=4) as _fex:
+        _ffuts = [_fex.submit(get_wnba_gamelogs, pid, ("2025",)) for _, pid in _fw_ids]
+        for _ff in _ffuts:
+            try:
+                _ff.result(timeout=30)
+            except Exception:
+                pass
+    legs = []
+    for player in TOP_WNBA:
+        pid = get_wnba_player_id(player)
+        if not pid:
+            continue
+        df = get_wnba_gamelogs(pid, ("2025",))
+        if df.empty:
+            df = get_wnba_gamelogs(pid, ("2024",))
+        if df.empty:
+            continue
+        for stat in stat_types:
+            col = _WNBA_PARLAY_COL_MAP.get(stat)
+            if not col:
+                continue
+            if col in ("PRA", "PR", "PA"):
+                df = df.copy()
+                if col == "PRA":
+                    df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
+                elif col == "PR":
+                    df["PR"] = df["PTS"] + df["REB"]
+                elif col == "PA":
+                    df["PA"] = df["PTS"] + df["AST"]
+            if col not in df.columns:
+                continue
+            vals = df[col].values[-20:]
+            if len(vals) < 3:
+                continue
+            line = round(float(vals.mean()) * 0.88, 1)
+            last30 = vals[-30:] if len(vals) >= 5 else vals
+            last10 = vals[-10:] if len(vals) >= 10 else vals
+            n = len(last30)
+            if n < 3:
+                continue
+            r30 = float((last30 > line).sum()) / len(last30)
+            r10 = float((last10 > line).sum()) / len(last10) if len(last10) >= 5 else r30
+            rate = round(min(0.97, max(0.03, 0.7 * (0.6 * r10 + 0.4 * r30) + 0.3 * 0.5)), 3)
+            legs.append({
+                "player_name": player, "team": "", "stat_type": stat,
+                "line_score": line, "odds_type": "standard", "american_odds": -110,
+                "implied_prob": rate, "game_id": "", "game_label": "Historical",
+                "hit_rate": rate, "sample_n": n, "sportsbook": "Historical",
+            })
+    return legs
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ══════════════  NBA  ════════════════════════════════════════════════════════
 # ══════════════════════════════════════════════════════════════════════════════
@@ -4520,6 +4640,7 @@ if sport == "🏀 NBA":
 
 
 
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ══════════════  WNBA  ═══════════════════════════════════════════════════════
 # ══════════════════════════════════════════════════════════════════════════════
@@ -4971,63 +5092,186 @@ elif sport == "🏀 WNBA":
     with tab_w_parlays:
         section("WNBA Parlay Builder")
         st.markdown("""
-        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">
-            Builds optimized PrizePicks parlays using today's WNBA lines and historical hit rates.
-            <strong>Safe Parlays</strong> maximize probability of hitting.
-            <strong>Value Parlays</strong> maximize expected value (probability × payout).
+        <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
+        Builds optimized PrizePicks parlays using today's WNBA lines and historical hit rates
+        (last 30 games, 2024 &amp; 2025 seasons). <strong style='color:var(--text-primary)'>Safe Parlays</strong>
+        maximize probability of hitting. <strong style='color:#f59e0b;'>Value Parlays</strong>
+        maximize expected value (probability &times; payout).
+        </p>
+        <div style='background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:0.75rem 1rem;max-width:680px;margin-bottom:1.25rem;'>
+            <p style='font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#f87171;margin:0 0 0.3rem 0;'>Disclaimer</p>
+            <p style='font-size:0.78rem;color:#9294a8;line-height:1.6;margin:0;'>
+                Parlay suggestions are generated from historical statistics and are for
+                <strong style='color:#ccc;'>informational and entertainment purposes only.</strong>
+                Past performance does not guarantee future results. This is not betting advice.
+                Always gamble responsibly and within your means.
+            </p>
         </div>""", unsafe_allow_html=True)
-        st.markdown("""
-        <div style="border:1px solid #ef4444;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.75rem;color:#fca5a5;">
-            <strong style="color:#ef4444;">DISCLAIMER</strong><br>
-            Parlay suggestions are generated from historical statistics and are for <strong>informational and entertainment purposes only.</strong>
-            Past performance does not guarantee future results. This is not betting advice. Always gamble responsibly and within your means.
-        </div>""", unsafe_allow_html=True)
-        wpar_c1, wpar_c2, wpar_c3 = st.columns(3)
-        with wpar_c1:
-            wpar_min = st.selectbox("Minimum Picks", [2, 3, 4], index=0, key="wpar_min")
-        with wpar_c2:
-            wpar_max = st.selectbox("Maximum Picks", [3, 4, 5], index=1, key="wpar_max")
-        with wpar_c3:
-            wpar_stats = st.multiselect("Stat Types", ["Points", "Rebounds", "Assists", "Steals", "Blocks", "3-PT Made"],
-                                        default=["Points", "Rebounds", "Assists"], key="wpar_stats")
-        if st.button("BUILD WNBA PARLAYS", key="wpar_build", type="primary"):
-            with st.spinner("Building parlays..."):
-                _wpar_lines = get_prizepicks_with_team(league_id=6)
-                if _wpar_lines.empty:
-                    _wpar_lines = get_underdog_props("wnba")
-            if _wpar_lines.empty:
-                st.warning("No WNBA lines available right now.")
-            else:
-                _wpar_filtered = _wpar_lines[_wpar_lines["stat_type"].isin(wpar_stats)] if wpar_stats else _wpar_lines
-                if _wpar_filtered.empty:
-                    st.info("No lines match your stat type selection.")
+
+        _wpc1, _wpc2, _wpc3 = st.columns([1, 1, 2])
+        with _wpc1:
+            st.markdown("**Minimum Picks**")
+            _wpar_min = st.selectbox("Min", [2, 3], index=0, key="wpar_min", label_visibility="collapsed")
+        with _wpc2:
+            st.markdown("**Maximum Picks**")
+            _wpar_max = st.selectbox("Max", [2, 3, 4, 5], index=2, key="wpar_max", label_visibility="collapsed")
+        with _wpc3:
+            st.markdown("**Stat Types to Include**")
+            _wpar_stats = st.multiselect(
+                "Stats", options=list(_WNBA_PARLAY_COL_MAP.keys()),
+                default=["Points", "Rebounds", "Assists", "3-PT Made", "Pts+Rebs+Asts"],
+                key="wpar_stats", label_visibility="collapsed",
+            )
+
+        _wpar_sb_col1, _wpar_sb_col2 = st.columns([4, 1])
+        with _wpar_sb_col1:
+            _wsb_par = st.radio("Sportsbook", ["PrizePicks", "Underdog"],
+                                horizontal=True, key="wpar_sb")
+        with _wpar_sb_col2:
+            if st.button("Refresh", key="wpar_refresh"):
+                if _wsb_par == "PrizePicks":
+                    _pp_cache.clear(); _pp_cache_ts.clear()
                 else:
-                    _wpar_filtered = _wpar_filtered.copy()
-                    if "implied_prob" not in _wpar_filtered.columns:
-                        _wpar_filtered["implied_prob"] = 0.5
-                    _wpar_filtered["implied_prob"] = pd.to_numeric(_wpar_filtered["implied_prob"], errors="coerce").fillna(0.5)
-                    _wpar_filtered = _wpar_filtered.sort_values("implied_prob", ascending=False).drop_duplicates("player_name")
-                    top_legs = _wpar_filtered.head(wpar_max)
-                    section("Suggested Parlay")
-                    for _, leg in top_legs.iterrows():
-                        implied = float(leg.get("implied_prob", 0.5))
-                        st.markdown(f"""
-                        <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;
-                             padding:0.6rem 1rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center;">
-                            <div>
-                                <span style="font-weight:700;color:var(--text-primary);">{leg['player_name']}</span>
-                                <span style="color:var(--text-muted);margin-left:0.5rem;font-size:0.8rem;">
-                                    {leg.get('team','')} · {leg['stat_type']} O{leg['line_score']}
-                                </span>
-                            </div>
-                            <span style="color:var(--accent);font-weight:600;">{implied:.0%}</span>
-                        </div>""", unsafe_allow_html=True)
-                    combo_prob = 1.0
-                    for _, leg in top_legs.iterrows():
-                        combo_prob *= float(leg.get("implied_prob", 0.5))
-                    st.metric("Combined Probability", f"{combo_prob:.1%}")
+                    _ud_cache.pop("wnba", None); _ud_cache_ts.pop("wnba", None)
+                _safe_rerun()
+
+        if st.button("Build WNBA Parlays", type="primary", key="wpar_build"):
+            st.session_state["wnba_parlays_built"] = True
+            st.session_state["wpar_min_val"]   = _wpar_min
+            st.session_state["wpar_max_val"]   = _wpar_max
+            st.session_state["wpar_stats_val"] = _wpar_stats
+            st.session_state["wpar_sb_val"]    = _wsb_par
+
+        if st.session_state.get("wnba_parlays_built"):
+            _wb_min   = st.session_state.get("wpar_min_val", _wpar_min)
+            _wb_max   = st.session_state.get("wpar_max_val", _wpar_max)
+            _wb_stats = st.session_state.get("wpar_stats_val", _wpar_stats) or list(_WNBA_PARLAY_COL_MAP.keys())
+            _wb_sb    = st.session_state.get("wpar_sb_val", _wsb_par)
+
+            with st.spinner(f"Fetching {_wb_sb} WNBA lines..."):
+                if _wb_sb == "PrizePicks":
+                    _wraw = get_prizepicks_with_team(league_id=6)
+                else:
+                    _wraw = get_underdog_props("wnba")
+
+            _using_fallback_wnba = False
+            if _wraw is None or _wraw.empty:
+                st.info(f"No live {_wb_sb} WNBA lines found — building parlays from historical data.")
+                _using_fallback_wnba = True
+            else:
+                _wfilt = _wraw[_wraw["stat_type"].isin(_wb_stats)].copy()
+                if _wfilt.empty:
+                    st.info("No active lines for the selected stat types — switching to historical mode.")
+                    _using_fallback_wnba = True
+
+            if _using_fallback_wnba:
+                with st.spinner("Loading historical WNBA data..."):
+                    _wlegs_data = _fallback_wnba_legs(_wb_stats)
+                if _wlegs_data:
+                    st.caption("Using historical averages as prop lines (no live sportsbook data).")
+                _wsafe_p, _wvalue_p = _build_parlays(_wlegs_data, min_legs=_wb_min, max_legs=_wb_max)
+            else:
+                _wfilt = _wfilt.sort_values("line_score", ascending=False).head(20)
+                _wlegs = []
+                # Pre-warm ESPN gamelogs in parallel
+                _wwarm = [(r["player_name"], get_wnba_player_id(r["player_name"])) for _, r in _wfilt.iterrows()]
+                _wwarm = [(n, p) for n, p in _wwarm if p]
+                _wprog = st.progress(0, text=f"Loading {len(_wwarm)} player histories...")
+                with ThreadPoolExecutor(max_workers=4) as _wex:
+                    _wfuts = {_wex.submit(get_wnba_gamelogs, pid, ("2025",)): nm for nm, pid in _wwarm}
+                    _wdone = 0
+                    for _wf in as_completed(_wfuts, timeout=120):
+                        _wdone += 1
+                        _wprog.progress(_wdone / max(1, len(_wwarm)),
+                                        text=f"Loading histories... ({_wdone}/{len(_wwarm)})")
+                _wprog.empty()
+
+                _wprog2 = st.progress(0, text="Calculating hit rates...")
+                for _wi, (_widx, _wrow) in enumerate(_wfilt.iterrows()):
+                    _wot  = _wrow.get("odds_type", "standard") or "standard"
+                    _wimp = float(_wrow.get("implied_prob", -1.0) if "implied_prob" in _wrow.index else -1.0)
+                    _wrate, _wn = _wnba_hit_rate(
+                        _wrow["player_name"], _wrow["stat_type"],
+                        float(_wrow["line_score"] or 0),
+                        odds_type=_wot, implied_override=_wimp,
+                    )
+                    if _wn == 0:
+                        _weff = _wimp if _wimp >= 0 else _PP_ODDS_IMPLIED.get(_wot, 0.50)
+                        _wrate = round(min(0.97, max(0.03, _weff)), 3)
+                        _wn = 1
+                    _wlegs.append({
+                        "player_name":  _wrow["player_name"],
+                        "team":         _wrow.get("team", ""),
+                        "stat_type":    _wrow["stat_type"],
+                        "line_score":   _wrow["line_score"],
+                        "odds_type":    _wot,
+                        "american_odds": int(_wrow.get("american_odds", -110) if "american_odds" in _wrow.index else -110),
+                        "implied_prob": _wimp if _wimp >= 0 else _PP_ODDS_IMPLIED.get(_wot, 0.50),
+                        "sportsbook":   str(_wrow.get("sportsbook", _wb_sb) if "sportsbook" in _wrow.index else _wb_sb),
+                        "game_id":      _wrow.get("game_id", ""),
+                        "game_label":   _wrow.get("game_label", ""),
+                        "hit_rate":     _wrate,
+                        "sample_n":     _wn,
+                    })
+                    _wprog2.progress((_wi + 1) / len(_wfilt),
+                                     text=f"Analyzing {_wrow['player_name']}...")
+                _wprog2.empty()
+
+                _wlegs_data = [l for l in _wlegs if l["sample_n"] >= 1]
+                _wsafe_p, _wvalue_p = _build_parlays(_wlegs_data, min_legs=_wb_min, max_legs=_wb_max)
+
+            # Log to accuracy tracker
+            try:
+                _wlogged = parlay_tracker.log_parlays(_wsafe_p, "WNBA", _wb_sb, kind="safe")
+                _wlogged += parlay_tracker.log_parlays(_wvalue_p, "WNBA", _wb_sb, kind="value")
+                if _wlogged:
+                    st.caption(f"Logged {_wlogged} new parlay(s) to accuracy tracker.")
+            except Exception:
+                pass
+
+            st.markdown(
+                f"<p style='font-size:0.72rem;color:var(--text-muted);margin:0.4rem 0 1.1rem;'>"
+                f"Analyzed <strong>{len(_wlegs_data)}</strong> legs &nbsp;·&nbsp; "
+                f"<strong>{len(_wsafe_p)}</strong> safe parlays &nbsp;·&nbsp; "
+                f"<strong>{len(_wvalue_p)}</strong> value parlays</p>",
+                unsafe_allow_html=True,
+            )
+
+            _wcs, _wcv = st.columns(2)
+            with _wcs:
+                st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
+                            unsafe_allow_html=True)
+                if _wsafe_p:
+                    for _wp in _wsafe_p:
+                        st.markdown(_parlay_card_html(_wp, "safe"), unsafe_allow_html=True)
+                else:
+                    st.caption("Not enough legs with data. Try adding more stat types or use historical mode.")
+            with _wcv:
+                st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
+                            unsafe_allow_html=True)
+                if _wvalue_p:
+                    for _wp in _wvalue_p:
+                        st.markdown(_parlay_card_html(_wp, "value"), unsafe_allow_html=True)
+                else:
+                    st.caption("No additional value parlays found beyond safe parlays.")
+
+            # Same-Game Parlays
+            st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
+                        unsafe_allow_html=True)
+            st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
+                        unsafe_allow_html=True)
+            _wsgp = _build_sgp(_wlegs_data, min_legs=3, max_legs=5)
+            if _wsgp:
+                for _wg in _wsgp[:4]:
+                    st.markdown(f"<p style='font-size:0.7rem;color:var(--text-muted);margin:0.6rem 0 0.2rem;'>"
+                                f"{_wg['game_label']}</p>", unsafe_allow_html=True)
+                    for _wp in _wg["parlays"][:2]:
+                        st.markdown(_parlay_card_html(_wp, "safe"), unsafe_allow_html=True)
+            else:
+                st.caption("Not enough per-game legs for SGP suggestions.")
         else:
-            st.info("Select your options above and click **BUILD WNBA PARLAYS** to generate suggestions.")
+            st.info("Select your options above and click **Build WNBA Parlays** to generate suggestions. "
+                    "First build may take 1-2 minutes while player histories are fetched.")
 
     # ── ACCURACY ──────────────────────────────────────────────────────────────
     with tab_w_accuracy:
