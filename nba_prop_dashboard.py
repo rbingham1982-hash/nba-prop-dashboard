@@ -3064,7 +3064,7 @@ def mlb_player_card(name, pos, team, player_id):
             <p class="mlb-player-name">{name}</p>
             <p class="mlb-player-pos">{pos}</p>
             <div style="display:flex;align-items:center;gap:0.45rem;margin-top:0.18rem;">
-                <img src="{logo}" style="width:20px;height:20px;object-fit:contain;background:transparent;" onerror="this.style.display='none'" />
+                <img src="{logo}" style="width:20px;height:20px;object-fit:contain;background:transparent;" />
                 <p class="mlb-player-team" style="margin:0;">{team}</p>
             </div>
         </div>
