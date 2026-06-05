@@ -3387,43 +3387,35 @@ _WNBA_ABBR_TO_ESPN_SLUG = {
 def _wnba_espn_slug(abbr: str) -> str:
     return _WNBA_ABBR_TO_ESPN_SLUG.get(abbr.upper(), abbr.lower())
 
-# Module-level ESPN player ID cache: name.lower() -> espn_id (str)
-# Populated lazily as team rosters are fetched.
-_wnba_espn_player_ids: dict = {}
-
 @st.cache_data(ttl=3600)
-def get_wnba_team_players(team_abbr: str):
-    """Fetch WNBA roster from ESPN and cache name→ESPN_ID mapping."""
+def _get_wnba_team_roster_map(team_abbr: str) -> dict:
+    """Returns {player_name: espn_id} for a team. Cached so both names and IDs are stored."""
     slug = _wnba_espn_slug(team_abbr)
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{slug}/roster"
         resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
         if resp.status_code == 200:
-            athletes = resp.json().get("athletes", [])
-            players = []
-            for a in athletes:
+            result = {}
+            for a in resp.json().get("athletes", []):
                 name = a.get("displayName") or a.get("fullName", "")
                 espn_id = str(a.get("id", ""))
-                if name:
-                    players.append(name)
-                    if espn_id:
-                        _wnba_espn_player_ids[name.lower()] = espn_id
-            if players:
-                return players
+                if name and espn_id:
+                    result[name] = espn_id
+            return result
     except Exception:
         pass
-    return []
+    return {}
+
+def get_wnba_team_players(team_abbr: str):
+    """Return list of player names for a WNBA team."""
+    return list(_get_wnba_team_roster_map(team_abbr).keys())
 
 def get_wnba_player_id(player_name: str):
-    """Return ESPN player ID for a WNBA player. Triggers roster fetch if not yet cached."""
-    key = player_name.strip().lower()
-    if key in _wnba_espn_player_ids:
-        return _wnba_espn_player_ids[key]
-    # Try to find by loading all team rosters
+    """Return ESPN player ID by searching all team roster maps (all cached)."""
     for t in _WNBA_TEAMS:
-        get_wnba_team_players(t["abbreviation"])
-        if key in _wnba_espn_player_ids:
-            return _wnba_espn_player_ids[key]
+        roster_map = _get_wnba_team_roster_map(t["abbreviation"])
+        if player_name in roster_map:
+            return roster_map[player_name]
     return None
 
 @st.cache_data(ttl=3600)
