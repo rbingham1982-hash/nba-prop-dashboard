@@ -17,8 +17,8 @@ import pandas as pd
 
 LOG_PATH = Path(__file__).parent / "parlay_log.json"
 CAL_MIN_SAMPLES = 15          # minimum resolved legs per stat before calibration kicks in
-CAL_MAX_FACTOR = 1.35         # clamp calibration multiplier to ±35%
-CAL_MIN_FACTOR = 0.65
+CAL_MAX_FACTOR = 1.35         # clamp calibration multiplier upper bound
+CAL_MIN_FACTOR = 0.05         # allow deep deflation for stats like RBI/HR that rarely hit
 
 # ── NBA stat resolution: how to compute a value from a PlayerGameLog row ─────
 # Format: "stat_type": ("single", col) or ("sum", [cols])

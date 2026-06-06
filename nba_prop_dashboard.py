@@ -1714,10 +1714,12 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
             })
     return legs
 
-def _fallback_mlb_legs(stat_types: list = None) -> list:
+def _fallback_mlb_legs(stat_types: list = None, cal: dict = None) -> list:
     """Generate parlay legs from top MLB players using historical averages as lines."""
     if stat_types is None:
-        stat_types = ["Hits", "Total Bases", "RBIs", "Pitcher Strikeouts"]
+        stat_types = ["Hits", "Total Bases", "Pitcher Strikeouts"]
+    if cal is None:
+        cal = {}
     legs = []
     teams_list = get_mlb_teams()[:8]
     for team in teams_list:
@@ -1735,7 +1737,8 @@ def _fallback_mlb_legs(stat_types: list = None) -> list:
                     if len(vals) < 3:
                         continue
                     line = round(float(vals.mean()) * 0.85, 1)
-                    rate, n = _mlb_hit_rate(h["name"], stat, line, odds_type="standard")
+                    rate, n = _mlb_hit_rate(h["name"], stat, line, odds_type="standard",
+                                            cal_factor=cal.get(stat, 1.0))
                     if n < 3:
                         continue
                     legs.append({
@@ -1756,7 +1759,8 @@ def _fallback_mlb_legs(stat_types: list = None) -> list:
                     if len(vals) < 3:
                         continue
                     line = round(float(vals.mean()) * 0.85, 1)
-                    rate, n = _mlb_hit_rate(p["name"], stat, line, odds_type="standard")
+                    rate, n = _mlb_hit_rate(p["name"], stat, line, odds_type="standard",
+                                            cal_factor=cal.get(stat, 1.0))
                     if n < 3:
                         continue
                     legs.append({
@@ -6214,14 +6218,14 @@ elif sport == "⚾ MLB":
             _mlb_par_min = st.selectbox("Min Picks", [2, 3], index=0, key="mlb_par_min", label_visibility="collapsed")
         with _mp2:
             st.markdown("**Maximum Picks**")
-            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=2, key="mlb_par_max", label_visibility="collapsed")
+            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=1, key="mlb_par_max", label_visibility="collapsed")
         with _mp3:
             st.markdown("**Stat Types to Include**")
             _all_mlb_stat_types = list(_PP_MLB_HIT_COL.keys()) + list(_PP_MLB_PIT_COL.keys())
             _mlb_par_stats = st.multiselect(
                 "Stat Types",
                 options=sorted(set(_all_mlb_stat_types)),
-                default=["Hits", "Home Runs", "RBIs", "Pitcher Strikeouts"],
+                default=["Hits", "Pitcher Strikeouts"],
                 key="mlb_par_stats",
                 label_visibility="collapsed",
             )
@@ -6286,11 +6290,24 @@ elif sport == "⚾ MLB":
                     _using_fallback_mlb = True
 
             _mlb_cal = _load_calibration()
+
+            # Warn if any selected stat type has a very poor calibration factor
+            _weak_stats = [s for s in _mb_stats if _mlb_cal.get(s, 1.0) < 0.3]
+            if _weak_stats:
+                st.warning(
+                    f"**Low-accuracy stat type(s) detected: {', '.join(_weak_stats)}** — "
+                    "historical data shows these props almost never hit at the predicted rate. "
+                    "Consider removing them from the selection above.",
+                    icon="⚠️",
+                )
+
             if _using_fallback_mlb:
                 with st.spinner("Loading historical MLB data…"):
-                    _legs_mlb_data = _fallback_mlb_legs(_mb_stats)
+                    _legs_mlb_data = _fallback_mlb_legs(_mb_stats, cal=_mlb_cal)
                 if _legs_mlb_data:
                     st.caption("Using historical averages as prop lines (no live sportsbook data).")
+                # Drop legs whose calibrated hit rate is below threshold (< 35%)
+                _legs_mlb_data = [l for l in _legs_mlb_data if l["hit_rate"] >= 0.35]
                 _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
             else:
                 _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(25)
@@ -6333,8 +6350,10 @@ elif sport == "⚾ MLB":
                 # If live data is still too sparse, supplement with historical legs
                 if len(_legs_mlb_data) < max(_mb_min, 3):
                     with st.spinner("Supplementing with historical MLB data…"):
-                        _hist_legs_m = _fallback_mlb_legs(_mb_stats)
+                        _hist_legs_m = _fallback_mlb_legs(_mb_stats, cal=_mlb_cal)
                     _legs_mlb_data = _legs_mlb_data + _hist_legs_m
+                # Drop legs whose calibrated hit rate is below threshold (< 35%)
+                _legs_mlb_data = [l for l in _legs_mlb_data if l["hit_rate"] >= 0.35]
                 _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
 
             # Log generated parlays for accuracy tracking
