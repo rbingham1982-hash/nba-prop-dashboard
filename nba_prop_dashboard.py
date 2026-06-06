@@ -1544,9 +1544,27 @@ def _mlb_player_id_by_name(name: str):
             return hits[0]
     return None
 
+
+_BVP_COL_MAP = {"H": "h", "HR": "hr", "TB": "tb", "K": "k", "BB": "bb", "RBI": "rbi"}
+_BVP_MIN_AB = 15  # minimum career AB vs pitcher to apply adjustment
+
+
 @st.cache_data(ttl=1800)
-def _mlb_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str = "standard", implied_override: float = -1.0, cal_factor: float = 1.0):
-    """Weighted hit rate: 70% historical (60/40 last-10/20 + trend) + 30% sportsbook implied odds."""
+def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
+                  odds_type: str = "standard", implied_override: float = -1.0,
+                  cal_factor: float = 1.0, opp_pitcher_id: int | None = None):
+    """
+    Weighted hit rate for MLB props.
+
+    Batters:  65% historical (60/40 last-10/20) + optional 10% BvP adjustment
+              + 25% implied → soft-rescaled so total = 100%.
+              When batter has >= 15 career AB vs today's pitcher, their career
+              rate against that pitcher nudges hist up or down by up to ±40%.
+
+    Pitchers: 50% last-3 starts + 30% last-10 + 20% last-20 (recency-heavy)
+              + 30% implied.  Recent form dominates because pitchers can run
+              hot/cold on a start-by-start basis.
+    """
     is_pitcher = stat_type in _PP_PITCHER_TYPES
     col = (_PP_MLB_PIT_COL if is_pitcher else _PP_MLB_HIT_COL).get(stat_type)
     if col is None:
@@ -1564,22 +1582,52 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
     vals = df[col].values
     last20 = vals[-20:] if len(vals) >= 5 else vals
     last10 = vals[-10:] if len(vals) >= 10 else vals
-    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[: max(1, len(vals) // 2)]
+    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[:max(1, len(vals) // 2)]
     n = len(last20)
     if n == 0:
         return 0.5, 0
+
     r20 = float((last20 > line).sum()) / len(last20)
-    if len(last10) >= 5:
-        r10 = float((last10 > line).sum()) / len(last10)
-        hist = 0.6 * r10 + 0.4 * r20
+
+    if is_pitcher:
+        # Pitchers: weight recent starts heavily — hot/cold streaks matter more
+        last3 = vals[-3:] if len(vals) >= 3 else vals
+        r3  = float((last3 > line).sum()) / max(len(last3), 1)
+        r10 = float((last10 > line).sum()) / max(len(last10), 1) if len(last10) >= 3 else r20
+        hist = 0.50 * r3 + 0.30 * r10 + 0.20 * r20
     else:
-        hist = r20
-        r10  = hist
-    # Trend momentum (last-10 vs prior-10)
+        # Batters: standard 60/40 last-10/last-20 blend
+        if len(last10) >= 5:
+            r10 = float((last10 > line).sum()) / len(last10)
+            hist = 0.6 * r10 + 0.4 * r20
+        else:
+            r10 = hist = r20
+
+        # Batter vs pitcher (BvP) adjustment — only for stats with a clear per-AB rate
+        if opp_pitcher_id and pid and col in _BVP_COL_MAP:
+            try:
+                bvp = _mlb_bvp_stats(int(pid), int(opp_pitcher_id))
+                if bvp.get("ab", 0) >= _BVP_MIN_AB:
+                    bvp_key = _BVP_COL_MAP[col]
+                    # Per-AB rates: season average vs career BvP average
+                    season_ab   = float(df["AB"].sum()) if "AB" in df.columns else max(len(vals) * 4, 1)
+                    season_stat = float(df[col].sum())
+                    season_per_ab = season_stat / max(season_ab, 1)
+                    bvp_per_ab    = bvp.get(bvp_key, 0) / max(bvp["ab"], 1)
+                    if season_per_ab > 0.001:
+                        # Factor: how much better/worse vs this pitcher relative to overall
+                        bvp_factor = min(1.4, max(0.60, bvp_per_ab / season_per_ab))
+                        # Soft-apply: 85% base hist + 15% BvP-skewed hist
+                        hist = min(0.97, max(0.03, hist * (0.85 + 0.15 * bvp_factor)))
+            except Exception:
+                pass
+
+    # Trend momentum (last-10 vs prior-10) — applied to both batters and pitchers
     if len(last10) >= 5 and len(prev10) >= 5:
         r_prev = float((prev10 > line).sum()) / len(prev10)
-        hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
-    # Blend 70% historical + 30% sportsbook implied market odds
+        r10_cur = float((last10 > line).sum()) / len(last10)
+        hist = min(0.97, max(0.03, hist + (r10_cur - r_prev) * 0.1))
+
     implied = implied_override if implied_override >= 0 else _PP_ODDS_IMPLIED.get(odds_type, 0.50)
     rate = 0.7 * hist + 0.3 * implied
     rate = rate * cal_factor
@@ -2165,6 +2213,48 @@ def get_mlb_pitcher_season_stats(pitcher_id):
         resp = requests.get(url, timeout=10)
         splits = resp.json().get("stats", [{}])[0].get("splits", [])
         return splits[0].get("stat", {}) if splits else {}
+    except Exception:
+        return {}
+
+
+@st.cache_data(ttl=86400)
+def _mlb_bvp_stats(batter_id: int, pitcher_id: int) -> dict:
+    """Career batting stats for batter_id against pitcher_id. Returns {} if no data."""
+    try:
+        url = (f"{MLB_BASE}/people/{batter_id}/stats"
+               f"?stats=vsPlayer&group=hitting&opposingPlayerId={pitcher_id}&sportId=1")
+        resp = requests.get(url, timeout=10)
+        splits = (resp.json().get("stats") or [{}])[0].get("splits", [])
+        if splits:
+            st_data = splits[0].get("stat", {})
+            return {
+                "ab":  int(st_data.get("atBats") or 0),
+                "h":   int(st_data.get("hits") or 0),
+                "hr":  int(st_data.get("homeRuns") or 0),
+                "tb":  int(st_data.get("totalBases") or 0),
+                "k":   int(st_data.get("strikeOuts") or 0),
+                "bb":  int(st_data.get("baseOnBalls") or 0),
+                "rbi": int(st_data.get("rbi") or 0),
+            }
+    except Exception:
+        pass
+    return {}
+
+
+@st.cache_data(ttl=3600)
+def _mlb_today_pitcher_lookup() -> dict:
+    """Returns {team_abbr: opp_pitcher_id} for today's MLB games."""
+    try:
+        games = get_mlb_today_with_pitchers()
+        lookup: dict = {}
+        for g in games:
+            away, home = g.get("away_abbr", ""), g.get("home_abbr", "")
+            away_pid, home_pid = g.get("away_p_id"), g.get("home_p_id")
+            if away and home_pid:
+                lookup[away] = home_pid   # away batters face home pitcher
+            if home and away_pid:
+                lookup[home] = away_pid   # home batters face away pitcher
+        return lookup
     except Exception:
         return {}
 
@@ -6312,16 +6402,23 @@ elif sport == "⚾ MLB":
             else:
                 _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(25)
                 _legs_mlb = []
+                # Pre-fetch today's probable pitchers for BvP matching
+                try:
+                    _pitcher_lookup = _mlb_today_pitcher_lookup()
+                except Exception:
+                    _pitcher_lookup = {}
                 _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
                 for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
                     _mot = _mrow.get("odds_type", "standard") or "standard"
                     _mimp = float(_mrow.get("implied_prob", -1.0) if "implied_prob" in _mrow.index else -1.0)
                     _mcal_f = _mlb_cal.get(_mrow["stat_type"], 1.0)
+                    _mteam = _mrow.get("team", "") or ""
+                    _opp_pid = _pitcher_lookup.get(_mteam) if _mrow["stat_type"] not in _PP_PITCHER_TYPES else None
                     _mrate, _mn = _mlb_hit_rate(
                         _mrow["player_name"], _mrow["stat_type"],
                         float(_mrow["line_score"] or 0),
                         odds_type=_mot, implied_override=_mimp,
-                        cal_factor=_mcal_f,
+                        cal_factor=_mcal_f, opp_pitcher_id=_opp_pid,
                     )
                     # When player history is unavailable, fall back to implied odds
                     if _mn == 0:

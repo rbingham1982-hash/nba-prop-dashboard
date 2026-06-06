@@ -458,6 +458,10 @@ def _resolve_mlb_legs() -> int:
                 game_pk = game_info.get("game_id")
                 if not game_pk:
                     continue
+                # Only resolve Final games — skip in-progress/postponed/scheduled
+                game_status = (game_info.get("status") or "").lower()
+                if game_status and "final" not in game_status and "completed" not in game_status and "over" not in game_status:
+                    continue
                 try:
                     _time.sleep(0.4)
                     box = statsapi.boxscore_data(game_pk)
