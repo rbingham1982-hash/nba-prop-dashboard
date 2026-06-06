@@ -9,6 +9,7 @@ Calibration factors are derived from resolved legs once CAL_MIN_SAMPLES is reach
 import json
 import hashlib
 import time as _time
+import unicodedata
 from collections import defaultdict
 from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
@@ -176,23 +177,128 @@ def _leg_is_resolvable(leg: dict, generated_at: str) -> bool:
     return True
 
 
+def _is_historical_leg(leg: dict) -> bool:
+    """True if this leg was generated from historical fallback data (no real game to resolve)."""
+    return leg.get("game_label", "").strip().lower() == "historical"
+
+
+def _normalize_name(name: str) -> str:
+    """Strip Unicode accents so 'Vásquez' matches 'Vasquez'."""
+    return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii").lower()
+
+
+def _team_label_to_abbrev(token: str) -> str:
+    """
+    Convert a team label token to a 3-letter abbreviation for MATCHUP matching.
+    Handles both already-abbreviated tokens ('SAS') and full team names.
+    Uses nba_api teams list as lookup; falls back to first 3 chars.
+    """
+    token = token.strip()
+    if len(token) <= 4:
+        return token.upper()[:3]  # already an abbreviation
+    # Build a keyword → abbrev map from nba_api teams (cached in module)
+    try:
+        from nba_api.stats.static import teams as _nba_teams  # type: ignore
+        all_teams = _nba_teams.get_teams()
+        token_up = token.upper()
+        for t in all_teams:
+            abbrev = t["abbreviation"].upper()
+            if (t["full_name"].upper() in token_up or
+                    t["nickname"].upper() in token_up or
+                    t["city"].upper() in token_up):
+                return abbrev
+    except Exception:
+        pass
+    return token.upper()[:3]
+
+
+def _find_game_by_label(df: pd.DataFrame, game_label: str, generated_at: str) -> pd.Series | None:
+    """
+    Match a game log row using team names extracted from game_label (e.g. 'SAS @ OKC'
+    or 'San Antonio Spurs @ Oklahoma City Thunder').
+    Returns the game closest to generated_at that has both teams in the MATCHUP.
+    """
+    if df.empty or "MATCHUP" not in df.columns or not game_label:
+        return None
+    parts = [p.strip() for p in game_label.replace("@", " @ ").split("@")]
+    if len(parts) < 2:
+        return None
+    abbrev_a = _team_label_to_abbrev(parts[0])
+    abbrev_b = _team_label_to_abbrev(parts[1])
+
+    gen_date = None
+    try:
+        gen_date = datetime.fromisoformat(generated_at).date()
+    except Exception:
+        pass
+
+    best_row = None
+    best_delta = timedelta(days=9999)
+    for _, row in df.iterrows():
+        matchup = str(row.get("MATCHUP", "")).upper()
+        if abbrev_a not in matchup or abbrev_b not in matchup:
+            continue
+        raw = str(row.get("GAME_DATE", ""))
+        try:
+            gd = datetime.strptime(raw.title(), "%b %d, %Y").date()
+        except ValueError:
+            try:
+                gd = date.fromisoformat(raw[:10])
+            except Exception:
+                continue
+        if gen_date is not None:
+            delta = abs((gd - gen_date).days)
+            if delta < best_delta.days:
+                best_delta = timedelta(days=delta)
+                best_row = row
+        else:
+            best_row = row
+            break
+    return best_row
+
+
+def _mark_parlay_outcomes(data: dict) -> None:
+    """
+    Set parlay_hit for any parlay whose real (non-historical) legs are all resolved.
+    Historical legs are excluded from both the resolution check and the hit/miss verdict.
+    """
+    for parlay in data["parlays"]:
+        if parlay["parlay_hit"] is not None:
+            continue
+        real_legs = [l for l in parlay["legs"] if not _is_historical_leg(l)]
+        if not real_legs:
+            # All legs are historical — parlay can never be resolved; leave parlay_hit=None
+            continue
+        outcomes = [l["outcome"] for l in real_legs]
+        if all(o is not None for o in outcomes):
+            parlay["parlay_hit"] = bool(all(outcomes))
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # NBA resolution
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Known nicknames / display-name aliases → official full names used in the NBA API
+_NBA_PLAYER_ALIASES: dict[str, str] = {
+    "deuce mcbride": "miles mcbride",
+    "og anunoby":    "o.g. anunoby",
+    "ky bowman":     "kendrick bowman",
+}
+
+
 def _get_nba_player_id(name: str):
-    """Resolve a display name to an NBA API player ID."""
+    """Resolve a display name (including known nicknames) to an NBA API player ID."""
     try:
         from nba_api.stats.static import players as _nba_players
-        results = _nba_players.find_players_by_full_name(name)
+        # Alias substitution
+        lookup = _NBA_PLAYER_ALIASES.get(name.strip().lower(), name)
+        results = _nba_players.find_players_by_full_name(lookup)
         if results:
             return results[0]["id"]
-        # Partial match: all parts present
-        low = name.lower()
-        parts = low.split()
+        # Normalized partial match: ignore accents, check all name parts present
+        norm_lookup = _normalize_name(lookup)
         for p in _nba_players.get_active_players():
-            fname = p["full_name"].lower()
-            if all(part in fname for part in parts):
+            if all(part in _normalize_name(p["full_name"]) for part in norm_lookup.split()):
                 return p["id"]
     except Exception:
         pass
@@ -248,7 +354,6 @@ def _fetch_player_gamelog(player_id: int) -> pd.DataFrame:
 def resolve_nba_legs() -> int:
     """Auto-resolve pending NBA legs against NBA API box scores. Returns resolved count."""
     data = _load()
-    # Collect resolvable pending legs grouped by player
     player_legs: dict[str, list] = defaultdict(list)
     for parlay in data["parlays"]:
         if parlay["sport"] != "NBA":
@@ -256,11 +361,15 @@ def resolve_nba_legs() -> int:
         for leg in parlay["legs"]:
             if leg["outcome"] is not None:
                 continue
+            if _is_historical_leg(leg):
+                continue  # fallback legs have no real game — skip permanently
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
             player_legs[leg["player_name"]].append((parlay, leg))
 
     if not player_legs:
+        _mark_parlay_outcomes(data)
+        _save(data)
         return 0
 
     resolved_count = 0
@@ -275,10 +384,15 @@ def resolve_nba_legs() -> int:
             spec = _NBA_RESOLVE.get(leg["stat_type"])
             if spec is None:
                 continue
-            target = _parse_game_date(leg, parlay["generated_at"])
-            if target is None:
-                continue
-            row = _find_game_in_log(df, target)
+            # When start_time is missing, use game_label team matching (wider tolerance)
+            # rather than relying on the generation date which predates the game.
+            if not leg.get("start_time", "") and leg.get("game_label", ""):
+                row = _find_game_by_label(df, leg["game_label"], parlay["generated_at"])
+            else:
+                target = _parse_game_date(leg, parlay["generated_at"])
+                if target is None:
+                    continue
+                row = _find_game_in_log(df, target)
             if row is None:
                 continue
             try:
@@ -288,14 +402,7 @@ def resolve_nba_legs() -> int:
             except Exception:
                 continue
 
-    # Mark fully-resolved parlays
-    for parlay in data["parlays"]:
-        if parlay["parlay_hit"] is not None:
-            continue
-        outcomes = [l["outcome"] for l in parlay["legs"]]
-        if all(o is not None for o in outcomes):
-            parlay["parlay_hit"] = bool(all(outcomes))
-
+    _mark_parlay_outcomes(data)
     if resolved_count:
         _save(data)
     return resolved_count
@@ -313,7 +420,6 @@ def _resolve_mlb_legs() -> int:
         return 0
 
     data = _load()
-    # Group pending legs by player
     player_legs: dict[str, list] = defaultdict(list)
     for parlay in data["parlays"]:
         if parlay["sport"] != "MLB":
@@ -321,16 +427,20 @@ def _resolve_mlb_legs() -> int:
         for leg in parlay["legs"]:
             if leg["outcome"] is not None:
                 continue
+            if _is_historical_leg(leg):
+                continue
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
             player_legs[leg["player_name"]].append((parlay, leg))
 
     if not player_legs:
+        _mark_parlay_outcomes(data)
+        _save(data)
         return 0
 
     resolved_count = 0
     for player_name, entries in player_legs.items():
-        # Get a sorted unique set of dates to query
+        norm_name = _normalize_name(player_name)
         dates_needed: set[str] = set()
         for parlay, leg in entries:
             d = _parse_game_date(leg, parlay["generated_at"])
@@ -340,10 +450,7 @@ def _resolve_mlb_legs() -> int:
         for date_str in dates_needed:
             try:
                 _time.sleep(0.4)
-                schedule = statsapi.schedule(
-                    date=date_str,
-                    sportId=1,
-                )
+                schedule = statsapi.schedule(date=date_str, sportId=1)
             except Exception:
                 continue
 
@@ -361,7 +468,8 @@ def _resolve_mlb_legs() -> int:
                     team_data = box.get(side, {})
                     for player_data in team_data.get("players", {}).values():
                         full_name = player_data.get("person", {}).get("fullName", "")
-                        if player_name.lower() not in full_name.lower():
+                        # Normalize both sides to handle accented characters (e.g. Vásquez)
+                        if norm_name not in _normalize_name(full_name):
                             continue
                         stats = player_data.get("stats", {})
                         bstats = stats.get("batting", {})
@@ -376,33 +484,118 @@ def _resolve_mlb_legs() -> int:
                             else:
                                 col = _MLB_BATTING_RESOLVE.get(stat_type)
                                 source = bstats
-                            if col is None or not source:
+                            if col is None or source is None:
                                 continue
                             try:
+                                # Empty dict means player didn't appear; treat stat as 0
                                 actual = float(source.get(col, 0) or 0)
                                 leg["outcome"] = bool(actual > leg["line_score"])
                                 resolved_count += 1
                             except Exception:
                                 continue
 
-    # Mark fully-resolved parlays
-    for parlay in data["parlays"]:
-        if parlay["parlay_hit"] is not None:
-            continue
-        outcomes = [l["outcome"] for l in parlay["legs"]]
-        if all(o is not None for o in outcomes):
-            parlay["parlay_hit"] = bool(all(outcomes))
+    _mark_parlay_outcomes(data)
+    if resolved_count:
+        _save(data)
+    return resolved_count
 
+
+def _resolve_wnba_legs() -> int:
+    """Auto-resolve pending WNBA legs via nba_api PlayerGameLog (league 10). Returns resolved count."""
+    data = _load()
+    player_legs: dict[str, list] = defaultdict(list)
+    for parlay in data["parlays"]:
+        if parlay["sport"] != "WNBA":
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is not None:
+                continue
+            if _is_historical_leg(leg):
+                continue
+            if not _leg_is_resolvable(leg, parlay["generated_at"]):
+                continue
+            player_legs[leg["player_name"]].append((parlay, leg))
+
+    if not player_legs:
+        _mark_parlay_outcomes(data)
+        _save(data)
+        return 0
+
+    from nba_api.stats.endpoints import commonallplayers, playergamelog as _pgl  # type: ignore
+
+    # Build WNBA name→id map
+    try:
+        _time.sleep(0.5)
+        wnba_df = commonallplayers.CommonAllPlayers(
+            is_only_current_season=0, league_id="10"
+        ).get_data_frames()[0]
+        wnba_id_map = {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
+                       for _, row in wnba_df.iterrows()}
+    except Exception:
+        wnba_id_map = {}
+
+    resolved_count = 0
+    for player_name, entries in player_legs.items():
+        pid = wnba_id_map.get(player_name.strip().lower())
+        if not pid:
+            # Try normalized name match
+            norm = _normalize_name(player_name)
+            for k, v in wnba_id_map.items():
+                if _normalize_name(k) == norm:
+                    pid = v
+                    break
+        if not pid:
+            continue
+
+        # Fetch current WNBA season game log (try newest season first)
+        df = pd.DataFrame()
+        for season in ("2026", "2025"):
+            try:
+                _time.sleep(0.6)
+                logs = _pgl.PlayerGameLog(
+                    player_id=pid, season=season,
+                    season_type_all_star="Regular Season",
+                    league_id_nullable="10", timeout=15,
+                ).get_data_frames()[0]
+                if not logs.empty:
+                    df = logs if df.empty else pd.concat([df, logs], ignore_index=True)
+            except Exception:
+                continue
+        if df.empty:
+            continue
+
+        for parlay, leg in entries:
+            spec = _NBA_RESOLVE.get(leg["stat_type"])
+            if spec is None:
+                continue
+            if not leg.get("start_time", "") and leg.get("game_label", ""):
+                row = _find_game_by_label(df, leg["game_label"], parlay["generated_at"])
+            else:
+                target = _parse_game_date(leg, parlay["generated_at"])
+                if target is None:
+                    continue
+                row = _find_game_in_log(df, target)
+            if row is None:
+                continue
+            try:
+                actual = _stat_from_row(row, spec)
+                leg["outcome"] = bool(actual > leg["line_score"])
+                resolved_count += 1
+            except Exception:
+                continue
+
+    _mark_parlay_outcomes(data)
     if resolved_count:
         _save(data)
     return resolved_count
 
 
 def resolve_all_legs() -> dict:
-    """Resolve both NBA and MLB pending legs. Returns {nba: count, mlb: count}."""
-    nba = resolve_nba_legs()
-    mlb = _resolve_mlb_legs()
-    return {"nba": nba, "mlb": mlb}
+    """Resolve NBA, MLB, and WNBA pending legs. Returns {nba: count, mlb: count, wnba: count}."""
+    nba  = resolve_nba_legs()
+    mlb  = _resolve_mlb_legs()
+    wnba = _resolve_wnba_legs()
+    return {"nba": nba, "mlb": mlb, "wnba": wnba}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
