@@ -3275,9 +3275,12 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                     if sport_filter == "NBA":
                         _cnt = parlay_tracker.resolve_nba_legs()
                         st.success(f"Resolved {_cnt} NBA leg(s).")
-                    else:
+                    elif sport_filter == "MLB":
                         _cnt = parlay_tracker._resolve_mlb_legs()
                         st.success(f"Resolved {_cnt} MLB leg(s).")
+                    elif sport_filter == "WNBA":
+                        _cnt = parlay_tracker._resolve_wnba_legs()
+                        st.success(f"Resolved {_cnt} WNBA leg(s).")
                     _load_calibration.clear()
                 except Exception as _e:
                     st.error(f"Resolution error: {_e}")
