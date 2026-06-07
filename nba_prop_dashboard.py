@@ -195,8 +195,11 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
     text-align: center; min-width: 110px;
     transition: background 0.15s;
 }
-.sg-item[data-game] { cursor: pointer; }
-.sg-item[data-game]:hover { background: rgba(129,140,248,0.08); }
+.sg-link {
+    text-decoration: none; color: inherit; display: block;
+    cursor: pointer; transition: background 0.15s;
+}
+.sg-link:hover { background: rgba(129,140,248,0.10); }
 .sg-teams { font-size: 0.7rem; font-weight: 700; color: var(--text-primary); }
 .sg-score { font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0.12rem 0; letter-spacing: 0.04em; }
 .sg-status { font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
@@ -2770,6 +2773,71 @@ def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id,
     ]
     return " ".join(p for p in parts if p)
 
+def wnba_scout_report(player_name, team_code, df, next_opp, prop_type, rolling_window, line=None):
+    """Scout report for WNBA vs-opponent tab. Expects df to have a TARGET column already set."""
+    if df.empty or not next_opp:
+        return None
+    stat_col = "TARGET" if "TARGET" in df.columns else _WNBA_STAT_MAP.get(prop_type, "PTS")
+    season_stat = df[stat_col].mean() if stat_col in df.columns else 0
+    season_pts  = df["PTS"].mean() if "PTS" in df.columns else 0
+    season_reb  = df["REB"].mean() if "REB" in df.columns else 0
+    season_ast  = df["AST"].mean() if "AST" in df.columns else 0
+    last10 = df.tail(10)
+    recent_stat = last10[stat_col].mean() if stat_col in last10.columns else season_stat
+    delta = recent_stat - season_stat
+    thresh = max(season_stat * 0.08, 1.0)
+    if delta > thresh:
+        trend = f"trending upward at {recent_stat:.1f} {prop_type}/G over the last 10 ({delta:+.1f} vs season avg)"
+    elif delta < -thresh:
+        trend = f"trending downward at {recent_stat:.1f} {prop_type}/G over the last 10 ({delta:+.1f} vs season avg)"
+    else:
+        trend = f"consistent at {recent_stat:.1f} {prop_type}/G over the last 10 games"
+    opp_df = df[df["OPPONENT"].str.upper() == next_opp.upper()] if "OPPONENT" in df.columns else pd.DataFrame()
+    if not opp_df.empty:
+        op_stat = opp_df[stat_col].mean() if stat_col in opp_df.columns else 0
+        n = len(opp_df)
+        quality = ("favorable" if op_stat > season_stat * 1.08
+                   else "difficult" if op_stat < season_stat * 0.92 else "neutral")
+        opp_str = (f"In {n} game(s) vs {next_opp}, {player_name} averaged "
+                   f"{op_stat:.1f} {prop_type} — a historically {quality} matchup.")
+    else:
+        opp_str = f"No prior matchup data vs {next_opp} in the selected seasons."
+    streak_str = hit_rate_str = ""
+    if line is not None and stat_col in df.columns:
+        over_series = (df[stat_col] > line).tolist()
+        streak_over = streak_under = 0
+        for v in reversed(over_series):
+            if v: streak_over += 1
+            else: break
+        for v in reversed(over_series):
+            if not v: streak_under += 1
+            else: break
+        last10_hit = (last10[stat_col] > line).mean() if stat_col in last10.columns else 0
+        hit_rate_str = f"Hit rate vs {line} over the last 10 games: {last10_hit:.0%}."
+        if streak_over >= 3:
+            streak_str = f" {player_name} has cleared {line} in {streak_over} straight games — a hot streak."
+        elif streak_under >= 3:
+            streak_str = f" Warning: {player_name} has missed {line} in {streak_under} consecutive games."
+    last5_stat = df.tail(5)[stat_col].mean() if stat_col in df.columns else season_stat
+    if last5_stat > season_stat * 1.1:
+        form = f"Running hot over the last 5 games ({last5_stat:.1f} {prop_type}/G)."
+    elif last5_stat < season_stat * 0.9:
+        form = f"Cooled over the last 5 ({last5_stat:.1f} {prop_type}/G vs {season_stat:.1f} season avg)."
+    else:
+        form = f"Steady form over the last 5 games ({last5_stat:.1f} {prop_type}/G)."
+    pred_str = ""
+    if len(df) >= rolling_window and stat_col in df.columns:
+        pred_val = df[stat_col].rolling(rolling_window).mean().iloc[-1]
+        pred_str = (f"A {rolling_window}-game rolling model projects {pred_val:.1f} {prop_type} "
+                    f"({season_pts:.1f} pts / {season_reb:.1f} reb / {season_ast:.1f} ast season avg).")
+    parts = [
+        f"{player_name} ({team_code}) heads into the matchup vs {next_opp} averaging {season_stat:.1f} {prop_type}/G "
+        f"(context: {season_pts:.1f} PPG / {season_reb:.1f} RPG / {season_ast:.1f} APG) this season. "
+        f"Output is {trend}.",
+        opp_str, hit_rate_str, streak_str, form, pred_str,
+    ]
+    return " ".join(p for p in parts if p)
+
 # ══════════════════════════════════════════════════════════════════════════════
 # DAILY BLOG GENERATORS
 # ══════════════════════════════════════════════════════════════════════════════
@@ -3180,52 +3248,35 @@ def render_score_ticker(games, sport: str = "NBA"):
             "<span style='padding:0 1.5rem;font-size:0.75rem;color:var(--text-muted);'>No games scheduled today</span></div>",
             unsafe_allow_html=True)
         return
+    from urllib.parse import urlencode
     items_html = ""
     for g in games:
         is_pregame = not g["live"] and not g.get("completed", False)
+        status_txt = g["status"]
         if is_pregame:
-            score = g["status"]
+            # Strip the date prefix ("M/D - ") and show just the gametime
+            score = status_txt.split(" - ", 1)[-1] if " - " in status_txt else status_txt
+            status_label = "PRE"
         elif g["away_score"] != "" or g["home_score"] != "":
             score = f"{g['away_score']} – {g['home_score']}"
+            status_label = status_txt
         else:
             score = "–"
+            status_label = status_txt
         status_cls = "sg-live" if g["live"] else ""
         game_key = f"{g['away']} @ {g['home']}"
+        qs = urlencode({"ticker_game": game_key, "ticker_sport": sport})
         items_html += (
-            f"<div class='sg-item' data-game='{game_key}' data-sport='{sport}' "
-            f"title='Click to open vs. Opponent tab for {game_key}'>"
+            f"<a class='sg-item sg-link' href='?{qs}' "
+            f"title='View {game_key} in vs. Opponent tab'>"
             f"<div class='sg-teams'>{g['away']} @ {g['home']}</div>"
             f"<div class='sg-score'>{score}</div>"
-            f"<div class='sg-status {status_cls}'>{g['status']}</div>"
-            f"</div>"
+            f"<div class='sg-status {status_cls}'>{status_label}</div>"
+            f"</a>"
         )
     st.markdown(
         f"<div class='score-ticker'><span class='sg-label'>TODAY</span>{items_html}</div>",
         unsafe_allow_html=True)
-    # Inject click handlers — each game card navigates to vs. Opponent tab
-    sport_js = sport.replace("'", "\\'")
-    components.html(f"""<script>
-    (function() {{
-        function attachHandlers() {{
-            var items = window.parent.document.querySelectorAll('.sg-item[data-sport="{sport_js}"]');
-            if (!items.length) {{ setTimeout(attachHandlers, 150); return; }}
-            items.forEach(function(el) {{
-                if (el.dataset.tickerWired) return;
-                el.dataset.tickerWired = '1';
-                el.style.cursor = 'pointer';
-                el.addEventListener('click', function() {{
-                    var game = el.dataset.game || '';
-                    var sp   = el.dataset.sport || '';
-                    var url  = new URL(window.parent.location.href);
-                    url.searchParams.set('ticker_game', game);
-                    url.searchParams.set('ticker_sport', sp);
-                    window.parent.location.assign(url.toString());
-                }});
-            }});
-        }}
-        setTimeout(attachHandlers, 400);
-    }})();
-    </script>""", height=0)
 
 def render_news_panel(news):
     if not news:
@@ -3250,6 +3301,14 @@ def rolling_projection(df, col, window):
 # ══════════════════════════════════════════════════════════════════════════════
 # HEADER + SPORT SELECTOR
 # ══════════════════════════════════════════════════════════════════════════════
+
+# Restore sport from ticker link query param so the correct sport handler fires
+_qs_ticker_sport = st.query_params.get("ticker_sport", "")
+if _qs_ticker_sport and "sport_selector" not in st.session_state:
+    _sport_map = {"NBA": "🏀 NBA", "WNBA": "🏀 WNBA", "MLB": "⚾ MLB"}
+    if _qs_ticker_sport in _sport_map:
+        st.session_state["sport_selector"] = _sport_map[_qs_ticker_sport]
+
 hdr_col, sport_col = st.columns([5, 1])
 with hdr_col:
     st.markdown("""
@@ -3796,20 +3855,14 @@ if sport == "🏀 NBA":
         _nba_scores = get_nba_scoreboard(_scoreboard_date())
     render_score_ticker(_nba_scores, "NBA")
 
-    # ── Ticker click: navigate to vs. Opponent tab ─────────────────────────────
+    # ── Ticker click: set game + flag, then rerun to let home tab fire nav JS ──
     if (st.query_params.get("ticker_sport") == "NBA"
             and st.query_params.get("ticker_game")):
-        _tnav_game = st.query_params["ticker_game"]
-        st.session_state["nvo_game"] = _tnav_game
+        st.session_state["nvo_game"] = st.query_params["ticker_game"]
         st.session_state["_nav_vs_nba"] = True
         del st.query_params["ticker_game"]
         del st.query_params["ticker_sport"]
         st.rerun()
-    if st.session_state.pop("_nav_vs_nba", False):
-        components.html("<script>setTimeout(function(){"
-            "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
-            "if(t[3])t[3].click();"
-            "},200);</script>", height=0)
 
     tab_home, tab_stats, tab_opp, tab_vs_opp_nba, tab_sim, tab_fb, tab_pp, tab_parlays, tab_accuracy_nba, tab_blog, tab_disc = st.tabs([
         "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
@@ -3824,6 +3877,14 @@ if sport == "🏀 NBA":
                 "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
                 "if(t.length>1)t[1].click();"
                 "},150);</script>",
+                height=0,
+            )
+        if st.session_state.pop("_nav_vs_nba", False):
+            components.html(
+                "<script>setTimeout(function(){"
+                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+                "if(t[3])t[3].click();"
+                "},300);</script>",
                 height=0,
             )
         section("Players to Watch")
@@ -4263,6 +4324,16 @@ if sport == "🏀 NBA":
                                     }),
                                     use_container_width=True, hide_index=True,
                                 )
+
+                            # ── Scout Report ──────────────────────────────────
+                            nvo_df["IS_HOME"] = nvo_df["MATCHUP"].str.contains(r"vs\.", na=False)
+                            _nvo_report = nba_scout_report(
+                                nvo_player, nvo_team_code, nvo_df, nvo_opp_code,
+                                nvo_prop, nvo_window, line=nvo_line,
+                            )
+                            if _nvo_report:
+                                section("Scout Report")
+                                st.markdown(_scout_card_nba(_nvo_report), unsafe_allow_html=True)
 
     # ── BET SIMULATION ────────────────────────────────────────────────────────
     with tab_sim:
@@ -4758,7 +4829,7 @@ elif sport == "🏀 WNBA":
         _wnba_scores = get_wnba_scoreboard(_wnba_scoreboard_date())
     render_score_ticker(_wnba_scores, "WNBA")
 
-    # ── Ticker click: navigate to vs. Opponent tab ─────────────────────────────
+    # ── Ticker click: set game + flag, then rerun to let home tab fire nav JS ──
     if (st.query_params.get("ticker_sport") == "WNBA"
             and st.query_params.get("ticker_game")):
         st.session_state["wvo_game"] = st.query_params["ticker_game"]
@@ -4766,11 +4837,6 @@ elif sport == "🏀 WNBA":
         del st.query_params["ticker_game"]
         del st.query_params["ticker_sport"]
         st.rerun()
-    if st.session_state.pop("_nav_vs_wnba", False):
-        components.html("<script>setTimeout(function(){"
-            "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
-            "if(t[3])t[3].click();"
-            "},200);</script>", height=0)
 
     (tab_w_home, tab_w_stats, tab_w_opp, tab_w_vs, tab_w_sim,
      tab_w_pp, tab_w_parlays, tab_w_accuracy, tab_w_blog, tab_w_disc) = st.tabs([
@@ -4780,6 +4846,14 @@ elif sport == "🏀 WNBA":
 
     # ── HOME ──────────────────────────────────────────────────────────────────
     with tab_w_home:
+        if st.session_state.pop("_nav_vs_wnba", False):
+            components.html(
+                "<script>setTimeout(function(){"
+                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+                "if(t[3])t[3].click();"
+                "},300);</script>",
+                height=0,
+            )
         section("Players to Watch")
         with st.spinner(""):
             _wptw_frames = []
@@ -5141,6 +5215,15 @@ elif sport == "🏀 WNBA":
                                              color_discrete_map={"TARGET": "#818cf8", "ROLLING": "#a78bfa"})
                             wvo_fig.add_hline(y=wvo_line, line_dash="dot", line_color="#ef4444")
                             st.plotly_chart(nba_fig(wvo_fig), use_container_width=True, config=_CHART_CFG)
+
+                            # ── Scout Report ──────────────────────────────────
+                            _wvo_report = wnba_scout_report(
+                                wvo_player, wvo_team_code, wvo_df, wvo_opp_code,
+                                wvo_prop, wvo_window, line=wvo_line,
+                            )
+                            if _wvo_report:
+                                section("Scout Report")
+                                st.markdown(_scout_card(_wvo_report), unsafe_allow_html=True)
                     else:
                         st.warning(f"Could not find player ID for {wvo_player}.")
 
@@ -5512,6 +5595,10 @@ elif sport == "⚾ MLB":
         _tnav_parts = _tnav_abbr.split(" @ ")
         if len(_tnav_parts) == 2:
             _tnav_away_abbr, _tnav_home_abbr = _tnav_parts
+            # ESPN and MLB Stats API use different abbreviations for some teams
+            _ESPN_TO_MLB = {"CHW": "CWS", "ARI": "AZ", "WSH": "WSH"}
+            _tnav_away_abbr = _ESPN_TO_MLB.get(_tnav_away_abbr, _tnav_away_abbr)
+            _tnav_home_abbr = _ESPN_TO_MLB.get(_tnav_home_abbr, _tnav_home_abbr)
             # Convert abbreviations → full-name label used by the vs. tab selectbox
             _tnav_all_games = get_today_mlb_games()
             for _tg in _tnav_all_games:
@@ -5523,18 +5610,20 @@ elif sport == "⚾ MLB":
         del st.query_params["ticker_game"]
         del st.query_params["ticker_sport"]
         st.rerun()
-    if st.session_state.pop("_nav_vs_mlb", False):
-        components.html("<script>setTimeout(function(){"
-            "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
-            "if(t[3])t[3].click();"
-            "},200);</script>", height=0)
-
     tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_sim_mlb, tab_pp_mlb, tab_parlays_mlb, tab_accuracy_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
         "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Bet Simulation", "Sportsbook", "Parlays", "Accuracy", "Daily Blog", "Disclaimer"
     ])
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
     with tab_mlb_home:
+        if st.session_state.pop("_nav_vs_mlb", False):
+            components.html(
+                "<script>setTimeout(function(){"
+                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+                "if(t[3])t[3].click();"
+                "},300);</script>",
+                height=0,
+            )
         _mlb_ptw_nav = st.session_state.pop("_mlb_ptw_nav", None)
         if _mlb_ptw_nav == "hitter":
             components.html(
@@ -6304,6 +6393,19 @@ elif sport == "⚾ MLB":
                             .style.format({"date": lambda x: x.strftime("%b %d"), **display_fmt}),
                             use_container_width=True, hide_index=True,
                         )
+
+                        # ── Scout Report ──────────────────────────────────────
+                        if vo_player_type == "Hitter":
+                            _vo_report = mlb_hitter_scout_report(
+                                vo_player["name"], vo_team["abbr"], vo_df, vo_team["id"],
+                            )
+                        else:
+                            _vo_report = mlb_pitcher_scout_report(
+                                vo_player["name"], vo_team["abbr"], vo_df, vo_team["id"],
+                            )
+                        if _vo_report:
+                            mlb_section("Scout Report")
+                            st.markdown(_scout_card_mlb(_vo_report), unsafe_allow_html=True)
 
     # ── MLB BET SIMULATION ───────────────────────────────────────────────────
     with tab_sim_mlb:
