@@ -606,10 +606,12 @@ def resolve_all_legs() -> dict:
 # Calibration
 # ─────────────────────────────────────────────────────────────────────────────
 
-def get_calibration() -> dict:
+def get_calibration(sport: str | None = None) -> dict:
     """
-    Return per-stat calibration factors from all resolved legs.
-    factor > 1.0 → model underestimates hit rate; < 1.0 → overestimates.
+    Return per-stat calibration factors from resolved legs.
+    Pass sport='NBA', 'MLB', or 'WNBA' to get sport-specific factors;
+    omit to blend all sports (legacy behaviour).
+    factor > 1.0 → model underestimates; < 1.0 → overestimates.
     Only populated when a stat has >= CAL_MIN_SAMPLES resolved legs.
     """
     data = _load()
@@ -617,6 +619,8 @@ def get_calibration() -> dict:
     actual: dict[str, list] = defaultdict(list)
 
     for parlay in data["parlays"]:
+        if sport and parlay.get("sport") != sport:
+            continue
         for leg in parlay["legs"]:
             if leg["outcome"] is None:
                 continue

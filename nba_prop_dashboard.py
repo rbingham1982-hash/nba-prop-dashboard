@@ -1440,10 +1440,10 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
     return pd.DataFrame()
 
 @st.cache_data(ttl=3600)
-def _load_calibration() -> dict:
-    """Load per-stat calibration factors from the parlay tracker (cached 1h)."""
+def _load_calibration(sport: str | None = None) -> dict:
+    """Load sport-specific per-stat calibration factors from the parlay tracker (cached 1h)."""
     try:
-        return parlay_tracker.get_calibration()
+        return parlay_tracker.get_calibration(sport=sport)
     except Exception:
         return {}
 
@@ -3640,7 +3640,8 @@ _WNBA_PARLAY_COL_MAP = {
 
 @st.cache_data(ttl=1800)
 def _wnba_hit_rate(player_name: str, stat_type: str, line: float,
-                   odds_type: str = "standard", implied_override: float = -1.0):
+                   odds_type: str = "standard", implied_override: float = -1.0,
+                   cal_factor: float = 1.0):
     """Weighted WNBA hit rate: 70% ESPN game log history + 30% sportsbook implied."""
     col = _WNBA_PARLAY_COL_MAP.get(stat_type)
     if not col:
@@ -3682,13 +3683,16 @@ def _wnba_hit_rate(player_name: str, stat_type: str, line: float,
         hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
     implied = implied_override if implied_override >= 0 else _PP_ODDS_IMPLIED.get(odds_type, 0.50)
     rate = 0.7 * hist + 0.3 * implied
+    rate = rate * cal_factor
     return round(min(0.97, max(0.03, rate)), 3), n
 
 
-def _fallback_wnba_legs(stat_types: list = None) -> list:
+def _fallback_wnba_legs(stat_types: list = None, cal: dict = None) -> list:
     """Build WNBA parlay legs from top players using ESPN historical averages as lines."""
     if stat_types is None:
-        stat_types = ["Points", "Rebounds", "Assists", "3-PT Made"]
+        stat_types = ["Pts+Rebs+Asts"]
+    if cal is None:
+        cal = {}
     TOP_WNBA = [
         "A'ja Wilson", "Caitlin Clark", "Breanna Stewart", "Sabrina Ionescu",
         "Alyssa Thomas", "Kelsey Plum", "Jewell Loyd", "Rhyne Howard",
@@ -3739,7 +3743,8 @@ def _fallback_wnba_legs(stat_types: list = None) -> list:
                 continue
             r30 = float((last30 > line).sum()) / len(last30)
             r10 = float((last10 > line).sum()) / len(last10) if len(last10) >= 5 else r30
-            rate = round(min(0.97, max(0.03, 0.7 * (0.6 * r10 + 0.4 * r30) + 0.3 * 0.5)), 3)
+            cal_f = cal.get(stat, 1.0)
+            rate = round(min(0.97, max(0.03, (0.7 * (0.6 * r10 + 0.4 * r30) + 0.3 * 0.5) * cal_f)), 3)
             legs.append({
                 "player_name": player, "team": "", "stat_type": stat,
                 "line_score": line, "odds_type": "standard", "american_odds": -110,
@@ -4504,7 +4509,7 @@ if sport == "🏀 NBA":
             _par_stats = st.multiselect(
                 "Stat Types",
                 options=list(_PP_NBA_STAT_COL.keys()),
-                default=["Points", "Rebounds", "Assists", "3-PT Made", "Pts+Rebs+Asts"],
+                default=["Pts+Rebs+Asts", "Assists"],
                 key="nba_par_stats",
                 label_visibility="collapsed",
             )
@@ -4567,12 +4572,24 @@ if sport == "🏀 NBA":
                     st.info("No active lines for the selected stat types — switching to historical mode.")
                     _using_fallback_nba = True
 
-            _nba_cal = _load_calibration()
+            _nba_cal = _load_calibration("NBA")
+
+            # Warn for stats with poor or insufficient calibration
+            _nba_weak = [s for s in _b_stats if _nba_cal.get(s, 1.0) < 0.3]
+            if _nba_weak:
+                st.warning(
+                    f"**Low-accuracy stat type(s): {', '.join(_nba_weak)}** — "
+                    "historical data shows these props almost never hit at the predicted rate. "
+                    "Consider removing them from the selection above.",
+                    icon="⚠️",
+                )
+
             if _using_fallback_nba:
                 with st.spinner("Loading historical data…"):
                     _legs_nba_data = _fallback_nba_legs(_b_stats)
                 if _legs_nba_data:
                     st.caption("Using historical averages as prop lines (no live sportsbook data). Lines set at ~88% of rolling average.")
+                _legs_nba_data = [l for l in _legs_nba_data if l["hit_rate"] >= 0.35]
                 _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
             else:
                 _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(20)
@@ -4627,7 +4644,7 @@ if sport == "🏀 NBA":
                                    text=f"Analyzing {_row['player_name']}…")
                 _prog.empty()
 
-                _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 1]
+                _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 1 and l["hit_rate"] >= 0.35]
                 _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
 
             # Log generated parlays for accuracy tracking
@@ -5191,7 +5208,7 @@ elif sport == "🏀 WNBA":
             st.markdown("**Stat Types to Include**")
             _wpar_stats = st.multiselect(
                 "Stats", options=list(_WNBA_PARLAY_COL_MAP.keys()),
-                default=["Points", "Rebounds", "Assists", "3-PT Made", "Pts+Rebs+Asts"],
+                default=["Pts+Rebs+Asts"],
                 key="wpar_stats", label_visibility="collapsed",
             )
 
@@ -5236,11 +5253,24 @@ elif sport == "🏀 WNBA":
                     st.info("No active lines for the selected stat types — switching to historical mode.")
                     _using_fallback_wnba = True
 
+            _wnba_cal = _load_calibration("WNBA")
+
+            # Warn for stats with poor calibration
+            _wnba_weak = [s for s in _wb_stats if _wnba_cal.get(s, 1.0) < 0.3]
+            if _wnba_weak:
+                st.warning(
+                    f"**Low-accuracy stat type(s): {', '.join(_wnba_weak)}** — "
+                    "historical data shows these props almost never hit at the predicted rate. "
+                    "Consider removing them from the selection above.",
+                    icon="⚠️",
+                )
+
             if _using_fallback_wnba:
                 with st.spinner("Loading historical WNBA data..."):
-                    _wlegs_data = _fallback_wnba_legs(_wb_stats)
+                    _wlegs_data = _fallback_wnba_legs(_wb_stats, cal=_wnba_cal)
                 if _wlegs_data:
                     st.caption("Using historical averages as prop lines (no live sportsbook data).")
+                _wlegs_data = [l for l in _wlegs_data if l["hit_rate"] >= 0.35]
                 _wsafe_p, _wvalue_p = _build_parlays(_wlegs_data, min_legs=_wb_min, max_legs=_wb_max)
             else:
                 _wfilt = _wfilt.sort_values("line_score", ascending=False).head(20)
@@ -5262,10 +5292,12 @@ elif sport == "🏀 WNBA":
                 for _wi, (_widx, _wrow) in enumerate(_wfilt.iterrows()):
                     _wot  = _wrow.get("odds_type", "standard") or "standard"
                     _wimp = float(_wrow.get("implied_prob", -1.0) if "implied_prob" in _wrow.index else -1.0)
+                    _wcal_f = _wnba_cal.get(_wrow["stat_type"], 1.0)
                     _wrate, _wn = _wnba_hit_rate(
                         _wrow["player_name"], _wrow["stat_type"],
                         float(_wrow["line_score"] or 0),
                         odds_type=_wot, implied_override=_wimp,
+                        cal_factor=_wcal_f,
                     )
                     if _wn == 0:
                         _weff = _wimp if _wimp >= 0 else _PP_ODDS_IMPLIED.get(_wot, 0.50)
@@ -5289,7 +5321,7 @@ elif sport == "🏀 WNBA":
                                      text=f"Analyzing {_wrow['player_name']}...")
                 _wprog2.empty()
 
-                _wlegs_data = [l for l in _wlegs if l["sample_n"] >= 1]
+                _wlegs_data = [l for l in _wlegs if l["sample_n"] >= 1 and l["hit_rate"] >= 0.35]
                 _wsafe_p, _wvalue_p = _build_parlays(_wlegs_data, min_legs=_wb_min, max_legs=_wb_max)
 
             # Log to accuracy tracker
@@ -6379,7 +6411,7 @@ elif sport == "⚾ MLB":
                     st.info("No active MLB lines for the selected stat types — switching to historical mode.")
                     _using_fallback_mlb = True
 
-            _mlb_cal = _load_calibration()
+            _mlb_cal = _load_calibration("MLB")
 
             # Warn if any selected stat type has a very poor calibration factor
             _weak_stats = [s for s in _mb_stats if _mlb_cal.get(s, 1.0) < 0.3]
