@@ -14,8 +14,8 @@ streamlit_err.txt
 streamlit.log
 streamlit_err.log
 
-# Parlay log (local data, not committed to repo)
-parlay_log.json
+# Parlay log is tracked so Streamlit Cloud has accuracy data
+# parlay_log.json
 
 # Test/debug scripts
 test_*.py
