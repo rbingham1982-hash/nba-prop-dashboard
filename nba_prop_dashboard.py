@@ -4410,7 +4410,7 @@ if sport == "🏀 NBA":
         with _sb_nba_col1:
             _sb_nba = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "Underdog", "FanDuel", "DraftKings", "Bet365"],
+                ["Underdog", "PrizePicks"],
                 horizontal=True,
                 key="sb_nba_select",
             )
@@ -4525,10 +4525,10 @@ if sport == "🏀 NBA":
             _b_max = st.session_state.get("nba_par_max_val", _par_max)
             _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
 
-            _nba_sb = st.session_state.get("nba_sportsbook", "PrizePicks")
-            _SB_OPTS = ["PrizePicks", "Underdog", "FanDuel", "DraftKings", "Bet365"]
+            _nba_sb = st.session_state.get("nba_sportsbook", "Underdog")
+            _SB_OPTS = ["Underdog", "PrizePicks"]
             if _nba_sb not in _SB_OPTS:
-                _nba_sb = "PrizePicks"
+                _nba_sb = "Underdog"
             _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
             with _par_sb_col1:
                 _sb_choice_nba = st.radio(
@@ -6245,7 +6245,7 @@ elif sport == "⚾ MLB":
         with _sb_mlb_col1:
             _sb_mlb = st.radio(
                 "Sportsbook",
-                ["PrizePicks", "Underdog", "FanDuel", "DraftKings", "Bet365"],
+                ["Underdog", "PrizePicks"],
                 horizontal=True,
                 key="sb_mlb_select",
             )
@@ -6364,7 +6364,7 @@ elif sport == "⚾ MLB":
             _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
 
             _mlb_sb = st.session_state.get("mlb_sportsbook", "Underdog")
-            _MLB_SB_OPTS = ["Underdog", "PrizePicks", "FanDuel", "DraftKings", "Bet365"]
+            _MLB_SB_OPTS = ["Underdog", "PrizePicks"]
             if _mlb_sb not in _MLB_SB_OPTS:
                 _mlb_sb = "Underdog"
             _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
