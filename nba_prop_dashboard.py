@@ -5375,7 +5375,7 @@ elif sport == "🏀 WNBA":
 
     # ── ACCURACY ──────────────────────────────────────────────────────────────
     with tab_w_accuracy:
-        st.info("Accuracy tracking uses parlay history. Build parlays on the Parlays tab to start tracking.")
+        _render_accuracy_tab("WNBA")
 
     # ── DAILY BLOG ────────────────────────────────────────────────────────────
     with tab_w_blog:
