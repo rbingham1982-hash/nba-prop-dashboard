@@ -4272,10 +4272,20 @@ if sport == "🏀 NBA":
                             nvo_df["PRA"] = nvo_df["PTS"] + nvo_df["REB"] + nvo_df["AST"]
                             nvo_col = STAT_MAP[nvo_prop]
                             nvo_df["ROLLING"] = nvo_df[nvo_col].rolling(nvo_window).mean()
+                            nvo_df["IS_HOME"] = nvo_df["MATCHUP"].str.contains(r"vs\.", na=False)
                             opp_mask = nvo_df["OPPONENT"].str.upper() == nvo_opp_code.upper()
                             vs_opp_df = nvo_df[opp_mask]
                             proj_all = rolling_projection(nvo_df, nvo_col, nvo_window)
                             hit_all = (nvo_df[nvo_col] > nvo_line).mean()
+
+                            # ── Scout Report ──────────────────────────────────
+                            _nvo_report = nba_scout_report(
+                                nvo_player, nvo_team_code, nvo_df, nvo_opp_code,
+                                nvo_prop, nvo_window, line=nvo_line,
+                            )
+                            if _nvo_report:
+                                section("Scout Report")
+                                st.markdown(_scout_card_nba(_nvo_report), unsafe_allow_html=True)
 
                             section(f"Projection vs {nvo_opp_code} — Today")
                             c1, c2, c3, c4 = st.columns(4)
@@ -4324,16 +4334,6 @@ if sport == "🏀 NBA":
                                     }),
                                     use_container_width=True, hide_index=True,
                                 )
-
-                            # ── Scout Report ──────────────────────────────────
-                            nvo_df["IS_HOME"] = nvo_df["MATCHUP"].str.contains(r"vs\.", na=False)
-                            _nvo_report = nba_scout_report(
-                                nvo_player, nvo_team_code, nvo_df, nvo_opp_code,
-                                nvo_prop, nvo_window, line=nvo_line,
-                            )
-                            if _nvo_report:
-                                section("Scout Report")
-                                st.markdown(_scout_card_nba(_nvo_report), unsafe_allow_html=True)
 
     # ── BET SIMULATION ────────────────────────────────────────────────────────
     with tab_sim:
@@ -5195,6 +5195,15 @@ elif sport == "🏀 WNBA":
                             proj_all = wvo_df["TARGET"].rolling(wvo_window).mean().iloc[-1] if len(wvo_df) >= wvo_window else wvo_df["TARGET"].mean()
                             hit_all = (wvo_df["TARGET"] > wvo_line).mean()
 
+                            # ── Scout Report ──────────────────────────────────
+                            _wvo_report = wnba_scout_report(
+                                wvo_player, wvo_team_code, wvo_df, wvo_opp_code,
+                                wvo_prop, wvo_window, line=wvo_line,
+                            )
+                            if _wvo_report:
+                                section("Scout Report")
+                                st.markdown(_scout_card(_wvo_report), unsafe_allow_html=True)
+
                             section(f"Projection vs {wvo_opp_code} — Today")
                             wc1, wc2, wc3, wc4 = st.columns(4)
                             wc1.metric("Season Rolling Avg", f"{proj_all:.1f}")
@@ -5215,15 +5224,6 @@ elif sport == "🏀 WNBA":
                                              color_discrete_map={"TARGET": "#818cf8", "ROLLING": "#a78bfa"})
                             wvo_fig.add_hline(y=wvo_line, line_dash="dot", line_color="#ef4444")
                             st.plotly_chart(nba_fig(wvo_fig), use_container_width=True, config=_CHART_CFG)
-
-                            # ── Scout Report ──────────────────────────────────
-                            _wvo_report = wnba_scout_report(
-                                wvo_player, wvo_team_code, wvo_df, wvo_opp_code,
-                                wvo_prop, wvo_window, line=wvo_line,
-                            )
-                            if _wvo_report:
-                                section("Scout Report")
-                                st.markdown(_scout_card(_wvo_report), unsafe_allow_html=True)
                     else:
                         st.warning(f"Could not find player ID for {wvo_player}.")
 
@@ -6318,6 +6318,19 @@ elif sport == "⚾ MLB":
                     else:
                         opp_display = vo_opp_abbr or "opponent"
 
+                        # ── Scout Report ──────────────────────────────────────
+                        if vo_player_type == "Hitter":
+                            _vo_report = mlb_hitter_scout_report(
+                                vo_player["name"], vo_team["abbr"], vo_df, vo_team["id"],
+                            )
+                        else:
+                            _vo_report = mlb_pitcher_scout_report(
+                                vo_player["name"], vo_team["abbr"], vo_df, vo_team["id"],
+                            )
+                        if _vo_report:
+                            mlb_section("Scout Report")
+                            st.markdown(_scout_card_mlb(_vo_report), unsafe_allow_html=True)
+
                         # ── Prediction card ──────────────────────────────────
                         mlb_section(f"Prediction vs {opp_display} — Today")
                         if vo_player_type == "Hitter":
@@ -6393,19 +6406,6 @@ elif sport == "⚾ MLB":
                             .style.format({"date": lambda x: x.strftime("%b %d"), **display_fmt}),
                             use_container_width=True, hide_index=True,
                         )
-
-                        # ── Scout Report ──────────────────────────────────────
-                        if vo_player_type == "Hitter":
-                            _vo_report = mlb_hitter_scout_report(
-                                vo_player["name"], vo_team["abbr"], vo_df, vo_team["id"],
-                            )
-                        else:
-                            _vo_report = mlb_pitcher_scout_report(
-                                vo_player["name"], vo_team["abbr"], vo_df, vo_team["id"],
-                            )
-                        if _vo_report:
-                            mlb_section("Scout Report")
-                            st.markdown(_scout_card_mlb(_vo_report), unsafe_allow_html=True)
 
     # ── MLB BET SIMULATION ───────────────────────────────────────────────────
     with tab_sim_mlb:
