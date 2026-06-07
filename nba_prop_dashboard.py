@@ -193,7 +193,10 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
     flex-shrink: 0; padding: 0.55rem 1.1rem;
     border-right: 1px solid var(--border);
     text-align: center; min-width: 110px;
+    transition: background 0.15s;
 }
+.sg-item[data-game] { cursor: pointer; }
+.sg-item[data-game]:hover { background: rgba(129,140,248,0.08); }
 .sg-teams { font-size: 0.7rem; font-weight: 700; color: var(--text-primary); }
 .sg-score { font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0.12rem 0; letter-spacing: 0.04em; }
 .sg-status { font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
@@ -3170,7 +3173,7 @@ def section(label):
 def mlb_section(label):
     st.markdown(f'<p class="section-heading">{label}</p>', unsafe_allow_html=True)
 
-def render_score_ticker(games):
+def render_score_ticker(games, sport: str = "NBA"):
     if not games:
         st.markdown(
             "<div class='score-ticker'><span class='sg-label'>TODAY</span>"
@@ -3187,8 +3190,10 @@ def render_score_ticker(games):
         else:
             score = "–"
         status_cls = "sg-live" if g["live"] else ""
+        game_key = f"{g['away']} @ {g['home']}"
         items_html += (
-            f"<div class='sg-item'>"
+            f"<div class='sg-item' data-game='{game_key}' data-sport='{sport}' "
+            f"title='Click to open vs. Opponent tab for {game_key}'>"
             f"<div class='sg-teams'>{g['away']} @ {g['home']}</div>"
             f"<div class='sg-score'>{score}</div>"
             f"<div class='sg-status {status_cls}'>{g['status']}</div>"
@@ -3197,6 +3202,30 @@ def render_score_ticker(games):
     st.markdown(
         f"<div class='score-ticker'><span class='sg-label'>TODAY</span>{items_html}</div>",
         unsafe_allow_html=True)
+    # Inject click handlers — each game card navigates to vs. Opponent tab
+    sport_js = sport.replace("'", "\\'")
+    components.html(f"""<script>
+    (function() {{
+        function attachHandlers() {{
+            var items = window.parent.document.querySelectorAll('.sg-item[data-sport="{sport_js}"]');
+            if (!items.length) {{ setTimeout(attachHandlers, 150); return; }}
+            items.forEach(function(el) {{
+                if (el.dataset.tickerWired) return;
+                el.dataset.tickerWired = '1';
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', function() {{
+                    var game = el.dataset.game || '';
+                    var sp   = el.dataset.sport || '';
+                    var url  = new URL(window.parent.location.href);
+                    url.searchParams.set('ticker_game', game);
+                    url.searchParams.set('ticker_sport', sp);
+                    window.parent.location.assign(url.toString());
+                }});
+            }});
+        }}
+        setTimeout(attachHandlers, 400);
+    }})();
+    </script>""", height=0)
 
 def render_news_panel(news):
     if not news:
@@ -3765,7 +3794,22 @@ if sport == "🏀 NBA":
     # ── NBA score ticker (shown on all NBA tabs) ───────────────────────────────
     with st.spinner(""):
         _nba_scores = get_nba_scoreboard(_scoreboard_date())
-    render_score_ticker(_nba_scores)
+    render_score_ticker(_nba_scores, "NBA")
+
+    # ── Ticker click: navigate to vs. Opponent tab ─────────────────────────────
+    if (st.query_params.get("ticker_sport") == "NBA"
+            and st.query_params.get("ticker_game")):
+        _tnav_game = st.query_params["ticker_game"]
+        st.session_state["nvo_game"] = _tnav_game
+        st.session_state["_nav_vs_nba"] = True
+        del st.query_params["ticker_game"]
+        del st.query_params["ticker_sport"]
+        st.rerun()
+    if st.session_state.pop("_nav_vs_nba", False):
+        components.html("<script>setTimeout(function(){"
+            "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+            "if(t[3])t[3].click();"
+            "},200);</script>", height=0)
 
     tab_home, tab_stats, tab_opp, tab_vs_opp_nba, tab_sim, tab_fb, tab_pp, tab_parlays, tab_accuracy_nba, tab_blog, tab_disc = st.tabs([
         "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
@@ -4712,7 +4756,21 @@ elif sport == "🏀 WNBA":
 
     with st.spinner(""):
         _wnba_scores = get_wnba_scoreboard(_wnba_scoreboard_date())
-    render_score_ticker(_wnba_scores)
+    render_score_ticker(_wnba_scores, "WNBA")
+
+    # ── Ticker click: navigate to vs. Opponent tab ─────────────────────────────
+    if (st.query_params.get("ticker_sport") == "WNBA"
+            and st.query_params.get("ticker_game")):
+        st.session_state["wvo_game"] = st.query_params["ticker_game"]
+        st.session_state["_nav_vs_wnba"] = True
+        del st.query_params["ticker_game"]
+        del st.query_params["ticker_sport"]
+        st.rerun()
+    if st.session_state.pop("_nav_vs_wnba", False):
+        components.html("<script>setTimeout(function(){"
+            "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+            "if(t[3])t[3].click();"
+            "},200);</script>", height=0)
 
     (tab_w_home, tab_w_stats, tab_w_opp, tab_w_vs, tab_w_sim,
      tab_w_pp, tab_w_parlays, tab_w_accuracy, tab_w_blog, tab_w_disc) = st.tabs([
@@ -5445,7 +5503,31 @@ elif sport == "⚾ MLB":
     # ── MLB score ticker (shown on all MLB tabs) ───────────────────────────────
     with st.spinner(""):
         _mlb_scores = get_mlb_scoreboard(_scoreboard_date())
-    render_score_ticker(_mlb_scores)
+    render_score_ticker(_mlb_scores, "MLB")
+
+    # ── Ticker click: navigate to vs. Opponent tab ─────────────────────────────
+    if (st.query_params.get("ticker_sport") == "MLB"
+            and st.query_params.get("ticker_game")):
+        _tnav_abbr = st.query_params["ticker_game"]  # e.g. "CLE @ TEX"
+        _tnav_parts = _tnav_abbr.split(" @ ")
+        if len(_tnav_parts) == 2:
+            _tnav_away_abbr, _tnav_home_abbr = _tnav_parts
+            # Convert abbreviations → full-name label used by the vs. tab selectbox
+            _tnav_all_games = get_today_mlb_games()
+            for _tg in _tnav_all_games:
+                if (_tg.get("away_abbr", "").upper() == _tnav_away_abbr.upper() and
+                        _tg.get("home_abbr", "").upper() == _tnav_home_abbr.upper()):
+                    st.session_state["vo_game"] = _tg["label"]
+                    break
+        st.session_state["_nav_vs_mlb"] = True
+        del st.query_params["ticker_game"]
+        del st.query_params["ticker_sport"]
+        st.rerun()
+    if st.session_state.pop("_nav_vs_mlb", False):
+        components.html("<script>setTimeout(function(){"
+            "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
+            "if(t[3])t[3].click();"
+            "},200);</script>", height=0)
 
     tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_sim_mlb, tab_pp_mlb, tab_parlays_mlb, tab_accuracy_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
         "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Bet Simulation", "Sportsbook", "Parlays", "Accuracy", "Daily Blog", "Disclaimer"
