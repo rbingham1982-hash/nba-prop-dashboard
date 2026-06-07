@@ -4682,7 +4682,7 @@ if sport == "🏀 NBA":
                 _legs_nba_data = [l for l in _legs_nba_data if l["hit_rate"] >= 0.35]
                 _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
             else:
-                _pp_filt = _pp_filt.sort_values("line_score", ascending=False).head(20)
+                _pp_filt = _pp_filt.sort_values("implied_prob" if "implied_prob" in _pp_filt.columns else "line_score", ascending=False).head(50)
                 _legs_nba = []
 
                 # Pre-warm gamelogs in parallel — 3 workers avoids NBA API rate-limiting
@@ -5413,7 +5413,7 @@ elif sport == "🏀 WNBA":
                 _wlegs_data = [l for l in _wlegs_data if l["hit_rate"] >= 0.35]
                 _wsafe_p, _wvalue_p = _build_parlays(_wlegs_data, min_legs=_wb_min, max_legs=_wb_max)
             else:
-                _wfilt = _wfilt.sort_values("line_score", ascending=False).head(20)
+                _wfilt = _wfilt.sort_values("implied_prob" if "implied_prob" in _wfilt.columns else "line_score", ascending=False).head(40)
                 _wlegs = []
                 # Pre-warm ESPN gamelogs in parallel
                 _wwarm = [(r["player_name"], get_wnba_player_id(r["player_name"])) for _, r in _wfilt.iterrows()]
@@ -6669,7 +6669,7 @@ elif sport == "⚾ MLB":
                 _legs_mlb_data = [l for l in _legs_mlb_data if l["hit_rate"] >= 0.35]
                 _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
             else:
-                _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(25)
+                _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(50)
                 _legs_mlb = []
                 # Pre-fetch today's probable pitchers for BvP matching
                 try:
