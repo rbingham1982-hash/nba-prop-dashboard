@@ -3928,31 +3928,6 @@ if sport == "🏀 NBA":
                         pp_stat = PP_STAT_MAP.get(prop_type)
                         ud_df_nba = get_underdog_props("nba")
                         ud_stat_nba = _UD_NBA_PROP_LOOKUP.get(prop_type)
-                        # FD / DK / B365 — fetch live; fall back to cache to protect credits
-                        def _toa_lookup(sb_name):
-                            cached = _toa_cache.get(f"nba_{sb_name}")
-                            if cached is not None and not cached.empty:
-                                return cached
-                            return get_the_odds_api_props("nba", sb_name)
-                        fd_df_nba  = _toa_lookup("FanDuel")
-                        dk_df_nba  = _toa_lookup("DraftKings")
-                        b365_df_nba = _toa_lookup("Bet365")
-                        toa_stat = _TOA_NBA_MARKET_MAP.get(
-                            next((k for k, v in _TOA_NBA_MARKET_MAP.items() if v == PP_STAT_MAP.get(prop_type, prop_type)), ""),
-                            PP_STAT_MAP.get(prop_type, prop_type)
-                        )
-
-                        def _toa_match(source_df, stat):
-                            if source_df.empty or not stat:
-                                return None, None, None
-                            m = source_df[
-                                (source_df["player_name"].str.lower() == player_name.lower()) &
-                                (source_df["stat_type"] == stat)
-                            ]
-                            if m.empty:
-                                return None, None, None
-                            row = m.iloc[0]
-                            return float(row["line_score"]), int(row.get("american_odds", -110)), float(row.get("implied_prob", 0.5))
 
                         # ── Market Lines ──────────────────────────────────
                         section("Market Lines")
@@ -3977,21 +3952,9 @@ if sport == "🏀 NBA":
                                 _ud_odds_val   = int(_ud_row["american_odds"])
                                 _ud_implied_val = float(_ud_row["implied_prob"])
                                 df["UD_HIT"] = df["TARGET"] > _ud_line_val
-                        _fd_line, _fd_odds, _fd_imp  = _toa_match(fd_df_nba,   toa_stat)
-                        _dk_line, _dk_odds, _dk_imp  = _toa_match(dk_df_nba,   toa_stat)
-                        _b365_line, _b365_odds, _b365_imp = _toa_match(b365_df_nba, toa_stat)
-                        for _col_name, _hit_col, _line_v in [
-                            ("FD_HIT", "FD_HIT", _fd_line),
-                            ("DK_HIT", "DK_HIT", _dk_line),
-                            ("B365_HIT", "B365_HIT", _b365_line),
-                        ]:
-                            if _line_v is not None:
-                                df[_col_name] = df["TARGET"] > _line_v
-
                         def _fmt_odds(o): return f"+{o}" if o is not None and o > 0 else (str(o) if o is not None else "—")
                         def _fmt_hr(col): return f"{df[col].mean():.1%}" if col in df.columns else "—"
 
-                        live_line = get_real_time_line(player_name, market=prop_type.lower())
                         _ud_odds_disp = _fmt_odds(_ud_odds_val)
                         _bcs = st.columns(6)
                         _bcs[0].metric("PrizePicks Line", _pp_line_val if _pp_line_val is not None else "—")
@@ -4000,13 +3963,22 @@ if sport == "🏀 NBA":
                         _bcs[3].metric("UD Odds",         _ud_odds_disp)
                         _bcs[4].metric("UD Implied",      f"{_ud_implied_val:.0%}" if _ud_implied_val is not None else "—")
                         _bcs[5].metric("Hit Rate vs UD",  _fmt_hr("UD_HIT") if _ud_line_val is not None else "—")
-                        _bcs2 = st.columns(6)
-                        _bcs2[0].metric("FanDuel Line",   _fd_line   if _fd_line   is not None else "—")
-                        _bcs2[1].metric("Hit Rate vs FD", _fmt_hr("FD_HIT")   if _fd_line   is not None else "—")
-                        _bcs2[2].metric("DraftKings Line",_dk_line   if _dk_line   is not None else "—")
-                        _bcs2[3].metric("Hit Rate vs DK", _fmt_hr("DK_HIT")   if _dk_line   is not None else "—")
-                        _bcs2[4].metric("Bet365 Line",    _b365_line if _b365_line is not None else "—")
-                        _bcs2[5].metric("Hit Rate vs B365",_fmt_hr("B365_HIT") if _b365_line is not None else "—")
+
+                        # ── Model Prediction ────────────────────────────────
+                        _nba_tab_cal_f = _load_calibration("NBA").get(prop_type, 1.0)
+                        _nba_tab_imp   = _ud_implied_val if _ud_implied_val is not None else -1.0
+                        _model_rate, _ = _nba_hit_rate(
+                            player_name, prop_type, line_value,
+                            odds_type="standard", implied_override=_nba_tab_imp,
+                            cal_factor=_nba_tab_cal_f,
+                        )
+                        _raw_rate = df["HIT"].mean()
+                        _edge = _model_rate - _ud_implied_val if _ud_implied_val is not None else None
+                        _bcs2 = st.columns(4)
+                        _bcs2[0].metric("Model Hit Rate",      f"{_model_rate:.1%}", help="Calibrated blend: 70% historical + 30% market implied")
+                        _bcs2[1].metric("Raw Historical",      f"{_raw_rate:.1%}",   help="Simple binary hit rate from game log")
+                        _bcs2[2].metric("Calibration Factor",  f"{_nba_tab_cal_f:.3f}", help="Accuracy adjustment for this stat type based on resolved parlays")
+                        _bcs2[3].metric("Edge vs Market",      f"{_edge:+.1%}" if _edge is not None else "—", help="Model rate minus Underdog implied. Positive = model sees value.")
 
                         # ── Scout Report ──────────────────────────────────
                         df["IS_HOME"] = df["MATCHUP"].str.contains(r"vs\.", na=False)
@@ -4895,13 +4867,14 @@ elif sport == "🏀 WNBA":
                         wdf["MARGIN"] = wdf["TARGET"] - wline_value
                         wdf["ROLLING_AVG"] = wdf["TARGET"].rolling(window=wrolling_window).mean()
 
-                        # Market lines from PrizePicks
+                        # Market lines from PrizePicks + Underdog with hit rate comparison
                         section("Market Lines")
                         _wpp_live = get_prizepicks_with_team(league_id=6)
                         _wpp_stat = _WNBA_PP_STAT_MAP.get(wprop_type)
                         _wud_live = get_underdog_props("wnba")
                         _wud_stat = wprop_type
-                        wline_cols = st.columns(4)
+                        _wud_imp_val = None
+                        wline_cols = st.columns(6)
                         wlines_shown = 0
                         for _wsb, _wsb_df, _wsb_stat in [
                             ("PrizePicks", _wpp_live, _wpp_stat),
@@ -4916,10 +4889,33 @@ elif sport == "🏀 WNBA":
                                     _wr0 = _wm.iloc[0]
                                     _wl = float(_wr0["line_score"])
                                     _wi = float(_wr0.get("implied_prob", 0.5))
-                                    wline_cols[wlines_shown].metric(_wsb, f"{_wl}", f"{_wi:.0%} implied")
+                                    _whr = (wdf["TARGET"] > _wl).mean()
+                                    wline_cols[wlines_shown * 3].metric(f"{_wsb} Line", f"{_wl}")
+                                    wline_cols[wlines_shown * 3 + 1].metric("Implied", f"{_wi:.0%}")
+                                    wline_cols[wlines_shown * 3 + 2].metric(f"Hit Rate vs {_wsb}", f"{_whr:.1%}")
+                                    if _wsb == "Underdog":
+                                        _wud_imp_val = _wi
                                     wlines_shown += 1
                         if wlines_shown == 0:
                             st.info("No live lines found for this player/prop.")
+
+                        # ── Model Prediction ──────────────────────────────
+                        _w_cal = _load_calibration("WNBA")
+                        _w_cal_f = _w_cal.get(wprop_type, 1.0)
+                        _w_imp_override = _wud_imp_val if _wud_imp_val is not None else -1.0
+                        _w_model_rate, _ = _wnba_hit_rate(
+                            wplayer_name, wprop_type, wline_value,
+                            odds_type="standard", implied_override=_w_imp_override,
+                            cal_factor=_w_cal_f,
+                        )
+                        _w_raw_rate = wdf["HIT"].mean()
+                        _w_edge = _w_model_rate - _wud_imp_val if _wud_imp_val is not None else None
+                        section("Model Prediction")
+                        _wm_cols = st.columns(4)
+                        _wm_cols[0].metric("Model Hit Rate",     f"{_w_model_rate:.1%}", help="Calibrated blend of historical rate + market implied odds")
+                        _wm_cols[1].metric("Raw Historical",     f"{_w_raw_rate:.1%}",   help="Simple hit rate from game log")
+                        _wm_cols[2].metric("Calibration Factor", f"{_w_cal_f:.3f}",      help=f"Accuracy factor for {wprop_type} — WNBA Pts+Rebs+Asts consistently outperforms prediction (cal 1.30)")
+                        _wm_cols[3].metric("Edge vs Market",     f"{_w_edge:+.1%}" if _w_edge is not None else "—", help="Model rate minus Underdog implied. Positive = model sees value.")
 
                         section("Performance Chart")
                         wfig = px.line(wdf.reset_index(), x=wdf.index, y=["TARGET", "ROLLING_AVG"],
@@ -5738,6 +5734,38 @@ elif sport == "⚾ MLB":
                         h_df["UD_HIT"] = h_df[h_stat] > _ud_h_line
                         _udh_cols[3].metric("Hit Rate vs UD", f"{h_df['UD_HIT'].mean():.1%}")
 
+                    # ── Model Prediction ─────────────────────────────────
+                    _H_COL_STAT = {"H": "Hits", "HR": "Home Runs", "RBI": "RBIs",
+                                   "K": "Hitter Strikeouts", "BB": "Walks",
+                                   "SB": "Stolen Bases", "TB": "Total Bases"}
+                    _h_stat_type = _H_COL_STAT.get(h_stat)
+                    if _h_stat_type:
+                        _h_cal = _load_calibration("MLB")
+                        _h_cal_f = _h_cal.get(_h_stat_type, 1.0)
+                        _h_imp_override = _ud_h_implied if _ud_h_implied is not None else -1.0
+                        # Get opposing pitcher if available for BvP
+                        _h_today_game = get_mlb_today_game_for_team(sel_team["id"])
+                        _h_opp_pid = None
+                        if _h_today_game:
+                            _h_at  = _h_today_game["teams"]["away"]
+                            _h_ht  = _h_today_game["teams"]["home"]
+                            _is_away = _h_at["team"]["id"] == sel_team["id"]
+                            _opp_p  = _h_ht.get("probablePitcher") if _is_away else _h_at.get("probablePitcher")
+                            _h_opp_pid = (_opp_p or {}).get("id")
+                        _h_model_rate, _ = _mlb_hit_rate(
+                            sel_hitter["name"], _h_stat_type, h_line,
+                            odds_type="standard", implied_override=_h_imp_override,
+                            cal_factor=_h_cal_f, opp_pitcher_id=_h_opp_pid,
+                        )
+                        _h_raw_rate = (h_df[h_stat] > h_line).mean()
+                        _h_edge = _h_model_rate - _ud_h_implied if _ud_h_implied is not None else None
+                        mlb_section("Model Prediction")
+                        _hm_cols = st.columns(4)
+                        _hm_cols[0].metric("Model Hit Rate",     f"{_h_model_rate:.1%}", help="Calibrated: 65% historical + BvP adjustment + 25% market implied")
+                        _hm_cols[1].metric("Raw Historical",     f"{_h_raw_rate:.1%}",  help="Simple hit rate from game log vs this line")
+                        _hm_cols[2].metric("Calibration Factor", f"{_h_cal_f:.3f}",     help=f"Accuracy factor for {_h_stat_type} props based on resolved parlay history")
+                        _hm_cols[3].metric("Edge vs Market",     f"{_h_edge:+.1%}" if _h_edge is not None else "—", help="Model rate minus UD implied. Positive = model sees value.")
+
                     # ── Scout Report ──────────────────────────────────────
                     _h_report = mlb_hitter_scout_report(
                         sel_hitter["name"], sel_team["abbr"], h_df, sel_team["id"],
@@ -5917,6 +5945,28 @@ elif sport == "⚾ MLB":
                         _udp_cols[2].metric("Implied",  f"{_ud_p_implied:.0%}")
                         p_df["UD_HIT"] = p_df[p_stat] > _ud_p_line
                         _udp_cols[3].metric("Hit Rate vs UD", f"{p_df['UD_HIT'].mean():.1%}")
+
+                    # ── Model Prediction ─────────────────────────────────
+                    _P_COL_STAT = {"K": "Pitcher Strikeouts", "ER": "Earned Runs Allowed",
+                                   "BB": "Walks Allowed", "H": "Hits Allowed"}
+                    _p_stat_type = _P_COL_STAT.get(p_stat)
+                    if _p_stat_type:
+                        _p_cal = _load_calibration("MLB")
+                        _p_cal_f = _p_cal.get(_p_stat_type, 1.0)
+                        _p_imp_override = _ud_p_implied if _ud_p_implied is not None else -1.0
+                        _p_model_rate, _ = _mlb_hit_rate(
+                            sel_pitcher["name"], _p_stat_type, p_line,
+                            odds_type="standard", implied_override=_p_imp_override,
+                            cal_factor=_p_cal_f,
+                        )
+                        _p_raw_rate = (p_df[p_stat] > p_line).mean()
+                        _p_edge = _p_model_rate - _ud_p_implied if _ud_p_implied is not None else None
+                        mlb_section("Model Prediction")
+                        _pm_cols = st.columns(4)
+                        _pm_cols[0].metric("Model Hit Rate",     f"{_p_model_rate:.1%}", help="Calibrated: 50% last-3 starts + 30% last-10 + 20% last-20 + 30% market implied")
+                        _pm_cols[1].metric("Raw Historical",     f"{_p_raw_rate:.1%}",  help="Simple hit rate from game log vs this line")
+                        _pm_cols[2].metric("Calibration Factor", f"{_p_cal_f:.3f}",     help=f"Accuracy factor for {_p_stat_type} props based on resolved parlay history")
+                        _pm_cols[3].metric("Edge vs Market",     f"{_p_edge:+.1%}" if _p_edge is not None else "—", help="Model rate minus UD implied. Positive = model sees value.")
 
                     # ── Scout Report ──────────────────────────────────────
                     _p_report = mlb_pitcher_scout_report(
