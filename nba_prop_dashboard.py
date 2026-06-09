@@ -1970,61 +1970,95 @@ def simulate_bets(df):
 
 @st.cache_data(ttl=7200)
 def get_team_first_basket_history(team_abbr, num_games=20):
-    """Pull real play-by-play from NBA API (v3) to extract first basket + tip-off data."""
-    team_id = get_team_id(team_abbr)
-    if not team_id:
-        return pd.DataFrame()
+    """Pull first basket data via ESPN play-by-play (no nba_api PBP calls needed)."""
+    _HDR = {"User-Agent": "Mozilla/5.0"}
     try:
-        games_df = leaguegamefinder.LeagueGameFinder(
-            team_id_nullable=team_id,
-        ).get_data_frames()[0].head(num_games)
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_abbr}/schedule"
+        events = requests.get(url, timeout=8, headers=_HDR).json().get("events", [])
+        completed = [
+            e for e in events
+            if e.get("competitions", [{}])[0].get("status", {}).get("type", {}).get("completed", False)
+        ]
+        completed = sorted(completed, key=lambda e: e.get("date", ""), reverse=True)[:num_games]
     except Exception:
         return pd.DataFrame()
 
     results = []
-    for _, game in games_df.iterrows():
-        game_id = game["GAME_ID"]
+    for event in completed:
         try:
-            pbp_df = playbyplayv3.PlayByPlayV3(game_id=game_id).get_data_frames()[0]
+            event_id = event["id"]
+            comp = event["competitions"][0]
+            comps = comp["competitors"]
+            home_c = next((c for c in comps if c["homeAway"] == "home"), comps[0])
+            away_c = next((c for c in comps if c["homeAway"] == "away"), comps[-1])
+            home_abbr = home_c["team"]["abbreviation"]
+            away_abbr = away_c["team"]["abbreviation"]
+            is_home = home_abbr.upper() == team_abbr.upper()
+            matchup_fmt = f"{team_abbr} vs. {away_abbr}" if is_home else f"{team_abbr} @ {home_abbr}"
+            def _sc(raw):
+                if isinstance(raw, dict):
+                    return float(raw.get("value", 0) or 0)
+                return float(raw or 0)
+            home_score_final = _sc(home_c.get("score", 0))
+            away_score_final = _sc(away_c.get("score", 0))
+            wl = "W" if (
+                (is_home and home_score_final > away_score_final) or
+                (not is_home and away_score_final > home_score_final)
+            ) else "L"
+            game_date = event.get("date", "")[:10]
 
-            # Tip-off: first Jump Ball in period 1; teamTricode = team that won the tip
-            tips = pbp_df[(pbp_df["actionType"] == "Jump Ball") & (pbp_df["period"] == 1)]
-            tip_team = str(tips.iloc[0].get("teamTricode") or "") if not tips.empty else ""
+            pbp_data = requests.get(
+                f"https://cdn.espn.com/core/nba/playbyplay?gameId={event_id}&xhr=1",
+                timeout=10, headers=_HDR,
+            ).json()
+            plays = pbp_data.get("gamepackageJSON", {}).get("plays", [])
 
-            # First scoring event: made field goal or made free throw
-            made_fg = pbp_df[pbp_df["actionType"] == "Made Shot"]
-            made_ft = pbp_df[
-                (pbp_df["actionType"] == "Free Throw") &
-                (~pbp_df["description"].str.startswith("MISS", na=False))
-            ]
-            scoring = pd.concat([made_fg, made_ft]).sort_values("actionNumber")
+            tip_team = first_scorer = shot_type = team_scored_first = None
+            prev_home = prev_away = 0
 
-            first_scorer = shot_type = team_scored_first = None
-            if not scoring.empty:
-                fs = scoring.iloc[0]
-                first_scorer = str(fs.get("playerName") or "Unknown")
-                scorer_team = str(fs.get("teamTricode") or "")
-                shot_val = fs.get("shotValue", 0)
-                if fs["actionType"] == "Free Throw":
-                    shot_type = "Free Throw"
-                elif shot_val == 3:
-                    shot_type = "3-Pointer"
-                else:
-                    shot_type = "2-Pointer"
-                team_scored_first = scorer_team.upper() == team_abbr.upper()
+            for play in plays:
+                ptype = (play.get("type", {}) or {}).get("text", "")
+                period_n = (play.get("period", {}) or {}).get("number", 0)
+                play_team_id = (play.get("team", {}) or {}).get("id", "")
+                text = play.get("text", "") or ""
+                h_score = int(play.get("homeScore", prev_home) or prev_home)
+                a_score = int(play.get("awayScore", prev_away) or prev_away)
+                score_val = play.get("scoreValue", 0) or 0
 
-            tip_won = tip_team.upper() == team_abbr.upper() if tip_team else None
+                # Tip-off: first play with a known team ID in period 1
+                if tip_team is None and period_n == 1 and play_team_id:
+                    tip_team = home_abbr if play_team_id == home_c["team"].get("id", "") else away_abbr
+
+                # First scoring event: detect via homeScore/awayScore change
+                if first_scorer is None and score_val > 0:
+                    scorer_is_home = h_score > prev_home
+                    team_scored_first = scorer_is_home == is_home  # True if selected team scored first
+                    tip_scorer_abbr = home_abbr if scorer_is_home else away_abbr
+                    # Extract player name from text: "Name makes ..."
+                    name_part = text.split(" makes ")[0].split(" misses ")[0].strip() if text else "Unknown"
+                    first_scorer = name_part or "Unknown"
+                    if "Free Throw" in ptype or "free throw" in text.lower():
+                        shot_type = "Free Throw"
+                    elif score_val == 3:
+                        shot_type = "3-Pointer"
+                    else:
+                        shot_type = "2-Pointer"
+
+                prev_home, prev_away = h_score, a_score
+                if first_scorer is not None and tip_team is not None:
+                    break
+
             results.append({
-                "Game Date": game.get("GAME_DATE", ""),
-                "Matchup": game.get("MATCHUP", ""),
-                "W/L": game.get("WL", ""),
+                "Game Date": game_date,
+                "Matchup": matchup_fmt,
+                "W/L": wl,
                 "Tip Winner": tip_team or "—",
-                "Tip Won": tip_won,
+                "Tip Won": tip_team.upper() == team_abbr.upper() if tip_team else None,
                 "First Scorer": first_scorer or "—",
                 "Shot Type": shot_type or "—",
                 "Team Scored First": team_scored_first,
             })
-            time.sleep(0.35)
+            time.sleep(0.15)
         except Exception:
             continue
 
@@ -4391,14 +4425,23 @@ if sport == "🏀 NBA":
                 nba_player_card(selected_player, team_code)
             st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
             num_games = st.slider("Games to analyze", min_value=10, max_value=30, value=20, step=5, key="fb_ngames")
+            _fb_load = st.button("Load First Basket Data", type="primary", key="fb_load_btn")
+            if _fb_load:
+                get_team_first_basket_history.clear()
+                st.session_state["fb_loaded"] = team_code
 
         with main_col:
-            with st.spinner(f"Pulling last {num_games} play-by-play logs for {team_code}… this takes ~30s on first load."):
-                fb_df = get_team_first_basket_history(team_code, num_games)
-
-            if fb_df.empty:
-                st.warning("Could not load play-by-play data for this team. Try again shortly.")
+            _fb_ready = st.session_state.get("fb_loaded") is not None
+            fb_df = pd.DataFrame()
+            if not _fb_ready:
+                st.info("Select a team and click **Load First Basket Data** to pull play-by-play history.")
             else:
+                with st.spinner(f"Pulling last {num_games} games for {team_code}…"):
+                    fb_df = get_team_first_basket_history(team_code, num_games)
+                if fb_df.empty:
+                    st.warning("Could not load play-by-play data. Try refreshing or selecting another team.")
+
+            if _fb_ready and not fb_df.empty:
                 total = len(fb_df)
                 # fillna(False) so None tip/scorer values don't produce NaN sums
                 tip_wins = int(fb_df["Tip Won"].fillna(False).sum()) if "Tip Won" in fb_df.columns else 0
@@ -4487,6 +4530,131 @@ if sport == "🏀 NBA":
                         fig_p.update_traces(textposition="outside")
                         fig_p.update_layout(showlegend=False)
                         st.plotly_chart(nba_fig(fig_p), use_container_width=True, config=_CHART_CFG)
+
+                # ── Prediction: Tonight's First Basket ───────────────────────
+                section("Tonight's First Basket Prediction")
+                # Determine tonight's matchup for this team
+                _fb_today = get_nba_scoreboard(_scoreboard_date())
+                _fb_game = next(
+                    (g for g in _fb_today
+                     if g["away"].upper() == team_code.upper() or g["home"].upper() == team_code.upper()),
+                    None
+                )
+
+                # Build per-player first basket frequency from history
+                _fb_team_games = fb_df[fb_df["Team Scored First"].fillna(False)]
+                _all_scorers = fb_df[fb_df["First Scorer"] != "—"]
+                _team_scorers = _all_scorers[
+                    _all_scorers.apply(
+                        lambda r: any(
+                            pl.lower() in r["First Scorer"].lower()
+                            for pl in (get_team_players(team_code) or [])
+                        ),
+                        axis=1,
+                    )
+                ] if get_team_players(team_code) else _fb_team_games[_fb_team_games["First Scorer"] != "—"]
+
+                # Compute per-player stats
+                _fb_player_stats = []
+                for _fbp, _fbp_df in _all_scorers.groupby("First Scorer"):
+                    _fbp_total = len(_fbp_df)
+                    _fbp_rate = _fbp_total / len(fb_df)
+                    _shot_breakdown = _fbp_df["Shot Type"].value_counts().to_dict()
+                    _top_shot = max(_shot_breakdown, key=_shot_breakdown.get) if _shot_breakdown else "—"
+                    # Home/away split
+                    _home_games = fb_df[fb_df["Matchup"].str.contains(r"vs\.", na=False)]
+                    _away_games = fb_df[~fb_df["Matchup"].str.contains(r"vs\.", na=False)]
+                    _fbp_home = len(_fbp_df[_fbp_df.index.isin(_home_games.index)]) / max(len(_home_games), 1)
+                    _fbp_away = len(_fbp_df[_fbp_df.index.isin(_away_games.index)]) / max(len(_away_games), 1)
+                    _fb_player_stats.append({
+                        "player": _fbp, "games": _fbp_total, "rate": _fbp_rate,
+                        "top_shot": _top_shot, "home_rate": _fbp_home, "away_rate": _fbp_away,
+                    })
+
+                _fb_player_stats.sort(key=lambda x: -x["rate"])
+
+                if _fb_game:
+                    _is_home = _fb_game["home"].upper() == team_code.upper()
+                    _opp = _fb_game["away"] if _is_home else _fb_game["home"]
+                    _loc = "Home" if _is_home else "Away"
+                    st.markdown(
+                        f"<p style='font-size:0.78rem;color:#818cf8;font-weight:600;margin:0 0 0.75rem;'>"
+                        f"Tonight: {team_code} vs {_opp} ({_loc})</p>",
+                        unsafe_allow_html=True,
+                    )
+                    # Use location-adjusted rate
+                    for _ps in _fb_player_stats:
+                        _ps["tonight_rate"] = _ps["home_rate"] if _is_home else _ps["away_rate"]
+                        # Fall back to overall rate if no location split data
+                        if _ps["tonight_rate"] == 0 and _ps["rate"] > 0:
+                            _ps["tonight_rate"] = _ps["rate"]
+                else:
+                    st.caption(f"No {team_code} game found on today's schedule — showing season-average rates.")
+                    for _ps in _fb_player_stats:
+                        _ps["tonight_rate"] = _ps["rate"]
+
+                # Display top candidates
+                _top_candidates = [p for p in _fb_player_stats if p["games"] >= 1][:8]
+                if _top_candidates:
+                    _pred_cols = st.columns(min(4, len(_top_candidates)))
+                    for _ci, _ps in enumerate(_top_candidates[:4]):
+                        with _pred_cols[_ci]:
+                            _pct = _ps["tonight_rate"]
+                            _bar_w = int(_pct * 100)
+                            st.markdown(
+                                f"<div style='background:#191c23;border:1px solid #252a35;border-radius:10px;"
+                                f"padding:0.75rem 1rem;text-align:center;'>"
+                                f"<p style='font-size:0.7rem;font-weight:700;color:#dfe1ea;margin:0 0 0.25rem;'>{_ps['player']}</p>"
+                                f"<p style='font-size:1.5rem;font-weight:800;color:#818cf8;margin:0;'>{_pct:.0%}</p>"
+                                f"<p style='font-size:0.58rem;color:#5c6272;margin:0.15rem 0 0.4rem;letter-spacing:0.08em;text-transform:uppercase;'>First Basket Rate</p>"
+                                f"<div style='background:#252a35;border-radius:4px;height:4px;'>"
+                                f"<div style='background:#818cf8;width:{_bar_w}%;height:4px;border-radius:4px;'></div></div>"
+                                f"<p style='font-size:0.6rem;color:#5c6272;margin:0.4rem 0 0;'>{_ps['top_shot']} · {_ps['games']} game(s)</p>"
+                                f"</div>",
+                                unsafe_allow_html=True,
+                            )
+                    if len(_top_candidates) > 4:
+                        _pred_cols2 = st.columns(min(4, len(_top_candidates) - 4))
+                        for _ci, _ps in enumerate(_top_candidates[4:]):
+                            with _pred_cols2[_ci]:
+                                _pct = _ps["tonight_rate"]
+                                _bar_w = int(_pct * 100)
+                                st.markdown(
+                                    f"<div style='background:#191c23;border:1px solid #252a35;border-radius:10px;"
+                                    f"padding:0.75rem 1rem;text-align:center;'>"
+                                    f"<p style='font-size:0.7rem;font-weight:700;color:#dfe1ea;margin:0 0 0.25rem;'>{_ps['player']}</p>"
+                                    f"<p style='font-size:1.5rem;font-weight:800;color:#818cf8;margin:0;'>{_pct:.0%}</p>"
+                                    f"<p style='font-size:0.58rem;color:#5c6272;margin:0.15rem 0 0.4rem;letter-spacing:0.08em;text-transform:uppercase;'>First Basket Rate</p>"
+                                    f"<div style='background:#252a35;border-radius:4px;height:4px;'>"
+                                    f"<div style='background:#818cf8;width:{_bar_w}%;height:4px;border-radius:4px;'></div></div>"
+                                    f"<p style='font-size:0.6rem;color:#5c6272;margin:0.4rem 0 0;'>{_ps['top_shot']} · {_ps['games']} game(s)</p>"
+                                    f"</div>",
+                                    unsafe_allow_html=True,
+                                )
+                    # Scout-style insight
+                    _best = _top_candidates[0]
+                    _insight = (
+                        f"{_best['player']} leads all first basket scorers in this dataset with a "
+                        f"{_best['rate']:.0%} overall rate ({_best['games']} game(s)), "
+                        f"typically via a {_best['top_shot'].lower()}. "
+                    )
+                    if _fb_game:
+                        _loc_rate = _best['tonight_rate']
+                        _insight += (
+                            f"{'At home' if _is_home else 'On the road'} this season, "
+                            f"that rate {'holds at' if abs(_loc_rate - _best['rate']) < 0.05 else 'shifts to'} "
+                            f"{_loc_rate:.0%} — making them the top first-basket target tonight."
+                        )
+                    st.markdown(
+                        f"<div style='background:#191c23;border:1px solid #252a35;border-left:3px solid #818cf8;"
+                        f"border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem;'>"
+                        f"<p style='font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;"
+                        f"color:#818cf8;margin:0 0 0.4rem;font-weight:700;'>Model Insight</p>"
+                        f"<p style='font-size:0.84rem;color:#c8cad4;line-height:1.75;margin:0;'>{_insight}</p></div>",
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.info("No first basket data available to build predictions.")
 
                 # ── Game log table ──
                 section("Game Log")
