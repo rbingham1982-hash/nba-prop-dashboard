@@ -6676,6 +6676,30 @@ elif sport == "⚾ MLB":
                     _pitcher_lookup = _mlb_today_pitcher_lookup()
                 except Exception:
                     _pitcher_lookup = {}
+
+                # Pre-warm gamelogs in parallel — avoids serial API calls in the loop below
+                _mlb_warm = []
+                for _, _mrow in _mlb_filt.iterrows():
+                    _is_p = _mrow["stat_type"] in _PP_PITCHER_TYPES
+                    _pid = _mlb_player_id_by_name(_mrow["player_name"])
+                    if _pid:
+                        _mlb_warm.append((_pid, _is_p))
+                _mwarm_prog = st.progress(0, text=f"Loading {len(_mlb_warm)} player histories…")
+                with ThreadPoolExecutor(max_workers=5) as _mwex:
+                    _mwfuts = {
+                        _mwex.submit(
+                            get_mlb_pitching_logs if _isp else get_mlb_hitting_logs,
+                            _pid, ("2025", "2026")
+                        ): _pid
+                        for _pid, _isp in _mlb_warm
+                    }
+                    _mwdone = 0
+                    for _mwf in as_completed(_mwfuts, timeout=120):
+                        _mwdone += 1
+                        _mwarm_prog.progress(_mwdone / max(1, len(_mlb_warm)),
+                                             text=f"Loading histories… ({_mwdone}/{len(_mlb_warm)})")
+                _mwarm_prog.empty()
+
                 _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
                 for _mi, (_mix, _mrow) in enumerate(_mlb_filt.iterrows()):
                     _mot = _mrow.get("odds_type", "standard") or "standard"
