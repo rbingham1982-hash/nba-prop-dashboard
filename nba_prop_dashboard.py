@@ -4554,7 +4554,16 @@ if sport == "🏀 NBA":
                     )
                 ] if get_team_players(team_code) else _fb_team_games[_fb_team_games["First Scorer"] != "—"]
 
-                # Compute per-player stats
+                # Extract opponent from Matchup column (e.g. "ATL vs. NY" → "NY")
+                def _fb_opp(matchup, team):
+                    for part in matchup.replace("vs.", "@").split("@"):
+                        p = part.strip()
+                        if p.upper() != team.upper() and p:
+                            return p.upper()
+                    return ""
+                fb_df["_opp"] = fb_df["Matchup"].apply(lambda m: _fb_opp(m, team_code))
+
+                # Compute per-player stats including opponent-specific rate
                 _fb_player_stats = []
                 for _fbp, _fbp_df in _all_scorers.groupby("First Scorer"):
                     _fbp_total = len(_fbp_df)
@@ -4566,32 +4575,45 @@ if sport == "🏀 NBA":
                     _away_games = fb_df[~fb_df["Matchup"].str.contains(r"vs\.", na=False)]
                     _fbp_home = len(_fbp_df[_fbp_df.index.isin(_home_games.index)]) / max(len(_home_games), 1)
                     _fbp_away = len(_fbp_df[_fbp_df.index.isin(_away_games.index)]) / max(len(_away_games), 1)
+                    # Per-opponent rate (games vs this specific opponent)
+                    _opp_rates: dict = {}
+                    for _opp_code, _opp_group in fb_df.groupby("_opp"):
+                        _opp_scorer_games = len(_fbp_df[_fbp_df.index.isin(_opp_group.index)])
+                        _opp_rates[_opp_code] = _opp_scorer_games / max(len(_opp_group), 1)
                     _fb_player_stats.append({
                         "player": _fbp, "games": _fbp_total, "rate": _fbp_rate,
                         "top_shot": _top_shot, "home_rate": _fbp_home, "away_rate": _fbp_away,
+                        "opp_rates": _opp_rates,
                     })
 
                 _fb_player_stats.sort(key=lambda x: -x["rate"])
 
                 if _fb_game:
                     _is_home = _fb_game["home"].upper() == team_code.upper()
-                    _opp = _fb_game["away"] if _is_home else _fb_game["home"]
+                    _opp = (_fb_game["away"] if _is_home else _fb_game["home"]).upper()
                     _loc = "Home" if _is_home else "Away"
                     st.markdown(
                         f"<p style='font-size:0.78rem;color:#818cf8;font-weight:600;margin:0 0 0.75rem;'>"
                         f"Tonight: {team_code} vs {_opp} ({_loc})</p>",
                         unsafe_allow_html=True,
                     )
-                    # Use location-adjusted rate
+                    # Blend: 50% opponent-specific (if available) + 50% location-adjusted
                     for _ps in _fb_player_stats:
-                        _ps["tonight_rate"] = _ps["home_rate"] if _is_home else _ps["away_rate"]
-                        # Fall back to overall rate if no location split data
-                        if _ps["tonight_rate"] == 0 and _ps["rate"] > 0:
-                            _ps["tonight_rate"] = _ps["rate"]
+                        _loc_rate = _ps["home_rate"] if _is_home else _ps["away_rate"]
+                        _opp_rate = _ps["opp_rates"].get(_opp)
+                        if _opp_rate is not None:
+                            # Weighted blend: opponent data available
+                            _ps["tonight_rate"] = 0.5 * _opp_rate + 0.5 * _loc_rate
+                            _ps["opp_label"] = f"vs {_opp}: {_opp_rate:.0%}"
+                        else:
+                            # No opponent history — use location rate only
+                            _ps["tonight_rate"] = _loc_rate or _ps["rate"]
+                            _ps["opp_label"] = f"No prior data vs {_opp}"
                 else:
                     st.caption(f"No {team_code} game found on today's schedule — showing season-average rates.")
                     for _ps in _fb_player_stats:
                         _ps["tonight_rate"] = _ps["rate"]
+                        _ps["opp_label"] = ""
 
                 # Display top candidates
                 _top_candidates = [p for p in _fb_player_stats if p["games"] >= 1][:8]
@@ -4609,7 +4631,7 @@ if sport == "🏀 NBA":
                                 f"<p style='font-size:0.58rem;color:#5c6272;margin:0.15rem 0 0.4rem;letter-spacing:0.08em;text-transform:uppercase;'>First Basket Rate</p>"
                                 f"<div style='background:#252a35;border-radius:4px;height:4px;'>"
                                 f"<div style='background:#818cf8;width:{_bar_w}%;height:4px;border-radius:4px;'></div></div>"
-                                f"<p style='font-size:0.6rem;color:#5c6272;margin:0.4rem 0 0;'>{_ps['top_shot']} · {_ps['games']} game(s)</p>"
+                                f"<p style='font-size:0.6rem;color:#5c6272;margin:0.4rem 0 0;'>{_ps['top_shot']} · {_ps.get('opp_label', str(_ps['games'])+' game(s)')}</p>"
                                 f"</div>",
                                 unsafe_allow_html=True,
                             )
@@ -4627,23 +4649,31 @@ if sport == "🏀 NBA":
                                     f"<p style='font-size:0.58rem;color:#5c6272;margin:0.15rem 0 0.4rem;letter-spacing:0.08em;text-transform:uppercase;'>First Basket Rate</p>"
                                     f"<div style='background:#252a35;border-radius:4px;height:4px;'>"
                                     f"<div style='background:#818cf8;width:{_bar_w}%;height:4px;border-radius:4px;'></div></div>"
-                                    f"<p style='font-size:0.6rem;color:#5c6272;margin:0.4rem 0 0;'>{_ps['top_shot']} · {_ps['games']} game(s)</p>"
+                                    f"<p style='font-size:0.6rem;color:#5c6272;margin:0.4rem 0 0;'>{_ps['top_shot']} · {_ps.get('opp_label', str(_ps['games'])+' game(s)')}</p>"
                                     f"</div>",
                                     unsafe_allow_html=True,
                                 )
                     # Scout-style insight
                     _best = _top_candidates[0]
+                    _opp_hist = _best.get("opp_label", "")
                     _insight = (
-                        f"{_best['player']} leads all first basket scorers in this dataset with a "
+                        f"{_best['player']} leads all first basket scorers with a "
                         f"{_best['rate']:.0%} overall rate ({_best['games']} game(s)), "
                         f"typically via a {_best['top_shot'].lower()}. "
                     )
                     if _fb_game:
-                        _loc_rate = _best['tonight_rate']
+                        _loc_rate = _best["tonight_rate"]
+                        _opp_rate_val = _best["opp_rates"].get(_opp)
+                        if _opp_rate_val is not None:
+                            _insight += (
+                                f"Against {_opp} specifically they score the first basket "
+                                f"{_opp_rate_val:.0%} of the time — "
+                                f"{'above' if _opp_rate_val > _best['rate'] else 'below'} their season average. "
+                            )
                         _insight += (
-                            f"{'At home' if _is_home else 'On the road'} this season, "
-                            f"that rate {'holds at' if abs(_loc_rate - _best['rate']) < 0.05 else 'shifts to'} "
-                            f"{_loc_rate:.0%} — making them the top first-basket target tonight."
+                            f"{'At home' if _is_home else 'On the road'}, "
+                            f"the blended prediction lands at {_loc_rate:.0%} — "
+                            f"the top first-basket target tonight."
                         )
                     st.markdown(
                         f"<div style='background:#191c23;border:1px solid #252a35;border-left:3px solid #818cf8;"
