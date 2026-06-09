@@ -1681,8 +1681,8 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
     safe_out  = _top(results, lambda x: x["prob"])[:top_n]
     safe_keys = {frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
                  for p in safe_out}
-    # Value: 4+ legs only (10x–20x payout), sorted by EV, excluding Safe results
-    value_pool = [p for p in results if p["n"] >= 4]
+    # Value: best EV combos not already in Safe — prefer higher leg counts for bigger payouts
+    value_pool = sorted(results, key=lambda x: (x["n"], x["ev"]), reverse=True)
     value_out  = _top(value_pool, lambda x: x["ev"], exclude_keys=safe_keys)[:top_n]
 
     return safe_out, value_out
@@ -1775,11 +1775,11 @@ def _fallback_mlb_legs(stat_types: list = None, cal: dict = None) -> list:
     if cal is None:
         cal = {}
     legs = []
-    teams_list = get_mlb_teams()[:8]
+    teams_list = get_mlb_teams()[:20]
     for team in teams_list:
         try:
             hitters, pitchers = get_mlb_roster(team["id"])
-            for h in hitters[:2]:
+            for h in hitters[:4]:
                 for stat in [s for s in stat_types if s not in _PP_PITCHER_TYPES]:
                     col = _PP_MLB_HIT_COL.get(stat)
                     if not col:
@@ -1788,20 +1788,20 @@ def _fallback_mlb_legs(stat_types: list = None, cal: dict = None) -> list:
                     if df_h.empty or col not in df_h.columns:
                         continue
                     vals = df_h[col].values[-20:]
-                    if len(vals) < 3:
+                    if len(vals) < 1:
                         continue
                     line = round(float(vals.mean()) * 0.85, 1)
                     rate, n = _mlb_hit_rate(h["name"], stat, line, odds_type="standard",
                                             cal_factor=cal.get(stat, 1.0))
-                    if n < 3:
-                        continue
+                    if n == 0:
+                        rate, n = 0.55, 1  # use neutral estimate for sparse players
                     legs.append({
                         "player_name": h["name"], "team": team["abbr"],
                         "stat_type": stat, "line_score": line,
                         "odds_type": "standard", "american_odds": -110,
                         "game_id": "", "game_label": "Historical", "hit_rate": rate, "sample_n": n,
                     })
-            for p in pitchers[:1]:
+            for p in pitchers[:2]:
                 for stat in [s for s in stat_types if s in _PP_PITCHER_TYPES]:
                     col = _PP_MLB_PIT_COL.get(stat)
                     if not col:
@@ -1810,13 +1810,13 @@ def _fallback_mlb_legs(stat_types: list = None, cal: dict = None) -> list:
                     if df_p.empty or col not in df_p.columns:
                         continue
                     vals = df_p[col].values[-10:]
-                    if len(vals) < 3:
+                    if len(vals) < 1:
                         continue
                     line = round(float(vals.mean()) * 0.85, 1)
                     rate, n = _mlb_hit_rate(p["name"], stat, line, odds_type="standard",
                                             cal_factor=cal.get(stat, 1.0))
-                    if n < 3:
-                        continue
+                    if n == 0:
+                        rate, n = 0.52, 1
                     legs.append({
                         "player_name": p["name"], "team": team["abbr"],
                         "stat_type": stat, "line_score": line,
