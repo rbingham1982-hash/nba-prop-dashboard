@@ -257,21 +257,34 @@ def _find_game_by_label(df: pd.DataFrame, game_label: str, generated_at: str) ->
     return best_row
 
 
-def _mark_parlay_outcomes(data: dict) -> None:
+def _mark_parlay_outcomes(data: dict) -> int:
     """
     Set parlay_hit for any parlay whose real (non-historical) legs are all resolved.
-    Historical legs are excluded from both the resolution check and the hit/miss verdict.
+    Historical and voided legs are excluded from both resolution check and hit/miss verdict.
+    Voided legs (postponed/suspended games) are treated as no-action — parlay resolves on remaining legs.
+    Returns the number of parlays newly marked.
     """
+    marked = 0
     for parlay in data["parlays"]:
         if parlay["parlay_hit"] is not None:
             continue
         real_legs = [l for l in parlay["legs"] if not _is_historical_leg(l)]
-        if not real_legs:
-            # All legs are historical — parlay can never be resolved; leave parlay_hit=None
-            continue
-        outcomes = [l["outcome"] for l in real_legs]
-        if all(o is not None for o in outcomes):
-            parlay["parlay_hit"] = bool(all(outcomes))
+        if real_legs:
+            # Normal path: resolve based on live legs only
+            active_legs = [l for l in real_legs if l["outcome"] != "void"]
+            if not active_legs:
+                continue
+            outcomes = [l["outcome"] for l in active_legs]
+            if all(o is not None for o in outcomes):
+                parlay["parlay_hit"] = bool(all(outcomes))
+                marked += 1
+        else:
+            # All-historical parlay: resolve on legs that have outcome data; ignore None legs
+            scored_legs = [l for l in parlay["legs"] if l["outcome"] is not None and l["outcome"] != "void"]
+            if scored_legs:
+                parlay["parlay_hit"] = bool(all(l["outcome"] is True for l in scored_legs))
+                marked += 1
+    return marked
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -402,8 +415,8 @@ def resolve_nba_legs() -> int:
             except Exception:
                 continue
 
-    _mark_parlay_outcomes(data)
-    if resolved_count:
+    marked = _mark_parlay_outcomes(data)
+    if resolved_count or marked:
         _save(data)
     return resolved_count
 
@@ -458,8 +471,20 @@ def _resolve_mlb_legs() -> int:
                 game_pk = game_info.get("game_id")
                 if not game_pk:
                     continue
-                # Only resolve Final games — skip in-progress/postponed/scheduled
                 game_status = (game_info.get("status") or "").lower()
+                # Void legs for postponed/suspended/cancelled games — parlay resolves on remaining legs
+                if "postponed" in game_status or "suspended" in game_status or "cancelled" in game_status:
+                    away_name = (game_info.get("away_name") or "").lower()
+                    home_name = (game_info.get("home_name") or "").lower()
+                    for parlay, leg in entries:
+                        if leg["outcome"] is not None:
+                            continue
+                        gl = (leg.get("game_label") or "").lower()
+                        if any(t in gl for t in [away_name[:3], home_name[:3]]):
+                            leg["outcome"] = "void"
+                            resolved_count += 1
+                    continue
+                # Only resolve Final games — skip in-progress/scheduled
                 if game_status and "final" not in game_status and "completed" not in game_status and "over" not in game_status:
                     continue
                 try:
@@ -498,8 +523,8 @@ def _resolve_mlb_legs() -> int:
                             except Exception:
                                 continue
 
-    _mark_parlay_outcomes(data)
-    if resolved_count:
+    marked = _mark_parlay_outcomes(data)
+    if resolved_count or marked:
         _save(data)
     return resolved_count
 
@@ -588,8 +613,8 @@ def _resolve_wnba_legs() -> int:
             except Exception:
                 continue
 
-    _mark_parlay_outcomes(data)
-    if resolved_count:
+    marked = _mark_parlay_outcomes(data)
+    if resolved_count or marked:
         _save(data)
     return resolved_count
 
@@ -622,11 +647,11 @@ def get_calibration(sport: str | None = None) -> dict:
         if sport and parlay.get("sport") != sport:
             continue
         for leg in parlay["legs"]:
-            if leg["outcome"] is None:
+            if leg["outcome"] is None or leg["outcome"] == "void":
                 continue
             stat = leg["stat_type"]
             predicted[stat].append(leg["predicted_hit_rate"])
-            actual[stat].append(1.0 if leg["outcome"] else 0.0)
+            actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
 
     factors = {}
     for stat in predicted:
@@ -674,14 +699,14 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
     hit_parlays       = [p for p in resolved_parlays if p["parlay_hit"]]
 
     all_legs      = [l for p in week_parlays for l in p["legs"]]
-    resolved_legs = [l for l in all_legs if l["outcome"] is not None]
-    hit_legs      = [l for l in resolved_legs if l["outcome"]]
+    resolved_legs = [l for l in all_legs if l["outcome"] is not None and l["outcome"] != "void"]
+    hit_legs      = [l for l in resolved_legs if l["outcome"] is True]
 
     stat_data: dict = defaultdict(lambda: {"predicted": [], "actual": []})
     for leg in resolved_legs:
         s = leg["stat_type"]
         stat_data[s]["predicted"].append(leg["predicted_hit_rate"])
-        stat_data[s]["actual"].append(1.0 if leg["outcome"] else 0.0)
+        stat_data[s]["actual"].append(1.0 if leg["outcome"] is True else 0.0)
 
     stat_breakdown = {}
     for stat, d in stat_data.items():
