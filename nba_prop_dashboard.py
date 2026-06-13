@@ -2071,6 +2071,45 @@ MLB_SEASON = "2026"
 MLB_SEASONS = ["2024", "2025", "2026"]
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
+# Park HR factors relative to 100 (neutral). Source: 2024-2026 season estimates.
+_MLB_PARK_HR_FACTORS: dict = {
+    "Coors Field": 140, "Great American Ball Park": 125, "Camden Yards": 120,
+    "Yankee Stadium": 118, "Globe Life Field": 115, "Citizens Bank Park": 112,
+    "Rogers Centre": 112, "Chase Field": 110, "Fenway Park": 108,
+    "American Family Field": 105, "Wrigley Field": 105, "Truist Park": 103,
+    "Guaranteed Rate Field": 103, "Minute Maid Park": 102, "Nationals Park": 102,
+    "Busch Stadium": 100, "Progressive Field": 100, "Angel Stadium": 99,
+    "Dodger Stadium": 98, "Target Field": 98, "Citi Field": 96, "PNC Park": 96,
+    "Tropicana Field": 95, "T-Mobile Park": 90, "loanDepot park": 90,
+    "Kauffman Stadium": 88, "Comerica Park": 85, "Petco Park": 82, "Oracle Park": 76,
+    "Sutter Health Park": 120, "Las Vegas Ballpark": 120,
+}
+
+# Lat/lon for Open-Meteo weather lookup (retractable dome venues get no wind boost)
+_MLB_VENUE_COORDS: dict = {
+    "Coors Field": (39.7559, -104.9942), "Great American Ball Park": (39.0979, -84.5082),
+    "Camden Yards": (39.2838, -76.6217), "Yankee Stadium": (40.8296, -73.9262),
+    "Globe Life Field": (32.7473, -97.0829), "Fenway Park": (42.3467, -71.0972),
+    "Chase Field": (33.4453, -112.0667), "American Family Field": (43.0280, -87.9712),
+    "Wrigley Field": (41.9484, -87.6553), "Truist Park": (33.8908, -84.4678),
+    "PNC Park": (40.4468, -80.0057), "Busch Stadium": (38.6226, -90.1928),
+    "Guaranteed Rate Field": (41.8300, -87.6339), "Kauffman Stadium": (39.0514, -94.4803),
+    "Angel Stadium": (33.8003, -117.8827), "Citi Field": (40.7571, -73.8458),
+    "Citizens Bank Park": (39.9061, -75.1665), "Rogers Centre": (43.6414, -79.3894),
+    "Minute Maid Park": (29.7572, -95.3555), "Dodger Stadium": (34.0739, -118.2400),
+    "Oracle Park": (37.7786, -122.3893), "Petco Park": (32.7076, -117.1570),
+    "Comerica Park": (42.3390, -83.0485), "T-Mobile Park": (47.5914, -122.3325),
+    "Progressive Field": (41.4962, -81.6852), "loanDepot park": (25.7781, -80.2197),
+    "Target Field": (44.9817, -93.2784), "Tropicana Field": (27.7683, -82.6534),
+    "Nationals Park": (38.8730, -77.0074),
+    "Sutter Health Park": (38.5800, -121.5142),
+    "Las Vegas Ballpark": (36.1699, -115.1398),
+}
+_MLB_DOME_VENUES = {
+    "Chase Field", "Globe Life Field", "American Family Field",
+    "Rogers Centre", "Minute Maid Park", "Tropicana Field", "loanDepot park",
+}
+
 @st.cache_data(ttl=3600)
 def get_mlb_teams():
     try:
@@ -2255,6 +2294,207 @@ def get_mlb_pitcher_season_stats(pitcher_id):
         return splits[0].get("stat", {}) if splits else {}
     except Exception:
         return {}
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def _get_venue_weather(venue: str) -> dict:
+    """Current weather for an MLB venue via Open-Meteo (free, no key)."""
+    coords = _MLB_VENUE_COORDS.get(venue)
+    if not coords:
+        return {}
+    lat, lon = coords
+    try:
+        url = (
+            f"https://api.open-meteo.com/v1/forecast"
+            f"?latitude={lat}&longitude={lon}"
+            f"&current=temperature_2m,wind_speed_10m,wind_direction_10m,relative_humidity_2m"
+            f"&wind_speed_unit=mph&temperature_unit=fahrenheit&forecast_days=1"
+        )
+        cur = requests.get(url, timeout=8).json().get("current", {})
+        return {
+            "temp_f":   round(float(cur.get("temperature_2m", 70)), 1),
+            "wind_mph": round(float(cur.get("wind_speed_10m", 0)), 1),
+            "wind_deg": int(cur.get("wind_direction_10m", 0)),
+            "humidity": int(cur.get("relative_humidity_2m", 50)),
+        }
+    except Exception:
+        return {}
+
+
+def _hr_context_boost(venue: str, weather: dict) -> float:
+    """
+    Multiplicative boost to HR probability from park factor + weather. 1.0 = neutral.
+    Park: ±20% from factor vs 100 baseline.
+    Temp: ±1% per 5°F vs 70°F baseline.
+    Wind: up to +8% at 20 mph (suppressed for dome venues).
+    """
+    park_f = _MLB_PARK_HR_FACTORS.get(venue, 100)
+    park_boost = (park_f - 100) / 100 * 0.20
+    temp_f = weather.get("temp_f", 70)
+    wind_mph = weather.get("wind_mph", 0)
+    temp_boost = max(-0.06, min(0.08, (temp_f - 70) / 5 * 0.01))
+    wind_boost = 0.0 if venue in _MLB_DOME_VENUES else min(0.08, wind_mph / 20 * 0.08)
+    return 1.0 + park_boost + temp_boost + wind_boost
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _pitcher_hr_per9(pitcher_id: int) -> float:
+    """HR/9 for a pitcher this season. Returns MLB average (1.1) if unavailable."""
+    try:
+        stats = get_mlb_pitcher_season_stats(pitcher_id)
+        ip = float(stats.get("inningsPitched", 0) or 0)
+        hr = int(stats.get("homeRuns", 0) or 0)
+        if ip >= 20:
+            return round(hr / ip * 9, 2)
+    except Exception:
+        pass
+    return 1.1
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _get_player_hand(player_id: int, side: str = "bat") -> str:
+    """Returns 'L', 'R', or 'S' for switch hitter. side='bat' or 'pitch'."""
+    try:
+        resp = requests.get(f"{MLB_BASE}/people/{player_id}", timeout=8)
+        person = (resp.json().get("people") or [{}])[0]
+        if side == "bat":
+            return person.get("batSide", {}).get("code", "R")
+        return person.get("pitchHand", {}).get("code", "R")
+    except Exception:
+        return "R"
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def _score_hitter_for_hr(
+    player_id: int,
+    opp_pitcher_id,
+    venue: str,
+    weather: dict,
+) -> dict:
+    """
+    Composite HR probability for a hitter in today's game context.
+    Combines HR rate from logs, BvP HR history, pitcher HR/9,
+    park factor, weather, and handedness platoon split.
+    """
+    try:
+        df = get_mlb_hitting_logs(player_id, ("2025", "2026"))
+    except Exception:
+        return {}
+    if df.empty or "HR" not in df.columns or len(df) < 5:
+        return {}
+
+    games_played = len(df)
+    last20 = df["HR"].values[-20:]
+    last10 = df["HR"].values[-10:] if games_played >= 10 else df["HR"].values
+    total_hrs = int(df["HR"].sum())
+
+    # Fraction of games with ≥1 HR
+    r20 = float((last20 > 0).sum()) / len(last20)
+    r10 = float((last10 > 0).sum()) / max(len(last10), 1)
+    hist_rate = 0.55 * r10 + 0.45 * r20
+
+    # BvP HR adjustment
+    bvp_boost = 0.0
+    bvp_info = {}
+    if opp_pitcher_id:
+        try:
+            bvp = _mlb_bvp_stats(player_id, int(opp_pitcher_id))
+            ab = bvp.get("ab", 0)
+            if ab >= 10:
+                bvp_hr_ab = bvp.get("hr", 0) / ab
+                season_ab = float(df["AB"].sum()) if "AB" in df.columns else games_played * 4
+                season_hr_ab = total_hrs / max(season_ab, 1)
+                if season_hr_ab > 0:
+                    factor = bvp_hr_ab / season_hr_ab
+                    bvp_boost = min(0.08, max(-0.06, (factor - 1.0) * 0.05))
+                bvp_info = {"ab": ab, "hr": bvp.get("hr", 0)}
+        except Exception:
+            pass
+
+    # Pitcher HR vulnerability
+    p_hr9 = 1.1
+    if opp_pitcher_id:
+        p_hr9 = _pitcher_hr_per9(int(opp_pitcher_id))
+    pitcher_boost = min(0.08, max(-0.06, (p_hr9 - 1.1) / 1.0 * 0.07))
+
+    # Handedness platoon bonus
+    platoon_boost = 0.0
+    try:
+        b_hand = _get_player_hand(player_id, "bat")
+        if opp_pitcher_id:
+            p_hand = _get_player_hand(int(opp_pitcher_id), "pitch")
+            if (b_hand in ("L", "R")) and b_hand != p_hand:
+                platoon_boost = 0.03
+            elif b_hand == "S":
+                platoon_boost = 0.015
+    except Exception:
+        pass
+
+    context_mult = _hr_context_boost(venue, weather)
+    raw = (hist_rate + bvp_boost + pitcher_boost + platoon_boost) * context_mult
+    score = round(min(0.97, max(0.01, raw)), 3)
+
+    return {
+        "score": score, "hist_rate": round(hist_rate, 3),
+        "last10_hr": int((last10 > 0).sum()), "last20_hr": int((last20 > 0).sum()),
+        "total_hrs": total_hrs, "games_played": games_played,
+        "bvp_boost": round(bvp_boost, 3), "bvp_info": bvp_info,
+        "pitcher_hr9": p_hr9, "pitcher_boost": round(pitcher_boost, 3),
+        "park_factor": _MLB_PARK_HR_FACTORS.get(venue, 100),
+        "temp_f": weather.get("temp_f", 70), "wind_mph": weather.get("wind_mph", 0),
+        "platoon_boost": round(platoon_boost, 3), "context_mult": round(context_mult, 3),
+    }
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def _build_hr_power_picks(top_n: int = 6) -> list:
+    """
+    Top HR candidates for today's games. Scores every active hitter using
+    park factor, weather, pitcher HR/9, BvP HR history, and platoon splits.
+    """
+    try:
+        games = get_mlb_today_with_pitchers()
+    except Exception:
+        return []
+    if not games:
+        return []
+
+    mlb_teams = get_mlb_teams()
+    team_id_map = {t["abbr"]: t["id"] for t in mlb_teams}
+
+    candidates = []
+    for game in games:
+        venue = game.get("venue", "")
+        weather = _get_venue_weather(venue)
+        for side in ("home", "away"):
+            opp = "away" if side == "home" else "home"
+            team_abbr = game.get(f"{side}_abbr", "")
+            opp_pitcher_id = game.get(f"{opp}_p_id")
+            opp_pitcher_name = game.get(f"{opp}_pitcher", "TBD")
+            tid = team_id_map.get(team_abbr)
+            if not tid:
+                continue
+            try:
+                hitters, _ = get_mlb_roster(tid)
+            except Exception:
+                continue
+            for h in hitters[:12]:
+                pid = _mlb_player_id_by_name(h["name"])
+                if not pid:
+                    continue
+                result = _score_hitter_for_hr(int(pid), opp_pitcher_id, venue, weather)
+                if not result:
+                    continue
+                candidates.append({
+                    "player_name": h["name"], "team": team_abbr, "venue": venue,
+                    "opp_pitcher": opp_pitcher_name, "opp_pitcher_id": opp_pitcher_id,
+                    "game_label": f"{game.get('away_abbr','')} @ {game.get('home_abbr','')}",
+                    "weather": weather,
+                    **result,
+                })
+
+    candidates.sort(key=lambda x: x["score"], reverse=True)
+    return candidates[:top_n]
 
 
 @st.cache_data(ttl=86400)
@@ -7002,6 +7242,134 @@ elif sport == "⚾ MLB":
         else:
             st.info("Select your options above and click **Build MLB Parlays** to generate suggestions. "
                     "First build may take 1-2 minutes while player data is fetched; subsequent builds are instant.")
+
+        # ── HR POWER PICKS ────────────────────────────────────────────────────
+        st.markdown(
+            "<hr style='margin:2rem 0 1.5rem;border-color:rgba(255,255,255,0.07);'>",
+            unsafe_allow_html=True,
+        )
+        section("HR Power Picks")
+        st.markdown("""
+        <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
+        Ranks today's hitters by home run probability using <strong style='color:var(--text-primary)'>six combined factors</strong>:
+        recent HR rate, batter vs. pitcher career history, starting pitcher HR/9,
+        park HR factor, weather (temperature + wind), and handedness platoon split.
+        </p>""", unsafe_allow_html=True)
+
+        if st.button("Build HR Power Picks", type="primary", key="mlb_hr_picks_btn"):
+            st.session_state["mlb_hr_picks_built"] = True
+            _build_hr_power_picks.clear()
+
+        if st.session_state.get("mlb_hr_picks_built"):
+            with st.spinner("Scoring today's hitters for HR probability…"):
+                _hr_picks = _build_hr_power_picks(top_n=6)
+
+            if not _hr_picks:
+                st.warning("No games found for today or player data unavailable. Try again closer to game time.")
+            else:
+                # ── Top 4 pick cards ──────────────────────────────────────────
+                _rank_labels = ["#1", "#2", "#3", "#4"]
+                _hr_cols = st.columns(2)
+                for _ri, _pick in enumerate(_hr_picks[:4]):
+                    _col = _hr_cols[_ri % 2]
+                    _pf = _pick["park_factor"]
+                    _pf_color = "#22c55e" if _pf >= 110 else ("#f59e0b" if _pf >= 100 else "#f87171")
+                    _p9 = _pick["pitcher_hr9"]
+                    _p9_color = "#f87171" if _p9 >= 1.4 else ("#f59e0b" if _p9 >= 1.0 else "#22c55e")
+                    _tmp = _pick.get("temp_f", 70)
+                    _wnd = _pick.get("wind_mph", 0)
+                    _weather_str = (f"{_tmp:.0f}°F · {_wnd:.0f} mph wind"
+                                    if _pick.get("venue") not in _MLB_DOME_VENUES
+                                    else f"{_tmp:.0f}°F (dome)")
+                    _bvp = _pick.get("bvp_info", {})
+                    _bvp_str = (f"{_bvp.get('hr', 0)} HR in {_bvp.get('ab', 0)} AB vs pitcher"
+                                if _bvp.get("ab", 0) >= 10 else "No BvP data (< 10 AB)")
+                    _l10 = _pick.get("last10_hr", 0)
+                    _l20 = _pick.get("last20_hr", 0)
+                    _score_pct = int(_pick["score"] * 100)
+                    _plat = _pick.get("platoon_boost", 0)
+                    _plat_str = "✓ Platoon adv." if _plat > 0 else "Same hand"
+                    _col.markdown(
+                        f"<div style='background:var(--card-bg);border:1px solid var(--border);"
+                        f"border-top:3px solid #f59e0b;border-radius:12px;"
+                        f"padding:1.1rem 1.2rem;margin-bottom:1rem;'>"
+                        f"<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.6rem;'>"
+                        f"<div>"
+                        f"<span style='font-size:0.58rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;"
+                        f"color:#f59e0b;display:block;margin-bottom:0.2rem;'>{_rank_labels[_ri]} · HR Power Pick</span>"
+                        f"<span style='font-size:1.05rem;font-weight:700;color:var(--text-primary);'>{_pick['player_name']}</span>"
+                        f"<span style='font-size:0.75rem;color:var(--text-muted);margin-left:0.5rem;'>{_pick['team']}</span>"
+                        f"</div>"
+                        f"<div style='text-align:right;'>"
+                        f"<span style='font-size:1.5rem;font-weight:800;color:#f59e0b;'>{_score_pct}%</span>"
+                        f"<span style='font-size:0.6rem;color:var(--text-muted);display:block;'>HR prob.</span>"
+                        f"</div></div>"
+                        f"<div style='font-size:0.72rem;color:var(--text-muted);margin-bottom:0.55rem;'>"
+                        f"vs <strong style='color:var(--text-primary);'>{_pick['opp_pitcher']}</strong>"
+                        f" &nbsp;·&nbsp; {_pick['game_label']}"
+                        f"</div>"
+                        f"<div style='display:grid;grid-template-columns:1fr 1fr;gap:0.35rem 1rem;font-size:0.72rem;'>"
+                        f"<div><span style='color:var(--text-muted);'>HR last 10g</span> "
+                        f"<strong style='color:var(--text-primary);'>{_l10} HR</strong></div>"
+                        f"<div><span style='color:var(--text-muted);'>HR last 20g</span> "
+                        f"<strong style='color:var(--text-primary);'>{_l20} HR</strong></div>"
+                        f"<div><span style='color:var(--text-muted);'>Pitcher HR/9</span> "
+                        f"<strong style='color:{_p9_color};'>{_p9:.2f}</strong></div>"
+                        f"<div><span style='color:var(--text-muted);'>Park factor</span> "
+                        f"<strong style='color:{_pf_color};'>{_pf}</strong></div>"
+                        f"<div><span style='color:var(--text-muted);'>Weather</span> "
+                        f"<strong style='color:var(--text-primary);'>{_weather_str}</strong></div>"
+                        f"<div><span style='color:var(--text-muted);'>Matchup</span> "
+                        f"<strong style='color:var(--text-primary);'>{_plat_str}</strong></div>"
+                        f"<div style='grid-column:1/-1;'><span style='color:var(--text-muted);'>BvP</span> "
+                        f"<strong style='color:var(--text-primary);'>{_bvp_str}</strong></div>"
+                        f"</div></div>",
+                        unsafe_allow_html=True,
+                    )
+
+                # ── Auto-build HR parlay from top picks ───────────────────────
+                st.markdown("<p class='pl-section-label' style='margin-top:1.25rem;'>HR Parlay from Top Picks</p>",
+                            unsafe_allow_html=True)
+                _hr_legs = []
+                for _pick in _hr_picks[:4]:
+                    _hr_legs.append({
+                        "player_name": _pick["player_name"],
+                        "team":        _pick["team"],
+                        "stat_type":   "Home Runs",
+                        "line_score":  0.5,
+                        "odds_type":   "standard",
+                        "american_odds": -110,
+                        "implied_prob": _PP_ODDS_IMPLIED["standard"],
+                        "sportsbook":  "PrizePicks",
+                        "game_id":     _pick.get("game_label", ""),
+                        "game_label":  _pick.get("game_label", ""),
+                        "hit_rate":    _pick["score"],
+                        "sample_n":    _pick.get("games_played", 10),
+                    })
+                _hr_safe, _hr_value = _build_parlays(_hr_legs, min_legs=2, max_legs=4)
+                _hc1, _hc2 = st.columns(2)
+                with _hc1:
+                    st.markdown("<p class='pl-section-label'>Safe HR Parlays</p>", unsafe_allow_html=True)
+                    if _hr_safe:
+                        for _hp in _hr_safe[:3]:
+                            st.markdown(_parlay_card_html(_hp, "safe"), unsafe_allow_html=True)
+                    else:
+                        st.caption("Not enough data for HR parlays today.")
+                with _hc2:
+                    st.markdown("<p class='pl-section-label'>Value HR Parlays</p>", unsafe_allow_html=True)
+                    if _hr_value:
+                        for _hp in _hr_value[:3]:
+                            st.markdown(_parlay_card_html(_hp, "value"), unsafe_allow_html=True)
+                    else:
+                        st.caption("No additional value parlays.")
+
+                try:
+                    _hr_logged = parlay_tracker.log_parlays(_hr_safe, "MLB", "PrizePicks", kind="safe")
+                    _hr_logged += parlay_tracker.log_parlays(_hr_value, "MLB", "PrizePicks", kind="value")
+                    if _hr_logged:
+                        st.caption(f"Logged {_hr_logged} HR parlay(s) to accuracy tracker.")
+                except Exception:
+                    pass
 
     # ── MLB DAILY BLOG ────────────────────────────────────────────────────────
     with tab_blog_mlb:
