@@ -2850,9 +2850,9 @@ def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id,
     _H_STAT_LABELS = {"H": "Hits", "HR": "Home Runs", "RBI": "RBIs", "K": "Strikeouts", "BB": "Walks"}
     stat_col   = prop_stat or "H"
     stat_label = _H_STAT_LABELS.get(stat_col, stat_col)
-    avg = df["AVG"].mean()
-    obp = df["OBP"].mean()
-    slg = df["SLG"].mean()
+    avg = df["AVG"].iloc[-1] if len(df) > 0 else 0.0
+    obp = df["OBP"].iloc[-1] if len(df) > 0 else 0.0
+    slg = df["SLG"].iloc[-1] if len(df) > 0 else 0.0
     ops = obp + slg
     season_stat = df[stat_col].mean() if stat_col in df.columns else 0
     last10 = df.tail(10)
@@ -6455,9 +6455,9 @@ elif sport == "⚾ MLB":
                     # ── Analytical Breakdown ──────────────────────────────
                     mlb_section("Analytical Breakdown")
 
-                    _h_avg = h_df["AVG"].mean() if not h_df.empty else 0
-                    _h_obp = h_df["OBP"].mean() if not h_df.empty else 0
-                    _h_slg = h_df["SLG"].mean() if not h_df.empty else 0
+                    _h_avg = h_df["AVG"].iloc[-1] if not h_df.empty else 0.0
+                    _h_obp = h_df["OBP"].iloc[-1] if not h_df.empty else 0.0
+                    _h_slg = h_df["SLG"].iloc[-1] if not h_df.empty else 0.0
                     _h_ops = _h_obp + _h_slg
                     _h_iso = _h_slg - _h_avg
                     sl_c = st.columns(5)
