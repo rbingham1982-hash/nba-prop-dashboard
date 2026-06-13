@@ -2073,7 +2073,8 @@ MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
 # Park HR factors relative to 100 (neutral). Source: 2024-2026 season estimates.
 _MLB_PARK_HR_FACTORS: dict = {
-    "Coors Field": 140, "Great American Ball Park": 125, "Camden Yards": 120,
+    "Coors Field": 140, "Great American Ball Park": 125,
+    "Camden Yards": 120, "Oriole Park at Camden Yards": 120,
     "Yankee Stadium": 118, "Globe Life Field": 115, "Citizens Bank Park": 112,
     "Rogers Centre": 112, "Chase Field": 110, "Fenway Park": 108,
     "American Family Field": 105, "Wrigley Field": 105, "Truist Park": 103,
@@ -2088,7 +2089,8 @@ _MLB_PARK_HR_FACTORS: dict = {
 # Lat/lon for Open-Meteo weather lookup (retractable dome venues get no wind boost)
 _MLB_VENUE_COORDS: dict = {
     "Coors Field": (39.7559, -104.9942), "Great American Ball Park": (39.0979, -84.5082),
-    "Camden Yards": (39.2838, -76.6217), "Yankee Stadium": (40.8296, -73.9262),
+    "Camden Yards": (39.2838, -76.6217), "Oriole Park at Camden Yards": (39.2838, -76.6217),
+    "Yankee Stadium": (40.8296, -73.9262),
     "Globe Life Field": (32.7473, -97.0829), "Fenway Park": (42.3467, -71.0972),
     "Chase Field": (33.4453, -112.0667), "American Family Field": (43.0280, -87.9712),
     "Wrigley Field": (41.9484, -87.6553), "Truist Park": (33.8908, -84.4678),
@@ -3328,7 +3330,6 @@ def generate_nba_blog():
     return html
 
 
-@st.cache_data(ttl=3600)
 def generate_mlb_blog():
     today = datetime.now()
     m, d = today.month, today.day
@@ -3415,6 +3416,69 @@ def generate_mlb_blog():
         "counts and hitter-friendly park factors."
     )
 
+    # ── HR Power Pick of the Day ───────────────────────────────────────────────
+    # Use pre-computed picks from session state (populated by Parlays tab button).
+    # Avoids fetching all roster/hitting data on every blog load.
+    hr_pick_html = ""
+    _cached_picks = st.session_state.get("hr_power_picks_cache", [])
+    if not _cached_picks:
+        hr_pick_html = (
+            "<h2 class='blog-h2'>HR Power Pick of the Day</h2>"
+            "<p class='blog-body' style='color:var(--text-muted);font-style:italic;'>"
+            "Click <strong>Build HR Power Picks</strong> on the Parlays tab to populate today's top pick here."
+            "</p>"
+        )
+    else:
+        try:
+            p = _cached_picks[0]
+            pf = p.get("park_factor", 100)
+            pf_label = "HR-friendly" if pf >= 110 else ("neutral" if pf >= 95 else "pitcher-friendly")
+            p9 = p.get("pitcher_hr9", 1.1)
+            p9_label = "highly vulnerable" if p9 >= 1.5 else ("above-average vulnerability" if p9 >= 1.1 else "stingy")
+            plat = "with platoon advantage" if p.get("platoon_boost", 0) > 0 else "same-hand matchup"
+            bvp = p.get("bvp_info", {})
+            bvp_str = (f"{bvp['hr']} HR in {bvp['ab']} career AB vs today's starter"
+                       if bvp.get("ab", 0) >= 10 else "limited career history vs today's starter")
+            l10 = p.get("last10_hr", 0)
+            l20 = p.get("last20_hr", 0)
+            score_pct = int(p["score"] * 100)
+            venue = p.get("venue", "")
+            weather = p.get("weather", {})
+            temp_f = weather.get("temp_f", 70)
+            wind_mph = weather.get("wind_mph", 0)
+            weather_str = (f"{temp_f:.0f}°F, {wind_mph:.0f} mph wind"
+                           if venue not in _MLB_DOME_VENUES else f"{temp_f:.0f}°F (dome)")
+
+            hr_pick_blurb = (
+                f"{p['player_name']} ({p['team']}) is Konjure's top HR candidate today at {score_pct}% probability, "
+                f"facing {p['opp_pitcher']} in the {p['game_label']} matchup. "
+                f"The model flags {p['player_name'].split()[-1]} on {l10} home runs over his last 10 games "
+                f"and {l20} over his last 20 — one of the hottest power streaks on today's slate. "
+                f"The opposing starter carries a {p9:.2f} HR/9 ({p9_label}), "
+                f"and the game is played at {venue or 'today’s venue'} "
+                f"(park factor {pf}, {pf_label}) under {weather_str}. "
+                f"Handedness: {plat}. BvP: {bvp_str}. "
+                f"Find this pick — and the full HR Power Picks board — on the Parlays tab."
+            )
+            hr_pick_html = (
+                f"<h2 class='blog-h2'>HR Power Pick of the Day</h2>"
+                f"<div class='blog-callout' style='border-left-color:#f59e0b;'>"
+                f"<span style='font-size:0.62rem;font-weight:700;letter-spacing:0.16em;"
+                f"text-transform:uppercase;color:#f59e0b;display:block;margin-bottom:0.4rem;'>"
+                f"#{1} Pick &nbsp;&middot;&nbsp; {score_pct}% HR Probability</span>"
+                f"<strong style='font-size:1.05rem;color:#f1f5f9;'>{p['player_name']} ({p['team']})</strong>"
+                f"<span style='color:#9294a8;font-size:0.82rem;margin-left:0.6rem;'>"
+                f"vs {p['opp_pitcher']} &middot; {p['game_label']}</span>"
+                f"<p style='margin:0.6rem 0 0;font-size:0.86rem;color:#c8cad4;line-height:1.75;'>"
+                f"{hr_pick_blurb}</p>"
+                f"</div>"
+            )
+        except Exception as _blog_e:
+            hr_pick_html = (
+                f"<h2 class='blog-h2'>HR Power Pick of the Day</h2>"
+                f"<p class='blog-body'>DEBUG: cached={len(_cached_picks)} err={_blog_e}</p>"
+            )
+
     closing = (f"Today's full slate is live. Head to the Hitter Analysis and Pitcher Analysis "
                f"tabs to pull any player's rolling model, matchup history, and current prop line comparison. "
                f"Good luck on {weekday}'s card.")
@@ -3428,6 +3492,7 @@ def generate_mlb_blog():
             f"{games_html}"
             f"<h2 class='blog-h2'>Hitters to Target</h2>"
             f"<p class='blog-body'>{hitter_body}</p>"
+            f"{hr_pick_html}"
             f"<h2 class='blog-h2'>Around the League</h2>"
             f"{_news_rows_html(news, 5)}"
             f"<div class='blog-callout'>{closing}</div>"
@@ -7263,6 +7328,10 @@ elif sport == "⚾ MLB":
         if st.session_state.get("mlb_hr_picks_built"):
             with st.spinner("Scoring today's hitters for HR probability…"):
                 _hr_picks = _build_hr_power_picks(top_n=6)
+
+            # Cache in session state so the blog tab can read the top pick instantly
+            if _hr_picks:
+                st.session_state["hr_power_picks_cache"] = _hr_picks
 
             if not _hr_picks:
                 st.warning("No games found for today or player data unavailable. Try again closer to game time.")
