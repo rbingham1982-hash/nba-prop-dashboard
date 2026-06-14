@@ -2794,7 +2794,18 @@ def _build_hr_power_picks(top_n: int = 6) -> list:
                 })
 
     candidates.sort(key=lambda x: x["score"], reverse=True)
-    return candidates[:top_n]
+
+    # Enforce diversity: max 1 pick per team so a single favorable
+    # matchup (park + weak pitcher) can't fill all top slots.
+    seen_teams: set = set()
+    diverse = []
+    for c in candidates:
+        if c["team"] not in seen_teams:
+            seen_teams.add(c["team"])
+            diverse.append(c)
+        if len(diverse) == top_n:
+            break
+    return diverse
 
 
 @st.cache_data(ttl=86400)
