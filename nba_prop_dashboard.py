@@ -939,13 +939,15 @@ _PP_NBA_STAT_COL = {
     "Turnovers": "TOV", "Fantasy Score": "FS", "Spread": None,
 }
 _PP_MLB_HIT_COL = {
-    "Hits": "H", "Home Runs": "HR", "RBIs": "RBI",
+    "Hits": "H", "Home Runs": "HR",
     "Stolen Bases": "SB", "Strikeouts": "K", "Hitter Strikeouts": "K",
-    "Walks": "BB", "Total Bases": "TB",
+    "Walks": "BB",
     "Runs Scored": "R", "Runs": "R",
     "Doubles": "2B", "Singles": "H",
     "Hits+Runs+RBIs": "H", "Plate Appearances": "AB",
 }
+# RBIs (3.7% actual hit rate) and Total Bases (0.0% actual hit rate) removed —
+# calibration data across 54 and 91 resolved legs confirmed both are unplayable props.
 _PP_MLB_PIT_COL = {
     "Pitcher Strikeouts": "K", "Strikeouts": "K",
     "Earned Runs Allowed": "ER", "Walks Allowed": "BB", "Hits Allowed": "H",
@@ -2069,7 +2071,7 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
 def _fallback_mlb_legs(stat_types: list = None, cal: dict = None) -> list:
     """Generate parlay legs from top MLB players using historical averages as lines."""
     if stat_types is None:
-        stat_types = ["Hits", "Total Bases", "Pitcher Strikeouts"]
+        stat_types = ["Hits", "Pitcher Strikeouts"]
     if cal is None:
         cal = {}
     legs = []
@@ -2133,7 +2135,7 @@ def _compute_todays_best_plays_mlb() -> list:
         ud = get_underdog_props("mlb")
         if ud.empty:
             return []
-        FD_STATS = {"Hits", "Home Runs", "RBIs", "Total Bases", "Pitcher Strikeouts", "Hits Allowed"}
+        FD_STATS = {"Hits", "Home Runs", "Pitcher Strikeouts", "Hits Allowed"}
         df = ud[ud["stat_type"].isin(FD_STATS)].copy()
         df = df.drop_duplicates(["player_name", "stat_type"]).reset_index(drop=True)
         scored = []
@@ -7410,6 +7412,7 @@ elif sport == "⚾ MLB":
                 key="mlb_par_stats",
                 label_visibility="collapsed",
             )
+            st.caption("RBIs and Total Bases removed — calibration data (54 and 91 resolved legs) shows near-zero real hit rates.")
 
         if st.button("Build MLB Parlays", type="primary", key="mlb_build_parlays"):
             st.session_state["mlb_parlays_built"] = True
@@ -7473,11 +7476,11 @@ elif sport == "⚾ MLB":
             _mlb_cal = _load_calibration("MLB")
 
             # Warn if any selected stat type has a very poor calibration factor
-            _weak_stats = [s for s in _mb_stats if _mlb_cal.get(s, 1.0) < 0.3]
+            _weak_stats = [s for s in _mb_stats if _mlb_cal.get(s, 1.0) < 0.65]
             if _weak_stats:
                 st.warning(
                     f"**Low-accuracy stat type(s) detected: {', '.join(_weak_stats)}** — "
-                    "historical data shows these props almost never hit at the predicted rate. "
+                    "calibration data shows the model significantly overestimates these hit rates. "
                     "Consider removing them from the selection above.",
                     icon="⚠️",
                 )
