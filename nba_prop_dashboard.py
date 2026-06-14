@@ -321,6 +321,40 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
 .ptw-badge-goblin { background: rgba(167,139,250,0.15); color: #a78bfa; }
 .ptw-badge-demon  { background: rgba(248,113,113,0.15); color: #f87171; }
 
+/* ── Mock Draft ── */
+.draft-header { padding: 1rem 0 0.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; }
+.draft-kicker { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #818cf8; margin-bottom: 0.35rem; }
+.draft-countdown { font-size: 0.78rem; color: var(--text-muted); margin: 0; }
+.draft-prospect-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-top: 3px solid #818cf8; border-radius: 12px;
+    padding: 1rem 1.1rem; margin-bottom: 0.75rem; position: relative;
+}
+.draft-pick-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2rem; height: 2rem; border-radius: 50%;
+    background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.3);
+    font-size: 0.72rem; font-weight: 800; color: #818cf8;
+    margin-bottom: 0.5rem;
+}
+.draft-player-name { font-size: 1rem; font-weight: 800; color: var(--text-primary); margin: 0 0 0.1rem 0; }
+.draft-player-meta { font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 0.6rem 0; }
+.draft-grade {
+    position: absolute; top: 1rem; right: 1rem;
+    font-size: 1.1rem; font-weight: 800; color: #818cf8;
+}
+.draft-strength { font-size: 0.75rem; color: #86efac; padding: 0.08rem 0; line-height: 1.55; }
+.draft-weakness { font-size: 0.75rem; color: #fca5a5; padding: 0.08rem 0; line-height: 1.55; }
+.draft-comp { font-size: 0.7rem; color: var(--text-muted); margin: 0.5rem 0 0 0; }
+.draft-comp strong { color: #f59e0b; }
+.draft-summary { font-size: 0.78rem; color: #c8cad4; line-height: 1.65; margin: 0.5rem 0 0 0; font-style: italic; }
+.draft-board-row { display: flex; align-items: center; padding: 0.45rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 0.75rem; font-size: 0.78rem; }
+.draft-board-pick { font-size: 0.7rem; font-weight: 700; color: #818cf8; width: 1.8rem; flex-shrink: 0; }
+.draft-board-team { color: var(--text-muted); font-size: 0.7rem; width: 7rem; flex-shrink: 0; }
+.draft-board-player { font-weight: 600; color: var(--text-primary); flex: 1; }
+.draft-board-pos { font-size: 0.65rem; color: #818cf8; background: rgba(129,140,248,0.1); border-radius: 4px; padding: 0.1rem 0.35rem; }
+.draft-board-school { font-size: 0.68rem; color: var(--text-muted); }
+
 /* ══ MOBILE RESPONSIVE ══════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
     /* ── Layout ── */
@@ -626,6 +660,270 @@ def get_prizepicks_lines(league_id=7):
         return result if not result.empty else _pp_lite_cache.get(league_id, pd.DataFrame())
     except Exception:
         return _pp_lite_cache.get(league_id, pd.DataFrame())
+
+# ─── 2026 NBA Mock Draft ──────────────────────────────────────────────────────
+NBA_DRAFT_DATE = "June 23, 2026"
+NBA_DRAFT_VENUE = "Barclays Center, Brooklyn, NY"
+
+_NBA_MOCK_DRAFT = [
+    {"pick": 1,  "team": "Washington Wizards",    "player": "AJ Dybantsa",        "pos": "SF",    "school": "BYU",                    "country": "USA"},
+    {"pick": 2,  "team": "Utah Jazz",             "player": "Darryn Peterson",     "pos": "PG/SG", "school": "Kansas",                  "country": "USA"},
+    {"pick": 3,  "team": "Memphis Grizzlies",     "player": "Cameron Boozer",      "pos": "PF",    "school": "Duke",                    "country": "USA"},
+    {"pick": 4,  "team": "Chicago Bulls",         "player": "Caleb Wilson",        "pos": "PF/SF", "school": "North Carolina",          "country": "USA"},
+    {"pick": 5,  "team": "LA Clippers",           "player": "Keaton Wagler",       "pos": "PG/SG", "school": "Illinois",                "country": "USA"},
+    {"pick": 6,  "team": "Brooklyn Nets",         "player": "Darius Acuff Jr.",    "pos": "PG",    "school": "Arkansas",                "country": "USA"},
+    {"pick": 7,  "team": "Sacramento Kings",      "player": "Kingston Flemings",   "pos": "PG",    "school": "Houston",                 "country": "USA"},
+    {"pick": 8,  "team": "Atlanta Hawks",         "player": "Mikel Brown Jr.",     "pos": "PG/SG", "school": "Louisville",              "country": "USA"},
+    {"pick": 9,  "team": "Dallas Mavericks",      "player": "Brayden Burries",     "pos": "SG",    "school": "Arizona",                 "country": "USA"},
+    {"pick": 10, "team": "Milwaukee Bucks",       "player": "Nate Ament",          "pos": "SF",    "school": "Tennessee",               "country": "USA"},
+    {"pick": 11, "team": "Golden State Warriors", "player": "Karim Lopez",         "pos": "PF/SF", "school": "NZ Breakers (NBL)",       "country": "Mexico"},
+    {"pick": 12, "team": "Oklahoma City Thunder", "player": "Aday Mara",           "pos": "C",     "school": "Michigan",                "country": "Spain"},
+    {"pick": 13, "team": "Miami Heat",            "player": "Yaxel Lendeborg",     "pos": "PF",    "school": "Michigan",                "country": "USA"},
+    {"pick": 14, "team": "Charlotte Hornets",     "player": "Labaron Philon Jr.",  "pos": "PG",    "school": "Alabama",                 "country": "USA"},
+    {"pick": 15, "team": "Chicago Bulls",         "player": "Cameron Carr",        "pos": "SG",    "school": "Baylor",                  "country": "USA"},
+    {"pick": 16, "team": "Memphis Grizzlies",     "player": "Ebuka Okorie",        "pos": "PG",    "school": "Stanford",                "country": "USA"},
+    {"pick": 17, "team": "Oklahoma City Thunder", "player": "Morez Johnson Jr.",   "pos": "PF/C",  "school": "Michigan",                "country": "USA"},
+    {"pick": 18, "team": "Charlotte Hornets",     "player": "Hannes Steinbach",    "pos": "C",     "school": "Washington",              "country": "Germany"},
+    {"pick": 19, "team": "Toronto Raptors",       "player": "Christian Anderson",  "pos": "PG",    "school": "Texas Tech",              "country": "USA/Germany"},
+    {"pick": 20, "team": "San Antonio Spurs",     "player": "Allen Graves",        "pos": "PF",    "school": "Santa Clara",             "country": "USA"},
+    {"pick": 21, "team": "Detroit Pistons",       "player": "Bennett Stirtz",      "pos": "PG",    "school": "Iowa",                    "country": "USA"},
+    {"pick": 22, "team": "Philadelphia 76ers",    "player": "Chris Cenac Jr.",     "pos": "PF/C",  "school": "Houston",                 "country": "USA"},
+    {"pick": 23, "team": "Atlanta Hawks",         "player": "Jayden Quaintance",   "pos": "PF",    "school": "Kentucky",                "country": "USA"},
+    {"pick": 24, "team": "New York Knicks",       "player": "Meleek Thomas",       "pos": "PG/SG", "school": "Arkansas",                "country": "USA"},
+    {"pick": 25, "team": "Los Angeles Lakers",    "player": "Dailyn Swain",        "pos": "PG/SG", "school": "Texas",                   "country": "USA"},
+    {"pick": 26, "team": "Denver Nuggets",        "player": "Luigi Suigo",         "pos": "C",     "school": "Mega (Serbia)",           "country": "Italy"},
+    {"pick": 27, "team": "Boston Celtics",        "player": "Koa Peat",            "pos": "PF",    "school": "Arizona",                 "country": "USA"},
+    {"pick": 28, "team": "Minnesota Timberwolves","player": "Isaiah Evans",        "pos": "SF",    "school": "Duke",                    "country": "USA"},
+    {"pick": 29, "team": "Cleveland Cavaliers",   "player": "Sergio de Larrea",    "pos": "SG",    "school": "Valencia (Spain)",        "country": "Spain"},
+    {"pick": 30, "team": "Dallas Mavericks",      "player": "Henri Veesaar",       "pos": "C",     "school": "North Carolina",          "country": "Estonia"},
+]
+
+_NBA_DRAFT_SCOUTS = {
+    "AJ Dybantsa": {
+        "measurements": "6'8.5\" / 217 lbs / 7'0.5\" wingspan",
+        "stats": "25.5 PPG, 6.8 RPG, 3.7 APG — BYU (Freshman)",
+        "strengths": [
+            "Elite three-level scorer with burst, body control, and Paul George-caliber frame — best isolation player in the class",
+            "Switches 1-through-4 defensively; 6'9\" length with weak-side shot-blocking instincts",
+            "Advanced step-back and footwork for a 19-year-old; self-creation at NBA size",
+        ],
+        "weaknesses": [
+            "Three-point shot inconsistent; can force contested looks rather than manufacturing easier opportunities",
+            "Right-hand dominant — opponents shade left; lapses off-ball defensively",
+        ],
+        "comp": "Paul George / Jaylen Brown",
+        "grade": "A",
+        "summary": "The most tooled-up prospect in the class — franchise cornerstone potential with three-point reliability as the key developmental unlock.",
+    },
+    "Darryn Peterson": {
+        "measurements": "6'6\" / 205 lbs / 6'10\" wingspan",
+        "stats": "20.0 PPG, 4.2 RPG, 1.6 APG, 1.4 SPG — Kansas (Freshman, 24 GP)",
+        "strengths": [
+            "True 6'6\" shot creator with three-level scoring — pull-ups, C&S threes, drives at NBA size",
+            "Legitimate two-way defender (6'10\" wingspan) capable of guarding 1-through-3",
+            "Advanced basketball IQ and maturity rare for a 19-year-old freshman",
+        ],
+        "weaknesses": [
+            "Durability concern: missed 11 games with a full-body cramping condition — medical workup is critical",
+            "Passing functional but not elite; shot creation can stall inside the arc vs. longer athletes",
+        ],
+        "comp": "Anthony Edwards",
+        "grade": "A",
+        "summary": "Physically imposing two-way guard with star-level size and scoring tools — off-court medical clearance is the swing factor separating him from the #1 pick.",
+    },
+    "Cameron Boozer": {
+        "measurements": "6'8.25\" / 253 lbs / 7'1.5\" wingspan / 9'0\" standing reach",
+        "stats": "22.5 PPG, 10.0 RPG, 4.0 APG — Duke (57.7% FG, 40.2% 3PT, 29 GP)",
+        "strengths": [
+            "Historically efficient college scorer — elite post footwork, patience, and finishing through contact",
+            "Stretched big with legitimate 40%+ three-point shooting and face-up creation off the dribble",
+            "Exceptional IQ, high-motor rebounder, communicative defender — plays like a 10-year veteran",
+        ],
+        "weaknesses": [
+            "Not an elite athlete — limited burst/vertical explosiveness could restrict separation vs. long shot blockers",
+            "Not a back-line rim protector; block rates solid but won't anchor interior defense",
+        ],
+        "comp": "Kevin Love / Pascal Siakam (ceiling)",
+        "grade": "A",
+        "summary": "The class's safest high-floor bet — a historically efficient, polished frontcourt scorer with elite feel and one of the highest floors of any prospect in years.",
+    },
+    "Caleb Wilson": {
+        "measurements": "6'9.25\" / 211 lbs / 7'0.25\" wingspan / 9'0\" standing reach",
+        "stats": "19.8 PPG, 9.4 RPG, 1.5 SPG, 1.4 BPG — UNC (57.8% FG, 24 GP)",
+        "strengths": [
+            "Rare length + vertical athleticism + fluidity at 6'10\" — plays above the rim and runs like a guard",
+            "Elite two-way impact: dominant rim protector, high-activity rebounder, guards 2-through-5",
+            "Ball-handler with shot-creation flashes and strong passing instincts from the high post",
+        ],
+        "weaknesses": [
+            "Three-point shooting not yet a weapon (25.9%) — spacing limitations could constrain team offenses",
+            "Slight 211 lb frame; missed time with injury in 2025-26",
+        ],
+        "comp": "Kevin Garnett / Giannis (ceiling)",
+        "grade": "A",
+        "summary": "Two-way unicorn who plays above the rim at 6'10\" with KG-level defensive versatility — developing a consistent three is the only remaining ceiling question.",
+    },
+    "Keaton Wagler": {
+        "measurements": "6'6\" / ~185 lbs",
+        "stats": "17.9 PPG, 5.1 RPG, 4.2 APG — Illinois (44.5% FG, 39.7% 3PT)",
+        "strengths": [
+            "Premier half-court creator — generates quality shots through deception, pace, and tight ball-handling",
+            "Elite shooting versatility: pull-ups, C&S threes, floaters — best shot-maker in class at his size",
+            "High basketball IQ and composure in late-game situations; already plays a pro-style game",
+        ],
+        "weaknesses": [
+            "Not an elite athlete — limited burst and vertical explosion constrains driving/finishing ceiling",
+            "Defensive ceiling is a solid minus-one, not an anchor",
+        ],
+        "comp": "Jamal Murray / CJ McCollum",
+        "grade": "B+",
+        "summary": "The class's best pure skill guard — polished half-court scorer and playmaker already playing like a competent NBA lead guard.",
+    },
+    "Darius Acuff Jr.": {
+        "measurements": "6'2\" / 186 lbs / 6'7\" wingspan / 36.5\" vertical",
+        "stats": "23.5 PPG (3rd in DI), 6.4 APG — Arkansas (48.4% FG, 44.0% 3PT, 1st-Team All-American)",
+        "strengths": [
+            "Historically efficient freshman scorer — slippery, quick-trigger; elite off-screen shooter in the Lillard mold",
+            "6.4 APG with 44% three-point shooting as a freshman — historically rare combination of vision and accuracy",
+            "36.5\" max vertical — above-the-rim finisher and transition threat despite size",
+        ],
+        "weaknesses": [
+            "Size is a real concern at 6'2\" barefoot — limited defensive frame, struggles navigating screens",
+            "Must be elite shooting to survive at his size; NBA rim finishing against length remains unproven",
+        ],
+        "comp": "Damian Lillard",
+        "grade": "B+",
+        "summary": "Generational freshman scorer with near-identical Lillard combine measurements — the bucket-getting gift is rare at any height, but defensive limitations are a real lottery risk.",
+    },
+    "Kingston Flemings": {
+        "measurements": "6'2.5\" / 183 lbs / 6'3.5\" wingspan / 40.5\" vertical",
+        "stats": "16.0 PPG, 5.2 APG, 4.1 RPG — Houston (47.6% FG, 38.7% 3PT, 37 GP)",
+        "strengths": [
+            "Elite athleticism for a guard (40.5\" vertical, best 3PT drill at combine 19/25); gets above the rim",
+            "Best two-way effort at his size — elite defensive intensity under Kelvin Sampson's demanding system",
+            "47.6% FG / 38.7% 3PT / 84.5% FT — true three-level threat despite undersized frame",
+        ],
+        "weaknesses": [
+            "Wingspan barely longer than height (6'3.5\") — limited defensive length exploitable vs. bigger guards",
+            "Not a primary playmaker — passing and creation must scale to lead NBA initiator role",
+        ],
+        "comp": "De'Aaron Fox",
+        "grade": "B+",
+        "summary": "Explosive two-way guard who maximized his freshman season at one of college basketball's most demanding programs — wingspan concerns are the only lottery debate.",
+    },
+    "Mikel Brown Jr.": {
+        "measurements": "6'3.5\" / 190 lbs / 6'7.5\" wingspan / 39.5\" vertical",
+        "stats": "18.2 PPG, 4.7 APG — Louisville (41/34/84 splits, 21 GP — scored 45 vs NC State)",
+        "strengths": [
+            "Best ball-handler in the class — fluid, rapid movement with advanced counters at all three levels",
+            "Excellent combine athleticism (39.5\" vertical, 8'9.5\" standing reach) plus strong length for his position",
+            "Dynamic shot-creator with natural mechanics and advanced feel for contact",
+        ],
+        "weaknesses": [
+            "Significant durability concern: missed 14 of 35 games with back injury — back ailments are the most serious long-term red flag",
+            "34% from three needs improvement to be a reliable spacer at the NBA level",
+        ],
+        "comp": "Coby White",
+        "grade": "B+",
+        "summary": "Dynamic scoring guard with the highest single-game ceiling in the class — back health is the critical swing factor between steal and bust.",
+    },
+    "Brayden Burries": {
+        "measurements": "6'3.75\" / 215 lbs / 6'6\" wingspan / 38.5\" vertical",
+        "stats": "16.1 PPG, 4.9 RPG, 2.4 APG — Arizona (49.1% FG, 39.1% 3PT, 39 GP)",
+        "strengths": [
+            "High-efficiency two-way wing: 49.1% FG / 39.1% 3PT — among the best overall efficiency profiles in the class",
+            "Elite defensive tools and competitive intensity; lateral quickness and physicality to guard 1-through-3",
+            "Effective on and off the ball; strong interior finisher and transition scorer",
+        ],
+        "weaknesses": [
+            "Undersized wingspan (6'6\") for SG — defensive ceiling vs. bigger wings is limited",
+            "Not a primary creator; projects as tertiary scorer rather than featured option",
+        ],
+        "comp": "Derrick White",
+        "grade": "B+",
+        "summary": "The class's best two-way efficiency play — physically mature, elite shooting and defensive effort, won't wow with highlights but makes immediate impact.",
+    },
+    "Nate Ament": {
+        "measurements": "6'10\" / 207 lbs / 7'1\" wingspan",
+        "stats": "16.7 PPG, 6.3 RPG, 2.3 APG — Tennessee (39.9% FG, Freshman)",
+        "strengths": [
+            "Elite physical profile at 6'10\" / 7'1\" wingspan — projects as a 3-and-D wing guarding 3-through-5",
+            "Fluidity unusual for his size; strong defensive positioning and length",
+            "Shooting mechanics and release suggest meaningful improvement from 39.9% college FG%",
+        ],
+        "weaknesses": [
+            "Raw offensively — struggled to create efficiently vs. SEC competition",
+            "Wide gap between current play level and lottery expectations; requires significant patience",
+        ],
+        "comp": "Jabari Smith Jr.",
+        "grade": "B",
+        "summary": "A 6'10\" physical specimen whose tools justify the lottery pick — the raw offensive game makes him a high-risk, high-upside patience play.",
+    },
+    "Karim Lopez": {
+        "measurements": "6'8.25\" / 222 lbs / 6'11.5\" wingspan",
+        "stats": "11.9 PPG, 6.1 RPG — NZ Breakers NBL (49.0% FG, 32.2% 3PT) — NBL Next Stars scoring record",
+        "strengths": [
+            "Historic NBL Next Stars production — more points than LaMelo Ball, Josh Giddey, and Alex Sarr in that pipeline",
+            "Drives downhill and finishes with authority; elite positional size for a modern forward",
+            "Strong defensive projection with length and physicality to guard multiple positions",
+        ],
+        "weaknesses": [
+            "32.2% from three is not yet reliable — the swing skill that determines his ceiling",
+            "Limited competition sample vs. elite college programs; NBL is a tier below top DI",
+        ],
+        "comp": "Franz Wagner",
+        "grade": "B",
+        "summary": "Would be the first Mexican-born first-rounder — physically imposing wing with elite NBL pedigree whose three-point development defines his NBA ceiling.",
+    },
+    "Aday Mara": {
+        "measurements": "7'3\" / 255 lbs / 7'6.75\" wingspan",
+        "stats": "12.1 PPG, 6.8 RPG, 2.4 APG — Michigan (100th-percentile rim deterrence in Big Ten)",
+        "strengths": [
+            "Most dominant rim protector in the class — size and timing create a near-impassable barrier",
+            "Uncommon passing instincts for a 7'3\" (2.4 APG, 18.5% assist rate) — initiates from elbow/short roll",
+            "Rare 12.0 block% and 19.0 assist% — elite on both ends of the two-way big spectrum",
+        ],
+        "weaknesses": [
+            "Limited athleticism (28\" max vertical) — not a lob threat, can be exposed in PnR coverage",
+            "Post scoring and midrange still developing; offensive reliability outside finishes is a work in progress",
+        ],
+        "comp": "Andrew Bogut",
+        "grade": "B",
+        "summary": "A generational defensive center whose size and timing make him a true anchor — worth the lottery pick on defense alone, with passing as an underrated bonus.",
+    },
+    "Yaxel Lendeborg": {
+        "measurements": "6'8.5\" / 240 lbs / 7'4\" wingspan",
+        "stats": "15.1 PPG, 6.8 RPG, 3.2 APG — Michigan (52/37/82, Big Ten POY, NCAA Champion)",
+        "strengths": [
+            "Premier two-way connector: 52/37/82 splits + elite defensive metrics (1.2 BPG, 1.1 SPG) + 7'4\" wingspan",
+            "Morey-ball shot profile (87% rim/three), efficient playmaking, switches onto guards — ideal modern big",
+            "Proven winner: Big Ten POY, Big Ten champion, and NCAA champion at Michigan in 2025-26",
+        ],
+        "weaknesses": [
+            "At 23, significantly older than draft peers — shorter development runway and peak arrives sooner",
+            "Projects as high-upside role player, not a first/second scoring option on a contender",
+        ],
+        "comp": "Aaron Gordon",
+        "grade": "B",
+        "summary": "The most immediately ready player in the draft — championship-tested, two-way forward with elite length and efficiency held back only by age.",
+    },
+    "Labaron Philon Jr.": {
+        "measurements": "6'2.5\" / 176 lbs / 6'6.25\" wingspan / 35.0\" vertical",
+        "stats": "22.0 PPG, 5.0 APG, 3.5 RPG — Alabama (50.1% FG, 39.9% 3PT — only DI player 22/5/50%)",
+        "strengths": [
+            "Historically efficient: only Division I player in 2025-26 averaging 22+ PPG, 5+ APG, 50%+ FG simultaneously",
+            "Herky-jerky SGA-style attack gets into the paint at will; legitimate three-level scorer and playmaker",
+            "Creative finisher with advanced feel for contact and midrange scoring off the bounce",
+        ],
+        "weaknesses": [
+            "6'2.5\" barefoot and 176 lbs with barely plus-four wingspan — limited defensive impact at NBA level",
+            "Floor may plateau as complementary scorer rather than true lead guard due to size constraints",
+        ],
+        "comp": "Dejounte Murray / Shai Gilgeous-Alexander (dream comp)",
+        "grade": "B-",
+        "summary": "Historically efficient statistically — gifted scoring creator whose real-game production demands first-round grade even if size defines his role ceiling.",
+    },
+}
 
 # ─── Parlay builder ───────────────────────────────────────────────────────────
 PP_PAYOUTS = {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0}
@@ -4226,69 +4524,79 @@ if sport == "🏀 NBA":
                 "},300);</script>",
                 height=0,
             )
-        section("Players to Watch")
-        with st.spinner(""):
-            _ptw_frames = []
-            # Underdog is primary source — fast, reliable, no auth needed
-            _ud_ptw = get_underdog_props("nba")
-            if not _ud_ptw.empty:
-                _ud_ptw = _ud_ptw.copy(); _ud_ptw["_source"] = "Underdog"
-                _ptw_frames.append(_ud_ptw)
-            else:
-                # Fall back to PrizePicks if Underdog returned nothing
-                _pp_ptw = get_prizepicks_lines()
-                if not _pp_ptw.empty:
-                    _pp_ptw = _pp_ptw.copy()
-                    _pp_ptw["_source"] = "PrizePicks"
-                    _pp_ptw["team"] = ""
-                    _pp_ptw["implied_prob"] = _pp_ptw["odds_type"].map(_PP_ODDS_IMPLIED).fillna(0.5)
-                    _ptw_frames.append(_pp_ptw)
-            # FanDuel: include if already cached (avoid burning API credits on home load)
-            _fd_cached = _toa_cache.get("nba_FanDuel")
-            if _fd_cached is not None and not _fd_cached.empty:
-                _fd_c = _fd_cached.copy(); _fd_c["_source"] = "FanDuel"
-                _ptw_frames.append(_fd_c)
-        if _ptw_frames:
-            _ptw_all = pd.concat(_ptw_frames, ignore_index=True)
-            _ptw_stats = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "Pts+Asts", "Pts+Rebs", "3-PT Made", "Blocked Shots", "Steals"]
-            _ptw_all = _ptw_all[_ptw_all["stat_type"].isin(_ptw_stats)].copy()
-            if "implied_prob" not in _ptw_all.columns:
-                _ptw_all["implied_prob"] = 0.5
-            _ptw_all["implied_prob"] = pd.to_numeric(_ptw_all["implied_prob"], errors="coerce").fillna(0.5)
-            _ptw_all = _ptw_all.sort_values("implied_prob", ascending=False)
-            _ptw_all = _ptw_all.drop_duplicates(["player_name", "stat_type"]).drop_duplicates("player_name")
-            _ptw = _ptw_all.head(10).reset_index(drop=True)
-            _nba_abbr_to_full = {t["abbreviation"].upper(): t["full_name"] for t in teams.get_teams()}
-            _ptw_list = list(_ptw.iterrows())
-            for _rs in range(0, len(_ptw_list), 5):
-                _chunk = _ptw_list[_rs:_rs + 5]
-                _tcols = st.columns(len(_chunk))
-                for _ci, (_, _r) in enumerate(_chunk):
-                    with _tcols[_ci]:
-                        _otype = str(_r.get("odds_type") or "standard").lower()
-                        _bcls = "ptw-badge-goblin" if _otype == "goblin" else ("ptw-badge-demon" if _otype == "demon" else "ptw-badge-normal")
-                        _blbl = _otype.capitalize() if _otype in ("goblin", "demon") else "Standard"
-                        _imp_pct = int(float(_r.get("implied_prob", 0.5)) * 100)
-                        _src_lbl = str(_r.get("_source", ""))
-                        st.markdown(f"""
-                        <div class='ptw-card'>
-                            <p class='ptw-player-name'>{_r['player_name']}</p>
-                            <p class='ptw-team'>{_r.get('team', '')} &nbsp;·&nbsp; {_r['stat_type']}</p>
-                            <p class='ptw-line'>{_r['line_score']}</p>
-                            <span class='ptw-badge {_bcls}'>{_blbl} &nbsp;{_imp_pct}%</span>
-                            <p style='font-size:0.68rem;color:var(--text-muted);margin:0.25rem 0 0.5rem;'>{_src_lbl}</p>
-                        </div>""", unsafe_allow_html=True)
-                        _btn_key = f"nba_ptw_{''.join(c for c in _r['player_name'] if c.isalnum())}"
-                        if st.button("→ Profile", key=_btn_key, use_container_width=True):
-                            _abbr = str(_r.get("team", "")).upper()
-                            _full = _nba_abbr_to_full.get(_abbr, "")
-                            if _full:
-                                st.session_state["ps_team"] = _full
-                            st.session_state["_ps_player_hint"] = _r["player_name"]
-                            st.session_state["_nba_ptw_nav"] = True
-                            _safe_rerun()
-        else:
-            st.caption("Sportsbook lines unavailable right now. Visit the Sportsbook tab to load lines.")
+        # ── 2026 NBA Mock Draft ───────────────────────────────────────────────
+        _days_to_draft = (datetime(2026, 6, 23) - datetime.now()).days
+        _countdown = f"{_days_to_draft} days until the draft" if _days_to_draft > 0 else "Draft night is here"
+        st.markdown(
+            f"<div class='draft-header'>"
+            f"<div class='draft-kicker'>2026 NBA Draft &nbsp;·&nbsp; Konjure Mock</div>"
+            f"<div class='draft-countdown'>{NBA_DRAFT_DATE} &nbsp;·&nbsp; {NBA_DRAFT_VENUE} &nbsp;·&nbsp; "
+            f"<strong style='color:var(--text-primary);'>{_countdown}</strong></div>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
+        # ── Grade colour helper ────────────────────────────────────────────────
+        def _grade_color(g):
+            return {"A": "#22c55e", "B+": "#86efac", "B": "#fbbf24", "B-": "#fb923c", "C+": "#f87171"}.get(g, "#9294a8")
+
+        # ── Top 14 lottery scouting report cards ──────────────────────────────
+        section("Lottery Scouting Reports — Top 14 Picks")
+        _lottery_picks = _NBA_MOCK_DRAFT[:14]
+        for _di in range(0, len(_lottery_picks), 2):
+            _dcols = st.columns(2)
+            for _dj, _dpick in enumerate(_lottery_picks[_di:_di+2]):
+                _scout = _NBA_DRAFT_SCOUTS.get(_dpick["player"], {})
+                if not _scout:
+                    continue
+                _gc = _grade_color(_scout.get("grade", "B"))
+                _strengths_html = "".join(
+                    f"<div class='draft-strength'>+ {s}</div>" for s in _scout["strengths"]
+                )
+                _weaknesses_html = "".join(
+                    f"<div class='draft-weakness'>- {w}</div>" for w in _scout["weaknesses"]
+                )
+                with _dcols[_dj]:
+                    st.markdown(
+                        f"<div class='draft-prospect-card'>"
+                        f"<div class='draft-grade' style='color:{_gc};'>{_scout['grade']}</div>"
+                        f"<div class='draft-pick-badge'>#{_dpick['pick']}</div>"
+                        f"<div class='draft-player-name'>{_dpick['player']}</div>"
+                        f"<div class='draft-player-meta'>"
+                        f"{_dpick['pos']} &nbsp;·&nbsp; {_dpick['school']} &nbsp;·&nbsp; {_dpick['team']}</div>"
+                        f"<div style='font-size:0.68rem;color:#818cf8;margin-bottom:0.5rem;'>"
+                        f"{_scout['measurements']} &nbsp;·&nbsp; {_scout['stats']}</div>"
+                        f"{_strengths_html}{_weaknesses_html}"
+                        f"<div class='draft-comp'><strong>NBA Comp:</strong> {_scout['comp']}</div>"
+                        f"<div class='draft-summary'>{_scout['summary']}</div>"
+                        f"</div>",
+                        unsafe_allow_html=True,
+                    )
+
+        # ── Full first-round board ─────────────────────────────────────────────
+        st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
+        section("Full First-Round Mock Draft Board")
+        _board_html = "<div style='max-width:800px;'>"
+        _tier_labels = {1: "THE BIG FOUR", 5: "LOTTERY GUARDS", 10: "WINGS & BIGS", 15: "MID-FIRST", 20: "LATE FIRST"}
+        for _bp in _NBA_MOCK_DRAFT:
+            if _bp["pick"] in _tier_labels:
+                _board_html += (
+                    f"<div style='font-size:0.55rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;"
+                    f"color:#818cf8;margin:0.85rem 0 0.3rem;padding-bottom:0.2rem;"
+                    f"border-bottom:1px solid rgba(129,140,248,0.2);'>{_tier_labels[_bp['pick']]}</div>"
+                )
+            _pick_color = "#f59e0b" if _bp["pick"] <= 4 else ("#818cf8" if _bp["pick"] <= 14 else "#6b7280")
+            _board_html += (
+                f"<div class='draft-board-row'>"
+                f"<span class='draft-board-pick' style='color:{_pick_color};'>#{_bp['pick']}</span>"
+                f"<span class='draft-board-player'>{_bp['player']}</span>"
+                f"<span class='draft-board-pos'>{_bp['pos']}</span>"
+                f"<span class='draft-board-school'>{_bp['school']}</span>"
+                f"<span class='draft-board-team'>{_bp['team']}</span>"
+                f"</div>"
+            )
+        _board_html += "</div>"
+        st.markdown(_board_html, unsafe_allow_html=True)
 
         st.markdown("""
         <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
