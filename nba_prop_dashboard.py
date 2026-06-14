@@ -923,6 +923,262 @@ _NBA_DRAFT_SCOUTS = {
         "grade": "B-",
         "summary": "Historically efficient statistically — gifted scoring creator whose real-game production demands first-round grade even if size defines his role ceiling.",
     },
+    "Cameron Carr": {
+        "measurements": "6'4.5\" / 184 lbs / 7'0.75\" wingspan / 8'8\" standing reach",
+        "stats": "18.9 PPG, 5.8 RPG, 2.6 APG, 1.3 BPG — Baylor (49.4% FG, 37.0% 3PT, 34 GP)",
+        "strengths": [
+            "Elite athleticism with a 42.5\" max vertical and +8.25\" wingspan-to-height differential — one of the most explosive dunkers in the class",
+            "3-and-D wing profile with shot-making range, the ability to attack closeouts, and instincts to get in passing lanes (1.3 BPG from the wing)",
+            "62.2% true shooting and 9.2 BPM — elite efficiency marks for a wing with secondary creation upside",
+        ],
+        "weaknesses": [
+            "Must add functional strength — can be moved off his line defensively and gets outbodied in physical interior situations",
+            "Shot selection discipline: tendency to pull trigger on contested off-the-dribble looks early in the shot clock",
+        ],
+        "comp": "OG Anunoby",
+        "grade": "B-",
+        "summary": "A supremely athletic 3-and-D wing whose combine measurements and explosiveness vaulted him into the late lottery conversation — strength development is the key unlock.",
+    },
+    "Ebuka Okorie": {
+        "measurements": "6'1.25\" / 185 lbs / 6'7.75\" wingspan",
+        "stats": "23.2 PPG, ~3.0 RPG, ~4.0 APG — Stanford (47.0% FG, 50% rim rate, led ACC in scoring)",
+        "strengths": [
+            "Elite burst and change-of-pace in short spaces — generates high-value rim attempts (50% of FGs at the rim) with a sub-elite turnover rate at 31%+ usage",
+            "Crafty scorer with advanced pull-up game, live-dribble vision, and rare feel for contact manipulation at his size",
+            "Intelligent passer who makes the simple read ahead of the defense and shows real vision in live-dribble situations",
+        ],
+        "weaknesses": [
+            "Standing 6'1.25\" barefoot — limited defensive frame; can be bullied by bigger guards and struggles navigating screens",
+            "Tendency to hunt tough pull-ups early in the shot clock; must refine decision-making to sustain NBA efficiency",
+        ],
+        "comp": "Tyrese Maxey",
+        "grade": "B-",
+        "summary": "A jitterbug freshman scorer who led the ACC with historic efficiency at 31%+ usage — small stature limits his defensive ceiling but elite feel and burst give him a clear NBA scoring niche.",
+    },
+    "Morez Johnson Jr.": {
+        "measurements": "6'10\" / 251 lbs / 7'3.5\" wingspan",
+        "stats": "13.1 PPG, 7.3 RPG, 1.1 BPG — Michigan (62.3% FG, 67.7% TS, 40 GP)",
+        "strengths": [
+            "Among the best defenders in the entire class — elite length and athleticism to switch 1-through-5; top-tier combine lane agility and sprint times for a big",
+            "Brutally efficient interior scorer (62.3% FG) who converts 65.8% of his 7.0 two-point attempts via physicality and positioning",
+            "NBA-ready body at 251 lbs with 7'3.5\" wingspan — the trench work (rebounding, screening, hustle) is immediately translatable",
+        ],
+        "weaknesses": [
+            "Limited perimeter shooting — projects as a non-shooter, reducing spacing utility in modern offensive systems",
+            "Offensive role is narrowly defined as a roll man and finisher; creation upside is ceiling-capping",
+        ],
+        "comp": "Jarrett Allen",
+        "grade": "B-",
+        "summary": "A defensive standout with elite physical tools and immediate NBA strength — the two-way impact is real, but a non-existent perimeter game caps his offensive ceiling.",
+    },
+    "Hannes Steinbach": {
+        "measurements": "6'10.25\" / 220 lbs / 7'2.25\" wingspan",
+        "stats": "18.5 PPG, 11.8 RPG, 1.6 APG, 1.2 BPG — Washington (57.7% FG, 34.0% 3PT, 30 GP)",
+        "strengths": [
+            "Led all of college basketball in rebounding at 11.8 per game (4.2 offensive, 7.6 defensive) — elite combination of positioning, effort, and hands",
+            "Mobile big who attacks downhill, finishes with physicality, and processes pick-and-roll actions at a high level",
+            "57.7% FG with developing perimeter range (34% from three) — blend of interior dominance and stretch upside",
+        ],
+        "weaknesses": [
+            "Perimeter shooting (34%) needs consistency to unlock full spacing value at the NBA level",
+            "At 220 lbs, frame will need NFL-style weight room investment to hold up against NBA interior physicality",
+        ],
+        "comp": "Brook Lopez",
+        "grade": "B-",
+        "summary": "The best rebounder in college basketball in 2025-26 — a skilled German big with elite hands, positioning, and a developing outside shot that could make him a key modern center.",
+    },
+    "Christian Anderson": {
+        "measurements": "6'2\" / 178 lbs",
+        "stats": "18.6 PPG, 7.5 APG, 3.6 RPG, 1.6 SPG — Texas Tech (55.8% 2PT, 41.5% 3PT, 80.5% FT, 244 assists — TTU single-season record)",
+        "strengths": [
+            "Elite floor general with a Texas Tech single-season record 244 assists — advanced pick-and-roll feel and multi-level reads",
+            "Pristine shooting splits (41.5% 3PT / 80.5% FT) with deep range and a confident pull-up game; legitimate gravity as a shooter",
+            "Competitive defensive instincts (1.6 SPG) and high basketball IQ — plays a pro-style game already",
+        ],
+        "weaknesses": [
+            "Average NBA athlete — lacks elite first-step burst and vertical pop to create separation against longer guards",
+            "Undersized at 6'2\" / 178 lbs with modest wingspan; defensive upside is limited against bigger backcourt players",
+        ],
+        "comp": "Tyus Jones / Mike Conley",
+        "grade": "B-",
+        "summary": "A historic playmaker and elite shooter whose feel for the game is years ahead of his age — pedestrian athleticism is the only thing keeping him from a higher grade.",
+    },
+    "Allen Graves": {
+        "measurements": "6'7.75\" / 225 lbs / 7'0\" wingspan / 8'10.5\" standing reach",
+        "stats": "11.6 PPG, 6.5 RPG, 1.8 APG, 1.9 SPG — Santa Clara (51.7% FG, 41.6% 3PT, 35 GP, 13.4 BPM)",
+        "strengths": [
+            "Elite shooting efficiency from three (41.6%) with a proven shot off the catch and on the move — immediate floor-spacing value",
+            "Versatile two-way forward with 1.9 SPG and instincts to impact play without the ball; screens, rebounds, and competes every possession",
+            "13.4 BPM is among the best in the class — outstanding overall impact metrics relative to competition level",
+        ],
+        "weaknesses": [
+            "WCC competition level is a legitimate concern — production against top-50 opponents was less dominant",
+            "Not a primary creator; scoring upside as a featured option at the NBA level is a question mark",
+        ],
+        "comp": "Draymond Green (better shooter)",
+        "grade": "C+",
+        "summary": "A mature, under-the-radar two-way forward from a mid-major with elite efficiency, elite three-point shooting, and strong defensive instincts — a legitimate steal candidate in the late first.",
+    },
+    "Bennett Stirtz": {
+        "measurements": "6'2.5\" / 186 lbs / 6'6\" wingspan / 8'2.5\" standing reach",
+        "stats": "19.8 PPG, 4.4 APG, 2.6 RPG, 1.4 SPG — Iowa (36.0% 3PT, 60.7% TS, 10.2 BPM, 37 GP)",
+        "strengths": [
+            "Exceptional feel for the game — operates the pick-and-roll at a high level and can score or distribute out of every action",
+            "Positional size and physicality for a lead guard at 6'4\" in shoes with 186 lbs; handles contact well and plays with IQ over athleticism",
+            "Versatile two-way contributor: scores off the ball as a floor-spacer, initiates as a lead guard, and applies defensive pressure (1.4 SPG)",
+        ],
+        "weaknesses": [
+            "Somewhat measured 6'6\" wingspan limits defensive ceiling vs. longer guards; wingspan-to-height ratio is modest",
+            "Not a lottery-level athlete — limited burst and vertical will require elite decision-making to compensate at the next level",
+        ],
+        "comp": "Tyus Jones / Jordan Nwora mold",
+        "grade": "C+",
+        "summary": "A polished, high-IQ lead guard whose feel and skill translate well to the NBA game — average athleticism limits upside but the floor is a reliable backup-starter with immediate playmaking value.",
+    },
+    "Chris Cenac Jr.": {
+        "measurements": "6'10.25\" / 240 lbs / 7'5\" wingspan / 9'0\" standing reach",
+        "stats": "9.5 PPG, 7.9 RPG, 0.5 BPG — Houston (48.5% FG, 33.3% 3PT, 37 GP, 24.8 MPG)",
+        "strengths": [
+            "Elite rebounder with a 7'5\" wingspan and strong motor — 7.9 RPG in under 25 minutes is elite per-minute production",
+            "Versatile stretch big concept with a developing mid-range game and 2.4 three-point attempts per game — spacing upside in a modern NBA system",
+            "Mobile for his size; finishes with authority at the rim and has enough touch to exploit mismatches in short-roll situations",
+        ],
+        "weaknesses": [
+            "Inconsistent motor — had games where he was outworked by bigger opponents despite superior physical tools",
+            "Frame and strength still developing at 240 lbs; can be overpowered by more established NBA centers in the post",
+        ],
+        "comp": "Mitchell Robinson",
+        "grade": "C+",
+        "summary": "A long-armed, mobile freshman big with elite rebounding instincts and stretch upside — motor consistency and frame development will determine whether he sticks as a rotation center.",
+    },
+    "Jayden Quaintance": {
+        "measurements": "6'10.5\" / 255 lbs / 7'3\"+ wingspan",
+        "stats": "8.8 PPG, 7.5 RPG, 2.4 BPG, 1.0 SPG — Kentucky (53.0% FG, 45.2% FT, 28 GP)",
+        "strengths": [
+            "Arguably the best interior defender in the entire draft — elite timing, instincts, and 7'3\"+ wingspan that alters everything within 8 feet of the basket",
+            "Physically ready body at 255 lbs with natural vertical athleticism and explosive lateral quickness unusual for his size",
+            "Combo of 2.4 BPG and 1.0 SPG at 6'10.5\" signals a generational defensive archetype — projects as a switchable anchor",
+        ],
+        "weaknesses": [
+            "45.2% FT shooting is a serious liability — can be hacked off the floor in late-game situations and limits offensive deployment",
+            "Recurring knee injuries (torn ACL/meniscus as a freshman, limited availability as a sophomore) — medical clearance is the top concern",
+        ],
+        "comp": "Jaren Jackson Jr.",
+        "grade": "C+",
+        "summary": "The draft's best interior defender and most physically imposing big when healthy — catastrophic free-throw shooting and injury history make him a high-risk, high-reward bet at pick 23.",
+    },
+    "Meleek Thomas": {
+        "measurements": "6'3\" / 189 lbs / 6'6.75\" wingspan",
+        "stats": "15.6 PPG, 3.8 RPG, 2.5 APG, 1.5 SPG — Arkansas (43.0% FG, 41.6% 3PT, 84.3% FT, 30.5 MPG)",
+        "strengths": [
+            "Elite shooter with a quick, high release — 41.6% from three on heavy SEC volume; one of the best movement shooters in the freshman class",
+            "Assertive, energy-forward scorer who plays with great competitive intensity and can generate offense off movement",
+            "Strong defensive instincts (1.5 SPG) and positive IQ — efficient, low-waste offensive profile with 43% FG",
+        ],
+        "weaknesses": [
+            "Thin 189 lb frame with modest wingspan — contact knocks him off his line around the rim, and NBA physicality will demand strength gains",
+            "Not an elite athlete; limited burst makes self-creation in isolation situations inconsistent at the next level",
+        ],
+        "comp": "Jordan Poole",
+        "grade": "C+",
+        "summary": "A proven SEC shooter with elite three-point accuracy and SEC-tested efficiency — physical limitations cap his defensive ceiling but the shooting translates immediately as a bench scoring punch.",
+    },
+    "Dailyn Swain": {
+        "measurements": "6'8\" / 225 lbs",
+        "stats": "17.3 PPG, 7.5 RPG, 3.6 APG, 1.6 SPG — Texas (63.6% TS, 34.4% 3PT, 10.5 BPM, 36 GP — led team in all five categories)",
+        "strengths": [
+            "Elite slasher at wing size — generated 10.5 rim attempts per 100 possessions (92nd percentile) with 64.5% finishing at the rim, almost all unassisted",
+            "Versatile two-way wing who led his team in scoring, rebounding, assists, steals, and minutes — rare multi-dimensional impact at 6'8\"",
+            "Strong defensive tools with length, positional size, and IQ to guard 1-through-4; SEC Newcomer of the Year recognition",
+        ],
+        "weaknesses": [
+            "Three-point shooting (34.4%) is a significant concern for a player who primarily operates from the perimeter — defenses will sag and take away drives if he doesn't improve",
+            "Turnover-prone as a playmaker; pass decisions need refinement before he can be trusted as a primary initiator in NBA half-court offense",
+        ],
+        "comp": "Josh Hart",
+        "grade": "C+",
+        "summary": "A relentless, physically imposing multi-tool wing who impacts every phase of the game — the lack of a reliable three-point shot is the one thing standing between him and top-20 value.",
+    },
+    "Luigi Suigo": {
+        "measurements": "7'2.75\" / 289 lbs / 7'5.5\" wingspan / 9'6\" standing reach",
+        "stats": "8.5 PPG, 5.3 RPG, 1.0 BPG — Mega Basket Serbia (56.0% FG, 30.0% 3PT, 18.1 MPG, 32 GP)",
+        "strengths": [
+            "Rare 7'3\" frame with a 7'5.5\" wingspan and 9'6\" standing reach — freakish size with developing touch gives him a uniquely high ceiling as a modern stretch center",
+            "Promising shooting mechanics for his size — confident pick-and-pop jumper and clean release with positive trajectory in 3PT attempts",
+            "Rim protection upside is elite at full development — shot alteration and space-eating presence comparable to Kristaps Porzingis archetype",
+        ],
+        "weaknesses": [
+            "Very raw — limited to 18 minutes/game in the Adriatic League as a teenager; still years away from reliable NBA rotation minutes",
+            "30% three-point shooting and modest per-game production at a young level underscore how much refinement remains ahead",
+        ],
+        "comp": "Kristaps Porzingis",
+        "grade": "C+",
+        "summary": "A 19-year-old Italian giant with Porzingis-level physical tools and the upside of a transcendent stretch center — an extreme raw talent play requiring significant patience.",
+    },
+    "Koa Peat": {
+        "measurements": "6'7\" / 245 lbs / 6'11.25\" wingspan / 8'8\" standing reach",
+        "stats": "14.1 PPG, 5.6 RPG, 2.6 APG — Arizona (55.7% TS, 8.8 BPM, 36 GP)",
+        "strengths": [
+            "Physically dominant at 245 lbs with explosive athleticism (37.5\" max vertical) — too quick for slower bigs, too strong for smaller defenders",
+            "Reliable mid-range pull-up and turnaround jumper; finishes through contact with authority and draws fouls at a high rate",
+            "High-motor forward who impacts the game with hustle, positioning, and competitive intensity on every possession",
+        ],
+        "weaknesses": [
+            "Three-point shooting is a critical concern — took only 20 attempts all season (35%) and went 6-of-25 in the NBA combine spot-up drill, among the worst combine shooting performances in recent history",
+            "Without a reliable perimeter game, NBA defenses can sag into the paint and limit his driving lanes — spacing limitations reduce his offensive ceiling significantly",
+        ],
+        "comp": "Zion Williamson (minus the elite scoring burst)",
+        "grade": "C+",
+        "summary": "A physically imposing, explosive forward with power and athleticism that projects well — the near-total absence of three-point shooting is a legitimate scheme concern that slid him to the back end of the first.",
+    },
+    "Isaiah Evans": {
+        "measurements": "6'6\" / 180 lbs / 6'10\" wingspan",
+        "stats": "15.0 PPG, 3.2 RPG, 1.3 APG, 0.7 BPG — Duke (43.3% FG, 36.1% 3PT, 59.0% TS, 9.8 BPM)",
+        "strengths": [
+            "Smooth, natural shooter with a quick, high release point over defenders — ranked top-5 in ACC with 2.7 threes per game made; excellent shooting versatility off movement and the catch",
+            "6'10\" wingspan gives him legitimate two-way wing projection — length to contest on defense and shoot over smaller guards on offense",
+            "ACC-proven scoring production at 15 PPG with elite efficiency markers — polished offensive skill set for a freshman",
+        ],
+        "weaknesses": [
+            "Only 180 lbs — will need significant strength development to avoid being bullied by physical NBA wings on the perimeter and in transition",
+            "Scoring impact wanes in stretches when the shot is off; limited secondary skills (creation, playmaking) to contribute when shooting is cold",
+        ],
+        "comp": "Cam Johnson",
+        "grade": "C+",
+        "summary": "A natural shooter with elite length and proven ACC production — frame development is the only thing preventing an immediate NBA scoring role as a 3-and-D wing.",
+    },
+    "Sergio de Larrea": {
+        "measurements": "6'6\" / 204 lbs / 6'9\" wingspan / 8'4.25\" standing reach",
+        "stats": "9.3 PPG, 3.6 APG — Valencia ACB (43.0% 3PT, 17 MPG); 5.4 PPG, 4.4 APG — 2025 EuroBasket (Spain NT)",
+        "strengths": [
+            "Elite perimeter shooter who connects at 43% from three in the ACB — one of the best shooters in this draft at 20 years old with NBA-ready mechanics",
+            "6'6\" with a 6'9\" wingspan and exceptional IQ — fits perfectly in modern positionless offenses as a shot-making playmaker who reads defenses early",
+            "EuroBasket-tested international pedigree and pick-and-roll feel — 4.4 APG for the Spanish national team signals legitimate vision and passing instincts",
+        ],
+        "weaknesses": [
+            "Below-average athlete — limited horizontal and vertical explosiveness makes separation off the dribble unreliable and creates significant defensive issues on and off the ball",
+            "Low usage role in Valencia (17 MPG) means durability and performance under heavy NBA minutes remains unproven",
+        ],
+        "comp": "Austin Reaves",
+        "grade": "C+",
+        "summary": "A polished 20-year-old Spanish shooter and playmaker with elite three-point marksmanship and real passing vision — pedestrian athleticism is the swing factor between solid role player and fringe rotation piece.",
+    },
+    "Henri Veesaar": {
+        "measurements": "6'11.25\" / 227 lbs / 7'2\" wingspan / 9'3\" standing reach",
+        "stats": "17.0 PPG, 8.7 RPG, 2.1 APG, 1.2 BPG — North Carolina (61.0% FG, 43.0% 3PT, 31.3 MPG)",
+        "strengths": [
+            "Elite interior-plus-perimeter combination — 61% FG and 43% from three is an exceptionally rare shooting profile for a 6'11\" center",
+            "Skilled post scorer with a reliable hook shot, soft touch, and ability to shoot over defenders at his height; also flashes passing instincts out of the mid-post",
+            "Fits the modern floor-spacing center template with size, rebounding (8.7 RPG), and shot-making that every front office is hunting",
+        ],
+        "weaknesses": [
+            "Limited athleticism and modest defensive metrics — block rate and mobility suggest he will be a drop-coverage specialist rather than a switchable anchor",
+            "227 lbs is a thin frame for a seven-footer; will need mass to hold position against elite NBA bigs",
+        ],
+        "comp": "Kelly Olynyk",
+        "grade": "C+",
+        "summary": "The draft's best shooting center at 43% from three with size, skill, and feel for the game — an Estonian big with an immediately translatable offensive skill set who profiles as a long-term starter.",
+    },
 }
 
 # ─── Parlay builder ───────────────────────────────────────────────────────────
@@ -4553,38 +4809,44 @@ if sport == "🏀 NBA":
         def _grade_color(g):
             return {"A": "#22c55e", "B+": "#86efac", "B": "#fbbf24", "B-": "#fb923c", "C+": "#f87171"}.get(g, "#9294a8")
 
-        # ── Top 14 lottery scouting report cards ──────────────────────────────
-        section("Lottery Scouting Reports — Top 14 Picks")
-        _lottery_picks = _NBA_MOCK_DRAFT[:14]
-        for _di in range(0, len(_lottery_picks), 2):
-            _dcols = st.columns(2)
-            for _dj, _dpick in enumerate(_lottery_picks[_di:_di+2]):
-                _scout = _NBA_DRAFT_SCOUTS.get(_dpick["player"], {})
-                if not _scout:
-                    continue
-                _gc = _grade_color(_scout.get("grade", "B"))
-                _strengths_html = "".join(
-                    f"<div class='draft-strength'>+ {s}</div>" for s in _scout["strengths"]
-                )
-                _weaknesses_html = "".join(
-                    f"<div class='draft-weakness'>- {w}</div>" for w in _scout["weaknesses"]
-                )
-                with _dcols[_dj]:
-                    st.markdown(
-                        f"<div class='draft-prospect-card'>"
-                        f"<div class='draft-grade' style='color:{_gc};'>{_scout['grade']}</div>"
-                        f"<div class='draft-pick-badge'>#{_dpick['pick']}</div>"
-                        f"<div class='draft-player-name'>{_dpick['player']}</div>"
-                        f"<div class='draft-player-meta'>"
-                        f"{_dpick['pos']} &nbsp;·&nbsp; {_dpick['school']} &nbsp;·&nbsp; {_dpick['team']}</div>"
-                        f"<div style='font-size:0.68rem;color:#818cf8;margin-bottom:0.5rem;'>"
-                        f"{_scout['measurements']} &nbsp;·&nbsp; {_scout['stats']}</div>"
-                        f"{_strengths_html}{_weaknesses_html}"
-                        f"<div class='draft-comp'><strong>NBA Comp:</strong> {_scout['comp']}</div>"
-                        f"<div class='draft-summary'>{_scout['summary']}</div>"
-                        f"</div>",
-                        unsafe_allow_html=True,
+        # ── All 30 scouting report cards ──────────────────────────────────────
+        def _render_scout_cards(picks_slice, section_label):
+            section(section_label)
+            for _di in range(0, len(picks_slice), 2):
+                _dcols = st.columns(2)
+                for _dj, _dpick in enumerate(picks_slice[_di:_di+2]):
+                    _scout = _NBA_DRAFT_SCOUTS.get(_dpick["player"], {})
+                    if not _scout:
+                        continue
+                    _gc = _grade_color(_scout.get("grade", "B"))
+                    _strengths_html = "".join(
+                        f"<div class='draft-strength'>+ {s}</div>" for s in _scout["strengths"]
                     )
+                    _weaknesses_html = "".join(
+                        f"<div class='draft-weakness'>- {w}</div>" for w in _scout["weaknesses"]
+                    )
+                    with _dcols[_dj]:
+                        st.markdown(
+                            f"<div class='draft-prospect-card'>"
+                            f"<div class='draft-grade' style='color:{_gc};'>{_scout['grade']}</div>"
+                            f"<div class='draft-pick-badge'>#{_dpick['pick']}</div>"
+                            f"<div class='draft-player-name'>{_dpick['player']}</div>"
+                            f"<div class='draft-player-meta'>"
+                            f"{_dpick['pos']} &nbsp;·&nbsp; {_dpick['school']} &nbsp;·&nbsp; {_dpick['team']}</div>"
+                            f"<div style='font-size:0.68rem;color:#818cf8;margin-bottom:0.5rem;'>"
+                            f"{_scout['measurements']} &nbsp;·&nbsp; {_scout['stats']}</div>"
+                            f"{_strengths_html}{_weaknesses_html}"
+                            f"<div class='draft-comp'><strong>NBA Comp:</strong> {_scout['comp']}</div>"
+                            f"<div class='draft-summary'>{_scout['summary']}</div>"
+                            f"</div>",
+                            unsafe_allow_html=True,
+                        )
+
+        _render_scout_cards(_NBA_MOCK_DRAFT[:14], "Lottery Scouting Reports — Picks 1–14")
+        st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
+        _render_scout_cards(_NBA_MOCK_DRAFT[14:20], "Mid-First Round — Picks 15–20")
+        st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
+        _render_scout_cards(_NBA_MOCK_DRAFT[20:], "Late First Round — Picks 21–30")
 
         # ── Full first-round board ─────────────────────────────────────────────
         st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
