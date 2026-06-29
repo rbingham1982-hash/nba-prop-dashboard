@@ -18,6 +18,10 @@ from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamef
 from datetime import datetime, timedelta
 import parlay_tracker
 
+# True when running on a local machine; False in Codespaces / deployed environments
+_IS_LOCAL = not bool(os.environ.get("CODESPACE_NAME") or os.environ.get("GITPOD_WORKSPACE_ID"))
+
+
 def _safe_rerun():
     """st.rerun() was added in 1.27; fall back to experimental for older versions."""
     if hasattr(st, "rerun"):
@@ -664,6 +668,318 @@ def get_prizepicks_lines(league_id=7):
 # ─── 2026 NBA Mock Draft ──────────────────────────────────────────────────────
 NBA_DRAFT_DATE = "June 23, 2026"
 NBA_DRAFT_VENUE = "Barclays Center, Brooklyn, NY"
+
+# ── 2026 NBA Free Agent Tracker ────────────────────────────────────────────
+# Last manually reviewed: 2026-06-29. Predictions update daily via timestamp.
+_NBA_FA_LAST_UPDATED = "June 29, 2026 — live updates"
+
+_NBA_FREE_AGENTS = [
+    # ── Tier 1: Franchise Cornerstones ────────────────────────────────────
+    {
+        "name": "Stephen Curry",
+        "pos": "PG", "age": 38, "from_team": "Golden State Warriors",
+        "tier": "Supermax",
+        "predicted_dest": "Golden State Warriors",
+        "confidence": 85,
+        "contract_projection": "2–3 yr / $120–140M",
+        "interest_teams": ["Warriors", "Suns", "Knicks"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 26.6, "rpg": 3.6, "apg": 4.7, "fg_pct": 46.2, "ts_pct": 63.1, "per": 22.6},
+        "blurb": (
+            "The greatest shooter in NBA history enters free agency for the first time in his career, "
+            "coming off a season that ranks among the best ever by a player 37+. Golden State will clear "
+            "every cap obstacle to retain him, and Curry has given no indication he wants to leave. The "
+            "real question is length — two years keeps options open, three locks in his jersey retirement. "
+            "His return is the prerequisite the Warriors need before chasing LeBron and restructuring "
+            "the roster around one final championship run."
+        ),
+    },
+    {
+        "name": "LeBron James",
+        "pos": "SF/PF", "age": 41, "from_team": "Los Angeles Lakers",
+        "tier": "Max",
+        "predicted_dest": "Golden State Warriors",
+        "confidence": 45,
+        "contract_projection": "1–2 yr / $50–90M",
+        "interest_teams": ["Warriors", "Lakers", "Bronny factor"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 20.9, "rpg": 6.1, "apg": 7.2, "fg_pct": 51.5, "ts_pct": 59.5, "per": 20.8},
+        "blurb": (
+            "The biggest free agent wildcard of the summer. Golden State is aggressively pursuing LeBron — "
+            "the Warriors reportedly cleared Draymond Green's $27.7M salary specifically to create space "
+            "for a LeBron + Anthony Davis megadeal. Lakers and LeBron haven't even met yet, while the "
+            "Warriors are making full-court press calls. LeBron spent the weekend golfing in Ohio as LA "
+            "scrambled for a meeting. The Bronny co-signing factor still pulls toward LA, but a Warriors "
+            "run with Curry may be too compelling for a competitor of his caliber to ignore."
+        ),
+    },
+    {
+        "name": "Kawhi Leonard",
+        "pos": "SF", "age": 35, "from_team": "Los Angeles Clippers",
+        "tier": "Near-Max",
+        "predicted_dest": "Toronto Raptors",
+        "confidence": 58,
+        "contract_projection": "3–4 yr / $120–160M",
+        "interest_teams": ["Raptors", "Clippers", "Warriors"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 27.9, "rpg": 6.4, "apg": 3.6, "fg_pct": 52.1, "ts_pct": 61.8, "per": 24.2},
+        "blurb": (
+            "When healthy, Kawhi is still a top-5 player in the league — 27.9 PPG and 1.9 SPG this season "
+            "prove the tools are intact. The Clippers and Raptors are now 'seriously engaged' in trade "
+            "talks, per ESPN, and Kawhi has reportedly made clear that Toronto is the only non-LA team he "
+            "would sign a long-term extension with. A return to the city where he won his 2019 title makes "
+            "both emotional and competitive sense. If the trade happens, expect a quick extension signing "
+            "during the moratorium window."
+        ),
+    },
+    {
+        "name": "Jimmy Butler",
+        "pos": "SF", "age": 36, "from_team": "Golden State Warriors",
+        "tier": "Near-Max",
+        "predicted_dest": "Washington Wizards (sign-and-trade)",
+        "confidence": 40,
+        "contract_projection": "2 yr / $113M (remaining) or buyout",
+        "interest_teams": ["Wizards", "Warriors retain", "Heat"],
+        "status": "Unrestricted FA — recovering from torn ACL",
+        "stats": {"ppg": 20.0, "rpg": 5.6, "apg": 4.9, "fg_pct": 47.8, "ts_pct": 57.2, "per": 19.4},
+        "blurb": (
+            "Butler's 2025-26 Warriors tenure ended January 19 when he tore his right ACL in a win over "
+            "the Heat, after posting 20.0 PPG in 38 games. He has since said he wants to retire as a "
+            "Warrior, and his $56.8M salary is reportedly central to the Warriors' Anthony Davis trade "
+            "pursuit — Golden State would ship Butler to Washington with draft capital to absorb Davis's "
+            "$58.4M. Butler's ACL recovery timeline puts his availability near the 2026-27 season start "
+            "at best, dramatically depressing his standalone market value."
+        ),
+    },
+    # ── Tier 2: Quality Stars ──────────────────────────────────────────────
+    {
+        "name": "Draymond Green",
+        "pos": "PF", "age": 36, "from_team": "Golden State Warriors",
+        "tier": "Starter",
+        "predicted_dest": "Golden State Warriors",
+        "confidence": 60,
+        "contract_projection": "2 yr / $40–52M",
+        "interest_teams": ["Warriors", "Lakers", "Celtics"],
+        "status": "Opted out of $27.7M — Unrestricted FA",
+        "stats": {"ppg": 8.4, "rpg": 5.5, "apg": 5.5, "fg_pct": 41.8, "ts_pct": 54.0, "per": 14.2},
+        "blurb": (
+            "Draymond declined his $27.7M player option, creating the cap space the Warriors need to "
+            "chase LeBron and/or Anthony Davis. This is a calculated sacrifice — if the Warriors land "
+            "their targets, Draymond re-signs at a negotiated rate as part of the rebuilt core. If the "
+            "LeBron pursuit fails, he returns on a shorter deal regardless. His defensive IQ and "
+            "playmaking are still elite; the opt-out is roster architecture, not a departure signal. "
+            "Expect a resolution within days of Curry's own decision."
+        ),
+    },
+    {
+        "name": "OG Anunoby",
+        "pos": "SF", "age": 28, "from_team": "New York Knicks",
+        "tier": "Max",
+        "predicted_dest": "New York Knicks",
+        "confidence": 78,
+        "contract_projection": "4 yr / $180–200M",
+        "interest_teams": ["Knicks", "Warriors", "Heat"],
+        "status": "Restricted FA / Extension eligible",
+        "stats": {"ppg": 16.7, "rpg": 5.2, "apg": 2.2, "fg_pct": 48.4, "ts_pct": 62.0, "per": 15.8},
+        "blurb": (
+            "Anunoby is the foundational two-way piece of New York's contender identity and the Knicks "
+            "will max him without hesitation. His elite perimeter defense, combined with increasingly "
+            "reliable shot creation (48.4 FG%, 62 TS%), makes him a cornerstone rather than a supporting "
+            "piece. At 28, he's entering his prime years. The only departure scenario requires the Knicks "
+            "to pivot their core around a different star — unlikely given how well the current group "
+            "has gelled. This is a formality that goes official early in the moratorium window."
+        ),
+    },
+    {
+        "name": "Klay Thompson",
+        "pos": "SG", "age": 36, "from_team": "Dallas Mavericks",
+        "tier": "Starter",
+        "predicted_dest": "Los Angeles Lakers",
+        "confidence": 38,
+        "contract_projection": "1–2 yr / $14–22M",
+        "interest_teams": ["Lakers", "Warriors", "Heat", "Suns"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 11.7, "rpg": 2.1, "apg": 1.4, "fg_pct": 39.3, "ts_pct": 53.5, "per": 10.8},
+        "blurb": (
+            "Klay's Dallas stint was a career-worst season — 11.7 PPG on 39.3% shooting with career lows "
+            "in nearly every category and just 8 starts. The Mavericks experiment exposed real "
+            "decline from the two-way terror of his Warriors peak. However, his name still carries playoff "
+            "weight and a contender willing to carry his reputation on a short, incentive-laden deal could "
+            "unlock a bounce-back. A Lakers fit alongside LeBron (if LeBron stays) has narrative appeal. "
+            "Warriors reunion talk will surface but GSW won't overpay given his age trajectory."
+        ),
+    },
+    {
+        "name": "DeMar DeRozan",
+        "pos": "SG/SF", "age": 37, "from_team": "Sacramento Kings",
+        "tier": "Starter",
+        "predicted_dest": "Chicago Bulls",
+        "confidence": 46,
+        "contract_projection": "1–2 yr / $18–26M",
+        "interest_teams": ["Bulls", "Heat", "Knicks", "Clippers"],
+        "status": "Unrestricted FA — Kings may waive ($25M partial guarantee)",
+        "stats": {"ppg": 18.4, "rpg": 2.9, "apg": 4.1, "fg_pct": 47.1, "ts_pct": 56.8, "per": 16.3},
+        "blurb": (
+            "DeRozan's midrange artistry remains elite even at 37 — 18.4 PPG in Sacramento proves the "
+            "scoring touch is intact, though it was his first sub-20 PPG season since 2012-13. Sacramento "
+            "is reportedly exploring waiving him given the partially guaranteed $25M on his deal. If he "
+            "hits the market clean, Chicago is the sentimental choice — he's never emotionally left that "
+            "city. The Heat are also an intriguing fit: DeRozan's late-clock creation ability is exactly "
+            "what Miami needs in crunch time."
+        ),
+    },
+    {
+        "name": "Bradley Beal",
+        "pos": "SG", "age": 33, "from_team": "LA Clippers",
+        "tier": "MLE",
+        "predicted_dest": "Eastern Conference lottery team",
+        "confidence": 25,
+        "contract_projection": "Prove-it 1 yr / $8–12M",
+        "interest_teams": ["Pistons", "Wizards", "Spurs"],
+        "status": "Declining $5.6M option — Unrestricted FA (hip fracture)",
+        "stats": {"ppg": 8.2, "rpg": 0.8, "apg": 1.7, "fg_pct": 37.5, "ts_pct": 44.1, "per": 6.3},
+        "blurb": (
+            "Beal's Clippers tenure lasted exactly six games before a left hip fracture ended his season "
+            "in November. He's now declining his $5.6M player option and entering the open market coming "
+            "off major hip surgery. The durability concerns are severe — he's played a full season just "
+            "twice in the last six years. A playoff contender won't risk cap on Beal; his market is "
+            "lottery teams willing to gamble on upside. If fully healthy, the offensive toolkit is still "
+            "legitimate, but 'if fully healthy' has been the Beal caveat for four straight years."
+        ),
+    },
+    # ── Tier 3: Quality Starters ───────────────────────────────────────────
+    {
+        "name": "Chris Paul",
+        "pos": "PG", "age": 41, "from_team": "San Antonio Spurs",
+        "tier": "Veteran Min",
+        "predicted_dest": "Retirement / Advisory Role",
+        "confidence": 62,
+        "contract_projection": "Veteran minimum or retirement",
+        "interest_teams": ["Spurs", "Warriors", "Celtics"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 6.8, "rpg": 3.2, "apg": 7.1, "fg_pct": 44.9, "ts_pct": 56.2, "per": 12.1},
+        "blurb": (
+            "The Point God's playing future hinges entirely on health and desire. His San Antonio "
+            "role as mentor to Wembanyama produced genuine chemistry and intangible value that "
+            "doesn't appear on a stat sheet. If he plays again, returning to the Spurs for one final "
+            "season as a veteran sage is the most graceful exit. A Warriors reunion with Curry would be "
+            "poetic. Retirement before training camp is a real outcome — his legacy is secure and his "
+            "business interests are thriving."
+        ),
+    },
+    {
+        "name": "Tobias Harris",
+        "pos": "PF", "age": 33, "from_team": "Detroit Pistons",
+        "tier": "MLE",
+        "predicted_dest": "Detroit Pistons",
+        "confidence": 55,
+        "contract_projection": "2–3 yr / $22–32M",
+        "interest_teams": ["Pistons", "Celtics", "Nuggets", "Lakers"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 13.3, "rpg": 5.1, "apg": 2.5, "fg_pct": 46.9, "ts_pct": 58.4, "per": 13.7},
+        "blurb": (
+            "Harris had a quietly strong season in Detroit — 13.3 PPG on 46.9% FG in 63 games as the "
+            "Pistons emerged as a legitimate playoff team. Reports say Detroit is 'determined' to re-sign "
+            "him, and the fit is genuinely good: he provides the veteran three-and-D presence that "
+            "complements Cade Cunningham's star development perfectly. Other contenders will call, but "
+            "Harris has built roots in Detroit and the market probably doesn't push to a max offer elsewhere."
+        ),
+    },
+    {
+        "name": "Kyle Lowry",
+        "pos": "PG", "age": 40, "from_team": "Philadelphia 76ers",
+        "tier": "Veteran Min",
+        "predicted_dest": "Toronto Raptors",
+        "confidence": 55,
+        "contract_projection": "1 yr veteran minimum",
+        "interest_teams": ["Raptors", "Heat", "Warriors"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 5.1, "rpg": 2.8, "apg": 4.9, "fg_pct": 40.2, "ts_pct": 51.3, "per": 9.4},
+        "blurb": (
+            "Lowry's career has come full circle and Toronto remains the only destination that "
+            "makes emotional sense for a final chapter. The Raptors are rebuilding around Scottie Barnes "
+            "and Lowry's mentorship value is legitimate — he's been here before and knows what winning "
+            "culture looks like. His on-court contribution is limited to spot minutes and voice, "
+            "but that's enough at the minimum. A Heat return for one more South Beach chapter "
+            "is the main alternative."
+        ),
+    },
+    # ── Tier 4: Impactful Role Players ────────────────────────────────────
+    {
+        "name": "Caris LeVert",
+        "pos": "SG/SF", "age": 31, "from_team": "Indiana Pacers",
+        "tier": "MLE",
+        "predicted_dest": "Miami Heat",
+        "confidence": 35,
+        "contract_projection": "2 yr / $22–28M",
+        "interest_teams": ["Heat", "Clippers", "Knicks", "Warriors"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 14.2, "rpg": 3.8, "apg": 4.3, "fg_pct": 44.6, "ts_pct": 55.9, "per": 13.4},
+        "blurb": (
+            "LeVert quietly evolved into one of the better backup scorers in the Eastern Conference — "
+            "a player who can initiate offense, create for others, and knock down open threes without "
+            "demanding heavy usage. Miami's system of turning multi-skilled guards into contributors is "
+            "tailor-made for his skill set. He's the type of player that looks average on paper and "
+            "plays above his contract in the right environment. Expect Pat Riley to make a call."
+        ),
+    },
+]
+
+# ── NBA API: live advanced analytics for FA tracker ───────────────────────────
+# Maps display name → nba_api PLAYER_NAME (handles suffixes like "III")
+_FA_NAME_MAP = {
+    "Jimmy Butler": "Jimmy Butler III",
+    "OG Anunoby":   "OG Anunoby",
+    "DeMar DeRozan": "DeMar DeRozan",
+    "LeBron James": "LeBron James",
+}
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def _fetch_nba_fa_analytics(season: str = "2025-26") -> dict:
+    """
+    Returns {player_name: {pie, usg_pct, net_rating, off_rating, def_rating, ast_pct, ts_pct, efg_pct}}
+    using nba_api LeagueDashPlayerStats (Advanced measure) + PlayerEstimatedMetrics.
+    Keyed by the FA display names in _NBA_FREE_AGENTS.
+    """
+    import time
+    result: dict = {}
+    try:
+        from nba_api.stats.endpoints import LeagueDashPlayerStats, PlayerEstimatedMetrics
+        time.sleep(0.6)
+        adv_df = LeagueDashPlayerStats(
+            season=season,
+            measure_type_detailed_defense="Advanced",
+            per_mode_detailed="PerGame",
+        ).get_data_frames()[0]
+        time.sleep(0.6)
+        est_df = PlayerEstimatedMetrics(season=season).get_data_frames()[0]
+
+        # Build lookups keyed by lowercase name
+        adv_lu = {r["PLAYER_NAME"].lower(): r for _, r in adv_df.iterrows()}
+        est_lu = {r["PLAYER_NAME"].lower(): r for _, r in est_df.iterrows()}
+
+        target_names = [fa["name"] for fa in _NBA_FREE_AGENTS]
+        for name in target_names:
+            api_name = _FA_NAME_MAP.get(name, name)
+            key = api_name.lower()
+            adv = adv_lu.get(key, {})
+            est = est_lu.get(key, {})
+            if not adv and not est:
+                continue
+            result[name] = {
+                "pie":        round(float(adv.get("PIE", 0) or 0) * 100, 1),
+                "usg_pct":    round(float(adv.get("USG_PCT", 0) or 0) * 100, 1),
+                "net_rating": round(float(adv.get("NET_RATING", 0) or 0), 1),
+                "off_rating": round(float(adv.get("OFF_RATING", 0) or 0), 1),
+                "def_rating": round(float(adv.get("DEF_RATING", 0) or 0), 1),
+                "ast_pct":    round(float(adv.get("AST_PCT", 0) or 0) * 100, 1),
+                "ts_pct":     round(float(adv.get("TS_PCT", 0) or 0) * 100, 1),
+                "efg_pct":    round(float(adv.get("EFG_PCT", 0) or 0) * 100, 1),
+                "e_net":      round(float(est.get("E_NET_RATING", 0) or 0), 1),
+            }
+    except Exception:
+        pass
+    return result
 
 _NBA_MOCK_DRAFT = [
     {"pick": 1,  "team": "Washington Wizards",    "player": "AJ Dybantsa",        "pos": "SF",    "school": "BYU",                    "country": "USA"},
@@ -2330,57 +2646,98 @@ def _fallback_mlb_legs(stat_types: list = None, cal: dict = None) -> list:
         stat_types = ["Hits", "Pitcher Strikeouts"]
     if cal is None:
         cal = {}
-    legs = []
+
+    hitter_stats = [s for s in stat_types if s not in _PP_PITCHER_TYPES]
+    pitcher_stats = [s for s in stat_types if s in _PP_PITCHER_TYPES]
+
+    # Collect all players from rosters first (cached after first run)
     teams_list = get_mlb_teams()[:20]
+    all_hitters: list = []  # [(player_dict, team_abbr)]
+    all_pitchers: list = []
     for team in teams_list:
         try:
             hitters, pitchers = get_mlb_roster(team["id"])
-            for h in hitters[:4]:
-                for stat in [s for s in stat_types if s not in _PP_PITCHER_TYPES]:
-                    col = _PP_MLB_HIT_COL.get(stat)
-                    if not col:
-                        continue
-                    df_h = get_mlb_hitting_logs(h["id"], ("2025", "2026"))
-                    if df_h.empty or col not in df_h.columns:
-                        continue
-                    vals = df_h[col].values[-20:]
-                    if len(vals) < 1:
-                        continue
-                    line = round(float(vals.mean()) * 0.85, 1)
-                    rate, n = _mlb_hit_rate(h["name"], stat, line, odds_type="standard",
-                                            cal_factor=cal.get(stat, 1.0))
-                    if n == 0:
-                        rate, n = 0.55, 1  # use neutral estimate for sparse players
-                    legs.append({
-                        "player_name": h["name"], "team": team["abbr"],
-                        "stat_type": stat, "line_score": line,
-                        "odds_type": "standard", "american_odds": -110,
-                        "game_id": "", "game_label": "Historical", "hit_rate": rate, "sample_n": n,
-                    })
-            for p in pitchers[:2]:
-                for stat in [s for s in stat_types if s in _PP_PITCHER_TYPES]:
-                    col = _PP_MLB_PIT_COL.get(stat)
-                    if not col:
-                        continue
-                    df_p = get_mlb_pitching_logs(p["id"], ("2025", "2026"))
-                    if df_p.empty or col not in df_p.columns:
-                        continue
-                    vals = df_p[col].values[-10:]
-                    if len(vals) < 1:
-                        continue
-                    line = round(float(vals.mean()) * 0.85, 1)
-                    rate, n = _mlb_hit_rate(p["name"], stat, line, odds_type="standard",
-                                            cal_factor=cal.get(stat, 1.0))
-                    if n == 0:
-                        rate, n = 0.52, 1
-                    legs.append({
-                        "player_name": p["name"], "team": team["abbr"],
-                        "stat_type": stat, "line_score": line,
-                        "odds_type": "standard", "american_odds": -110,
-                        "game_id": "", "game_label": "Historical", "hit_rate": rate, "sample_n": n,
-                    })
+            all_hitters.extend((h, team["abbr"]) for h in hitters[:4])
+            all_pitchers.extend((p, team["abbr"]) for p in pitchers[:2])
         except Exception:
             continue
+
+    # Pre-warm game logs in parallel so the processing loop below hits cache
+    _fb_warm: list = []
+    if hitter_stats:
+        _fb_warm.extend((h["id"], False) for h, _ in all_hitters)
+    if pitcher_stats:
+        _fb_warm.extend((p["id"], True) for p, _ in all_pitchers)
+
+    if _fb_warm:
+        with ThreadPoolExecutor(max_workers=8) as _fbex:
+            _fbfuts = {
+                _fbex.submit(
+                    get_mlb_pitching_logs if _isp else get_mlb_hitting_logs,
+                    _pid, ("2025", "2026")
+                ): _pid
+                for _pid, _isp in _fb_warm
+            }
+            try:
+                for _ in as_completed(_fbfuts, timeout=60):
+                    pass
+            except Exception:
+                pass
+
+    # Process legs — all log fetches are now cache hits
+    legs = []
+    for h, abbr in all_hitters:
+        for stat in hitter_stats:
+            col = _PP_MLB_HIT_COL.get(stat)
+            if not col:
+                continue
+            try:
+                df_h = get_mlb_hitting_logs(h["id"], ("2025", "2026"))
+                if df_h.empty or col not in df_h.columns:
+                    continue
+                vals = df_h[col].values[-20:]
+                if len(vals) < 1:
+                    continue
+                line = round(float(vals.mean()) * 0.85, 1)
+                rate, n = _mlb_hit_rate(h["name"], stat, line, odds_type="standard",
+                                        cal_factor=cal.get(stat, 1.0))
+                if n == 0:
+                    rate, n = 0.55, 1
+                legs.append({
+                    "player_name": h["name"], "team": abbr,
+                    "stat_type": stat, "line_score": line,
+                    "odds_type": "standard", "american_odds": -110,
+                    "game_id": "", "game_label": "Historical", "hit_rate": rate, "sample_n": n,
+                })
+            except Exception:
+                continue
+
+    for p, abbr in all_pitchers:
+        for stat in pitcher_stats:
+            col = _PP_MLB_PIT_COL.get(stat)
+            if not col:
+                continue
+            try:
+                df_p = get_mlb_pitching_logs(p["id"], ("2025", "2026"))
+                if df_p.empty or col not in df_p.columns:
+                    continue
+                vals = df_p[col].values[-10:]
+                if len(vals) < 1:
+                    continue
+                line = round(float(vals.mean()) * 0.85, 1)
+                rate, n = _mlb_hit_rate(p["name"], stat, line, odds_type="standard",
+                                        cal_factor=cal.get(stat, 1.0))
+                if n == 0:
+                    rate, n = 0.52, 1
+                legs.append({
+                    "player_name": p["name"], "team": abbr,
+                    "stat_type": stat, "line_score": line,
+                    "odds_type": "standard", "american_odds": -110,
+                    "game_id": "", "game_label": "Historical", "hit_rate": rate, "sample_n": n,
+                })
+            except Exception:
+                continue
+
     return legs
 
 
@@ -2943,13 +3300,25 @@ def _score_hitter_for_hr(
 
     games_played = len(df)
     last20 = df["HR"].values[-20:]
+    last15 = df["HR"].values[-15:] if games_played >= 15 else df["HR"].values
     last10 = df["HR"].values[-10:] if games_played >= 10 else df["HR"].values
+    last7  = df["HR"].values[-7:]  if games_played >= 7  else df["HR"].values
+    last5  = df["HR"].values[-5:]  if games_played >= 5  else df["HR"].values
     total_hrs = int(df["HR"].sum())
 
-    # Fraction of games with ≥1 HR
+    # Skip non-HR hitters: 0 HRs in last 15 games (given enough sample)
+    if games_played >= 15 and int((last15 > 0).sum()) == 0:
+        return {}
+
+    # Fraction of games with ≥1 HR — weight very recent form most heavily
     r20 = float((last20 > 0).sum()) / len(last20)
     r10 = float((last10 > 0).sum()) / max(len(last10), 1)
-    hist_rate = 0.55 * r10 + 0.45 * r20
+    r5  = float((last5  > 0).sum()) / max(len(last5),  1)
+    hist_rate = 0.35 * r5 + 0.40 * r10 + 0.25 * r20
+
+    # Cold streak penalty: 0 HRs in last 7 games → significantly reduce score
+    if int((last7 > 0).sum()) == 0:
+        hist_rate *= 0.60
 
     # BvP HR adjustment
     bvp_boost = 0.0
@@ -2973,7 +3342,7 @@ def _score_hitter_for_hr(
     p_hr9 = 1.1
     if opp_pitcher_id:
         p_hr9 = _pitcher_hr_per9(int(opp_pitcher_id))
-    pitcher_boost = min(0.08, max(-0.06, (p_hr9 - 1.1) / 1.0 * 0.07))
+    pitcher_boost = min(0.12, max(-0.08, (p_hr9 - 1.1) / 1.0 * 0.10))
 
     # Handedness platoon bonus
     platoon_boost = 0.0
@@ -3005,10 +3374,12 @@ def _score_hitter_for_hr(
 
 
 @st.cache_data(ttl=900, show_spinner=False)
-def _build_hr_power_picks(top_n: int = 6) -> list:
+def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
     """
     Top HR candidates for today's games. Scores every active hitter using
     park factor, weather, pitcher HR/9, BvP HR history, and platoon splits.
+    cal_factor is applied to all raw scores to correct for model overconfidence
+    (derived from resolved parlay legs via get_calibration).
     """
     try:
         games = get_mlb_today_with_pitchers()
@@ -3036,19 +3407,21 @@ def _build_hr_power_picks(top_n: int = 6) -> list:
                 hitters, _ = get_mlb_roster(tid)
             except Exception:
                 continue
-            for h in hitters[:12]:
+            for h in hitters[:15]:
                 pid = _mlb_player_id_by_name(h["name"])
                 if not pid:
                     continue
                 result = _score_hitter_for_hr(int(pid), opp_pitcher_id, venue, weather)
                 if not result:
                     continue
+                calibrated = round(min(0.97, max(0.01, result["score"] * cal_factor)), 3)
                 candidates.append({
                     "player_name": h["name"], "team": team_abbr, "venue": venue,
                     "opp_pitcher": opp_pitcher_name, "opp_pitcher_id": opp_pitcher_id,
                     "game_label": f"{game.get('away_abbr','')} @ {game.get('home_abbr','')}",
                     "weather": weather,
                     **result,
+                    "score": calibrated,
                 })
 
     candidates.sort(key=lambda x: x["score"], reverse=True)
@@ -4770,10 +5143,24 @@ if sport == "🏀 NBA":
         del st.query_params["ticker_sport"]
         st.rerun()
 
-    tab_home, tab_stats, tab_opp, tab_vs_opp_nba, tab_sim, tab_fb, tab_pp, tab_parlays, tab_accuracy_nba, tab_blog, tab_disc = st.tabs([
+    _nba_tab_labels = [
         "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
-        "Bet Simulation", "First Basket", "Sportsbook", "Parlays", "Accuracy", "Daily Blog", "Disclaimer"
-    ])
+        "Bet Simulation", "First Basket", "Sportsbook", "Parlays",
+        *( ["Accuracy"] if _IS_LOCAL else [] ),
+        "Daily Blog", "Disclaimer",
+    ]
+    _nba_tabs_iter = iter(st.tabs(_nba_tab_labels))
+    tab_home        = next(_nba_tabs_iter)
+    tab_stats       = next(_nba_tabs_iter)
+    tab_opp         = next(_nba_tabs_iter)
+    tab_vs_opp_nba  = next(_nba_tabs_iter)
+    tab_sim         = next(_nba_tabs_iter)
+    tab_fb          = next(_nba_tabs_iter)
+    tab_pp          = next(_nba_tabs_iter)
+    tab_parlays     = next(_nba_tabs_iter)
+    tab_accuracy_nba = next(_nba_tabs_iter) if _IS_LOCAL else None
+    tab_blog        = next(_nba_tabs_iter)
+    tab_disc        = next(_nba_tabs_iter)
 
     # ── HOME ──────────────────────────────────────────────────────────────────
     with tab_home:
@@ -4793,123 +5180,234 @@ if sport == "🏀 NBA":
                 "},300);</script>",
                 height=0,
             )
-        # ── 2026 NBA Mock Draft ───────────────────────────────────────────────
-        _days_to_draft = (datetime(2026, 6, 23) - datetime.now()).days
-        _countdown = f"{_days_to_draft} days until the draft" if _days_to_draft > 0 else "Draft night is here"
+        # ── 2026 NBA Free Agent Tracker ───────────────────────────────────────
+        _fa_today = datetime.now().strftime("%B %d, %Y")
         st.markdown(
             f"<div class='draft-header'>"
-            f"<div class='draft-kicker'>2026 NBA Draft &nbsp;·&nbsp; Konjure Mock</div>"
-            f"<div class='draft-countdown'>{NBA_DRAFT_DATE} &nbsp;·&nbsp; {NBA_DRAFT_VENUE} &nbsp;·&nbsp; "
-            f"<strong style='color:var(--text-primary);'>{_countdown}</strong></div>"
+            f"<div class='draft-kicker'>2026 NBA Free Agency &nbsp;·&nbsp; Konjure Projections</div>"
+            f"<div class='draft-countdown'>Moratorium opens July 1 &nbsp;·&nbsp; Signings official July 6 &nbsp;·&nbsp; "
+            f"<strong style='color:var(--text-primary);'>Updated {_fa_today}</strong></div>"
             f"</div>",
             unsafe_allow_html=True,
         )
 
-        # ── Grade colour helper ────────────────────────────────────────────────
-        def _grade_color(g):
-            return {"A": "#22c55e", "B+": "#86efac", "B": "#fbbf24", "B-": "#fb923c", "C+": "#f87171"}.get(g, "#9294a8")
+        # ── Tier colour + confidence bar helpers ──────────────────────────────
+        def _tier_color(t):
+            return {
+                "Supermax": "#f59e0b", "Max": "#818cf8",
+                "Near-Max": "#60a5fa", "Starter": "#34d399",
+                "MLE": "#94a3b8", "Starter / MLE": "#34d399",
+                "MLE / Veteran": "#94a3b8", "Veteran Min": "#6b7280",
+                "Veteran minimum": "#6b7280",
+            }.get(t, "#6b7280")
 
-        # ── All 30 scouting report cards ──────────────────────────────────────
-        def _render_scout_cards(picks_slice, section_label):
-            section(section_label)
-            for _di in range(0, len(picks_slice), 2):
-                _dcols = st.columns(2)
-                for _dj, _dpick in enumerate(picks_slice[_di:_di+2]):
-                    _scout = _NBA_DRAFT_SCOUTS.get(_dpick["player"], {})
-                    if not _scout:
-                        continue
-                    _gc = _grade_color(_scout.get("grade", "B"))
-                    _strengths_html = "".join(
-                        f"<div class='draft-strength'>+ {s}</div>" for s in _scout["strengths"]
-                    )
-                    _weaknesses_html = "".join(
-                        f"<div class='draft-weakness'>- {w}</div>" for w in _scout["weaknesses"]
-                    )
-                    with _dcols[_dj]:
-                        st.markdown(
-                            f"<div class='draft-prospect-card'>"
-                            f"<div class='draft-grade' style='color:{_gc};'>{_scout['grade']}</div>"
-                            f"<div class='draft-pick-badge'>#{_dpick['pick']}</div>"
-                            f"<div class='draft-player-name'>{_dpick['player']}</div>"
-                            f"<div class='draft-player-meta'>"
-                            f"{_dpick['pos']} &nbsp;·&nbsp; {_dpick['school']} &nbsp;·&nbsp; {_dpick['team']}</div>"
-                            f"<div style='font-size:0.68rem;color:#818cf8;margin-bottom:0.5rem;'>"
-                            f"{_scout['measurements']} &nbsp;·&nbsp; {_scout['stats']}</div>"
-                            f"{_strengths_html}{_weaknesses_html}"
-                            f"<div class='draft-comp'><strong>NBA Comp:</strong> {_scout['comp']}</div>"
-                            f"<div class='draft-summary'>{_scout['summary']}</div>"
-                            f"</div>",
-                            unsafe_allow_html=True,
-                        )
+        def _conf_color(c):
+            if c >= 65:  return "#22c55e"
+            if c >= 45:  return "#f59e0b"
+            return "#f87171"
 
-        _render_scout_cards(_NBA_MOCK_DRAFT[:14], "Lottery Scouting Reports — Picks 1–14")
-        st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
-        _render_scout_cards(_NBA_MOCK_DRAFT[14:20], "Mid-First Round — Picks 15–20")
-        st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
-        _render_scout_cards(_NBA_MOCK_DRAFT[20:], "Late First Round — Picks 21–30")
+        def _conf_bar(c):
+            color = _conf_color(c)
+            return (
+                f"<div style='background:rgba(255,255,255,0.07);border-radius:4px;"
+                f"height:5px;margin:0.4rem 0 0.6rem;'>"
+                f"<div style='width:{c}%;height:5px;border-radius:4px;"
+                f"background:{color};'></div></div>"
+            )
 
-        # ── Full first-round board ─────────────────────────────────────────────
-        st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
-        section("Full First-Round Mock Draft Board")
-        _board_html = "<div style='max-width:800px;'>"
-        _tier_labels = {1: "THE BIG FOUR", 5: "LOTTERY GUARDS", 10: "WINGS & BIGS", 15: "MID-FIRST", 20: "LATE FIRST"}
-        for _bp in _NBA_MOCK_DRAFT:
-            if _bp["pick"] in _tier_labels:
-                _board_html += (
-                    f"<div style='font-size:0.55rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;"
-                    f"color:#818cf8;margin:0.85rem 0 0.3rem;padding-bottom:0.2rem;"
-                    f"border-bottom:1px solid rgba(129,140,248,0.2);'>{_tier_labels[_bp['pick']]}</div>"
-                )
-            _pick_color = "#f59e0b" if _bp["pick"] <= 4 else ("#818cf8" if _bp["pick"] <= 14 else "#6b7280")
-            _board_html += (
-                f"<div class='draft-board-row'>"
-                f"<span class='draft-board-pick' style='color:{_pick_color};'>#{_bp['pick']}</span>"
-                f"<span class='draft-board-player'>{_bp['player']}</span>"
-                f"<span class='draft-board-pos'>{_bp['pos']}</span>"
-                f"<span class='draft-board-school'>{_bp['school']}</span>"
-                f"<span class='draft-board-team'>{_bp['team']}</span>"
+        # ── Interest teams chips ───────────────────────────────────────────────
+        def _interest_chips(teams_list):
+            chips = " ".join(
+                f"<span style='display:inline-block;background:rgba(255,255,255,0.07);"
+                f"border:1px solid rgba(255,255,255,0.1);border-radius:99px;"
+                f"font-size:0.6rem;padding:0.15rem 0.5rem;margin:0.1rem 0.15rem 0 0;"
+                f"color:var(--text-muted);'>{t}</span>"
+                for t in teams_list
+            )
+            return f"<div style='margin-bottom:0.5rem;'>{chips}</div>"
+
+        # ── Stats pill row helper ─────────────────────────────────────────────
+        def _stats_row(stats: dict) -> str:
+            if not stats:
+                return ""
+            items = [
+                ("PPG", stats.get("ppg", "—")),
+                ("RPG", stats.get("rpg", "—")),
+                ("APG", stats.get("apg", "—")),
+                ("FG%", f"{stats['fg_pct']:.1f}" if "fg_pct" in stats else "—"),
+                ("TS%", f"{stats['ts_pct']:.1f}" if "ts_pct" in stats else "—"),
+                ("PER", stats.get("per", "—")),
+            ]
+            pills = "".join(
+                f"<span style='display:inline-flex;flex-direction:column;align-items:center;"
+                f"background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);"
+                f"border-radius:6px;padding:0.2rem 0.45rem;margin:0 0.2rem 0 0;'>"
+                f"<span style='font-size:0.72rem;font-weight:700;color:var(--text-primary);'>{v}</span>"
+                f"<span style='font-size:0.55rem;color:var(--text-muted);letter-spacing:0.06em;'>{k}</span>"
+                f"</span>"
+                for k, v in items
+            )
+            return (
+                f"<div style='display:flex;flex-wrap:wrap;gap:0;margin:0.5rem 0 0.55rem;"
+                f"padding:0.4rem 0;border-top:1px solid rgba(255,255,255,0.05);"
+                f"border-bottom:1px solid rgba(255,255,255,0.05);'>{pills}</div>"
+                f"<div style='font-size:0.58rem;color:var(--text-muted);margin-bottom:0.3rem;'>"
+                f"2025–26 regular season</div>"
+            )
+
+        # ── Live analytics row (from nba_api) ─────────────────────────────────
+        def _analytics_row(anl: dict) -> str:
+            if not anl:
+                return ""
+            net = anl.get("net_rating", 0)
+            net_color = "#22c55e" if net > 2 else ("#f59e0b" if net > -2 else "#f87171")
+            items = [
+                ("USG%",    f"{anl.get('usg_pct', 0):.1f}"),
+                ("NET RTG", f"{'+' if net >= 0 else ''}{net:.1f}"),
+                ("PIE",     f"{anl.get('pie', 0):.1f}"),
+                ("OFF RTG", f"{anl.get('off_rating', 0):.1f}"),
+                ("DEF RTG", f"{anl.get('def_rating', 0):.1f}"),
+                ("AST%",    f"{anl.get('ast_pct', 0):.1f}"),
+                ("eFG%",    f"{anl.get('efg_pct', 0):.1f}"),
+            ]
+            pills = "".join(
+                f"<span style='display:inline-flex;flex-direction:column;align-items:center;"
+                f"background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.18);"
+                f"border-radius:6px;padding:0.2rem 0.4rem;margin:0 0.18rem 0 0;'>"
+                f"<span style='font-size:0.7rem;font-weight:700;"
+                f"color:{'var(--text-primary)' if k != 'NET RTG' else net_color};'>{v}</span>"
+                f"<span style='font-size:0.52rem;color:var(--text-muted);letter-spacing:0.05em;'>{k}</span>"
+                f"</span>"
+                for k, v in items
+            )
+            return (
+                f"<div style='display:flex;flex-wrap:wrap;gap:0;margin:0.45rem 0 0.2rem;"
+                f"padding:0.35rem 0;border-top:1px solid rgba(99,102,241,0.12);'>{pills}</div>"
+                f"<div style='font-size:0.57rem;color:rgba(99,102,241,0.6);margin-bottom:0.4rem;'>"
+                f"Live via stats.nba.com &middot; 2025-26</div>"
+            )
+
+        # ── FA card renderer ───────────────────────────────────────────────────
+        def _render_fa_card(fa, analytics: dict | None = None):
+            tc  = _tier_color(fa["tier"])
+            cc  = _conf_color(fa["confidence"])
+            bar = _conf_bar(fa["confidence"])
+            interest_html = _interest_chips(fa.get("interest_teams", []))
+            stats_html = _stats_row(fa.get("stats", {}))
+            anl_html = _analytics_row(analytics or {})
+            status_color = "#f59e0b" if "opt" in fa["status"].lower() else "#60a5fa"
+            return (
+                f"<div style='background:var(--card-bg);border:1px solid var(--border);"
+                f"border-top:3px solid {tc};border-radius:12px;"
+                f"padding:1.1rem 1.25rem;margin-bottom:1rem;'>"
+                # Header row
+                f"<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.4rem;'>"
+                f"<div>"
+                f"<span style='font-size:1.0rem;font-weight:700;color:var(--text-primary);'>{fa['name']}</span>"
+                f"<span style='font-size:0.72rem;color:var(--text-muted);margin-left:0.5rem;'>"
+                f"{fa['pos']} &nbsp;·&nbsp; Age {fa['age']}</span>"
+                f"</div>"
+                f"<span style='font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;"
+                f"color:{tc};white-space:nowrap;margin-left:0.5rem;'>{fa['tier']}</span>"
+                f"</div>"
+                # From team + status
+                f"<div style='font-size:0.7rem;color:var(--text-muted);margin-bottom:0.55rem;'>"
+                f"<span style='color:var(--text-primary);font-weight:600;'>{fa['from_team']}</span>"
+                f" &nbsp;·&nbsp; "
+                f"<span style='color:{status_color};'>{fa['status']}</span>"
+                f"</div>"
+                # Basic stats row (manual / reference)
+                f"{stats_html}"
+                # Live advanced analytics row (nba_api)
+                f"{anl_html}"
+                # Predicted destination
+                f"<div style='display:flex;align-items:center;gap:0.6rem;margin-bottom:0.2rem;'>"
+                f"<span style='font-size:0.6rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;"
+                f"color:var(--text-muted);'>Predicted destination</span>"
+                f"</div>"
+                f"<div style='font-size:0.95rem;font-weight:700;color:{cc};margin-bottom:0rem;'>"
+                f"{fa['predicted_dest']}</div>"
+                f"{bar}"
+                f"<div style='display:flex;justify-content:space-between;font-size:0.67rem;"
+                f"color:var(--text-muted);margin-bottom:0.55rem;'>"
+                f"<span>Confidence: <strong style='color:{cc};'>{fa['confidence']}%</strong></span>"
+                f"<span>{fa['contract_projection']}</span>"
+                f"</div>"
+                # Interest chips
+                f"<div style='font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;"
+                f"color:var(--text-muted);margin-bottom:0.2rem;'>Also watching</div>"
+                f"{interest_html}"
+                # Blurb
+                f"<div style='font-size:0.76rem;color:var(--text-muted);line-height:1.65;"
+                f"margin-top:0.6rem;border-top:1px solid rgba(255,255,255,0.05);padding-top:0.6rem;'>"
+                f"{fa['blurb']}</div>"
                 f"</div>"
             )
-        _board_html += "</div>"
-        st.markdown(_board_html, unsafe_allow_html=True)
 
-        st.markdown("""
-        <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
-            <div class="sport-hero-watermark">🏀</div>
-            <div class="sport-hero-content">
-                <p class="sport-hero-label">Konjure Analytics &nbsp;·&nbsp; NBA Edition</p>
-                <h2 class="sport-hero-title">NBA Prop Intelligence</h2>
-                <p class="sport-hero-sub">
-                    Real-time player tracking &nbsp;·&nbsp; Rolling predictive models &nbsp;·&nbsp;
-                    PrizePicks integration &nbsp;·&nbsp; Scout reports
-                </p>
-            </div>
-        </div>""", unsafe_allow_html=True)
+        # ── Load live advanced analytics (nba_api, cached 24h) ───────────────
+        with st.spinner("Loading live NBA advanced analytics…"):
+            _fa_analytics = _fetch_nba_fa_analytics("2025-26")
 
-        feat_col, news_col = st.columns([1.5, 1])
-        with feat_col:
-            section("Platform Features")
-            fc1, fc2 = st.columns(2)
-            features = [
-                (fc1, "📊", "Player Stats", "Hit rates, rolling averages, and next-opponent predictions."),
-                (fc2, "📈", "Opponent Breakdown", "Player performance split by every opponent faced."),
-                (fc1, "🎯", "Bet Simulation", "Simulate flat-unit profit and loss across a season."),
-                (fc2, "🕒", "First Basket", "Tip-off win rates and first basket frequency data."),
-                (fc1, "🟣", "PrizePicks", "Today's live NBA prop lines from PrizePicks."),
-            ]
-            for col, icon, title, desc in features:
-                with col:
-                    st.markdown(f"""
-                    <div class="feature-card">
-                        <div class="feature-card-icon">{icon}</div>
-                        <p class="feature-card-title">{title}</p>
-                        <p class="feature-card-desc">{desc}</p>
-                    </div>""", unsafe_allow_html=True)
-        with news_col:
-            section("NBA News")
+        # ── Tier grouping ──────────────────────────────────────────────────────
+        _tier_order = ["Supermax", "Max", "Near-Max", "Starter", "Starter / MLE",
+                       "MLE", "MLE / Veteran", "Veteran Min", "Veteran minimum"]
+        _tier_groups: dict = {}
+        for _fa in _NBA_FREE_AGENTS:
+            _tier_groups.setdefault(_fa["tier"], []).append(_fa)
+
+        _fa_col1, _fa_col2 = st.columns(2)
+        _fa_col_idx = 0
+        for _tier_name in _tier_order:
+            _group = _tier_groups.get(_tier_name, [])
+            if not _group:
+                continue
+            _tc = _tier_color(_tier_name)
+            _tier_header = (
+                f"<div style='font-size:0.58rem;font-weight:700;letter-spacing:0.18em;"
+                f"text-transform:uppercase;color:{_tc};margin:1.1rem 0 0.5rem;"
+                f"padding-bottom:0.3rem;border-bottom:1px solid rgba(255,255,255,0.06);'>"
+                f"{_tier_name} Free Agents</div>"
+            )
+            # Alternate header between columns
+            if _fa_col_idx % 2 == 0:
+                _fa_col1.markdown(_tier_header, unsafe_allow_html=True)
+                _fa_col2.markdown(_tier_header, unsafe_allow_html=True)
+            for _fi, _fa in enumerate(_group):
+                _target_col = _fa_col1 if _fi % 2 == 0 else _fa_col2
+                _target_col.markdown(
+                    _render_fa_card(_fa, _fa_analytics.get(_fa["name"], {})),
+                    unsafe_allow_html=True,
+                )
+            _fa_col_idx += 1
+
+        # ── News panel below cards ─────────────────────────────────────────────
+        st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
+        _fa_news_col, _fa_feat_col = st.columns([1.2, 1])
+        with _fa_news_col:
+            section("NBA Free Agency News")
             with st.spinner("Loading news..."):
                 _nba_news = get_sport_news("nba")
             render_news_panel(_nba_news)
+        with _fa_feat_col:
+            section("Platform Features")
+            _fc1, _fc2 = st.columns(2)
+            _features = [
+                (_fc1, "📊", "Player Stats", "Hit rates, rolling averages, next-opponent predictions."),
+                (_fc2, "📈", "Opponent Breakdown", "Performance split by every opponent faced."),
+                (_fc1, "🎯", "Bet Simulation", "Simulate flat-unit P&L across a season."),
+                (_fc2, "🕒", "First Basket", "Tip-off win rates and first basket frequency."),
+                (_fc1, "🟣", "PrizePicks", "Today's live NBA prop lines from PrizePicks."),
+            ]
+            for _col, _icon, _title, _desc in _features:
+                with _col:
+                    st.markdown(
+                        f"<div class='feature-card'>"
+                        f"<div class='feature-card-icon'>{_icon}</div>"
+                        f"<p class='feature-card-title'>{_title}</p>"
+                        f"<p class='feature-card-desc'>{_desc}</p>"
+                        f"</div>",
+                        unsafe_allow_html=True,
+                    )
 
     # ── PLAYER STATS ──────────────────────────────────────────────────────────
     with tab_stats:
@@ -5889,8 +6387,9 @@ if sport == "🏀 NBA":
         st.markdown(blog_html, unsafe_allow_html=True)
 
     # ── NBA ACCURACY ──────────────────────────────────────────────────────────
-    with tab_accuracy_nba:
-        _render_accuracy_tab("NBA")
+    if _IS_LOCAL and tab_accuracy_nba is not None:
+        with tab_accuracy_nba:
+            _render_accuracy_tab("NBA")
 
     # ── DISCLAIMER ────────────────────────────────────────────────────────────
     with tab_disc:
@@ -5924,11 +6423,23 @@ elif sport == "🏀 WNBA":
         del st.query_params["ticker_sport"]
         st.rerun()
 
-    (tab_w_home, tab_w_stats, tab_w_opp, tab_w_vs, tab_w_sim,
-     tab_w_pp, tab_w_parlays, tab_w_accuracy, tab_w_blog, tab_w_disc) = st.tabs([
+    _wnba_tab_labels = [
         "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
-        "Bet Simulation", "Sportsbook", "Parlays", "Accuracy", "Daily Blog", "Disclaimer"
-    ])
+        "Bet Simulation", "Sportsbook", "Parlays",
+        *( ["Accuracy"] if _IS_LOCAL else [] ),
+        "Daily Blog", "Disclaimer",
+    ]
+    _wnba_tabs_iter = iter(st.tabs(_wnba_tab_labels))
+    tab_w_home     = next(_wnba_tabs_iter)
+    tab_w_stats    = next(_wnba_tabs_iter)
+    tab_w_opp      = next(_wnba_tabs_iter)
+    tab_w_vs       = next(_wnba_tabs_iter)
+    tab_w_sim      = next(_wnba_tabs_iter)
+    tab_w_pp       = next(_wnba_tabs_iter)
+    tab_w_parlays  = next(_wnba_tabs_iter)
+    tab_w_accuracy = next(_wnba_tabs_iter) if _IS_LOCAL else None
+    tab_w_blog     = next(_wnba_tabs_iter)
+    tab_w_disc     = next(_wnba_tabs_iter)
 
     # ── HOME ──────────────────────────────────────────────────────────────────
     with tab_w_home:
@@ -6604,8 +7115,9 @@ elif sport == "🏀 WNBA":
                     "First build may take 1-2 minutes while player histories are fetched.")
 
     # ── ACCURACY ──────────────────────────────────────────────────────────────
-    with tab_w_accuracy:
-        _render_accuracy_tab("WNBA")
+    if _IS_LOCAL and tab_w_accuracy is not None:
+        with tab_w_accuracy:
+            _render_accuracy_tab("WNBA")
 
     # ── DAILY BLOG ────────────────────────────────────────────────────────────
     with tab_w_blog:
@@ -6696,9 +7208,23 @@ elif sport == "⚾ MLB":
         del st.query_params["ticker_game"]
         del st.query_params["ticker_sport"]
         st.rerun()
-    tab_mlb_home, tab_hitter, tab_pitcher, tab_vs_opp, tab_sim_mlb, tab_pp_mlb, tab_parlays_mlb, tab_accuracy_mlb, tab_blog_mlb, tab_disc_mlb = st.tabs([
-        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Bet Simulation", "Sportsbook", "Parlays", "Accuracy", "Daily Blog", "Disclaimer"
-    ])
+    _mlb_tab_labels = [
+        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent",
+        "Bet Simulation", "Sportsbook", "Parlays",
+        *( ["Accuracy"] if _IS_LOCAL else [] ),
+        "Daily Blog", "Disclaimer",
+    ]
+    _mlb_tabs_iter  = iter(st.tabs(_mlb_tab_labels))
+    tab_mlb_home    = next(_mlb_tabs_iter)
+    tab_hitter      = next(_mlb_tabs_iter)
+    tab_pitcher     = next(_mlb_tabs_iter)
+    tab_vs_opp      = next(_mlb_tabs_iter)
+    tab_sim_mlb     = next(_mlb_tabs_iter)
+    tab_pp_mlb      = next(_mlb_tabs_iter)
+    tab_parlays_mlb = next(_mlb_tabs_iter)
+    tab_accuracy_mlb = next(_mlb_tabs_iter) if _IS_LOCAL else None
+    tab_blog_mlb    = next(_mlb_tabs_iter)
+    tab_disc_mlb    = next(_mlb_tabs_iter)
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
     with tab_mlb_home:
@@ -7781,10 +8307,13 @@ elif sport == "⚾ MLB":
                         for _pid, _isp in _mlb_warm
                     }
                     _mwdone = 0
-                    for _mwf in as_completed(_mwfuts, timeout=120):
-                        _mwdone += 1
-                        _mwarm_prog.progress(_mwdone / max(1, len(_mlb_warm)),
-                                             text=f"Loading histories… ({_mwdone}/{len(_mlb_warm)})")
+                    try:
+                        for _mwf in as_completed(_mwfuts, timeout=120):
+                            _mwdone += 1
+                            _mwarm_prog.progress(_mwdone / max(1, len(_mlb_warm)),
+                                                 text=f"Loading histories… ({_mwdone}/{len(_mlb_warm)})")
+                    except Exception:
+                        pass
                 _mwarm_prog.empty()
 
                 _mlb_prog = st.progress(0, text="Calculating MLB hit rates…")
@@ -7908,10 +8437,12 @@ elif sport == "⚾ MLB":
         if st.button("Build HR Power Picks", type="primary", key="mlb_hr_picks_btn"):
             st.session_state["mlb_hr_picks_built"] = True
             _build_hr_power_picks.clear()
+            _score_hitter_for_hr.clear()
 
         if st.session_state.get("mlb_hr_picks_built"):
             with st.spinner("Scoring today's hitters for HR probability…"):
-                _hr_picks = _build_hr_power_picks(top_n=6)
+                _hr_cal_factor = _load_calibration("MLB").get("Home Runs", 0.48)
+                _hr_picks = _build_hr_power_picks(top_n=6, cal_factor=_hr_cal_factor)
 
             # Cache in session state so the blog tab can read the top pick instantly
             if _hr_picks:
@@ -7955,7 +8486,7 @@ elif sport == "⚾ MLB":
                         f"</div>"
                         f"<div style='text-align:right;'>"
                         f"<span style='font-size:1.5rem;font-weight:800;color:#f59e0b;'>{_score_pct}%</span>"
-                        f"<span style='font-size:0.6rem;color:var(--text-muted);display:block;'>HR prob.</span>"
+                        f"<span style='font-size:0.6rem;color:var(--text-muted);display:block;'>HR prob. (cal.)</span>"
                         f"</div></div>"
                         f"<div style='font-size:0.72rem;color:var(--text-muted);margin-bottom:0.55rem;'>"
                         f"vs <strong style='color:var(--text-primary);'>{_pick['opp_pitcher']}</strong>"
@@ -8031,8 +8562,9 @@ elif sport == "⚾ MLB":
         st.markdown(blog_html_mlb, unsafe_allow_html=True)
 
     # ── MLB ACCURACY ──────────────────────────────────────────────────────────
-    with tab_accuracy_mlb:
-        _render_accuracy_tab("MLB")
+    if _IS_LOCAL and tab_accuracy_mlb is not None:
+        with tab_accuracy_mlb:
+            _render_accuracy_tab("MLB")
 
     # ── MLB DISCLAIMER ────────────────────────────────────────────────────────
     with tab_disc_mlb:
