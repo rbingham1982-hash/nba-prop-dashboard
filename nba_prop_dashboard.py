@@ -962,20 +962,25 @@ def _fetch_nba_fa_analytics(season: str = "2025-26") -> dict:
         for name in target_names:
             api_name = _FA_NAME_MAP.get(name, name)
             key = api_name.lower()
-            adv = adv_lu.get(key, {})
-            est = est_lu.get(key, {})
-            if not adv and not est:
+            adv = adv_lu.get(key)   # None if not found (avoid Series bool ambiguity)
+            est = est_lu.get(key)
+            if adv is None and est is None:
                 continue
+            def _s(series, field, scale=1):
+                if series is None:
+                    return 0.0
+                v = series.get(field, 0)
+                return round(float(v or 0) * scale, 1)
             result[name] = {
-                "pie":        round(float(adv.get("PIE", 0) or 0) * 100, 1),
-                "usg_pct":    round(float(adv.get("USG_PCT", 0) or 0) * 100, 1),
-                "net_rating": round(float(adv.get("NET_RATING", 0) or 0), 1),
-                "off_rating": round(float(adv.get("OFF_RATING", 0) or 0), 1),
-                "def_rating": round(float(adv.get("DEF_RATING", 0) or 0), 1),
-                "ast_pct":    round(float(adv.get("AST_PCT", 0) or 0) * 100, 1),
-                "ts_pct":     round(float(adv.get("TS_PCT", 0) or 0) * 100, 1),
-                "efg_pct":    round(float(adv.get("EFG_PCT", 0) or 0) * 100, 1),
-                "e_net":      round(float(est.get("E_NET_RATING", 0) or 0), 1),
+                "pie":        _s(adv, "PIE", 100),
+                "usg_pct":    _s(adv, "USG_PCT", 100),
+                "net_rating": _s(adv, "NET_RATING"),
+                "off_rating": _s(adv, "OFF_RATING"),
+                "def_rating": _s(adv, "DEF_RATING"),
+                "ast_pct":    _s(adv, "AST_PCT", 100),
+                "ts_pct":     _s(adv, "TS_PCT", 100),
+                "efg_pct":    _s(adv, "EFG_PCT", 100),
+                "e_net":      _s(est, "E_NET_RATING"),
             }
     except Exception:
         pass
