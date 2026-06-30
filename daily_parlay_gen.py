@@ -451,7 +451,9 @@ def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
 
 # ── Parlay builder (mirrors dashboard _build_parlays) ─────────────────────
 
-def build_parlays(legs, min_legs=2, max_legs=4, top_n=12):
+def build_parlays(legs, min_legs=2, max_legs=4, top_n=12, pool_size=30):
+    # Cap pool to avoid combinatorial explosion (C(pool_size,4) stays manageable)
+    legs = sorted(legs, key=lambda x: x["hit_rate"], reverse=True)[:pool_size]
     results = []
     for n in range(min_legs, max_legs + 1):
         if n > len(legs):
