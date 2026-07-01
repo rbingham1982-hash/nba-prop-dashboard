@@ -4793,64 +4793,229 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                 except Exception as _e:
                     st.error(f"Resolution error: {_e}")
     with _c1:
-        # Build week list filtered to this sport so we default to a week that has data
         _all_weeks_raw = parlay_tracker.get_all_weeks()
-        _sport_weeks = parlay_tracker.get_sport_weeks(sport_filter)
-        # Merge: current week first, then all weeks that have any parlays
-        _all_weeks = list({_cur_week} | set(_all_weeks_raw))
-        _all_weeks = sorted(_all_weeks, reverse=True)
-        # Default index: prefer most recent week this sport has parlays; fall back to current
-        _default_week = _sport_weeks[0] if _sport_weeks else _cur_week
-        _default_idx = _all_weeks.index(_default_week) if _default_week in _all_weeks else 0
+        _sport_weeks   = parlay_tracker.get_sport_weeks(sport_filter)
+        _all_weeks     = sorted(set([_cur_week] + _all_weeks_raw), reverse=True)
+        _default_week  = _sport_weeks[0] if _sport_weeks else _cur_week
+        _default_idx   = _all_weeks.index(_default_week) if _default_week in _all_weeks else 0
         _sel_week = st.selectbox(
-            "Week",
-            _all_weeks,
-            index=_default_idx,
+            "Week", _all_weeks, index=_default_idx,
             format_func=lambda w: f"{w}  {'← current' if w == _cur_week else ''}",
             key=f"acc_week_{sport_filter}",
         )
     st.divider()
 
-    # ── Weekly metrics ────────────────────────────────────────────────────────
+    # ── Weekly KPIs ───────────────────────────────────────────────────────────
     _wsum = parlay_tracker.get_weekly_summary(_sel_week, sport=sport_filter)
     _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
     _mc1.metric("Parlays Generated", _wsum["total_parlays"])
     _mc2.metric("Resolved", _wsum["resolved_parlays"])
-    _phit = f"{_wsum['parlay_hit_rate']*100:.1f}%" if _wsum["parlay_hit_rate"] is not None else "—"
-    _ppred = (f"pred {_wsum['avg_predicted_prob']*100:.1f}%"
-              if _wsum["avg_predicted_prob"] is not None else "")
+    _phit  = f"{_wsum['parlay_hit_rate']*100:.1f}%" if _wsum["parlay_hit_rate"] is not None else "—"
+    _ppred = f"pred {_wsum['avg_predicted_prob']*100:.1f}%" if _wsum["avg_predicted_prob"] is not None else ""
     _mc3.metric("Parlay Hit Rate", _phit, delta=_ppred or None)
-    _lhit = f"{_wsum['leg_hit_rate']*100:.1f}%" if _wsum["leg_hit_rate"] is not None else "—"
+    _lhit  = f"{_wsum['leg_hit_rate']*100:.1f}%" if _wsum["leg_hit_rate"] is not None else "—"
     _mc4.metric("Leg Hit Rate", _lhit)
     _mc5.metric("Legs Resolved", f"{_wsum['resolved_legs']} / {_wsum['total_legs']}")
+
+    # ── Streak ticker ─────────────────────────────────────────────────────────
+    _streak = parlay_tracker.get_streak_info(sport=sport_filter)
+    if _streak["total_resolved"] > 0:
+        _stype  = _streak["current_type"]
+        _sn     = _streak["current_streak"]
+        _scolor = "#22c55e" if _stype == "hit" else "#f87171"
+        _slabel = f"{'🔥' if _stype == 'hit' else '❄️'} {_sn}-in-a-row {'hit' if _stype == 'hit' else 'miss'}"
+        st.markdown(
+            f"<div style='display:flex;gap:1.5rem;align-items:center;margin:0.4rem 0 0;'>"
+            f"<span style='font-size:0.8rem;font-weight:700;color:{_scolor};'>{_slabel}</span>"
+            f"<span style='font-size:0.7rem;color:var(--text-muted);'>longest hit streak: "
+            f"<strong style='color:var(--text-primary);'>{_streak['longest_hit']}</strong> &nbsp;·&nbsp; "
+            f"longest miss streak: <strong style='color:var(--text-primary);'>{_streak['longest_miss']}</strong>"
+            f"</span></div>",
+            unsafe_allow_html=True,
+        )
     st.divider()
 
-    # ── Per-stat breakdown ────────────────────────────────────────────────────
-    if _wsum["stat_breakdown"]:
-        st.markdown(f"#### Per-Stat Breakdown — {_sel_week}")
-        _sb_rows = []
-        for stat, d in sorted(_wsum["stat_breakdown"].items()):
-            b = d["bias"]
-            _sb_rows.append({
-                "Stat Type":      stat,
-                "Legs":           d["n"],
-                "Predicted Hit%": f"{d['predicted_hit_rate']*100:.1f}%",
-                "Actual Hit%":    f"{d['actual_hit_rate']*100:.1f}%",
-                "Bias":           f"{'+' if b >= 0 else ''}{b*100:.1f}%",
-            })
-        st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, use_container_width=True)
-    elif _wsum["total_legs"] > 0:
-        _pending = _wsum["total_legs"] - _wsum["resolved_legs"]
-        st.info(
-            f"**{_pending} leg(s) pending resolution** for {_sel_week}. "
-            f"Click **🔄 Resolve Outcomes** above to fetch game results and populate hit-rate stats."
-        )
+    # ── Best & worst parlay of the week ───────────────────────────────────────
+    _bw = parlay_tracker.get_best_worst_week(_sel_week, sport=sport_filter)
+    if _bw["best"] or _bw["worst"]:
+        st.markdown("#### Best & Worst of the Week")
+        _bw_c1, _bw_c2 = st.columns(2)
+        with _bw_c1:
+            if _bw["best"]:
+                _b = _bw["best"]
+                st.markdown(
+                    f"<div style='background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);"
+                    f"border-radius:10px;padding:0.8rem 1rem;'>"
+                    f"<div style='font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;"
+                    f"color:#22c55e;margin-bottom:0.3rem;'>✅ Best Hit</div>"
+                    f"<div style='font-size:0.85rem;font-weight:700;color:var(--text-primary);'>"
+                    f"{_b.get('sportsbook','?')} · {len(_b['legs'])}-leg · {_b['predicted_prob']*100:.1f}% predicted</div>"
+                    f"<div style='font-size:0.72rem;color:#22c55e;font-weight:700;'>"
+                    f"Payout: {_b.get('payout','?')}×</div>"
+                    f"<div style='font-size:0.68rem;color:var(--text-muted);margin-top:0.3rem;'>"
+                    + " · ".join(f"{l['player_name']} {l['stat_type']} >{l['line_score']}" for l in _b["legs"])
+                    + "</div></div>",
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.caption("No hits this week yet.")
+        with _bw_c2:
+            if _bw["worst"]:
+                _w = _bw["worst"]
+                st.markdown(
+                    f"<div style='background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);"
+                    f"border-radius:10px;padding:0.8rem 1rem;'>"
+                    f"<div style='font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;"
+                    f"color:#f87171;margin-bottom:0.3rem;'>❌ Worst Miss</div>"
+                    f"<div style='font-size:0.85rem;font-weight:700;color:var(--text-primary);'>"
+                    f"{_w.get('sportsbook','?')} · {len(_w['legs'])}-leg · {_w['predicted_prob']*100:.1f}% predicted</div>"
+                    f"<div style='font-size:0.72rem;color:#f87171;font-weight:700;'>Most confident miss</div>"
+                    f"<div style='font-size:0.68rem;color:var(--text-muted);margin-top:0.3rem;'>"
+                    + " · ".join(
+                        f"{'✅' if l['outcome'] is True else '❌'} {l['player_name']} {l['stat_type']} >{l['line_score']}"
+                        for l in _w["legs"]
+                    )
+                    + "</div></div>",
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.caption("No misses this week yet.")
+        st.divider()
+
+    # ── Safe vs Value + Sportsbook comparison ─────────────────────────────────
+    st.markdown("#### Performance Breakdown")
+    _pb_c1, _pb_c2 = st.columns(2)
+
+    with _pb_c1:
+        st.markdown("**Safe vs Value**")
+        _kc = parlay_tracker.get_kind_comparison(sport=sport_filter)
+        _kc_rows = []
+        for _kname in ("safe", "value"):
+            _kd = _kc.get(_kname)
+            if _kd:
+                _kc_rows.append({
+                    "Kind":       _kname.title(),
+                    "Parlays":    _kd["total"],
+                    "Hits":       _kd["hits"],
+                    "Hit Rate":   f"{_kd['hit_rate_pct']}%",
+                    "ROI":        f"{_kd['roi_pct']:+.1f}%",
+                    "Avg Pred":   f"{_kd['avg_predicted_pct']}%",
+                })
+        if _kc_rows:
+            st.dataframe(pd.DataFrame(_kc_rows), hide_index=True, use_container_width=True)
+        else:
+            st.caption("No resolved data yet.")
+
+    with _pb_c2:
+        st.markdown("**By Sportsbook**")
+        _sbc = parlay_tracker.get_sportsbook_comparison(sport=sport_filter)
+        _sb_rows = [
+            {"Sportsbook": sb, "Parlays": d["total"], "Hits": d["hits"],
+             "Hit Rate": f"{d['hit_rate_pct']}%", "ROI": f"{d['roi_pct']:+.1f}%"}
+            for sb, d in _sbc.items()
+        ]
+        if _sb_rows:
+            st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, use_container_width=True)
+        else:
+            st.caption("No resolved data yet.")
+
+    # ── Leg count breakdown ───────────────────────────────────────────────────
+    st.markdown("**By Leg Count**")
+    _lcd = parlay_tracker.get_leg_count_breakdown(sport=sport_filter)
+    if _lcd:
+        _lcd_df = pd.DataFrame(_lcd)
+        _lcd_df.columns = ["Legs", "Total", "Hits", "Hit Rate %", "Avg EV", "ROI %"]
+        st.dataframe(_lcd_df, hide_index=True, use_container_width=True)
     else:
-        st.info(
-            f"No {sport_filter} parlays logged for this week. "
-            "Build parlays on the **Parlays** tab to start tracking accuracy."
-        )
+        st.caption("No resolved data yet.")
     st.divider()
+
+    # ── ROI simulation ────────────────────────────────────────────────────────
+    st.markdown("#### ROI Simulation")
+    st.caption("Simulates $10 flat bet and Kelly criterion on every resolved parlay in historical order.")
+    _roi = parlay_tracker.get_roi_simulation(sport=sport_filter)
+    if _roi["n_parlays"] > 0:
+        _r1, _r2, _r3, _r4 = st.columns(4)
+        _r1.metric("Parlays Simulated", _roi["n_parlays"])
+        _roi_color = "normal" if _roi["roi_pct"] >= 0 else "inverse"
+        _r2.metric("Flat-Bet P&L", f"${_roi['flat_pnl']:+,.2f}", delta=f"{_roi['roi_pct']:+.1f}% ROI")
+        _r3.metric("Total Wagered", f"${_roi['total_wagered']:,.0f}")
+        _r4.metric("Kelly Bankroll", f"${_roi['kelly_bankroll']:,.2f}",
+                   delta=f"${_roi['kelly_bankroll']-1000:+,.2f} from $1,000 start")
+
+        if len(_roi["flat_series"]) > 1:
+            _chart_data = pd.DataFrame({
+                "Flat P&L ($)":      _roi["flat_series"],
+                "Kelly Bankroll ($)": _roi["kelly_series"],
+            }, index=_roi["dates"])
+            _tabs_roi = st.tabs(["Flat Bet P&L", "Kelly Bankroll"])
+            with _tabs_roi[0]:
+                st.line_chart(_chart_data[["Flat P&L ($)"]], height=200)
+            with _tabs_roi[1]:
+                st.line_chart(_chart_data[["Kelly Bankroll ($)"]], height=200)
+    else:
+        st.caption("No resolved parlays yet — resolve outcomes to populate simulation.")
+    st.divider()
+
+    # ── Line value analysis ───────────────────────────────────────────────────
+    st.markdown("#### Line Value Analysis")
+    st.caption("Do legs where the model sees positive edge (predicted > implied odds) actually hit more?")
+    _lva = parlay_tracker.get_line_value_analysis(sport=sport_filter)
+    _lv_c1, _lv_c2 = st.columns(2)
+    with _lv_c1:
+        _pos = _lva.get("positive_edge")
+        if _pos:
+            st.markdown(
+                f"<div style='background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);"
+                f"border-radius:10px;padding:0.75rem 1rem;text-align:center;'>"
+                f"<div style='font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;"
+                f"color:#22c55e;'>Positive Edge Legs</div>"
+                f"<div style='font-size:1.6rem;font-weight:800;color:var(--text-primary);'>{_pos['hit_rate_pct']}%</div>"
+                f"<div style='font-size:0.7rem;color:var(--text-muted);'>actual hit rate · {_pos['n']} legs</div>"
+                f"<div style='font-size:0.72rem;color:#22c55e;font-weight:700;margin-top:0.2rem;'>"
+                f"avg edge: +{_pos['avg_edge_pct']:.1f}%</div></div>",
+                unsafe_allow_html=True,
+            )
+        else:
+            st.caption("No positive-edge legs resolved yet.")
+    with _lv_c2:
+        _neg = _lva.get("negative_edge")
+        if _neg:
+            st.markdown(
+                f"<div style='background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);"
+                f"border-radius:10px;padding:0.75rem 1rem;text-align:center;'>"
+                f"<div style='font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;"
+                f"color:#f87171;'>Negative Edge Legs</div>"
+                f"<div style='font-size:1.6rem;font-weight:800;color:var(--text-primary);'>{_neg['hit_rate_pct']}%</div>"
+                f"<div style='font-size:0.7rem;color:var(--text-muted);'>actual hit rate · {_neg['n']} legs</div>"
+                f"<div style='font-size:0.72rem;color:#f87171;font-weight:700;margin-top:0.2rem;'>"
+                f"avg edge: {_neg['avg_edge_pct']:.1f}%</div></div>",
+                unsafe_allow_html=True,
+            )
+        else:
+            st.caption("No negative-edge legs resolved yet.")
+    st.divider()
+
+    # ── Calibration drift alerts ──────────────────────────────────────────────
+    st.markdown("#### Calibration Drift Alerts")
+    st.caption("Flags stat types where the rolling 30-day actual hit rate has shifted ≥15 ppts from the all-time baseline.")
+    _drift = parlay_tracker.get_calibration_drift(sport=sport_filter)
+    if _drift:
+        for _d in _drift:
+            _dcol = "#22c55e" if _d["direction"] == "hot" else "#f87171"
+            _darrow = "↑" if _d["direction"] == "hot" else "↓"
+            st.markdown(
+                f"<div style='background:rgba(248,113,113,0.05);border-left:3px solid {_dcol};"
+                f"border-radius:0 8px 8px 0;padding:0.5rem 0.8rem;margin-bottom:0.4rem;'>"
+                f"<span style='font-weight:700;color:var(--text-primary);'>{_d['stat_type']}</span>"
+                f"<span style='color:var(--text-muted);font-size:0.8rem;'> — all-time: "
+                f"{_d['alltime_hit_pct']}% → recent 30d: "
+                f"<strong style='color:{_dcol};'>{_d['recent_hit_pct']}% {_darrow}</strong>"
+                f" ({_d['drift_pct']:+.1f} ppts, n={_d['n_recent']})</span></div>",
+                unsafe_allow_html=True,
+            )
+    else:
+        st.success("No significant calibration drift detected (30-day window).", icon="✓")
 
     # ── All-time calibration ──────────────────────────────────────────────────
     st.markdown("#### All-Time Model Calibration")
@@ -4875,6 +5040,57 @@ def _render_accuracy_tab(sport_filter: str) -> None:
     else:
         st.info("No resolved leg data yet.")
     st.divider()
+
+    # ── Per-stat breakdown (weekly) ───────────────────────────────────────────
+    if _wsum["stat_breakdown"]:
+        st.markdown(f"#### Per-Stat Breakdown — {_sel_week}")
+        _sb_rows = []
+        for stat, d in sorted(_wsum["stat_breakdown"].items()):
+            b = d["bias"]
+            _sb_rows.append({
+                "Stat Type":      stat,
+                "Legs":           d["n"],
+                "Predicted Hit%": f"{d['predicted_hit_rate']*100:.1f}%",
+                "Actual Hit%":    f"{d['actual_hit_rate']*100:.1f}%",
+                "Bias":           f"{'+' if b >= 0 else ''}{b*100:.1f}%",
+            })
+        st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, use_container_width=True)
+    elif _wsum["total_legs"] > 0:
+        _pending = _wsum["total_legs"] - _wsum["resolved_legs"]
+        st.info(
+            f"**{_pending} leg(s) pending resolution** for {_sel_week}. "
+            "Click **🔄 Resolve Outcomes** above to fetch game results."
+        )
+    else:
+        st.info(
+            f"No {sport_filter} parlays logged for this week. "
+            "Build parlays on the **Parlays** tab to start tracking accuracy."
+        )
+
+    # ── Player accuracy table ─────────────────────────────────────────────────
+    _pa = parlay_tracker.get_player_accuracy(sport=sport_filter)
+    if _pa:
+        with st.expander(f"Player Accuracy Table ({len(_pa)} player/stat combos)", expanded=False):
+            st.caption("Sorted by sample count. Edge = predicted hit rate − sportsbook implied probability.")
+            _pa_df = pd.DataFrame(_pa)
+            _pa_df.columns = ["Player", "Stat", "Legs", "Pred Hit%", "Actual Hit%", "Bias (ppts)", "Avg Edge (ppts)"]
+            st.dataframe(_pa_df, hide_index=True, use_container_width=True)
+    st.divider()
+
+    # ── Monthly trends ────────────────────────────────────────────────────────
+    _mt = parlay_tracker.get_monthly_trends(sport=sport_filter)
+    if len(_mt) >= 2:
+        st.markdown("#### Monthly Trends")
+        _mt_df = pd.DataFrame(_mt)
+        _chart_mt = _mt_df.set_index("month")[["hit_rate_pct", "leg_hit_rate_pct", "avg_pred_pct"]]
+        _chart_mt.columns = ["Parlay Hit %", "Leg Hit %", "Avg Predicted %"]
+        st.line_chart(_chart_mt, height=220)
+        _mt_tbl = _mt_df.rename(columns={
+            "month": "Month", "total": "Parlays", "hits": "Hits",
+            "hit_rate_pct": "Hit Rate %", "leg_hit_rate_pct": "Leg Hit %", "avg_pred_pct": "Avg Pred %"
+        })[["Month","Parlays","Hits","Hit Rate %","Leg Hit %","Avg Pred %"]]
+        st.dataframe(_mt_tbl, hide_index=True, use_container_width=True)
+        st.divider()
 
     # ── Full parlay log ───────────────────────────────────────────────────────
     st.markdown(f"#### Parlay Log — {_sel_week}")

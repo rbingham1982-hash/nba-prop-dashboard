@@ -819,3 +819,353 @@ def export_csv(week: str | None = None, sport: str | None = None) -> str:
                 "american_odds","game_label","outcome"]
         return ",".join(cols) + "\n"
     return pd.DataFrame(rows).to_csv(index=False)
+
+
+def _implied_from_odds(american_odds) -> float:
+    """Convert American odds to implied probability (vig-inclusive)."""
+    try:
+        odds = int(american_odds or 0)
+        if odds > 0:
+            return round(100 / (odds + 100), 4)
+        elif odds < 0:
+            return round(-odds / (-odds + 100), 4)
+    except Exception:
+        pass
+    return 0.524  # default -110
+
+
+def get_player_accuracy(sport: str | None = None) -> list[dict]:
+    """Per-player, per-stat hit rate table from all resolved legs, sorted by sample count."""
+    data = _load()
+    buckets: dict = defaultdict(lambda: {"predicted": [], "actual": [], "implied": []})
+    for parlay in data["parlays"]:
+        if sport and parlay.get("sport") != sport:
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is None or leg["outcome"] == "void":
+                continue
+            key = (leg["player_name"], leg["stat_type"])
+            buckets[key]["predicted"].append(leg["predicted_hit_rate"])
+            buckets[key]["actual"].append(1.0 if leg["outcome"] is True else 0.0)
+            buckets[key]["implied"].append(_implied_from_odds(leg.get("american_odds")))
+    rows = []
+    for (player, stat), d in buckets.items():
+        n = len(d["predicted"])
+        p_mean = sum(d["predicted"]) / n
+        a_mean = sum(d["actual"]) / n
+        i_mean = sum(d["implied"]) / n
+        rows.append({
+            "player_name":        player,
+            "stat_type":          stat,
+            "n_legs":             n,
+            "predicted_hit_pct":  round(p_mean * 100, 1),
+            "actual_hit_pct":     round(a_mean * 100, 1),
+            "bias_pct":           round((a_mean - p_mean) * 100, 1),
+            "avg_edge_pct":       round((p_mean - i_mean) * 100, 1),
+        })
+    return sorted(rows, key=lambda x: -x["n_legs"])
+
+
+def get_roi_simulation(sport: str | None = None, flat_bet: float = 10.0) -> dict:
+    """
+    Simulate flat-bet and Kelly-criterion ROI across all resolved parlays.
+    Kelly fraction = max(0, (prob*(payout+1)-1)/payout), capped at 25% of bankroll.
+    """
+    data = _load()
+    resolved = [p for p in data["parlays"]
+                if p["parlay_hit"] is not None
+                and (not sport or p.get("sport") == sport)]
+    resolved.sort(key=lambda p: p["generated_at"])
+
+    flat_pnl = 0.0
+    total_wagered = 0.0
+    flat_series: list[float] = []
+
+    kelly_bankroll = 1000.0
+    kelly_series: list[float] = []
+    dates: list[str] = []
+
+    for p in resolved:
+        payout = float(p.get("payout") or 2.0)
+        prob = float(p["predicted_prob"])
+        hit = bool(p["parlay_hit"])
+
+        # Flat bet
+        total_wagered += flat_bet
+        flat_pnl += (flat_bet * payout) if hit else -flat_bet
+        flat_series.append(round(flat_pnl, 2))
+
+        # Kelly
+        kelly_f = max(0.0, min(0.25, (prob * (payout + 1) - 1) / payout))
+        kelly_bet = kelly_bankroll * kelly_f
+        kelly_bankroll += (kelly_bet * payout) if hit else -kelly_bet
+        kelly_bankroll = max(kelly_bankroll, 0.01)
+        kelly_series.append(round(kelly_bankroll, 2))
+
+        dates.append(p["generated_at"][:10])
+
+    return {
+        "n_parlays":      len(resolved),
+        "flat_pnl":       round(flat_pnl, 2),
+        "total_wagered":  round(total_wagered, 2),
+        "roi_pct":        round(flat_pnl / total_wagered * 100, 1) if total_wagered else 0.0,
+        "flat_series":    flat_series,
+        "kelly_bankroll": round(kelly_bankroll, 2),
+        "kelly_series":   kelly_series,
+        "dates":          dates,
+    }
+
+
+def get_leg_count_breakdown(sport: str | None = None) -> list[dict]:
+    """Hit rate, ROI, and average EV broken down by parlay leg count."""
+    data = _load()
+    buckets: dict = defaultdict(lambda: {"total": 0, "hits": 0, "bet": 0.0, "returns": 0.0, "ev": 0.0})
+    for p in data["parlays"]:
+        if p["parlay_hit"] is None:
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        n = len(p.get("legs", []))
+        payout = float(p.get("payout") or 2.0)
+        prob = float(p["predicted_prob"])
+        buckets[n]["total"] += 1
+        buckets[n]["bet"] += 10.0
+        buckets[n]["ev"] += prob * payout - (1 - prob)
+        if p["parlay_hit"]:
+            buckets[n]["hits"] += 1
+            buckets[n]["returns"] += 10.0 * payout
+    rows = []
+    for n in sorted(buckets):
+        d = buckets[n]
+        t = d["total"]
+        rows.append({
+            "n_legs":       n,
+            "total":        t,
+            "hits":         d["hits"],
+            "hit_rate_pct": round(d["hits"] / t * 100, 1) if t else 0.0,
+            "avg_ev":       round(d["ev"] / t, 3) if t else 0.0,
+            "roi_pct":      round((d["returns"] - d["bet"]) / d["bet"] * 100, 1) if d["bet"] else 0.0,
+        })
+    return rows
+
+
+def get_kind_comparison(sport: str | None = None) -> dict:
+    """Compare safe vs value parlay performance across all resolved data."""
+    data = _load()
+    out = {}
+    for kind in ("safe", "value"):
+        parlays = [p for p in data["parlays"]
+                   if p["parlay_hit"] is not None
+                   and p.get("kind") == kind
+                   and (not sport or p.get("sport") == sport)]
+        if not parlays:
+            out[kind] = None
+            continue
+        hits = sum(1 for p in parlays if p["parlay_hit"])
+        bet = len(parlays) * 10.0
+        returns = sum(float(p.get("payout") or 2.0) * 10.0 for p in parlays if p["parlay_hit"])
+        out[kind] = {
+            "total":            len(parlays),
+            "hits":             hits,
+            "hit_rate_pct":     round(hits / len(parlays) * 100, 1),
+            "roi_pct":          round((returns - bet) / bet * 100, 1) if bet else 0.0,
+            "avg_predicted_pct": round(sum(p["predicted_prob"] for p in parlays) / len(parlays) * 100, 1),
+        }
+    return out
+
+
+def get_sportsbook_comparison(sport: str | None = None) -> dict:
+    """Per-sportsbook hit rate and flat-bet ROI."""
+    data = _load()
+    books: dict = defaultdict(lambda: {"total": 0, "hits": 0, "bet": 0.0, "returns": 0.0})
+    for p in data["parlays"]:
+        if p["parlay_hit"] is None:
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        sb = p.get("sportsbook", "Unknown")
+        payout = float(p.get("payout") or 2.0)
+        books[sb]["total"] += 1
+        books[sb]["bet"] += 10.0
+        if p["parlay_hit"]:
+            books[sb]["hits"] += 1
+            books[sb]["returns"] += 10.0 * payout
+    result = {}
+    for sb, d in books.items():
+        result[sb] = {
+            "total":        d["total"],
+            "hits":         d["hits"],
+            "hit_rate_pct": round(d["hits"] / d["total"] * 100, 1) if d["total"] else 0.0,
+            "roi_pct":      round((d["returns"] - d["bet"]) / d["bet"] * 100, 1) if d["bet"] else 0.0,
+        }
+    return result
+
+
+def get_monthly_trends(sport: str | None = None) -> list[dict]:
+    """Month-by-month parlay and leg hit rates from all resolved parlays."""
+    data = _load()
+    months: dict = defaultdict(lambda: {
+        "total": 0, "hits": 0,
+        "leg_total": 0, "leg_hits": 0,
+        "pred_sum": 0.0,
+    })
+    for p in data["parlays"]:
+        if p["parlay_hit"] is None:
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        month = p["generated_at"][:7]
+        months[month]["total"] += 1
+        months[month]["pred_sum"] += float(p["predicted_prob"])
+        if p["parlay_hit"]:
+            months[month]["hits"] += 1
+        for leg in p["legs"]:
+            if leg["outcome"] is None or leg["outcome"] == "void":
+                continue
+            months[month]["leg_total"] += 1
+            if leg["outcome"] is True:
+                months[month]["leg_hits"] += 1
+    rows = []
+    for month in sorted(months):
+        d = months[month]
+        t, lt = d["total"], d["leg_total"]
+        rows.append({
+            "month":            month,
+            "total":            t,
+            "hits":             d["hits"],
+            "hit_rate_pct":     round(d["hits"] / t * 100, 1) if t else 0.0,
+            "leg_hit_rate_pct": round(d["leg_hits"] / lt * 100, 1) if lt else 0.0,
+            "avg_pred_pct":     round(d["pred_sum"] / t * 100, 1) if t else 0.0,
+        })
+    return rows
+
+
+def get_streak_info(sport: str | None = None) -> dict:
+    """Current hit/miss streak and all-time longest streaks."""
+    data = _load()
+    resolved = [p for p in data["parlays"]
+                if p["parlay_hit"] is not None
+                and (not sport or p.get("sport") == sport)]
+    resolved.sort(key=lambda p: p["generated_at"])
+    if not resolved:
+        return {"current_streak": 0, "current_type": None,
+                "longest_hit": 0, "longest_miss": 0, "total_resolved": 0}
+
+    last_result = resolved[-1]["parlay_hit"]
+    current_type = "hit" if last_result else "miss"
+    current = sum(1 for _ in __import__("itertools").takewhile(
+        lambda p: p["parlay_hit"] == last_result, reversed(resolved)
+    ))
+
+    longest_hit = longest_miss = run_h = run_m = 0
+    for p in resolved:
+        if p["parlay_hit"]:
+            run_h += 1; run_m = 0
+            longest_hit = max(longest_hit, run_h)
+        else:
+            run_m += 1; run_h = 0
+            longest_miss = max(longest_miss, run_m)
+
+    return {
+        "current_streak":  current,
+        "current_type":    current_type,
+        "longest_hit":     longest_hit,
+        "longest_miss":    longest_miss,
+        "total_resolved":  len(resolved),
+    }
+
+
+def get_best_worst_week(week: str, sport: str | None = None) -> dict:
+    """Best (highest-payout hit) and worst (most-confident miss) parlay for a given week."""
+    data = _load()
+    wk = [p for p in data["parlays"]
+          if p.get("iso_week") == week
+          and p["parlay_hit"] is not None
+          and (not sport or p.get("sport") == sport)]
+    hits   = [p for p in wk if p["parlay_hit"]]
+    misses = [p for p in wk if not p["parlay_hit"]]
+    best  = max(hits,   key=lambda p: float(p.get("payout") or 0), default=None)
+    worst = max(misses, key=lambda p: float(p["predicted_prob"]),   default=None)
+    return {"best": best, "worst": worst}
+
+
+def get_calibration_drift(sport: str | None = None, days: int = 30,
+                           threshold: float = 0.15) -> list[dict]:
+    """
+    Flag stat types where rolling-N-day actual hit rate diverges > threshold
+    from all-time actual hit rate (signals the model needs recalibration).
+    """
+    data = _load()
+    cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+    alltime: dict = defaultdict(lambda: {"actual": []})
+    recent:  dict = defaultdict(lambda: {"actual": []})
+    for parlay in data["parlays"]:
+        if sport and parlay.get("sport") != sport:
+            continue
+        is_recent = parlay["generated_at"] >= cutoff
+        for leg in parlay["legs"]:
+            if leg["outcome"] is None or leg["outcome"] == "void":
+                continue
+            a = 1.0 if leg["outcome"] is True else 0.0
+            alltime[leg["stat_type"]]["actual"].append(a)
+            if is_recent:
+                recent[leg["stat_type"]]["actual"].append(a)
+    alerts = []
+    for stat, at in alltime.items():
+        n_at = len(at["actual"])
+        if n_at < CAL_MIN_SAMPLES:
+            continue
+        at_rate = sum(at["actual"]) / n_at
+        rec = recent.get(stat, {"actual": []})
+        n_rec = len(rec["actual"])
+        if n_rec < 5:
+            continue
+        rec_rate = sum(rec["actual"]) / n_rec
+        drift = rec_rate - at_rate
+        if abs(drift) >= threshold:
+            alerts.append({
+                "stat_type":        stat,
+                "alltime_hit_pct":  round(at_rate * 100, 1),
+                "recent_hit_pct":   round(rec_rate * 100, 1),
+                "drift_pct":        round(drift * 100, 1),
+                "n_recent":         n_rec,
+                "direction":        "hot" if drift > 0 else "cold",
+            })
+    return sorted(alerts, key=lambda x: -abs(x["drift_pct"]))
+
+
+def get_line_value_analysis(sport: str | None = None) -> dict:
+    """
+    Split resolved legs into positive-edge (predicted > implied) and
+    negative-edge groups, report hit rate for each.
+    """
+    data = _load()
+    pos: list[dict] = []
+    neg: list[dict] = []
+    for parlay in data["parlays"]:
+        if sport and parlay.get("sport") != sport:
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is None or leg["outcome"] == "void":
+                continue
+            implied = _implied_from_odds(leg.get("american_odds"))
+            pred    = leg["predicted_hit_rate"]
+            edge    = pred - implied
+            entry   = {"edge": edge, "hit": leg["outcome"] is True,
+                       "stat": leg["stat_type"], "implied": implied, "predicted": pred}
+            (pos if edge > 0 else neg).append(entry)
+
+    def _summary(legs: list) -> dict | None:
+        if not legs:
+            return None
+        hits = sum(1 for l in legs if l["hit"])
+        return {
+            "n":            len(legs),
+            "hit_rate_pct": round(hits / len(legs) * 100, 1),
+            "avg_edge_pct": round(sum(l["edge"] for l in legs) / len(legs) * 100, 1),
+        }
+
+    return {
+        "positive_edge": _summary(pos),
+        "negative_edge": _summary(neg),
+    }
