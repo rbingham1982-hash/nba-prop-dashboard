@@ -671,7 +671,7 @@ NBA_DRAFT_VENUE = "Barclays Center, Brooklyn, NY"
 
 # ── 2026 NBA Free Agent Tracker ────────────────────────────────────────────
 # Last manually reviewed: 2026-06-29. Predictions update daily via timestamp.
-_NBA_FA_LAST_UPDATED = "June 29, 2026 — live updates"
+_NBA_FA_LAST_UPDATED = "July 1, 2026 — live updates"
 
 _NBA_FREE_AGENTS = [
     # ── Tier 1: Franchise Cornerstones ────────────────────────────────────
@@ -847,7 +847,65 @@ _NBA_FREE_AGENTS = [
             "legitimate, but 'if fully healthy' has been the Beal caveat for four straight years."
         ),
     },
+    {
+        "name": "Norman Powell",
+        "pos": "SG/SF", "age": 33, "from_team": "Los Angeles Clippers",
+        "tier": "Starter",
+        "predicted_dest": "Chicago Bulls",
+        "confidence": 100,
+        "contract_projection": "3–4 yr / $90–105M",
+        "interest_teams": ["Bulls"],
+        "status": "Signed — Chicago Bulls",
+        "stats": {"ppg": 24.8, "rpg": 3.5, "apg": 2.8, "fg_pct": 51.5, "ts_pct": 62.1, "per": 17.2},
+        "blurb": (
+            "One of the most efficient volume scorers in the league — Powell averaged 24.8 PPG on 51.5% "
+            "shooting while serving as the Clippers' primary offensive option in a lost season. His ability "
+            "to score from all three levels without creating shot quality issues makes him a plug-and-play "
+            "starter on any contender. Chicago identified him as the scoring wing they've needed since "
+            "DeMar DeRozan's departure era, and the deal was reportedly agreed upon within hours of the "
+            "moratorium lifting. Powell gives the Bulls a genuine 25-point threat for the first time in years."
+        ),
+    },
+    {
+        "name": "Walker Kessler",
+        "pos": "C", "age": 23, "from_team": "Utah Jazz",
+        "tier": "Starter",
+        "predicted_dest": "Utah Jazz",
+        "confidence": 62,
+        "contract_projection": "4 yr / $88–108M",
+        "interest_teams": ["Jazz", "Thunder", "Knicks", "Pacers"],
+        "status": "Restricted FA",
+        "stats": {"ppg": 12.8, "rpg": 10.2, "apg": 1.4, "fg_pct": 62.1, "ts_pct": 66.5, "per": 18.3},
+        "blurb": (
+            "Kessler is arguably the best rim-protecting center available this summer — 2.9 BPG and a 66.5 "
+            "TS% that ranks among the league's elite bigs. Utah holds his matching rights, but the Jazz "
+            "are deep in their rebuild and must decide whether to commit $100M+ to a center or allow a "
+            "contender to swoop in and absorb the cost. OKC has repeatedly been linked as a suitor — "
+            "pairing Kessler alongside Holmgren as a twin-towers defensive front would make the Thunder "
+            "nearly unguardable in the paint. Utah matching an OKC offer sheet would signal franchise "
+            "ambitions; letting him walk signals a full reset."
+        ),
+    },
     # ── Tier 3: Quality Starters ───────────────────────────────────────────
+    {
+        "name": "Anfernee Simons",
+        "pos": "PG/SG", "age": 27, "from_team": "Portland Trail Blazers",
+        "tier": "Starter",
+        "predicted_dest": "Indiana Pacers",
+        "confidence": 44,
+        "contract_projection": "4 yr / $120–140M",
+        "interest_teams": ["Pacers", "Nets", "Knicks", "Heat"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 21.4, "rpg": 3.2, "apg": 5.5, "fg_pct": 46.3, "ts_pct": 59.7, "per": 15.6},
+        "blurb": (
+            "Simons has developed into a legitimate starting-caliber point guard — 21.4 PPG and 5.5 APG "
+            "on a rebuilding Portland team that gave him every opportunity to show his ceiling. His "
+            "elite pull-up three-point shooting (42.1% from deep on high volume) is the exact weapon "
+            "contenders covet off the bench or as a third option. Portland won't be able to offer a "
+            "max, clearing the path for an Eastern contender to acquire him. Indiana's pace-and-space "
+            "system around Tyrese Haliburton is a natural fit for a player of his skill set."
+        ),
+    },
     {
         "name": "Chris Paul",
         "pos": "PG", "age": 41, "from_team": "San Antonio Spurs",
@@ -921,6 +979,84 @@ _NBA_FREE_AGENTS = [
             "demanding heavy usage. Miami's system of turning multi-skilled guards into contributors is "
             "tailor-made for his skill set. He's the type of player that looks average on paper and "
             "plays above his contract in the right environment. Expect Pat Riley to make a call."
+        ),
+    },
+    {
+        "name": "Gary Trent Jr.",
+        "pos": "SG", "age": 27, "from_team": "Milwaukee Bucks",
+        "tier": "MLE",
+        "predicted_dest": "Boston Celtics",
+        "confidence": 40,
+        "contract_projection": "2–3 yr / $24–36M",
+        "interest_teams": ["Celtics", "Thunder", "Clippers", "Suns"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 17.2, "rpg": 2.9, "apg": 2.1, "fg_pct": 44.6, "ts_pct": 58.3, "per": 12.8},
+        "blurb": (
+            "GTJ is the archetype contenders hunt in free agency: a clean-catch shooter who can defend "
+            "one through three and doesn't need the ball to make an impact. He shot 40.2% from three "
+            "on nearly seven attempts per game in Milwaukee's motion offense. Boston's need for wing "
+            "shooting depth after last year's championship run is well-documented, and Trent fits the "
+            "Celtics' system perfectly — catch-and-shoot threes, switchable defense, no wasted possessions. "
+            "He'll attract multiple offers, but landing with a contender is his stated priority."
+        ),
+    },
+    {
+        "name": "Marcus Smart",
+        "pos": "PG", "age": 32, "from_team": "Memphis Grizzlies",
+        "tier": "MLE",
+        "predicted_dest": "Boston Celtics",
+        "confidence": 38,
+        "contract_projection": "2 yr / $18–24M",
+        "interest_teams": ["Celtics", "Warriors", "Heat", "Bucks"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 9.4, "rpg": 4.5, "apg": 7.2, "fg_pct": 38.1, "ts_pct": 50.8, "per": 11.9},
+        "blurb": (
+            "Smart's offensive numbers have never been the point. He's a two-time All-Defensive team "
+            "member whose floor-raising as a backup point guard — 7.2 APG, near-zero turnovers, "
+            "nuclear effort on every defensive possession — is what playoff teams pay for. Memphis gave "
+            "him room to lead a young roster; a return to championship-window basketball with an "
+            "established closer alongside him would be the move. The Boston homecoming narrative will "
+            "surface regardless of whether it happens — Smart still has a home in that city."
+        ),
+    },
+    {
+        "name": "Dorian Finney-Smith",
+        "pos": "SF/PF", "age": 32, "from_team": "Brooklyn Nets",
+        "tier": "MLE",
+        "predicted_dest": "Golden State Warriors",
+        "confidence": 42,
+        "contract_projection": "2–3 yr / $18–28M",
+        "interest_teams": ["Warriors", "Celtics", "Nuggets", "Clippers"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 9.4, "rpg": 4.2, "apg": 2.1, "fg_pct": 43.6, "ts_pct": 55.2, "per": 10.6},
+        "blurb": (
+            "DFS is the consummate '3-and-D' wing that every contender wants but few acknowledge "
+            "they covet until they lose him. His value is systemic: elite off-ball movement, "
+            "switchable defense that holds up on both guards and stretch fours, and the shooting "
+            "gravity to open driving lanes for stars. Golden State's pursuit of star acquisitions "
+            "this summer means they'll need cost-effective depth pieces — Finney-Smith at the MLE "
+            "is exactly the kind of mid-tier signing that quietly becomes essential by April."
+        ),
+    },
+    # ── Tier 5: Veterans ──────────────────────────────────────────────────
+    {
+        "name": "Jonas Valanciunas",
+        "pos": "C", "age": 34, "from_team": "New Orleans Pelicans",
+        "tier": "Veteran Min",
+        "predicted_dest": "Milwaukee Bucks",
+        "confidence": 36,
+        "contract_projection": "1–2 yr / $7–12M",
+        "interest_teams": ["Bucks", "Cavaliers", "Nuggets", "Knicks"],
+        "status": "Unrestricted FA",
+        "stats": {"ppg": 13.6, "rpg": 10.8, "apg": 2.2, "fg_pct": 55.9, "ts_pct": 59.7, "per": 16.4},
+        "blurb": (
+            "Valanciunas remains one of the most reliable traditional bigs in the league at 34 — "
+            "a double-double machine (13.6/10.8) who can score efficiently in the post and stretch "
+            "to the mid-range without asking for a star's salary. New Orleans' rebuild cost him a "
+            "playoff push, and at this stage of his career JV wants a legitimate championship run. "
+            "Milwaukee's frontcourt void after the Giannis trade makes this a logical fit — "
+            "Valanciunas as a veteran anchor who frees Damian Lillard to run pick-and-roll is "
+            "underrated upside at the minimum."
         ),
     },
 ]
@@ -5300,7 +5436,10 @@ if sport == "🏀 NBA":
             interest_html = _interest_chips(fa.get("interest_teams", []))
             stats_html = _stats_row(fa.get("stats", {}))
             anl_html = _analytics_row(analytics or {})
-            status_color = "#f59e0b" if "opt" in fa["status"].lower() else "#60a5fa"
+            _st_lower = fa["status"].lower()
+            status_color = ("#22c55e" if "signed" in _st_lower
+                            else "#f59e0b" if "opt" in _st_lower
+                            else "#60a5fa")
             return (
                 f"<div style='background:var(--card-bg);border:1px solid var(--border);"
                 f"border-top:3px solid {tc};border-radius:12px;"
