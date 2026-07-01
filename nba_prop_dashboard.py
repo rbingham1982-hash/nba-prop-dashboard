@@ -2516,7 +2516,7 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
     rate = rate * cal_factor
     return round(min(0.97, max(0.03, rate)), 3), n
 
-def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 12):
+def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 50):
     """
     Safe  — highest probability combos (most likely to hit).
     Value — highest EV combos that are NOT already in Safe.
