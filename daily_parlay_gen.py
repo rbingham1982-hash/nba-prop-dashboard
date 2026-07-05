@@ -7,6 +7,7 @@ builds safe + value parlays, and logs them to parlay_log.json.
 """
 import sys, time, os, requests, pandas as pd
 from itertools import combinations
+from collections import defaultdict
 from datetime import datetime
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -41,6 +42,8 @@ PP_PITCHER_TYPES = {
     "Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed",
     "Hits Allowed", "Pitching Outs", "Pitches Thrown",
 }
+BVP_COL_MAP = {"H": "h", "HR": "hr", "TB": "tb", "K": "k", "BB": "bb", "RBI": "rbi"}
+BVP_MIN_AB  = 15  # minimum career AB vs pitcher to apply adjustment
 WNBA_COL_MAP = {
     "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
     "Steals": "STL", "Blocks": "BLK", "3-PT Made": "FG3M",
@@ -366,6 +369,61 @@ def get_nba_gamelogs(pid):
     _nba_logs[pid] = df
     return df
 
+# ── Batter vs. pitcher matchup ─────────────────────────────────────────────
+
+_bvp_cache = {}
+_pitcher_lookup_cache = {}
+
+def mlb_bvp_stats(batter_id: int, pitcher_id: int) -> dict:
+    """Career batting stats for batter_id against pitcher_id. Returns {} if no data."""
+    key = (batter_id, pitcher_id)
+    if key in _bvp_cache:
+        return _bvp_cache[key]
+    result = {}
+    try:
+        url = (f"{MLB_BASE}/people/{batter_id}/stats"
+               f"?stats=vsPlayer&group=hitting&opposingPlayerId={pitcher_id}&sportId=1")
+        resp = requests.get(url, timeout=10)
+        splits = (resp.json().get("stats") or [{}])[0].get("splits", [])
+        if splits:
+            st_data = splits[0].get("stat", {})
+            result = {
+                "ab":  int(st_data.get("atBats") or 0),
+                "h":   int(st_data.get("hits") or 0),
+                "hr":  int(st_data.get("homeRuns") or 0),
+                "tb":  int(st_data.get("totalBases") or 0),
+                "k":   int(st_data.get("strikeOuts") or 0),
+                "bb":  int(st_data.get("baseOnBalls") or 0),
+                "rbi": int(st_data.get("rbi") or 0),
+            }
+    except Exception:
+        pass
+    _bvp_cache[key] = result
+    return result
+
+def mlb_today_pitcher_lookup() -> dict:
+    """Returns {team_abbr: opp_pitcher_id} for today's MLB games."""
+    if _pitcher_lookup_cache:
+        return _pitcher_lookup_cache
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        url = f"{MLB_BASE}/schedule?sportId=1&date={today}&hydrate=probablePitcher,team"
+        resp = requests.get(url, timeout=10)
+        for date_entry in resp.json().get("dates", []):
+            for game in date_entry.get("games", []):
+                at, ht = game["teams"]["away"], game["teams"]["home"]
+                away_abbr = at["team"].get("abbreviation", "")
+                home_abbr = ht["team"].get("abbreviation", "")
+                away_pid  = at.get("probablePitcher", {}).get("id")
+                home_pid  = ht.get("probablePitcher", {}).get("id")
+                if away_abbr and home_pid:
+                    _pitcher_lookup_cache[away_abbr] = home_pid   # away batters face home pitcher
+                if home_abbr and away_pid:
+                    _pitcher_lookup_cache[home_abbr] = away_pid   # home batters face away pitcher
+    except Exception:
+        pass
+    return _pitcher_lookup_cache
+
 # ── Hit rate calculators ───────────────────────────────────────────────────
 
 def _weighted_rate(vals, line, is_pitcher=False):
@@ -389,7 +447,7 @@ def _weighted_rate(vals, line, is_pitcher=False):
         hist   = min(0.97, max(0.03, hist + (r10c - r_prev) * 0.1))
     return hist, len(last20)
 
-def mlb_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0):
+def mlb_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0, team=""):
     is_pit = stat_type in PP_PITCHER_TYPES
     col    = (PP_MLB_PIT_COL if is_pit else PP_MLB_HIT_COL).get(stat_type)
     if not col:
@@ -401,11 +459,31 @@ def mlb_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
     if df.empty or col not in df.columns:
         return 0.5, 0
     hist, n = _weighted_rate(df[col].values, line, is_pitcher=is_pit)
+
+    # Batter vs pitcher (BvP): nudge hist up/down by up to +/-40% when the
+    # batter has a meaningful career sample against today's opposing starter.
+    if not is_pit and team and col in BVP_COL_MAP:
+        opp_pid = mlb_today_pitcher_lookup().get(team)
+        if opp_pid:
+            try:
+                bvp = mlb_bvp_stats(int(pid), int(opp_pid))
+                if bvp.get("ab", 0) >= BVP_MIN_AB:
+                    bvp_key = BVP_COL_MAP[col]
+                    season_ab   = float(df["AB"].sum()) if "AB" in df.columns else max(len(df) * 4, 1)
+                    season_stat = float(df[col].sum())
+                    season_per_ab = season_stat / max(season_ab, 1)
+                    bvp_per_ab    = bvp.get(bvp_key, 0) / max(bvp["ab"], 1)
+                    if season_per_ab > 0.001:
+                        bvp_factor = min(1.4, max(0.60, bvp_per_ab / season_per_ab))
+                        hist = min(0.97, max(0.03, hist * (0.85 + 0.15 * bvp_factor)))
+            except Exception:
+                pass
+
     imp  = implied if implied >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
     rate = (0.7 * hist + 0.3 * imp) * cal
     return round(min(0.97, max(0.03, rate)), 3), n
 
-def wnba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0):
+def wnba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0, team=""):
     col = WNBA_COL_MAP.get(stat_type)
     if not col:
         return 0.5, 0
@@ -427,7 +505,7 @@ def wnba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1
     rate = (0.7 * hist + 0.3 * imp) * cal
     return round(min(0.97, max(0.03, rate)), 3), n
 
-def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0):
+def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0, team=""):
     col = NBA_COL_MAP.get(stat_type)
     if not col:
         return 0.5, 0
@@ -451,7 +529,7 @@ def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
 
 # ── Parlay builder (mirrors dashboard _build_parlays) ─────────────────────
 
-def build_parlays(legs, min_legs=2, max_legs=4, top_n=50, pool_size=30):
+def build_parlays(legs, min_legs=2, max_legs=4, top_n=50, pool_size=30, max_leg_uses=6):
     # Cap pool to avoid combinatorial explosion (C(pool_size,4) stays manageable)
     legs = sorted(legs, key=lambda x: x["hit_rate"], reverse=True)[:pool_size]
     results = []
@@ -471,18 +549,29 @@ def build_parlays(legs, min_legs=2, max_legs=4, top_n=50, pool_size=30):
                 "ev": round(prob * payout - (1.0 - prob), 4),
             })
 
-    def _top(pool, key_fn, exclude=None):
+    def _top(pool, key_fn, exclude=None, max_uses=None):
+        # max_uses caps how many output parlays any single player+stat leg can
+        # appear in, so top_n isn't just recombinations of the same handful of
+        # highest-confidence legs (e.g. all "Hits" props flooding the safe list).
         seen, out = set(), []
+        leg_uses = defaultdict(int)
         for p in sorted(pool, key=key_fn, reverse=True):
-            k = frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
-            if k not in seen and (not exclude or k not in exclude):
-                seen.add(k); out.append(p)
+            leg_keys = [f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]]
+            k = frozenset(leg_keys)
+            if k in seen or (exclude and k in exclude):
+                continue
+            if max_uses is not None and any(leg_uses[lk] >= max_uses for lk in leg_keys):
+                continue
+            seen.add(k)
+            out.append(p)
+            for lk in leg_keys:
+                leg_uses[lk] += 1
         return out
 
-    safe  = _top(results, lambda x: x["prob"])[:top_n]
+    safe  = _top(results, lambda x: x["prob"], max_uses=max_leg_uses)[:top_n]
     sk    = {frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]) for p in safe}
     value = _top(sorted(results, key=lambda x: (x["n"], x["ev"]), reverse=True),
-                 lambda x: x["ev"], exclude=sk)[:top_n]
+                 lambda x: x["ev"], exclude=sk, max_uses=max_leg_uses)[:top_n]
     return safe, value
 
 # ── Leg scorer ─────────────────────────────────────────────────────────────
@@ -504,6 +593,7 @@ def score_legs(df, cal, stat_types, rate_fn):
             odds_type=str(row.get("odds_type", "standard")),
             implied=float(row.get("implied_prob", -1.0)),
             cal=cal.get(row["stat_type"], 1.0),
+            team=str(row.get("team", "")),
         )
         if n < 3:
             continue

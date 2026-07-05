@@ -17,9 +17,10 @@ from pathlib import Path
 import pandas as pd
 
 LOG_PATH = Path(__file__).parent / "parlay_log.json"
-CAL_MIN_SAMPLES = 15          # minimum resolved legs per stat before calibration kicks in
+CAL_MIN_SAMPLES = 15          # minimum weighted resolved legs per stat before calibration kicks in
 CAL_MAX_FACTOR = 1.35         # clamp calibration multiplier upper bound
 CAL_MIN_FACTOR = 0.05         # allow deep deflation for stats like RBI/HR that rarely hit
+CAL_HALF_LIFE_WEEKS = 3       # recency weighting: a week's legs count half as much every 3 weeks of age
 
 # ── NBA stat resolution: how to compute a value from a PlayerGameLog row ─────
 # Format: "stat_type": ("single", col) or ("sum", [cols])
@@ -63,17 +64,38 @@ _MLB_PITCHER_TYPES = set(_MLB_PITCHING_RESOLVE)
 # Persistence helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
+_CACHE: dict | None = None
+_CACHE_MTIME: float = 0.0
+
+
 def _load() -> dict:
+    global _CACHE, _CACHE_MTIME
+    try:
+        mtime = LOG_PATH.stat().st_mtime
+    except Exception:
+        mtime = 0.0
+    if _CACHE is not None and mtime == _CACHE_MTIME:
+        return _CACHE
     if LOG_PATH.exists():
         try:
-            return json.loads(LOG_PATH.read_text(encoding="utf-8"))
+            _CACHE = json.loads(LOG_PATH.read_text(encoding="utf-8"))
+            _CACHE_MTIME = mtime
+            return _CACHE
         except Exception:
             pass
-    return {"version": 1, "parlays": []}
+    _CACHE = {"version": 1, "parlays": []}
+    _CACHE_MTIME = 0.0
+    return _CACHE
 
 
 def _save(data: dict) -> None:
+    global _CACHE, _CACHE_MTIME
     LOG_PATH.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+    _CACHE = data
+    try:
+        _CACHE_MTIME = LOG_PATH.stat().st_mtime
+    except Exception:
+        _CACHE_MTIME = 0.0
 
 
 def _parlay_id(parlay: dict, sport: str, sportsbook: str) -> str:
@@ -631,35 +653,62 @@ def resolve_all_legs() -> dict:
 # Calibration
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _week_ordinal(iso_week: str) -> int | None:
+    """Convert '2026-W27' to a comparable weekly ordinal (Monday's date // 7)."""
+    try:
+        year, wk = iso_week.split("-W")
+        monday = datetime.strptime(f"{year}-W{int(wk):02d}-1", "%G-W%V-%u")
+        return monday.toordinal() // 7
+    except Exception:
+        return None
+
+
 def get_calibration(sport: str | None = None) -> dict:
     """
-    Return per-stat calibration factors from resolved legs.
+    Return per-stat calibration factors from resolved legs, recency-weighted
+    so a live drift in model accuracy is corrected within a few weeks instead
+    of being diluted by months of older, since-resolved history.
+    Each leg is weighted by 0.5 ** (weeks_ago / CAL_HALF_LIFE_WEEKS), where
+    weeks_ago is measured against the most recent iso_week in the log.
     Pass sport='NBA', 'MLB', or 'WNBA' to get sport-specific factors;
     omit to blend all sports (legacy behaviour).
     factor > 1.0 → model underestimates; < 1.0 → overestimates.
-    Only populated when a stat has >= CAL_MIN_SAMPLES resolved legs.
+    Only populated once a stat's weighted sample size reaches CAL_MIN_SAMPLES.
     """
     data = _load()
-    predicted: dict[str, list] = defaultdict(list)
-    actual: dict[str, list] = defaultdict(list)
+    parlays = [p for p in data["parlays"] if not sport or p.get("sport") == sport]
+    if not parlays:
+        return {}
 
-    for parlay in data["parlays"]:
-        if sport and parlay.get("sport") != sport:
-            continue
+    week_ords = [_week_ordinal(p["iso_week"]) for p in parlays if p.get("iso_week")]
+    week_ords = [w for w in week_ords if w is not None]
+    latest_ord = max(week_ords) if week_ords else None
+
+    predicted: dict[str, float] = defaultdict(float)
+    actual: dict[str, float] = defaultdict(float)
+    weight_sum: dict[str, float] = defaultdict(float)
+
+    for parlay in parlays:
+        w = 1.0
+        if latest_ord is not None:
+            wk_ord = _week_ordinal(parlay.get("iso_week", ""))
+            if wk_ord is not None:
+                weeks_ago = max(0, latest_ord - wk_ord)
+                w = 0.5 ** (weeks_ago / CAL_HALF_LIFE_WEEKS)
         for leg in parlay["legs"]:
             if leg["outcome"] is None or leg["outcome"] == "void":
                 continue
             stat = leg["stat_type"]
-            predicted[stat].append(leg["predicted_hit_rate"])
-            actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
+            predicted[stat] += w * leg["predicted_hit_rate"]
+            actual[stat] += w * (1.0 if leg["outcome"] is True else 0.0)
+            weight_sum[stat] += w
 
     factors = {}
-    for stat in predicted:
-        n = len(predicted[stat])
-        if n < CAL_MIN_SAMPLES:
+    for stat, wsum in weight_sum.items():
+        if wsum < CAL_MIN_SAMPLES:
             continue
-        p_mean = sum(predicted[stat]) / n
-        a_mean = sum(actual[stat]) / n
+        p_mean = predicted[stat] / wsum
+        a_mean = actual[stat] / wsum
         if p_mean > 0:
             raw = a_mean / p_mean
             factors[stat] = round(max(CAL_MIN_FACTOR, min(CAL_MAX_FACTOR, raw)), 4)
