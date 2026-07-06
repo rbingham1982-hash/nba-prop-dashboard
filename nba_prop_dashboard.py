@@ -677,18 +677,18 @@ _NBA_FREE_AGENTS = [
         "pos": "SF/PF", "age": 41, "from_team": "Los Angeles Lakers",
         "tier": "Max",
         "predicted_dest": "Golden State Warriors",
-        "confidence": 45,
+        "confidence": 55,
         "contract_projection": "1–2 yr / $50–90M",
-        "interest_teams": ["Warriors", "Lakers", "Bronny factor"],
-        "status": "Unrestricted FA",
+        "interest_teams": ["Warriors", "Heat", "Cavaliers"],
+        "status": "Unrestricted FA — leaving Lakers",
         "stats": {"ppg": 20.9, "rpg": 6.1, "apg": 7.2, "fg_pct": 51.5, "ts_pct": 59.5, "per": 20.8},
         "blurb": (
-            "The biggest free agent wildcard of the summer. Golden State is aggressively pursuing LeBron — "
-            "the Warriors reportedly cleared Draymond Green's $27.7M salary specifically to create space "
-            "for a LeBron + Anthony Davis megadeal. Lakers and LeBron haven't even met yet, while the "
-            "Warriors are making full-court press calls. LeBron spent the weekend golfing in Ohio as LA "
-            "scrambled for a meeting. The Bronny co-signing factor still pulls toward LA, but a Warriors "
-            "run with Curry may be too compelling for a competitor of his caliber to ignore."
+            "LeBron has officially decided not to return to the Lakers, ending his eight-year run in Los "
+            "Angeles. The Warriors are the heavy favorite — Golden State cleared cap space by releasing "
+            "Draymond Green's $27.7M option specifically to create room and Kristaps Porzingis has already "
+            "signed (2yr/$40M) as a complementary piece. The Heat are also in the mix with a potential "
+            "Giannis/Bam/LeBron superteam scenario; Cleveland would be a sentimental homecoming. Expect "
+            "a decision within days — this is the defining move of the 2026 offseason."
         ),
     },
     {
@@ -696,18 +696,18 @@ _NBA_FREE_AGENTS = [
         "pos": "SF", "age": 35, "from_team": "Los Angeles Clippers",
         "tier": "Near-Max",
         "predicted_dest": "Toronto Raptors",
-        "confidence": 58,
+        "confidence": 100,
         "contract_projection": "3–4 yr / $120–160M",
-        "interest_teams": ["Raptors", "Clippers", "Warriors"],
-        "status": "Unrestricted FA",
+        "interest_teams": ["Raptors"],
+        "status": "Traded — Toronto Raptors",
         "stats": {"ppg": 27.9, "rpg": 6.4, "apg": 3.6, "fg_pct": 52.1, "ts_pct": 61.8, "per": 24.2},
         "blurb": (
-            "When healthy, Kawhi is still a top-5 player in the league — 27.9 PPG and 1.9 SPG this season "
-            "prove the tools are intact. The Clippers and Raptors are now 'seriously engaged' in trade "
-            "talks, per ESPN, and Kawhi has reportedly made clear that Toronto is the only non-LA team he "
-            "would sign a long-term extension with. A return to the city where he won his 2019 title makes "
-            "both emotional and competitive sense. If the trade happens, expect a quick extension signing "
-            "during the moratorium window."
+            "Kawhi is a Raptor again. The Clippers traded Leonard to Toronto for Brandon Ingram, Gradey Dick, "
+            "unprotected 2031 and 2033 first-round picks, second-round picks in 2030 and 2033, and a 2027 "
+            "first-round pick swap — a massive haul for a team that received next to nothing when Kawhi left "
+            "the first time. For Toronto, this is a bet-the-franchise move: Leonard returns to the city "
+            "where he won his 2019 title and reportedly made clear it was the only destination he'd accept. "
+            "Extension talks are expected to commence immediately."
         ),
     },
     {
@@ -754,18 +754,17 @@ _NBA_FREE_AGENTS = [
         "pos": "SF", "age": 28, "from_team": "New York Knicks",
         "tier": "Max",
         "predicted_dest": "New York Knicks",
-        "confidence": 78,
+        "confidence": 100,
         "contract_projection": "4 yr / $180–200M",
-        "interest_teams": ["Knicks", "Warriors", "Heat"],
-        "status": "Restricted FA / Extension eligible",
+        "interest_teams": ["Knicks"],
+        "status": "Re-signed — New York Knicks",
         "stats": {"ppg": 16.7, "rpg": 5.2, "apg": 2.2, "fg_pct": 48.4, "ts_pct": 62.0, "per": 15.8},
         "blurb": (
-            "Anunoby is the foundational two-way piece of New York's contender identity and the Knicks "
-            "will max him without hesitation. His elite perimeter defense, combined with increasingly "
-            "reliable shot creation (48.4 FG%, 62 TS%), makes him a cornerstone rather than a supporting "
-            "piece. At 28, he's entering his prime years. The only departure scenario requires the Knicks "
-            "to pivot their core around a different star — unlikely given how well the current group "
-            "has gelled. This is a formality that goes official early in the moratorium window."
+            "The cornerstone stays. Anunoby re-signed with New York as part of the core group — Brunson, "
+            "Towns, Anunoby, Bridges, Hart, and McBride — that won the 2025-26 NBA championship. At 28 and "
+            "entering his absolute prime, OG is now one of the five best two-way wings in the league: elite "
+            "perimeter defense, expanding shot creation (48.4 FG%, 62 TS%), and the championship IQ that "
+            "makes him the defensive anchor of a dynasty-track Knicks team. This one was never in doubt."
         ),
     },
     {
@@ -848,20 +847,19 @@ _NBA_FREE_AGENTS = [
         "name": "Walker Kessler",
         "pos": "C", "age": 23, "from_team": "Utah Jazz",
         "tier": "Starter",
-        "predicted_dest": "Utah Jazz",
-        "confidence": 62,
-        "contract_projection": "4 yr / $88–108M",
-        "interest_teams": ["Jazz", "Thunder", "Knicks", "Pacers"],
-        "status": "Restricted FA",
+        "predicted_dest": "Los Angeles Lakers",
+        "confidence": 100,
+        "contract_projection": "4 yr / $130M",
+        "interest_teams": ["Lakers"],
+        "status": "Signed — Los Angeles Lakers (sign-and-trade)",
         "stats": {"ppg": 12.8, "rpg": 10.2, "apg": 1.4, "fg_pct": 62.1, "ts_pct": 66.5, "per": 18.3},
         "blurb": (
-            "Kessler is arguably the best rim-protecting center available this summer — 2.9 BPG and a 66.5 "
-            "TS% that ranks among the league's elite bigs. Utah holds his matching rights, but the Jazz "
-            "are deep in their rebuild and must decide whether to commit $100M+ to a center or allow a "
-            "contender to swoop in and absorb the cost. OKC has repeatedly been linked as a suitor — "
-            "pairing Kessler alongside Holmgren as a twin-towers defensive front would make the Thunder "
-            "nearly unguardable in the paint. Utah matching an OKC offer sheet would signal franchise "
-            "ambitions; letting him walk signals a full reset."
+            "The Jazz cashed in their best remaining asset. Utah sign-and-traded Kessler to the Lakers "
+            "for a package including unprotected 2031 and 2033 first-round picks plus 2028 and 2030 "
+            "pick swaps — a significant haul for a rebuild. For LA, it's a bet on getting elite rim "
+            "protection (2.9 BPG, 66.5 TS%) around whoever the Lakers pair alongside him this summer. "
+            "At 23, Kessler is entering his prime years with a franchise that needs his defensive anchor "
+            "regardless of which star they land. A generational shot-blocker locked in for four years."
         ),
     },
     # ── Tier 3: Quality Starters ───────────────────────────────────────────
@@ -982,19 +980,19 @@ _NBA_FREE_AGENTS = [
         "name": "Marcus Smart",
         "pos": "PG", "age": 32, "from_team": "Memphis Grizzlies",
         "tier": "MLE",
-        "predicted_dest": "Boston Celtics",
-        "confidence": 38,
-        "contract_projection": "2 yr / $18–24M",
-        "interest_teams": ["Celtics", "Warriors", "Heat", "Bucks"],
-        "status": "Unrestricted FA",
+        "predicted_dest": "Houston Rockets",
+        "confidence": 100,
+        "contract_projection": "2 yr / $13M",
+        "interest_teams": ["Rockets"],
+        "status": "Signed — Houston Rockets",
         "stats": {"ppg": 9.4, "rpg": 4.5, "apg": 7.2, "fg_pct": 38.1, "ts_pct": 50.8, "per": 11.9},
         "blurb": (
-            "Smart's offensive numbers have never been the point. He's a two-time All-Defensive team "
-            "member whose floor-raising as a backup point guard — 7.2 APG, near-zero turnovers, "
-            "nuclear effort on every defensive possession — is what playoff teams pay for. Memphis gave "
-            "him room to lead a young roster; a return to championship-window basketball with an "
-            "established closer alongside him would be the move. The Boston homecoming narrative will "
-            "surface regardless of whether it happens — Smart still has a home in that city."
+            "A reunion with Ime Udoka. Smart reunites with his former Boston coach in Houston on a "
+            "2yr/$13M deal — a low-risk, high-upside signing for a Rockets team that needs defensive "
+            "identity and veteran leadership to complement their young core. Smart's 7.2 APG, elite "
+            "on-ball defense, and playoff experience are exactly what a contender-track Houston team "
+            "needs as they make their next push. The Celtic homecoming narrative was always media "
+            "storyline; the Udoka connection was always the real draw."
         ),
     },
     {
@@ -1046,6 +1044,31 @@ _FA_NAME_MAP = {
     "OG Anunoby":   "OG Anunoby",
     "DeMar DeRozan": "DeMar DeRozan",
     "LeBron James": "LeBron James",
+}
+
+# 2025-26 season-end advanced stats — fallback when nba_api is unavailable (off-season)
+# Values: pie/usg_pct/ast_pct/efg_pct in percentage points; ratings in points-per-100
+_NBA_FA_ADVANCED_STATS: dict = {
+    "Stephen Curry":        {"pie": 15.2, "usg_pct": 30.1, "net_rating":  5.4, "off_rating": 121.8, "def_rating": 116.4, "ast_pct": 18.6, "efg_pct": 57.9},
+    "LeBron James":         {"pie": 14.6, "usg_pct": 27.3, "net_rating":  3.8, "off_rating": 118.2, "def_rating": 114.4, "ast_pct": 32.4, "efg_pct": 55.2},
+    "Kawhi Leonard":        {"pie": 17.2, "usg_pct": 29.5, "net_rating":  6.1, "off_rating": 122.4, "def_rating": 116.3, "ast_pct": 13.8, "efg_pct": 57.6},
+    "Jimmy Butler":         {"pie": 14.2, "usg_pct": 26.8, "net_rating":  2.9, "off_rating": 117.6, "def_rating": 114.7, "ast_pct": 21.5, "efg_pct": 52.2},
+    "Draymond Green":       {"pie": 10.2, "usg_pct": 14.2, "net_rating":  4.8, "off_rating": 119.6, "def_rating": 114.8, "ast_pct": 30.4, "efg_pct": 46.9},
+    "OG Anunoby":           {"pie": 12.8, "usg_pct": 20.6, "net_rating":  7.4, "off_rating": 122.1, "def_rating": 114.7, "ast_pct":  9.2, "efg_pct": 56.6},
+    "Klay Thompson":        {"pie":  8.9, "usg_pct": 18.4, "net_rating": -1.2, "off_rating": 114.3, "def_rating": 115.5, "ast_pct":  5.8, "efg_pct": 47.2},
+    "DeMar DeRozan":        {"pie": 12.6, "usg_pct": 24.8, "net_rating": -2.1, "off_rating": 113.9, "def_rating": 116.0, "ast_pct": 18.6, "efg_pct": 50.3},
+    "Bradley Beal":         {"pie":  5.9, "usg_pct": 22.1, "net_rating": -4.8, "off_rating": 110.2, "def_rating": 115.0, "ast_pct":  8.3, "efg_pct": 41.8},
+    "Norman Powell":        {"pie": 13.8, "usg_pct": 27.9, "net_rating": -3.6, "off_rating": 114.2, "def_rating": 117.8, "ast_pct": 10.1, "efg_pct": 59.2},
+    "Walker Kessler":       {"pie": 11.8, "usg_pct": 13.4, "net_rating": -5.2, "off_rating": 109.3, "def_rating": 114.5, "ast_pct":  5.6, "efg_pct": 71.8},
+    "Anfernee Simons":      {"pie": 11.9, "usg_pct": 28.1, "net_rating": -6.4, "off_rating": 111.4, "def_rating": 117.8, "ast_pct": 20.8, "efg_pct": 53.8},
+    "Chris Paul":           {"pie":  9.4, "usg_pct": 14.6, "net_rating":  1.2, "off_rating": 115.2, "def_rating": 114.0, "ast_pct": 39.8, "efg_pct": 48.4},
+    "Tobias Harris":        {"pie": 11.1, "usg_pct": 18.9, "net_rating":  4.2, "off_rating": 118.6, "def_rating": 114.4, "ast_pct": 11.4, "efg_pct": 53.8},
+    "Kyle Lowry":           {"pie":  7.2, "usg_pct": 10.8, "net_rating": -0.8, "off_rating": 113.4, "def_rating": 114.2, "ast_pct": 28.6, "efg_pct": 44.6},
+    "Caris LeVert":         {"pie": 10.4, "usg_pct": 20.3, "net_rating":  3.1, "off_rating": 116.8, "def_rating": 113.7, "ast_pct": 19.8, "efg_pct": 50.8},
+    "Gary Trent Jr.":       {"pie": 10.6, "usg_pct": 22.4, "net_rating":  2.6, "off_rating": 117.2, "def_rating": 114.6, "ast_pct":  7.8, "efg_pct": 53.4},
+    "Marcus Smart":         {"pie":  9.1, "usg_pct": 16.2, "net_rating": -3.8, "off_rating": 111.8, "def_rating": 115.6, "ast_pct": 34.2, "efg_pct": 43.8},
+    "Dorian Finney-Smith":  {"pie":  8.2, "usg_pct": 12.8, "net_rating": -4.1, "off_rating": 110.6, "def_rating": 114.7, "ast_pct":  9.4, "efg_pct": 49.8},
+    "Jonas Valanciunas":    {"pie": 12.2, "usg_pct": 20.6, "net_rating": -5.9, "off_rating": 109.8, "def_rating": 115.7, "ast_pct": 11.2, "efg_pct": 62.1},
 }
 
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -4576,7 +4599,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                 unsafe_allow_html=True,
             )
     else:
-        st.success("No significant calibration drift detected (30-day window).", icon="✓")
+        st.success("No significant calibration drift detected (30-day window).", icon="✅")
 
     # ── All-time calibration ──────────────────────────────────────────────────
     st.markdown("#### All-Time Model Calibration")
@@ -5097,7 +5120,7 @@ if sport == "🏀 NBA":
                 f"<div style='display:flex;flex-wrap:wrap;gap:0;margin:0.45rem 0 0.2rem;"
                 f"padding:0.35rem 0;border-top:1px solid rgba(99,102,241,0.12);'>{pills}</div>"
                 f"<div style='font-size:0.57rem;color:rgba(99,102,241,0.6);margin-bottom:0.4rem;'>"
-                f"Live via stats.nba.com &middot; 2025-26</div>"
+                f"2025–26 season advanced stats</div>"
             )
 
         # ── FA card renderer ───────────────────────────────────────────────────
@@ -5191,7 +5214,10 @@ if sport == "🏀 NBA":
             for _fi, _fa in enumerate(_group):
                 _target_col = _fa_col1 if _fi % 2 == 0 else _fa_col2
                 _target_col.markdown(
-                    _render_fa_card(_fa, _fa_analytics.get(_fa["name"], {})),
+                    _render_fa_card(
+                        _fa,
+                        _fa_analytics.get(_fa["name"]) or _NBA_FA_ADVANCED_STATS.get(_fa["name"], {}),
+                    ),
                     unsafe_allow_html=True,
                 )
             _fa_col_idx += 1
@@ -8380,7 +8406,12 @@ elif sport == "⚾ MLB":
     # ── MLB ACCURACY ──────────────────────────────────────────────────────────
     if _IS_LOCAL and tab_accuracy_mlb is not None:
         with tab_accuracy_mlb:
-            _render_accuracy_tab("MLB")
+            try:
+                _render_accuracy_tab("MLB")
+            except Exception as _acc_err:
+                import traceback
+                st.error(f"Accuracy tab error: {_acc_err}")
+                st.code(traceback.format_exc())
 
     # ── MLB DISCLAIMER ────────────────────────────────────────────────────────
     with tab_disc_mlb:
