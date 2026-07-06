@@ -4,55 +4,27 @@ Runs at 2 pm daily via Windows Task Scheduler.
 Fetches PrizePicks + Underdog lines for MLB, WNBA, and NBA (when in season),
 scores each leg with the same historical hit-rate logic as the dashboard,
 builds safe + value parlays, and logs them to parlay_log.json.
+
+The prediction model itself (hit-rate calculators, BvP, game-log fetchers,
+parlay builder) lives in parlay_model.py, shared with nba_prop_dashboard.py,
+so the two stop drifting apart.
 """
 import sys, time, os, requests, pandas as pd
-from itertools import combinations
-from collections import defaultdict
 from datetime import datetime
 sys.stdout.reconfigure(encoding="utf-8")
 
-# parlay_tracker lives in the same directory
+# parlay_tracker / parlay_model live in the same directory
 sys.path.insert(0, os.path.dirname(__file__))
 import parlay_tracker
+import parlay_model as pm
 
-MLB_BASE   = "https://statsapi.mlb.com/api/v1"
-MLB_SEASON = "2026"
-
-PP_PAYOUTS      = {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0}
-PP_ODDS_IMPLIED = {"goblin": 0.62, "standard": 0.50, "demon": 0.38}
-PP_DEAD         = {"final", "postponed", "cancelled", "canceled", "suspended"}
-PP_HEADERS      = {
+PP_PAYOUTS       = pm.PP_PAYOUTS
+PP_ODDS_IMPLIED  = pm.PP_ODDS_IMPLIED
+PP_DEAD          = {"final", "postponed", "cancelled", "canceled", "suspended"}
+PP_HEADERS       = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36",
     "Accept": "application/json",
     "Referer": "https://app.prizepicks.com/",
-}
-
-PP_MLB_HIT_COL = {
-    "Hits": "H", "Home Runs": "HR", "Stolen Bases": "SB",
-    "Strikeouts": "K", "Hitter Strikeouts": "K",
-    "Walks": "BB", "Runs Scored": "R", "Runs": "R",
-    "Doubles": "2B", "Hits+Runs+RBIs": "H", "Plate Appearances": "AB",
-}
-PP_MLB_PIT_COL = {
-    "Pitcher Strikeouts": "K", "Strikeouts": "K",
-    "Earned Runs Allowed": "ER", "Walks Allowed": "BB",
-    "Hits Allowed": "H", "Pitching Outs": "IP", "Pitches Thrown": "NP",
-}
-PP_PITCHER_TYPES = {
-    "Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed",
-    "Hits Allowed", "Pitching Outs", "Pitches Thrown",
-}
-BVP_COL_MAP = {"H": "h", "HR": "hr", "TB": "tb", "K": "k", "BB": "bb", "RBI": "rbi"}
-BVP_MIN_AB  = 15  # minimum career AB vs pitcher to apply adjustment
-WNBA_COL_MAP = {
-    "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
-    "Steals": "STL", "Blocks": "BLK", "3-PT Made": "FG3M",
-    "Pts+Rebs+Asts": "PRA", "Pts+Rebs": "PR", "Pts+Asts": "PA",
-}
-NBA_COL_MAP = {
-    "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
-    "Pts+Rebs+Asts": "PRA", "Pts+Asts": "PA", "Pts+Rebs": "PR",
-    "3-PT Made": "FG3M", "Blocked Shots": "BLK", "Steals": "STL", "Turnovers": "TOV",
 }
 
 MLB_STAT_TYPES  = ["Hits", "Pitcher Strikeouts", "Home Runs", "Runs Scored"]
@@ -200,379 +172,27 @@ def fetch_underdog(sport: str) -> pd.DataFrame:
         print(f"    Underdog fetch failed: {e}")
         return pd.DataFrame()
 
-# ── MLB player ID + game logs ──────────────────────────────────────────────
-
-_mlb_name_map   = {}
-_mlb_hit_cache  = {}
-_mlb_pit_cache  = {}
-
-def get_mlb_player_map():
-    if _mlb_name_map:
-        return _mlb_name_map
-    for season in ("2025", "2026"):
-        try:
-            for p in requests.get(f"{MLB_BASE}/sports/1/players?season={season}", timeout=15).json().get("people", []):
-                _mlb_name_map[p["fullName"].lower().strip()] = p["id"]
-        except Exception:
-            pass
-    return _mlb_name_map
-
-def mlb_player_id(name: str):
-    nm  = get_mlb_player_map()
-    key = name.lower().strip()
-    if key in nm:
-        return nm[key]
-    parts = key.split()
-    if len(parts) >= 2:
-        first, last = parts[0].rstrip("."), parts[-1]
-        for full, pid in nm.items():
-            fp = full.split()
-            if len(fp) >= 2 and fp[-1] == last and fp[0].startswith(first):
-                return pid
-    if parts:
-        hits = [pid for full, pid in nm.items() if full.split()[-1] == parts[-1]]
-        if len(hits) == 1:
-            return hits[0]
-    return None
-
-def get_mlb_hitting_logs(pid):
-    if pid in _mlb_hit_cache:
-        return _mlb_hit_cache[pid]
-    frames = []
-    for season in ("2025", "2026"):
-        try:
-            url  = f"{MLB_BASE}/people/{pid}/stats?stats=gameLog&season={season}&group=hitting"
-            data = requests.get(url, timeout=10).json().get("stats", [{}])[0].get("splits", [])
-            rows = []
-            for s in data:
-                st = s.get("stat", {})
-                rows.append({
-                    "date": s.get("date", ""),
-                    "H":  int(st.get("hits", 0) or 0),
-                    "HR": int(st.get("homeRuns", 0) or 0),
-                    "R":  int(st.get("runs", 0) or 0),
-                    "SB": int(st.get("stolenBases", 0) or 0),
-                    "BB": int(st.get("baseOnBalls", 0) or 0),
-                    "AB": int(st.get("atBats", 0) or 0),
-                    "K":  int(st.get("strikeOuts", 0) or 0),
-                    "2B": int(st.get("doubles", 0) or 0),
-                })
-            if rows:
-                frames.append(pd.DataFrame(rows))
-        except Exception:
-            pass
-    df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
-    _mlb_hit_cache[pid] = df
-    return df
-
-def get_mlb_pitching_logs(pid):
-    if pid in _mlb_pit_cache:
-        return _mlb_pit_cache[pid]
-    frames = []
-    for season in ("2025", "2026"):
-        try:
-            url  = f"{MLB_BASE}/people/{pid}/stats?stats=gameLog&season={season}&group=pitching"
-            data = requests.get(url, timeout=10).json().get("stats", [{}])[0].get("splits", [])
-            rows = []
-            for s in data:
-                st = s.get("stat", {})
-                ip_str = str(st.get("inningsPitched") or "0")
-                parts  = ip_str.split(".")
-                ip     = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
-                rows.append({
-                    "date": s.get("date", ""),
-                    "IP": round(ip, 1),
-                    "H":  int(st.get("hits", 0) or 0),
-                    "ER": int(st.get("earnedRuns", 0) or 0),
-                    "BB": int(st.get("baseOnBalls", 0) or 0),
-                    "K":  int(st.get("strikeOuts", 0) or 0),
-                    "NP": int(st.get("numberOfPitches", 0) or 0),
-                })
-            if rows:
-                frames.append(pd.DataFrame(rows))
-        except Exception:
-            pass
-    df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
-    _mlb_pit_cache[pid] = df
-    return df
-
-# ── WNBA / NBA game logs (nba_api) ────────────────────────────────────────
-
-_wnba_ids  = {}
-_wnba_logs = {}
-_nba_ids   = {}
-_nba_logs  = {}
-
-def _load_wnba_ids():
-    if _wnba_ids:
-        return _wnba_ids
-    try:
-        from nba_api.stats.endpoints import commonallplayers
-        df = commonallplayers.CommonAllPlayers(is_only_current_season=0, league_id="10").get_data_frames()[0]
-        _wnba_ids.update({r["DISPLAY_FIRST_LAST"].lower(): int(r["PERSON_ID"]) for _, r in df.iterrows()})
-    except Exception:
-        pass
-    return _wnba_ids
-
-def _load_nba_ids():
-    if _nba_ids:
-        return _nba_ids
-    try:
-        from nba_api.stats.static import players as nba_players
-        _nba_ids.update({p["full_name"].lower(): p["id"] for p in nba_players.get_players()})
-    except Exception:
-        pass
-    return _nba_ids
-
-def get_wnba_gamelogs(pid):
-    if pid in _wnba_logs:
-        return _wnba_logs[pid]
-    try:
-        from nba_api.stats.endpoints import playergamelog
-        frames = []
-        for season in ("2025", "2024"):
-            try:
-                logs = playergamelog.PlayerGameLog(
-                    player_id=pid, season=season,
-                    season_type_all_star="Regular Season",
-                    league_id_nullable="10", timeout=15,
-                ).get_data_frames()[0]
-                if not logs.empty:
-                    frames.append(logs)
-            except Exception:
-                continue
-        df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
-    except Exception:
-        df = pd.DataFrame()
-    _wnba_logs[pid] = df
-    return df
-
-def get_nba_gamelogs(pid):
-    if pid in _nba_logs:
-        return _nba_logs[pid]
-    try:
-        from nba_api.stats.endpoints import playergamelog
-        frames = []
-        for season in ("2025-26", "2024-25"):
-            try:
-                logs = playergamelog.PlayerGameLog(
-                    player_id=pid, season=season,
-                    season_type_all_star="Regular Season", timeout=15,
-                ).get_data_frames()[0]
-                if not logs.empty:
-                    frames.append(logs)
-            except Exception:
-                continue
-        df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
-    except Exception:
-        df = pd.DataFrame()
-    _nba_logs[pid] = df
-    return df
-
-# ── Batter vs. pitcher matchup ─────────────────────────────────────────────
-
-_bvp_cache = {}
-_pitcher_lookup_cache = {}
-
-def mlb_bvp_stats(batter_id: int, pitcher_id: int) -> dict:
-    """Career batting stats for batter_id against pitcher_id. Returns {} if no data."""
-    key = (batter_id, pitcher_id)
-    if key in _bvp_cache:
-        return _bvp_cache[key]
-    result = {}
-    try:
-        url = (f"{MLB_BASE}/people/{batter_id}/stats"
-               f"?stats=vsPlayer&group=hitting&opposingPlayerId={pitcher_id}&sportId=1")
-        resp = requests.get(url, timeout=10)
-        splits = (resp.json().get("stats") or [{}])[0].get("splits", [])
-        if splits:
-            st_data = splits[0].get("stat", {})
-            result = {
-                "ab":  int(st_data.get("atBats") or 0),
-                "h":   int(st_data.get("hits") or 0),
-                "hr":  int(st_data.get("homeRuns") or 0),
-                "tb":  int(st_data.get("totalBases") or 0),
-                "k":   int(st_data.get("strikeOuts") or 0),
-                "bb":  int(st_data.get("baseOnBalls") or 0),
-                "rbi": int(st_data.get("rbi") or 0),
-            }
-    except Exception:
-        pass
-    _bvp_cache[key] = result
-    return result
-
-def mlb_today_pitcher_lookup() -> dict:
-    """Returns {team_abbr: opp_pitcher_id} for today's MLB games."""
-    if _pitcher_lookup_cache:
-        return _pitcher_lookup_cache
-    try:
-        today = datetime.now().strftime("%Y-%m-%d")
-        url = f"{MLB_BASE}/schedule?sportId=1&date={today}&hydrate=probablePitcher,team"
-        resp = requests.get(url, timeout=10)
-        for date_entry in resp.json().get("dates", []):
-            for game in date_entry.get("games", []):
-                at, ht = game["teams"]["away"], game["teams"]["home"]
-                away_abbr = at["team"].get("abbreviation", "")
-                home_abbr = ht["team"].get("abbreviation", "")
-                away_pid  = at.get("probablePitcher", {}).get("id")
-                home_pid  = ht.get("probablePitcher", {}).get("id")
-                if away_abbr and home_pid:
-                    _pitcher_lookup_cache[away_abbr] = home_pid   # away batters face home pitcher
-                if home_abbr and away_pid:
-                    _pitcher_lookup_cache[home_abbr] = away_pid   # home batters face away pitcher
-    except Exception:
-        pass
-    return _pitcher_lookup_cache
-
-# ── Hit rate calculators ───────────────────────────────────────────────────
-
-def _weighted_rate(vals, line, is_pitcher=False):
-    last20 = vals[-20:] if len(vals) >= 5 else vals
-    last10 = vals[-10:] if len(vals) >= 10 else vals
-    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[:max(1, len(vals) // 2)]
-    if len(last20) == 0:
-        return 0.5, 0
-    r20 = float((last20 > line).sum()) / len(last20)
-    if is_pitcher:
-        last3 = vals[-3:] if len(vals) >= 3 else vals
-        r3    = float((last3  > line).sum()) / max(len(last3),  1)
-        r10v  = float((last10 > line).sum()) / max(len(last10), 1) if len(last10) >= 3 else r20
-        hist  = 0.50 * r3 + 0.30 * r10v + 0.20 * r20
-    else:
-        r10v = float((last10 > line).sum()) / len(last10) if len(last10) >= 5 else r20
-        hist = 0.6 * r10v + 0.4 * r20
-    if len(last10) >= 5 and len(prev10) >= 5:
-        r_prev = float((prev10 > line).sum()) / len(prev10)
-        r10c   = float((last10 > line).sum()) / len(last10)
-        hist   = min(0.97, max(0.03, hist + (r10c - r_prev) * 0.1))
-    return hist, len(last20)
+# ── Hit-rate adapters ───────────────────────────────────────────────────────
+# Thin shims translating this script's (implied=, cal=, team=) calling
+# convention into parlay_model's canonical (implied_override=, cal_factor=,
+# opp_pitcher_id=) signatures, so score_legs/run_sport/main below are
+# unchanged from before the model logic moved into the shared module.
 
 def mlb_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0, team=""):
-    is_pit = stat_type in PP_PITCHER_TYPES
-    col    = (PP_MLB_PIT_COL if is_pit else PP_MLB_HIT_COL).get(stat_type)
-    if not col:
-        return 0.5, 0
-    pid = mlb_player_id(player_name)
-    if not pid:
-        return 0.5, 0
-    df = get_mlb_pitching_logs(pid) if is_pit else get_mlb_hitting_logs(pid)
-    if df.empty or col not in df.columns:
-        return 0.5, 0
-    hist, n = _weighted_rate(df[col].values, line, is_pitcher=is_pit)
-
-    # Batter vs pitcher (BvP): nudge hist up/down by up to +/-40% when the
-    # batter has a meaningful career sample against today's opposing starter.
-    if not is_pit and team and col in BVP_COL_MAP:
-        opp_pid = mlb_today_pitcher_lookup().get(team)
-        if opp_pid:
-            try:
-                bvp = mlb_bvp_stats(int(pid), int(opp_pid))
-                if bvp.get("ab", 0) >= BVP_MIN_AB:
-                    bvp_key = BVP_COL_MAP[col]
-                    season_ab   = float(df["AB"].sum()) if "AB" in df.columns else max(len(df) * 4, 1)
-                    season_stat = float(df[col].sum())
-                    season_per_ab = season_stat / max(season_ab, 1)
-                    bvp_per_ab    = bvp.get(bvp_key, 0) / max(bvp["ab"], 1)
-                    if season_per_ab > 0.001:
-                        bvp_factor = min(1.4, max(0.60, bvp_per_ab / season_per_ab))
-                        hist = min(0.97, max(0.03, hist * (0.85 + 0.15 * bvp_factor)))
-            except Exception:
-                pass
-
-    imp  = implied if implied >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
-    rate = (0.7 * hist + 0.3 * imp) * cal
-    return round(min(0.97, max(0.03, rate)), 3), n
+    return pm._mlb_hit_rate(player_name, stat_type, line, odds_type=odds_type,
+                             implied_override=implied, cal_factor=cal, team=team)
 
 def wnba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0, team=""):
-    col = WNBA_COL_MAP.get(stat_type)
-    if not col:
-        return 0.5, 0
-    pid = _load_wnba_ids().get(player_name.strip().lower())
-    if not pid:
-        return 0.5, 0
-    df = get_wnba_gamelogs(pid)
-    if df.empty:
-        return 0.5, 0
-    if col in ("PRA", "PR", "PA"):
-        df = df.copy()
-        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-        df["PR"]  = df["PTS"] + df["REB"]
-        df["PA"]  = df["PTS"] + df["AST"]
-    if col not in df.columns:
-        return 0.5, 0
-    hist, n = _weighted_rate(df[col].values, line)
-    imp  = implied if implied >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
-    rate = (0.7 * hist + 0.3 * imp) * cal
-    return round(min(0.97, max(0.03, rate)), 3), n
+    return pm._wnba_hit_rate(player_name, stat_type, line, odds_type=odds_type,
+                              implied_override=implied, cal_factor=cal)
 
 def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0, team=""):
-    col = NBA_COL_MAP.get(stat_type)
-    if not col:
-        return 0.5, 0
-    pid = _load_nba_ids().get(player_name.strip().lower())
-    if not pid:
-        return 0.5, 0
-    df = get_nba_gamelogs(pid)
-    if df.empty:
-        return 0.5, 0
-    if col in ("PRA", "PR", "PA"):
-        df = df.copy()
-        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-        df["PR"]  = df["PTS"] + df["REB"]
-        df["PA"]  = df["PTS"] + df["AST"]
-    if col not in df.columns:
-        return 0.5, 0
-    hist, n = _weighted_rate(df[col].values, line)
-    imp  = implied if implied >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
-    rate = (0.7 * hist + 0.3 * imp) * cal
-    return round(min(0.97, max(0.03, rate)), 3), n
-
-# ── Parlay builder (mirrors dashboard _build_parlays) ─────────────────────
+    return pm._nba_hit_rate(player_name, stat_type, line, odds_type=odds_type,
+                             implied_override=implied, cal_factor=cal)
 
 def build_parlays(legs, min_legs=2, max_legs=4, top_n=50, pool_size=30, max_leg_uses=6):
-    # Cap pool to avoid combinatorial explosion (C(pool_size,4) stays manageable)
-    legs = sorted(legs, key=lambda x: x["hit_rate"], reverse=True)[:pool_size]
-    results = []
-    for n in range(min_legs, max_legs + 1):
-        if n > len(legs):
-            continue
-        payout = PP_PAYOUTS.get(n, float(n) * 2.0)
-        for combo in combinations(legs, n):
-            if len({l["player_name"] for l in combo}) < n:
-                continue
-            prob = 1.0
-            for leg in combo:
-                prob *= leg["hit_rate"]
-            results.append({
-                "legs": list(combo), "n": n,
-                "prob": round(prob, 4), "payout": payout,
-                "ev": round(prob * payout - (1.0 - prob), 4),
-            })
-
-    def _top(pool, key_fn, exclude=None, max_uses=None):
-        # max_uses caps how many output parlays any single player+stat leg can
-        # appear in, so top_n isn't just recombinations of the same handful of
-        # highest-confidence legs (e.g. all "Hits" props flooding the safe list).
-        seen, out = set(), []
-        leg_uses = defaultdict(int)
-        for p in sorted(pool, key=key_fn, reverse=True):
-            leg_keys = [f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]]
-            k = frozenset(leg_keys)
-            if k in seen or (exclude and k in exclude):
-                continue
-            if max_uses is not None and any(leg_uses[lk] >= max_uses for lk in leg_keys):
-                continue
-            seen.add(k)
-            out.append(p)
-            for lk in leg_keys:
-                leg_uses[lk] += 1
-        return out
-
-    safe  = _top(results, lambda x: x["prob"], max_uses=max_leg_uses)[:top_n]
-    sk    = {frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]) for p in safe}
-    value = _top(sorted(results, key=lambda x: (x["n"], x["ev"]), reverse=True),
-                 lambda x: x["ev"], exclude=sk, max_uses=max_leg_uses)[:top_n]
-    return safe, value
+    return pm._build_parlays(legs, min_legs=min_legs, max_legs=max_legs,
+                              top_n=top_n, pool_size=pool_size, max_leg_uses=max_leg_uses)
 
 # ── Leg scorer ─────────────────────────────────────────────────────────────
 

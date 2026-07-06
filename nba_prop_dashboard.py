@@ -17,6 +17,38 @@ from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv3, commonallplayers
 from datetime import datetime, timedelta
 import parlay_tracker
+import parlay_model as _pm
+
+# Shared prop-prediction model (hit-rate calculators, BvP, game-log fetchers,
+# parlay builder) — see parlay_model.py. Kept under this file's original
+# names so no call sites below need to change; daily_parlay_gen.py imports
+# the same module so the two can no longer drift apart.
+PP_PAYOUTS            = _pm.PP_PAYOUTS
+_PP_ODDS_IMPLIED       = _pm.PP_ODDS_IMPLIED
+_PP_NBA_STAT_COL       = _pm.NBA_STAT_COL
+_PP_MLB_HIT_COL        = _pm.MLB_HIT_COL
+_PP_MLB_PIT_COL        = _pm.MLB_PIT_COL
+_PP_PITCHER_TYPES      = _pm.MLB_PITCHER_TYPES
+_WNBA_PARLAY_COL_MAP   = _pm.WNBA_STAT_COL
+_BVP_COL_MAP           = _pm.BVP_COL_MAP
+_BVP_MIN_AB            = _pm.BVP_MIN_AB
+
+get_player_id          = _pm.get_player_id
+get_gamelogs           = _pm.get_gamelogs
+_get_mlb_player_map    = _pm.get_mlb_player_map
+_mlb_player_id_by_name = _pm.mlb_player_id
+get_mlb_hitting_logs   = _pm.get_mlb_hitting_logs
+get_mlb_pitching_logs  = _pm.get_mlb_pitching_logs
+_mlb_bvp_stats         = _pm.mlb_bvp_stats
+_mlb_today_pitcher_lookup = _pm.mlb_today_pitcher_lookup
+get_wnba_player_id     = _pm.get_wnba_player_id
+get_wnba_gamelogs      = _pm.get_wnba_gamelogs
+
+_nba_hit_rate  = _pm._nba_hit_rate
+_wnba_hit_rate = _pm._wnba_hit_rate
+_mlb_hit_rate  = _pm._mlb_hit_rate
+_build_parlays = _pm._build_parlays
+_build_sgp     = _pm._build_sgp
 
 # True when running on a local machine; False in Codespaces / deployed environments
 _IS_LOCAL = not bool(os.environ.get("CODESPACE_NAME") or os.environ.get("GITPOD_WORKSPACE_ID"))
@@ -536,60 +568,6 @@ def get_team_players(team_abbr):
         return roster["PLAYER"].tolist()
     except Exception:
         return []
-
-@st.cache_data(ttl=86400)
-def _get_current_season_player_ids() -> dict:
-    """Live fallback: name→id map from CommonAllPlayers for players missing from the static db."""
-    try:
-        df = commonallplayers.CommonAllPlayers(
-            is_only_current_season=1, league_id="00", season="2025-26"
-        ).get_data_frames()[0]
-        return {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
-                for _, row in df.iterrows()}
-    except Exception:
-        return {}
-
-def get_player_id(player_name):
-    # Exact / regex match first
-    match = players.find_players_by_full_name(player_name)
-    if match:
-        return match[0]['id']
-    # Fallback: last-name search then first-initial filter
-    parts = player_name.strip().split()
-    if len(parts) >= 2:
-        last = parts[-1]
-        candidates = players.find_players_by_last_name(last)
-        first_init = parts[0][0].lower()
-        filtered = [p for p in candidates
-                    if p['first_name'].lower().startswith(first_init)]
-        if len(filtered) == 1:
-            return filtered[0]['id']
-        if not filtered and len(candidates) == 1:
-            return candidates[0]['id']
-    # Final fallback: live API lookup for recent players not yet in the static database
-    live_map = _get_current_season_player_ids()
-    return live_map.get(player_name.strip().lower())
-
-@st.cache_data(ttl=3600)
-def get_gamelogs(player_id, seasons):
-    frames = []
-    for season in seasons:
-        for s_type in ("Regular Season", "Playoffs"):
-            try:
-                logs = playergamelog.PlayerGameLog(
-                    player_id=player_id, season=season,
-                    season_type_all_star=s_type, timeout=10,
-                ).get_data_frames()[0]
-                if logs.empty:
-                    continue
-                logs['SEASON'] = season
-                logs['SEASON_TYPE'] = s_type
-                extracted = logs['MATCHUP'].str.extract(r'@ (\w+)|vs\. (\w+)')
-                logs['OPPONENT'] = extracted[0].fillna(extracted[1])
-                frames.append(logs)
-            except Exception:
-                pass
-    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 @st.cache_data(ttl=900)
 def get_next_opponent(team_code):
@@ -1639,34 +1617,9 @@ _NBA_DRAFT_SCOUTS = {
 }
 
 # ─── Parlay builder ───────────────────────────────────────────────────────────
-PP_PAYOUTS = {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0}
-
-# PrizePicks implied over-probability by odds_type (market signal)
-# goblin = easier line (~62% implied), demon = harder line (~38% implied)
-_PP_ODDS_IMPLIED = {"goblin": 0.62, "standard": 0.50, "demon": 0.38}
-
-_PP_NBA_STAT_COL = {
-    "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
-    "Pts+Rebs+Asts": "PRA", "Pts+Asts": "PA", "Pts+Rebs": "PR",
-    "3-PT Made": "FG3M", "Blocked Shots": "BLK", "Steals": "STL",
-    "Turnovers": "TOV", "Fantasy Score": "FS", "Spread": None,
-}
-_PP_MLB_HIT_COL = {
-    "Hits": "H", "Home Runs": "HR",
-    "Stolen Bases": "SB", "Strikeouts": "K", "Hitter Strikeouts": "K",
-    "Walks": "BB",
-    "Runs Scored": "R", "Runs": "R",
-    "Doubles": "2B", "Singles": "H",
-    "Hits+Runs+RBIs": "H", "Plate Appearances": "AB",
-}
-# RBIs (3.7% actual hit rate) and Total Bases (0.0% actual hit rate) removed —
-# calibration data across 54 and 91 resolved legs confirmed both are unplayable props.
-_PP_MLB_PIT_COL = {
-    "Pitcher Strikeouts": "K", "Strikeouts": "K",
-    "Earned Runs Allowed": "ER", "Walks Allowed": "BB", "Hits Allowed": "H",
-    "Pitching Outs": "IP", "Pitches Thrown": "NP",
-}
-_PP_PITCHER_TYPES = {"Pitcher Strikeouts", "Earned Runs Allowed", "Walks Allowed", "Hits Allowed", "Pitching Outs", "Pitches Thrown"}
+# PP_PAYOUTS, _PP_ODDS_IMPLIED, _PP_NBA_STAT_COL, _PP_MLB_HIT_COL,
+# _PP_MLB_PIT_COL, _PP_PITCHER_TYPES now come from parlay_model (see import
+# block near the top of this file).
 
 _pp_cache: dict = {}
 _pp_cache_ts: dict = {}
@@ -2467,259 +2420,6 @@ def _load_calibration(sport: str | None = None) -> dict:
         return {}
 
 
-@st.cache_data(ttl=1800)
-def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str = "standard", implied_override: float = -1.0, cal_factor: float = 1.0):
-    """Weighted hit rate: 70% historical (60/40 last-10/30 + trend) + 30% sportsbook implied odds."""
-    col = _PP_NBA_STAT_COL.get(stat_type)
-    if col is None:
-        return 0.5, 0
-    pid = get_player_id(player_name)
-    if not pid:
-        return 0.5, 0
-    df = get_gamelogs(pid, ("2025-26",))
-    if df.empty:
-        df = get_gamelogs(pid, ("2024-25",))
-    if df.empty:
-        return 0.5, 0
-    if col in ("PRA", "PA", "PR", "FS"):
-        df = df.copy()
-        if col == "PRA":
-            df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-        elif col == "PA":
-            df["PA"] = df["PTS"] + df["AST"]
-        elif col == "PR":
-            df["PR"] = df["PTS"] + df["REB"]
-        elif col == "FS":
-            df["FS"] = (df["PTS"]
-                        + 1.2 * df.get("REB", 0)
-                        + 1.5 * df.get("AST", 0)
-                        + 3.0 * df.get("STL", 0)
-                        + 3.0 * df.get("BLK", 0)
-                        - df.get("TOV", 0))
-    if col not in df.columns:
-        return 0.5, 0
-    vals = df[col].values
-    last30 = vals[-30:] if len(vals) >= 5 else vals
-    last10 = vals[-10:] if len(vals) >= 10 else vals
-    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[: max(1, len(vals) // 2)]
-    n = len(last30)
-    if n == 0:
-        return 0.5, 0
-    r30 = float((last30 > line).sum()) / len(last30)
-    if len(last10) >= 5:
-        r10 = float((last10 > line).sum()) / len(last10)
-        hist = 0.6 * r10 + 0.4 * r30
-    else:
-        hist = r30
-        r10  = hist
-    # Trend momentum (last-10 vs prior-10)
-    if len(last10) >= 5 and len(prev10) >= 5:
-        r_prev = float((prev10 > line).sum()) / len(prev10)
-        hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
-    # Blend 70% historical + 30% sportsbook implied market odds
-    implied = implied_override if implied_override >= 0 else _PP_ODDS_IMPLIED.get(odds_type, 0.50)
-    rate = 0.7 * hist + 0.3 * implied
-    rate = rate * cal_factor
-    return round(min(0.97, max(0.03, rate)), 3), n
-
-@st.cache_data(ttl=86400)
-def _get_mlb_player_map():
-    """Fetch MLB players across 2025 and 2026 seasons and return a name→id dict."""
-    combined = {}
-    for season in ("2025", "2026"):
-        try:
-            resp = requests.get(
-                f"{MLB_BASE}/sports/1/players?season={season}", timeout=15
-            )
-            for p in resp.json().get("people", []):
-                combined[p["fullName"].lower().strip()] = p["id"]
-        except Exception:
-            pass
-    return combined
-
-def _mlb_player_id_by_name(name: str):
-    """Resolve a player name to an MLB Stats API ID using the cached season roster."""
-    name_map = _get_mlb_player_map()
-    if not name_map:
-        return None
-    key = name.lower().strip()
-    # 1) exact match
-    if key in name_map:
-        return name_map[key]
-    # 2) last-name + first-initial match  e.g. "A. Judge" or slight spelling difference
-    parts = key.split()
-    if len(parts) >= 2:
-        first, last = parts[0].rstrip("."), parts[-1]
-        for full_name, pid in name_map.items():
-            fp = full_name.split()
-            if len(fp) >= 2 and fp[-1] == last and fp[0].startswith(first):
-                return pid
-    # 3) last-name-only match (only if unique)
-    if parts:
-        last = parts[-1]
-        hits = [pid for full_name, pid in name_map.items()
-                if full_name.split()[-1] == last]
-        if len(hits) == 1:
-            return hits[0]
-    return None
-
-
-_BVP_COL_MAP = {"H": "h", "HR": "hr", "TB": "tb", "K": "k", "BB": "bb", "RBI": "rbi"}
-_BVP_MIN_AB = 15  # minimum career AB vs pitcher to apply adjustment
-
-
-@st.cache_data(ttl=1800)
-def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
-                  odds_type: str = "standard", implied_override: float = -1.0,
-                  cal_factor: float = 1.0, opp_pitcher_id: int | None = None):
-    """
-    Weighted hit rate for MLB props.
-
-    Batters:  65% historical (60/40 last-10/20) + optional 10% BvP adjustment
-              + 25% implied → soft-rescaled so total = 100%.
-              When batter has >= 15 career AB vs today's pitcher, their career
-              rate against that pitcher nudges hist up or down by up to ±40%.
-
-    Pitchers: 50% last-3 starts + 30% last-10 + 20% last-20 (recency-heavy)
-              + 30% implied.  Recent form dominates because pitchers can run
-              hot/cold on a start-by-start basis.
-    """
-    is_pitcher = stat_type in _PP_PITCHER_TYPES
-    col = (_PP_MLB_PIT_COL if is_pitcher else _PP_MLB_HIT_COL).get(stat_type)
-    if col is None:
-        return 0.5, 0
-    pid = _mlb_player_id_by_name(player_name)
-    if not pid:
-        return 0.5, 0
-    seasons = ("2025", "2026")
-    try:
-        df = get_mlb_pitching_logs(pid, seasons) if is_pitcher else get_mlb_hitting_logs(pid, seasons)
-    except Exception:
-        return 0.5, 0
-    if df.empty or col not in df.columns:
-        return 0.5, 0
-    vals = df[col].values
-    last20 = vals[-20:] if len(vals) >= 5 else vals
-    last10 = vals[-10:] if len(vals) >= 10 else vals
-    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[:max(1, len(vals) // 2)]
-    n = len(last20)
-    if n == 0:
-        return 0.5, 0
-
-    r20 = float((last20 > line).sum()) / len(last20)
-
-    if is_pitcher:
-        # Pitchers: weight recent starts heavily — hot/cold streaks matter more
-        last3 = vals[-3:] if len(vals) >= 3 else vals
-        r3  = float((last3 > line).sum()) / max(len(last3), 1)
-        r10 = float((last10 > line).sum()) / max(len(last10), 1) if len(last10) >= 3 else r20
-        hist = 0.50 * r3 + 0.30 * r10 + 0.20 * r20
-    else:
-        # Batters: standard 60/40 last-10/last-20 blend
-        if len(last10) >= 5:
-            r10 = float((last10 > line).sum()) / len(last10)
-            hist = 0.6 * r10 + 0.4 * r20
-        else:
-            r10 = hist = r20
-
-        # Batter vs pitcher (BvP) adjustment — only for stats with a clear per-AB rate
-        if opp_pitcher_id and pid and col in _BVP_COL_MAP:
-            try:
-                bvp = _mlb_bvp_stats(int(pid), int(opp_pitcher_id))
-                if bvp.get("ab", 0) >= _BVP_MIN_AB:
-                    bvp_key = _BVP_COL_MAP[col]
-                    # Per-AB rates: season average vs career BvP average
-                    season_ab   = float(df["AB"].sum()) if "AB" in df.columns else max(len(vals) * 4, 1)
-                    season_stat = float(df[col].sum())
-                    season_per_ab = season_stat / max(season_ab, 1)
-                    bvp_per_ab    = bvp.get(bvp_key, 0) / max(bvp["ab"], 1)
-                    if season_per_ab > 0.001:
-                        # Factor: how much better/worse vs this pitcher relative to overall
-                        bvp_factor = min(1.4, max(0.60, bvp_per_ab / season_per_ab))
-                        # Soft-apply: 85% base hist + 15% BvP-skewed hist
-                        hist = min(0.97, max(0.03, hist * (0.85 + 0.15 * bvp_factor)))
-            except Exception:
-                pass
-
-    # Trend momentum (last-10 vs prior-10) — applied to both batters and pitchers
-    if len(last10) >= 5 and len(prev10) >= 5:
-        r_prev = float((prev10 > line).sum()) / len(prev10)
-        r10_cur = float((last10 > line).sum()) / len(last10)
-        hist = min(0.97, max(0.03, hist + (r10_cur - r_prev) * 0.1))
-
-    implied = implied_override if implied_override >= 0 else _PP_ODDS_IMPLIED.get(odds_type, 0.50)
-    rate = 0.7 * hist + 0.3 * implied
-    rate = rate * cal_factor
-    return round(min(0.97, max(0.03, rate)), 3), n
-
-def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 50):
-    """
-    Safe  — highest probability combos (most likely to hit).
-    Value — highest EV combos that are NOT already in Safe.
-             Because EV = prob*(payout+1)-1 and payout grows with pick count,
-             higher-pick combos naturally rise here even at lower probability,
-             so Safe and Value show genuinely different options.
-    Same player never appears twice in one parlay.
-    """
-    from itertools import combinations
-
-    results = []
-    for n in range(min_legs, max_legs + 1):
-        if n > len(legs):
-            continue
-        payout = PP_PAYOUTS.get(n, float(n) * 2.0)
-        for combo in combinations(legs, n):
-            # No same player in one parlay
-            if len({l["player_name"] for l in combo}) < n:
-                continue
-            prob = 1.0
-            for leg in combo:
-                prob *= leg["hit_rate"]
-            ev = round(prob * payout - (1.0 - prob), 4)
-            results.append({
-                "legs": list(combo), "n": n,
-                "prob": round(prob, 4), "payout": payout, "ev": ev,
-            })
-
-    def _top(pool, key_fn, exclude_keys=None):
-        seen: set = set()
-        out = []
-        for p in sorted(pool, key=key_fn, reverse=True):
-            k = frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
-            if k not in seen and (not exclude_keys or k not in exclude_keys):
-                seen.add(k)
-                out.append(p)
-        return out
-
-    safe_out  = _top(results, lambda x: x["prob"])[:top_n]
-    safe_keys = {frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"])
-                 for p in safe_out}
-    # Value: best EV combos not already in Safe — prefer higher leg counts for bigger payouts
-    value_pool = sorted(results, key=lambda x: (x["n"], x["ev"]), reverse=True)
-    value_out  = _top(value_pool, lambda x: x["ev"], exclude_keys=safe_keys)[:top_n]
-
-    return safe_out, value_out
-
-def _build_sgp(legs: list, min_legs: int = 2, max_legs: int = 5) -> list:
-    """Group legs by game, return best parlay(s) per game sorted by probability."""
-    from collections import defaultdict
-    game_groups: dict = defaultdict(list)
-    for leg in legs:
-        gid = leg.get("game_id", "")
-        glabel = leg.get("game_label", leg.get("game_desc", "Unknown Game"))
-        if gid:
-            game_groups[(gid, glabel)].append(leg)
-    sgp_results = []
-    for (gid, glabel), game_legs in game_groups.items():
-        if len(game_legs) < min_legs:
-            continue
-        cap = min(max_legs, len(game_legs))
-        safe, _ = _build_parlays(game_legs, min_legs=min_legs, max_legs=cap, top_n=3)
-        if safe:
-            sgp_results.append({"game_label": glabel, "game_id": gid, "parlays": safe[:3]})
-    sgp_results.sort(key=lambda x: x["parlays"][0]["prob"] if x["parlays"] else 0, reverse=True)
-    return sgp_results
-
 
 def _fallback_nba_legs(stat_types: list = None) -> list:
     """Generate parlay legs from top NBA players using historical averages as lines."""
@@ -3202,104 +2902,6 @@ def get_mlb_roster(team_id):
         st.warning(f"Could not load MLB roster: {e}")
         return [], []
 
-@st.cache_data(ttl=3600)
-def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
-    frames = []
-    for season in seasons:
-        for attempt in range(2):
-            try:
-                url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=hitting"
-                resp = requests.get(url, timeout=15)
-                _stats = resp.json().get("stats", [])
-                splits = _stats[0].get("splits", []) if _stats else []
-                rows = []
-                for s in splits:
-                    st_data = s.get("stat", {})
-                    _h  = int(st_data.get("hits") or 0)
-                    _hr = int(st_data.get("homeRuns") or 0)
-                    _2b = int(st_data.get("doubles") or 0)
-                    _3b = int(st_data.get("triples") or 0)
-                    rows.append({
-                        "date": s.get("date", ""),
-                        "season": season,
-                        "opponent": s.get("opponent", {}).get("abbreviation", ""),
-                        "AB":  int(st_data.get("atBats") or 0),
-                        "H":   _h,
-                        "HR":  _hr,
-                        "2B":  _2b,
-                        "3B":  _3b,
-                        "RBI": int(st_data.get("rbi") or 0),
-                        "BB":  int(st_data.get("baseOnBalls") or 0),
-                        "K":   int(st_data.get("strikeOuts") or 0),
-                        "SB":  int(st_data.get("stolenBases") or 0),
-                        "R":   int(st_data.get("runs") or 0),
-                        "TB":  int(st_data.get("totalBases") or (_h + _2b + 2 * _3b + 3 * _hr)),
-                        "AVG": float(st_data.get("avg") or 0),
-                        "OBP": float(st_data.get("obp") or 0),
-                        "SLG": float(st_data.get("slg") or 0),
-                    })
-                if rows:
-                    frames.append(pd.DataFrame(rows))
-                break
-            except Exception:
-                if attempt == 1:
-                    pass  # silently skip after two failed attempts
-                else:
-                    time.sleep(1)
-    if not frames:
-        return pd.DataFrame()
-    df = pd.concat(frames, ignore_index=True)
-    df["date"] = pd.to_datetime(df["date"])
-    return df.sort_values("date").reset_index(drop=True)
-
-@st.cache_data(ttl=3600)
-def get_mlb_pitching_logs(player_id, seasons=(MLB_SEASON,)):
-    frames = []
-    for season in seasons:
-        for attempt in range(2):
-            try:
-                url = f"{MLB_BASE}/people/{player_id}/stats?stats=gameLog&season={season}&group=pitching"
-                resp = requests.get(url, timeout=15)
-                _stats = resp.json().get("stats", [])
-                splits = _stats[0].get("splits", []) if _stats else []
-                rows = []
-                for s in splits:
-                    st_data = s.get("stat", {})
-                    ip_str = str(st_data.get("inningsPitched") or "0")
-                    try:
-                        parts = ip_str.split(".")
-                        ip = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
-                    except Exception:
-                        ip = 0.0
-                    k9 = round((int(st_data.get("strikeOuts") or 0) / ip * 9), 2) if ip > 0 else 0
-                    rows.append({
-                        "date": s.get("date", ""),
-                        "season": season,
-                        "opponent": s.get("opponent", {}).get("abbreviation", ""),
-                        "IP":  round(ip, 1),
-                        "H":  int(st_data.get("hits") or 0),
-                        "ER": int(st_data.get("earnedRuns") or 0),
-                        "BB": int(st_data.get("baseOnBalls") or 0),
-                        "K":  int(st_data.get("strikeOuts") or 0),
-                        "HR": int(st_data.get("homeRuns") or 0),
-                        "ERA": float(st_data.get("era") or 0),
-                        "WHIP": float(st_data.get("whip") or 0),
-                        "K9": k9,
-                    })
-                if rows:
-                    frames.append(pd.DataFrame(rows))
-                break
-            except Exception:
-                if attempt == 1:
-                    pass  # silently skip after two failed attempts
-                else:
-                    time.sleep(1)
-    if not frames:
-        return pd.DataFrame()
-    df = pd.concat(frames, ignore_index=True)
-    df["date"] = pd.to_datetime(df["date"])
-    return df.sort_values("date").reset_index(drop=True)
-
 @st.cache_data(ttl=900)
 def get_mlb_next_opponent(team_id):
     try:
@@ -3579,47 +3181,6 @@ def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
             break
     return diverse
 
-
-@st.cache_data(ttl=86400)
-def _mlb_bvp_stats(batter_id: int, pitcher_id: int) -> dict:
-    """Career batting stats for batter_id against pitcher_id. Returns {} if no data."""
-    try:
-        url = (f"{MLB_BASE}/people/{batter_id}/stats"
-               f"?stats=vsPlayer&group=hitting&opposingPlayerId={pitcher_id}&sportId=1")
-        resp = requests.get(url, timeout=10)
-        splits = (resp.json().get("stats") or [{}])[0].get("splits", [])
-        if splits:
-            st_data = splits[0].get("stat", {})
-            return {
-                "ab":  int(st_data.get("atBats") or 0),
-                "h":   int(st_data.get("hits") or 0),
-                "hr":  int(st_data.get("homeRuns") or 0),
-                "tb":  int(st_data.get("totalBases") or 0),
-                "k":   int(st_data.get("strikeOuts") or 0),
-                "bb":  int(st_data.get("baseOnBalls") or 0),
-                "rbi": int(st_data.get("rbi") or 0),
-            }
-    except Exception:
-        pass
-    return {}
-
-
-@st.cache_data(ttl=3600)
-def _mlb_today_pitcher_lookup() -> dict:
-    """Returns {team_abbr: opp_pitcher_id} for today's MLB games."""
-    try:
-        games = get_mlb_today_with_pitchers()
-        lookup: dict = {}
-        for g in games:
-            away, home = g.get("away_abbr", ""), g.get("home_abbr", "")
-            away_pid, home_pid = g.get("away_p_id"), g.get("home_p_id")
-            if away and home_pid:
-                lookup[away] = home_pid   # away batters face home pitcher
-            if home and away_pid:
-                lookup[home] = away_pid   # home batters face away pitcher
-        return lookup
-    except Exception:
-        return {}
 
 @st.cache_data(ttl=3600)
 def get_mlb_team_batting_stats(team_id):
@@ -5231,54 +4792,6 @@ def get_wnba_team_players(team_abbr: str):
     """Return list of player names for a WNBA team."""
     return list(_get_wnba_team_roster_map(team_abbr).keys())
 
-@st.cache_data(ttl=86400)
-def _get_wnba_nba_api_player_ids() -> dict:
-    """name.lower() -> nba_api person_id for all WNBA players ever (1200+ players)."""
-    try:
-        df = commonallplayers.CommonAllPlayers(
-            is_only_current_season=0, league_id="10"
-        ).get_data_frames()[0]
-        if not df.empty:
-            return {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
-                    for _, row in df.iterrows()}
-    except Exception:
-        pass
-    return {}
-
-def get_wnba_player_id(player_name: str):
-    """Return nba_api player ID for a WNBA player (used with PlayerGameLog)."""
-    return _get_wnba_nba_api_player_ids().get(player_name.strip().lower())
-
-@st.cache_data(ttl=3600)
-def get_wnba_gamelogs(player_id, seasons):
-    """Fetch WNBA game logs via nba_api PlayerGameLog with league_id_nullable='10'."""
-    if not player_id:
-        return pd.DataFrame()
-    frames = []
-    for season in seasons:
-        try:
-            logs = playergamelog.PlayerGameLog(
-                player_id=player_id, season=season,
-                season_type_all_star="Regular Season",
-                league_id_nullable="10", timeout=15,
-            ).get_data_frames()[0]
-            if not logs.empty:
-                frames.append(logs)
-        except Exception:
-            continue
-    if not frames:
-        return pd.DataFrame()
-    df = pd.concat(frames, ignore_index=True)
-    if "MATCHUP" in df.columns:
-        df["OPPONENT"] = df["MATCHUP"].str.extract(r"(?:vs\.|@)\s*([A-Z]+)")
-    for col in ["PTS", "REB", "AST", "STL", "BLK", "FG3M"]:
-        if col not in df.columns:
-            df[col] = 0.0
-        else:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
-    df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-    return df
-
 @st.cache_data(ttl=60)
 def get_wnba_scoreboard(game_date: str):
     try:
@@ -5355,63 +4868,6 @@ def _wnba_scoreboard_date():
         cst = cst - _td(days=1)
     return cst.strftime("%Y%m%d")
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# WNBA PARLAY HELPERS  (module-level so they're available before elif block)
-# ──────────────────────────────────────────────────────────────────────────────
-_WNBA_PARLAY_COL_MAP = {
-    "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
-    "Steals": "STL", "Blocks": "BLK", "3-PT Made": "FG3M",
-    "Pts+Rebs+Asts": "PRA", "Pts+Rebs": "PR", "Pts+Asts": "PA",
-}
-
-@st.cache_data(ttl=1800)
-def _wnba_hit_rate(player_name: str, stat_type: str, line: float,
-                   odds_type: str = "standard", implied_override: float = -1.0,
-                   cal_factor: float = 1.0):
-    """Weighted WNBA hit rate: 70% ESPN game log history + 30% sportsbook implied."""
-    col = _WNBA_PARLAY_COL_MAP.get(stat_type)
-    if not col:
-        return 0.5, 0
-    pid = get_wnba_player_id(player_name)
-    if not pid:
-        return 0.5, 0
-    df = get_wnba_gamelogs(pid, ("2025",))
-    if df.empty:
-        df = get_wnba_gamelogs(pid, ("2024",))
-    if df.empty:
-        return 0.5, 0
-    if col in ("PRA", "PR", "PA"):
-        df = df.copy()
-        if col == "PRA":
-            df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-        elif col == "PR":
-            df["PR"] = df["PTS"] + df["REB"]
-        elif col == "PA":
-            df["PA"] = df["PTS"] + df["AST"]
-    if col not in df.columns:
-        return 0.5, 0
-    vals = df[col].values
-    last30 = vals[-30:] if len(vals) >= 5 else vals
-    last10 = vals[-10:] if len(vals) >= 10 else vals
-    prev10 = vals[-20:-10] if len(vals) >= 20 else vals[:max(1, len(vals) // 2)]
-    n = len(last30)
-    if n == 0:
-        return 0.5, 0
-    r30 = float((last30 > line).sum()) / len(last30)
-    if len(last10) >= 5:
-        r10  = float((last10 > line).sum()) / len(last10)
-        hist = 0.6 * r10 + 0.4 * r30
-    else:
-        hist = r30
-        r10  = hist
-    if len(last10) >= 5 and len(prev10) >= 5:
-        r_prev = float((prev10 > line).sum()) / len(prev10)
-        hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
-    implied = implied_override if implied_override >= 0 else _PP_ODDS_IMPLIED.get(odds_type, 0.50)
-    rate = 0.7 * hist + 0.3 * implied
-    rate = rate * cal_factor
-    return round(min(0.97, max(0.03, rate)), 3), n
 
 
 def _fallback_wnba_legs(stat_types: list = None, cal: dict = None) -> list:
