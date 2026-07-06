@@ -13,13 +13,22 @@ streamlit_out.txt
 streamlit_err.txt
 streamlit.log
 streamlit_err.log
+streamlit*.log
+streamlit*.txt
+logs/
 
 # Parlay log is tracked so Streamlit Cloud has accuracy data
 # parlay_log.json
 
-# Test/debug scripts
+# Test/debug scripts and one-off QA scripts
 test_*.py
 inspect_pp.py
+_*.py
+
+# QA/debug screenshots — regenerated on demand, not meant to be versioned
+screenshots/
+qa_screenshots/
+*.png
 
 # Claude session data
 .claude/
