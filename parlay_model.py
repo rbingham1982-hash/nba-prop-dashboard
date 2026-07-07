@@ -74,11 +74,19 @@ MLB_HIT_COL = {
     "Stolen Bases": "SB", "Strikeouts": "K", "Hitter Strikeouts": "K",
     "Walks": "BB",
     "Runs Scored": "R", "Runs": "R",
-    "Doubles": "2B", "Singles": "H",
+    "Doubles": "2B", "Singles": "H", "Total Bases": "TB",
     "Hits+Runs+RBIs": "H", "Plate Appearances": "AB",
 }
-# RBIs (3.7% actual hit rate) and Total Bases (0.0% actual hit rate) removed —
-# calibration data across 54 and 91 resolved legs confirmed both are unplayable props.
+# Total Bases previously showed a 0.0% actual hit rate across 91 resolved legs and
+# was removed as "unplayable" — that was a resolver bug, not reality: MLB Stats
+# API's per-game boxscore has no 'totalBases' key, so it silently resolved to 0
+# every time (fixed in parlay_tracker._resolve_mlb_legs, which now derives it from
+# H+2B+2*3B+3*HR). Re-resolving those 91 legs with the fix gives 72.5% actual vs.
+# 61.3% predicted — a genuinely good prop. Re-enabled.
+#
+# RBIs (3.7% actual hit rate across 54 resolved legs, correctly resolved — 'rbi' is
+# a real boxscore key, no bug found) stays excluded: the data says it really is a
+# bad prop, not a resolution artifact.
 MLB_PIT_COL = {
     "Pitcher Strikeouts": "K", "Strikeouts": "K",
     "Earned Runs Allowed": "ER", "Walks Allowed": "BB", "Hits Allowed": "H",

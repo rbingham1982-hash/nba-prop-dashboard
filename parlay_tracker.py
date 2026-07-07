@@ -538,8 +538,20 @@ def _resolve_mlb_legs() -> int:
                             if col is None or source is None:
                                 continue
                             try:
-                                # Empty dict means player didn't appear; treat stat as 0
-                                actual = float(source.get(col, 0) or 0)
+                                if stat_type == "Total Bases":
+                                    # boxscore_data's per-game batting stats have no
+                                    # 'totalBases' key (only season gameLog stats do) —
+                                    # every leg was silently resolving to 0. Derive it:
+                                    # TB = H + 2B + 2*3B + 3*HR.
+                                    actual = float(
+                                        (bstats.get("hits", 0) or 0)
+                                        + (bstats.get("doubles", 0) or 0)
+                                        + 2 * (bstats.get("triples", 0) or 0)
+                                        + 3 * (bstats.get("homeRuns", 0) or 0)
+                                    )
+                                else:
+                                    # Empty dict means player didn't appear; treat stat as 0
+                                    actual = float(source.get(col, 0) or 0)
                                 leg["outcome"] = bool(actual > leg["line_score"])
                                 resolved_count += 1
                             except Exception:

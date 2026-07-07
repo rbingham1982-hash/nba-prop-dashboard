@@ -27,7 +27,7 @@ PP_HEADERS       = {
     "Referer": "https://app.prizepicks.com/",
 }
 
-MLB_STAT_TYPES  = ["Hits", "Pitcher Strikeouts", "Home Runs", "Runs Scored"]
+MLB_STAT_TYPES  = ["Hits", "Pitcher Strikeouts", "Home Runs", "Runs Scored", "Total Bases"]
 WNBA_STAT_TYPES = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "3-PT Made"]
 NBA_STAT_TYPES  = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "3-PT Made"]
 
@@ -36,6 +36,7 @@ UD_MLB_STAT_MAP = {
     "Pitcher Strikeouts": "Pitcher Strikeouts", "Runs": "Runs Scored",
     "Home Runs": "Home Runs", "Walks": "Walks",
     "Earned Runs": "Earned Runs Allowed", "Stolen Bases": "Stolen Bases",
+    "Total Bases": "Total Bases",
 }
 UD_NBA_STAT_MAP = {
     "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",

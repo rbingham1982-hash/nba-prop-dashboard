@@ -8042,7 +8042,7 @@ elif sport == "⚾ MLB":
                 key="mlb_par_stats",
                 label_visibility="collapsed",
             )
-            st.caption("RBIs and Total Bases removed — calibration data (54 and 91 resolved legs) shows near-zero real hit rates.")
+            st.caption("RBIs removed — calibration data (54 resolved legs) shows a 3.7% real hit rate. Total Bases re-added after fixing a resolver bug that had wrongly scored it as 0% (see accuracy tab); real hit rate is 72.5%.")
 
         if st.button("Build MLB Parlays", type="primary", key="mlb_build_parlays"):
             st.session_state["mlb_parlays_built"] = True
