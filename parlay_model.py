@@ -320,6 +320,16 @@ def get_player_id(player_name):
     return live_map.get(player_name.strip().lower())
 
 
+def _sort_by_game_date(df: pd.DataFrame) -> pd.DataFrame:
+    """PlayerGameLog returns rows newest-first; the hit-rate math slices
+    vals[-N:] expecting oldest-first so that 'last N games' really means the
+    most recent N. Parse GAME_DATE ('MMM DD, YYYY') and sort ascending."""
+    if df.empty or "GAME_DATE" not in df.columns:
+        return df
+    parsed = pd.to_datetime(df["GAME_DATE"], format="%b %d, %Y", errors="coerce")
+    return df.assign(_game_date=parsed).sort_values("_game_date").drop(columns="_game_date").reset_index(drop=True)
+
+
 @_ttl_cache(3600)
 def get_gamelogs(player_id, seasons):
     frames = []
@@ -339,7 +349,8 @@ def get_gamelogs(player_id, seasons):
                 frames.append(logs)
             except Exception:
                 pass
-    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    return _sort_by_game_date(df)
 
 
 # ── WNBA player ID + game logs ───────────────────────────────────────────────
@@ -389,7 +400,7 @@ def get_wnba_gamelogs(player_id, seasons):
         else:
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
     df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-    return df
+    return _sort_by_game_date(df)
 
 
 # ── Hit rate calculators ─────────────────────────────────────────────────────
