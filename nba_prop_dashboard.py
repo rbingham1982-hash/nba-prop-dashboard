@@ -4499,7 +4499,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                     "Avg Pred":   f"{_kd['avg_predicted_pct']}%",
                 })
         if _kc_rows:
-            st.dataframe(pd.DataFrame(_kc_rows), hide_index=True, use_container_width=True)
+            st.dataframe(pd.DataFrame(_kc_rows), hide_index=True, width="stretch")
         else:
             st.caption("No resolved data yet.")
 
@@ -4512,7 +4512,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
             for sb, d in _sbc.items()
         ]
         if _sb_rows:
-            st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, use_container_width=True)
+            st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, width="stretch")
         else:
             st.caption("No resolved data yet.")
 
@@ -4522,7 +4522,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
     if _lcd:
         _lcd_df = pd.DataFrame(_lcd)
         _lcd_df.columns = ["Legs", "Total", "Hits", "Hit Rate %", "Avg EV", "ROI %"]
-        st.dataframe(_lcd_df, hide_index=True, use_container_width=True)
+        st.dataframe(_lcd_df, hide_index=True, width="stretch")
     else:
         st.caption("No resolved data yet.")
     st.divider()
@@ -4639,7 +4639,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
         st.dataframe(
             _cdf[["stat_type", "samples", "Predicted Hit%", "Actual Hit%", "Calibration Factor"]]
             .rename(columns={"stat_type": "Stat Type", "samples": "Samples"}),
-            hide_index=True, use_container_width=True,
+            hide_index=True, width="stretch",
         )
     else:
         st.info("No resolved leg data yet.")
@@ -4658,7 +4658,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                 "Actual Hit%":    f"{d['actual_hit_rate']*100:.1f}%",
                 "Bias":           f"{'+' if b >= 0 else ''}{b*100:.1f}%",
             })
-        st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame(_sb_rows), hide_index=True, width="stretch")
     elif _wsum["total_legs"] > 0:
         _pending = _wsum["total_legs"] - _wsum["resolved_legs"]
         st.info(
@@ -4678,7 +4678,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
             st.caption("Sorted by sample count. Edge = predicted hit rate − sportsbook implied probability.")
             _pa_df = pd.DataFrame(_pa)
             _pa_df.columns = ["Player", "Stat", "Legs", "Pred Hit%", "Actual Hit%", "Bias (ppts)", "Avg Edge (ppts)"]
-            st.dataframe(_pa_df, hide_index=True, use_container_width=True)
+            st.dataframe(_pa_df, hide_index=True, width="stretch")
     st.divider()
 
     # ── Monthly trends ────────────────────────────────────────────────────────
@@ -4693,7 +4693,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
             "month": "Month", "total": "Parlays", "hits": "Hits",
             "hit_rate_pct": "Hit Rate %", "leg_hit_rate_pct": "Leg Hit %", "avg_pred_pct": "Avg Pred %"
         })[["Month","Parlays","Hits","Hit Rate %","Leg Hit %","Avg Pred %"]]
-        st.dataframe(_mt_tbl, hide_index=True, use_container_width=True)
+        st.dataframe(_mt_tbl, hide_index=True, width="stretch")
         st.divider()
 
     # ── Full parlay log ───────────────────────────────────────────────────────
@@ -5431,7 +5431,7 @@ if sport == "🏀 NBA":
                                       color_discrete_map={"TARGET": "#818cf8", "ROLLING_AVG": "#a78bfa"})
                         fig.add_hline(y=line_value, line_dash="dot", line_color="#3a4055",
                                       annotation_text=f"Line {line_value}", annotation_font_color="#5c6272")
-                        st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(nba_fig(fig), width="stretch", config=_CHART_CFG)
 
                         section("Predictive Stat Line")
                         if len(df) >= rolling_window:
@@ -5501,11 +5501,11 @@ if sport == "🏀 NBA":
                                      text=opp_stats["Games"].astype(str).values + " G")
                         fig.add_vline(x=0.5, line_dash="dot", line_color="#3a4055")
                         fig.update_coloraxes(showscale=False)
-                        st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(nba_fig(fig), width="stretch", config=_CHART_CFG)
                         section("Data Table")
                         st.dataframe(opp_stats.style.format(
                             {"Hit Rate": "{:.1%}", "Avg Margin": "{:.2f}", "Avg Stat": "{:.1f}", "Games": "{:.0f}"}
-                        ), use_container_width=True)
+                        ), width="stretch")
 
     # ── VS. OPPONENT ──────────────────────────────────────────────────────────
     with tab_vs_opp_nba:
@@ -5606,7 +5606,7 @@ if sport == "🏀 NBA":
                             fig_nvo.add_hline(y=nvo_line, line_dash="dot", line_color="#3a4055",
                                               annotation_text=f"Line {nvo_line}",
                                               annotation_font_color="#5c6272")
-                            st.plotly_chart(nba_fig(fig_nvo), use_container_width=True, config=_CHART_CFG)
+                            st.plotly_chart(nba_fig(fig_nvo), width="stretch", config=_CHART_CFG)
 
                             if not vs_opp_df.empty:
                                 section(f"Game Log vs {nvo_opp_code}")
@@ -5614,7 +5614,7 @@ if sport == "🏀 NBA":
                                     vs_opp_df[["GAME_DATE", "MATCHUP", nvo_col]].rename(columns={
                                         "GAME_DATE": "Date", "MATCHUP": "Matchup", nvo_col: nvo_prop
                                     }),
-                                    use_container_width=True, hide_index=True,
+                                    width="stretch", hide_index=True,
                                 )
 
     # ── BET SIMULATION ────────────────────────────────────────────────────────
@@ -5657,7 +5657,7 @@ if sport == "🏀 NBA":
                                       labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
                                       color_discrete_sequence=["#818cf8"])
                         fig.add_hline(y=0, line_dash="dot", line_color="#3a4055")
-                        st.plotly_chart(nba_fig(fig), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(nba_fig(fig), width="stretch", config=_CHART_CFG)
 
     # ── FIRST BASKET ──────────────────────────────────────────────────────────
     with tab_fb:
@@ -5721,7 +5721,7 @@ if sport == "🏀 NBA":
                     )
                     fig_bar.update_traces(textposition="outside")
                     fig_bar.update_layout(yaxis={"categoryorder": "total ascending"}, coloraxis_showscale=False)
-                    st.plotly_chart(nba_fig(fig_bar), use_container_width=True, config=_CHART_CFG)
+                    st.plotly_chart(nba_fig(fig_bar), width="stretch", config=_CHART_CFG)
 
                 # ── Shot type + Tip-off charts (independent columns) ──
                 shot_counts = fb_df[fb_df["Shot Type"] != "—"]["Shot Type"].value_counts().reset_index()
@@ -5736,7 +5736,7 @@ if sport == "🏀 NBA":
                             hole=0.55,
                         )
                         fig_pie.update_traces(textfont_size=11)
-                        st.plotly_chart(nba_fig(fig_pie), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(nba_fig(fig_pie), width="stretch", config=_CHART_CFG)
                     else:
                         st.info("No shot type data available.")
                 with right_c:
@@ -5753,7 +5753,7 @@ if sport == "🏀 NBA":
                     )
                     fig_tip.update_traces(textposition="outside")
                     fig_tip.update_layout(showlegend=False)
-                    st.plotly_chart(nba_fig(fig_tip), use_container_width=True, config=_CHART_CFG)
+                    st.plotly_chart(nba_fig(fig_tip), width="stretch", config=_CHART_CFG)
 
                 # ── Player spotlight ──
                 if selected_player and selected_player != "(All Players)":
@@ -5777,7 +5777,7 @@ if sport == "🏀 NBA":
                         )
                         fig_p.update_traces(textposition="outside")
                         fig_p.update_layout(showlegend=False)
-                        st.plotly_chart(nba_fig(fig_p), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(nba_fig(fig_p), width="stretch", config=_CHART_CFG)
 
                 # ── Prediction: Tonight's First Basket ───────────────────────
                 section("Tonight's First Basket Prediction")
@@ -5937,7 +5937,7 @@ if sport == "🏀 NBA":
                 # ── Game log table ──
                 section("Game Log")
                 display_df = fb_df[["Game Date", "Matchup", "W/L", "Tip Winner", "First Scorer", "Shot Type"]].copy()
-                st.dataframe(display_df, use_container_width=True, hide_index=True)
+                st.dataframe(display_df, width="stretch", hide_index=True)
                 st.caption("Data: NBA Stats API (nba_api) — play-by-play")
 
     # ── SPORTSBOOK ────────────────────────────────────────────────────────────
@@ -6010,7 +6010,7 @@ if sport == "🏀 NBA":
                     "player_name": "Player", "team": "Team", "stat_type": "Stat",
                     "line_score": "Line", "game_label": "Game",
                 }).sort_values("Player"),
-                use_container_width=True, hide_index=True,
+                width="stretch", hide_index=True,
             )
 
     # ── PARLAYS ───────────────────────────────────────────────────────────────
@@ -6355,7 +6355,7 @@ elif sport == "🏀 WNBA":
                             <p style='font-size:0.68rem;color:var(--text-muted);margin:0.25rem 0 0.5rem;'>{_wsrc}</p>
                         </div>""", unsafe_allow_html=True)
                         _wbtn_key = f"wnba_ptw_{''.join(c for c in _wr['player_name'] if c.isalnum())}"
-                        if st.button("→ Profile", key=_wbtn_key, use_container_width=True):
+                        if st.button("→ Profile", key=_wbtn_key, width="stretch"):
                             _wabbr = str(_wr.get("team", "")).upper()
                             _wfull = _WNBA_ABBR_TO_FULL.get(_wabbr, "")
                             if _wfull:
@@ -6517,7 +6517,7 @@ elif sport == "🏀 WNBA":
                                       color_discrete_map={"TARGET": "#818cf8", "ROLLING_AVG": "#a78bfa"})
                         wfig.add_hline(y=wline_value, line_dash="dot", line_color="#ef4444",
                                       annotation_text=f"Line: {wline_value}")
-                        st.plotly_chart(nba_fig(wfig), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(nba_fig(wfig), width="stretch", config=_CHART_CFG)
 
                         section("Summary Stats")
                         ws1, ws2, ws3, ws4 = st.columns(4)
@@ -6531,7 +6531,7 @@ elif sport == "🏀 WNBA":
                         wlog_cols = [c for c in wlog_cols if c in wdf.columns]
                         st.dataframe(wdf[wlog_cols].style.format(
                             {c: "{:.1f}" for c in ["TARGET", "MARGIN"] if c in wlog_cols}
-                        ), use_container_width=True, hide_index=True)
+                        ), width="stretch", hide_index=True)
 
     # ── OPPONENT BREAKDOWN ────────────────────────────────────────────────────
     with tab_w_opp:
@@ -6590,11 +6590,11 @@ elif sport == "🏀 WNBA":
                                             text=wob_grouped["Games"].astype(str).values + " G")
                             wob_fig.add_vline(x=0.5, line_dash="dot", line_color="#3a4055")
                             wob_fig.update_coloraxes(showscale=False)
-                            st.plotly_chart(nba_fig(wob_fig), use_container_width=True, config=_CHART_CFG)
+                            st.plotly_chart(nba_fig(wob_fig), width="stretch", config=_CHART_CFG)
                             section("Data Table")
                             st.dataframe(wob_grouped.style.format(
                                 {"Hit_Rate": "{:.1%}", "Avg_Margin": "{:.2f}", "Avg_Stat": "{:.1f}"}
-                            ), use_container_width=True)
+                            ), width="stretch")
 
     # ── VS. OPPONENT ──────────────────────────────────────────────────────────
     with tab_w_vs:
@@ -6682,7 +6682,7 @@ elif sport == "🏀 WNBA":
                             wvo_fig = px.line(wvo_df.reset_index(), x=wvo_df.index, y=["TARGET", "ROLLING"],
                                              color_discrete_map={"TARGET": "#818cf8", "ROLLING": "#a78bfa"})
                             wvo_fig.add_hline(y=wvo_line, line_dash="dot", line_color="#ef4444")
-                            st.plotly_chart(nba_fig(wvo_fig), use_container_width=True, config=_CHART_CFG)
+                            st.plotly_chart(nba_fig(wvo_fig), width="stretch", config=_CHART_CFG)
                     else:
                         st.warning(f"Could not find player ID for {wvo_player}.")
 
@@ -6732,7 +6732,7 @@ elif sport == "🏀 WNBA":
                         wsim_fig = px.line(wsim_df.reset_index(), x=wsim_df.index, y="CUMULATIVE",
                                           color_discrete_sequence=["#818cf8"])
                         wsim_fig.add_hline(y=0, line_dash="dot", line_color="#3a4055")
-                        st.plotly_chart(nba_fig(wsim_fig), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(nba_fig(wsim_fig), width="stretch", config=_CHART_CFG)
                         ws1, ws2, ws3, ws4 = st.columns(4)
                         ws1.metric("Hit Rate", f"{wsim_df['HIT'].mean():.1%}")
                         ws2.metric("Net Units", f"{wsim_df['CUMULATIVE'].iloc[-1]:+.1f}")
@@ -6773,7 +6773,7 @@ elif sport == "🏀 WNBA":
             _wsb_display_cols = [c for c in _wsb_display_cols if c in _wsb_df2.columns]
             st.dataframe(
                 _wsb_df2[_wsb_display_cols].sort_values("implied_prob", ascending=False) if "implied_prob" in _wsb_df2.columns else _wsb_df2[_wsb_display_cols],
-                use_container_width=True, hide_index=True
+                width="stretch", hide_index=True
             )
 
     # ── PARLAYS ───────────────────────────────────────────────────────────────
@@ -7202,7 +7202,7 @@ elif sport == "⚾ MLB":
                             <span class='ptw-badge ptw-badge-normal'>K/9: {_r['_k9']}</span>
                         </div>""", unsafe_allow_html=True)
                         _p_btn_key = f"mlb_ptw_p_{''.join(c for c in _r['player_name'] if c.isalnum())}"
-                        if st.button("→ Profile", key=_p_btn_key, use_container_width=True):
+                        if st.button("→ Profile", key=_p_btn_key, width="stretch"):
                             _mlb_full = _mlb_abbr_to_name.get(_r["team"].upper(), "")
                             if _mlb_full:
                                 st.session_state["p_team"] = _mlb_full
@@ -7231,7 +7231,7 @@ elif sport == "⚾ MLB":
                             {f"<p style='font-size:0.68rem;color:var(--text-muted);margin:0.25rem 0 0.5rem;'>{_era_note}</p>" if _era_note else ""}
                         </div>""", unsafe_allow_html=True)
                         _h_btn_key = f"mlb_ptw_h_{''.join(c for c in _r['player_name'] if c.isalnum())}"
-                        if st.button("→ Profile", key=_h_btn_key, use_container_width=True):
+                        if st.button("→ Profile", key=_h_btn_key, width="stretch"):
                             _mlb_full = _mlb_abbr_to_name.get(str(_r.get("team", "")).upper(), "")
                             if _mlb_full:
                                 st.session_state["h_team"] = _mlb_full
@@ -7499,7 +7499,7 @@ elif sport == "⚾ MLB":
                     )
                     fig_h.add_hline(y=h_line, line_dash="dot", line_color="#3a4055",
                                     annotation_text=f"Line {h_line}", annotation_font_color="#5c6272")
-                    st.plotly_chart(mlb_fig(fig_h), use_container_width=True, config=_CHART_CFG)
+                    st.plotly_chart(mlb_fig(fig_h), width="stretch", config=_CHART_CFG)
 
                     # Opponent breakdown
                     if "opponent" in h_df.columns and h_df["opponent"].notna().any():
@@ -7517,7 +7517,7 @@ elif sport == "⚾ MLB":
                         )
                         fig_opp.add_vline(x=h_df[h_stat].mean(), line_dash="dot", line_color="#a78bfa")
                         fig_opp.update_coloraxes(showscale=False)
-                        st.plotly_chart(mlb_fig(fig_opp), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(mlb_fig(fig_opp), width="stretch", config=_CHART_CFG)
 
                     # Recent game log table
                     mlb_section("Recent Game Log")
@@ -7527,7 +7527,7 @@ elif sport == "⚾ MLB":
                             "date": lambda x: x.strftime("%b %d"),
                             "AVG": "{:.3f}", "OBP": "{:.3f}", "SLG": "{:.3f}",
                         }),
-                        use_container_width=True, hide_index=True,
+                        width="stretch", hide_index=True,
                     )
 
     # ── PITCHER ANALYSIS ──────────────────────────────────────────────────────
@@ -7702,7 +7702,7 @@ elif sport == "⚾ MLB":
                     )
                     fig_p.add_hline(y=p_line, line_dash="dot", line_color="#3a4055",
                                     annotation_text=f"Line {p_line}", annotation_font_color="#5c6272")
-                    st.plotly_chart(mlb_fig(fig_p), use_container_width=True, config=_CHART_CFG)
+                    st.plotly_chart(mlb_fig(fig_p), width="stretch", config=_CHART_CFG)
 
                     # Strikeout distribution
                     mlb_section("K Distribution")
@@ -7712,14 +7712,14 @@ elif sport == "⚾ MLB":
                     )
                     fig_hist.add_vline(x=p_line, line_dash="dot", line_color="#a78bfa",
                                        annotation_text=f"Line {p_line}", annotation_font_color="#a78bfa")
-                    st.plotly_chart(mlb_fig(fig_hist), use_container_width=True, config=_CHART_CFG)
+                    st.plotly_chart(mlb_fig(fig_hist), width="stretch", config=_CHART_CFG)
 
                     # Opponent breakdown
                     if "opponent" in p_df.columns and p_df["opponent"].notna().any():
                         mlb_section("Stats by Opponent")
                         opp_p = (p_df.groupby("opponent")[["K", "IP", "ER", "ERA"]]
                                  .mean().round(2).sort_values("K", ascending=False))
-                        st.dataframe(opp_p.style.format("{:.2f}"), use_container_width=True)
+                        st.dataframe(opp_p.style.format("{:.2f}"), width="stretch")
 
                     # Recent starts table
                     mlb_section("Recent Starts")
@@ -7729,7 +7729,7 @@ elif sport == "⚾ MLB":
                             "date": lambda x: x.strftime("%b %d"),
                             "ERA": "{:.2f}", "WHIP": "{:.2f}", "IP": "{:.1f}",
                         }),
-                        use_container_width=True, hide_index=True,
+                        width="stretch", hide_index=True,
                     )
 
     # ── VS OPPONENT ───────────────────────────────────────────────────────────
@@ -7865,7 +7865,7 @@ elif sport == "⚾ MLB":
                                 mode="markers", name=f"vs {opp_display}",
                                 marker=dict(color="#a78bfa", size=10, symbol="diamond"),
                             )
-                        st.plotly_chart(mlb_fig(fig_vo), use_container_width=True, config=_CHART_CFG)
+                        st.plotly_chart(mlb_fig(fig_vo), width="stretch", config=_CHART_CFG)
 
                         # ── Recent game log ────────────────────────────────────
                         mlb_section("Recent Game Log")
@@ -7878,7 +7878,7 @@ elif sport == "⚾ MLB":
                         st.dataframe(
                             vo_df[available].tail(15).sort_values("date", ascending=False)
                             .style.format({"date": lambda x: x.strftime("%b %d"), **display_fmt}),
-                            use_container_width=True, hide_index=True,
+                            width="stretch", hide_index=True,
                         )
 
     # ── MLB BET SIMULATION ───────────────────────────────────────────────────
@@ -7940,14 +7940,14 @@ elif sport == "⚾ MLB":
                                       labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
                                       color_discrete_sequence=["#3b82f6"])
                     fig_sim.add_hline(y=0, line_dash="dot", line_color="#1e2d3d")
-                    st.plotly_chart(mlb_fig(fig_sim), use_container_width=True, config=_CHART_CFG)
+                    st.plotly_chart(mlb_fig(fig_sim), width="stretch", config=_CHART_CFG)
                     mlb_section("Game Log")
                     st.dataframe(
                         sim_df[["date", "opponent", _sim_col, "HIT"]].rename(columns={
                             "date": "Date", "opponent": "Opponent",
                             _sim_col: sim_stat, "HIT": "Hit",
                         }),
-                        use_container_width=True, hide_index=True,
+                        width="stretch", hide_index=True,
                     )
 
     # ── MLB PRIZEPICKS ────────────────────────────────────────────────────────
@@ -8022,7 +8022,7 @@ elif sport == "⚾ MLB":
                     "player_name": "Player", "team": "Team", "stat_type": "Stat",
                     "line_score": "Line", "game_label": "Game",
                 }).sort_values("Player"),
-                use_container_width=True, hide_index=True,
+                width="stretch", hide_index=True,
             )
 
     # ── MLB PARLAYS ───────────────────────────────────────────────────────────
