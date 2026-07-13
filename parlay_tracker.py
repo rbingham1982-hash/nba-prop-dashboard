@@ -44,6 +44,10 @@ _MLB_BATTING_RESOLVE = {
     "Home Runs":         "homeRuns",
     "RBIs":              "rbi",
     "Runs":              "runs",
+    # daily_parlay_gen emits "Runs Scored" (UD_MLB_STAT_MAP), and the dashboard emits
+    # "Runs". Only "Runs" was mapped, so every "Runs Scored" leg fell through the
+    # stat lookup, never resolved, and was retried against the API on every run.
+    "Runs Scored":       "runs",
     "Stolen Bases":      "stolenBases",
     "Total Bases":       "totalBases",
     "Hitter Strikeouts": "strikeOuts",
@@ -58,6 +62,28 @@ _MLB_PITCHING_RESOLVE = {
     "Walks Allowed":      "baseOnBalls",
 }
 _MLB_PITCHER_TYPES = set(_MLB_PITCHING_RESOLVE)
+
+
+def _mlb_derived_batting(stat_type: str, b: dict) -> float | None:
+    """
+    Compute batting props that the per-game boxscore has no single key for.
+
+    boxscore_data carries raw counting stats only, so composites have to be derived.
+    A composite the resolver cannot name never resolves at all: the leg is skipped,
+    stays pending forever, and is retried against the API on every run. Returns None
+    when stat_type is not a derived stat.
+    """
+    hits    = float(b.get("hits", 0) or 0)
+    doubles = float(b.get("doubles", 0) or 0)
+    triples = float(b.get("triples", 0) or 0)
+    hr      = float(b.get("homeRuns", 0) or 0)
+    if stat_type == "Total Bases":
+        return hits + doubles + 2 * triples + 3 * hr
+    if stat_type == "Singles":
+        return hits - doubles - triples - hr
+    if stat_type in ("Hits+Runs+RBIs", "Hits + Runs + RBIs"):
+        return hits + float(b.get("runs", 0) or 0) + float(b.get("rbi", 0) or 0)
+    return None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -564,29 +590,23 @@ def _resolve_mlb_legs() -> int:
                             if leg["outcome"] is not None:
                                 continue
                             stat_type = leg["stat_type"]
-                            if stat_type in _MLB_PITCHER_TYPES:
+                            is_pitching = stat_type in _MLB_PITCHER_TYPES
+                            if is_pitching:
                                 col = _MLB_PITCHING_RESOLVE.get(stat_type)
                                 source = pstats
+                                derived = None
                             else:
                                 col = _MLB_BATTING_RESOLVE.get(stat_type)
                                 source = bstats
-                            if col is None or source is None:
+                                # Composites (Total Bases, Singles, Hits+Runs+RBIs) have no
+                                # single boxscore key and must be computed from the raw stats.
+                                derived = _mlb_derived_batting(stat_type, bstats)
+                            if derived is None and (col is None or source is None):
                                 continue
                             try:
-                                if stat_type == "Total Bases":
-                                    # boxscore_data's per-game batting stats have no
-                                    # 'totalBases' key (only season gameLog stats do) —
-                                    # every leg was silently resolving to 0. Derive it:
-                                    # TB = H + 2B + 2*3B + 3*HR.
-                                    actual = float(
-                                        (bstats.get("hits", 0) or 0)
-                                        + (bstats.get("doubles", 0) or 0)
-                                        + 2 * (bstats.get("triples", 0) or 0)
-                                        + 3 * (bstats.get("homeRuns", 0) or 0)
-                                    )
-                                else:
-                                    # Empty dict means player didn't appear; treat stat as 0
-                                    actual = float(source.get(col, 0) or 0)
+                                # Empty dict means player didn't appear; treat stat as 0
+                                actual = (derived if derived is not None
+                                          else float(source.get(col, 0) or 0))
                                 leg["outcome"] = bool(actual > leg["line_score"])
                                 resolved_count += 1
                             except Exception:
@@ -1043,12 +1063,17 @@ def get_player_accuracy(sport: str | None = None) -> list[dict]:
     """Per-player, per-stat hit rate table from all resolved legs, sorted by sample count."""
     data = _load()
     buckets: dict = defaultdict(lambda: {"predicted": [], "actual": [], "implied": []})
+    seen_props: set = set()
     for parlay in data["parlays"]:
         if sport and parlay.get("sport") != sport:
             continue
         for leg in parlay["legs"]:
             if leg["outcome"] is None or leg["outcome"] == "void":
                 continue
+            prop = _prop_key(leg)
+            if prop in seen_props:
+                continue  # one prop, reused across parlays — a single observation
+            seen_props.add(prop)
             key = (leg["player_name"], leg["stat_type"])
             buckets[key]["predicted"].append(leg["predicted_hit_rate"])
             buckets[key]["actual"].append(1.0 if leg["outcome"] is True else 0.0)
@@ -1214,6 +1239,10 @@ def get_monthly_trends(sport: str | None = None) -> list[dict]:
         "leg_total": 0, "leg_hits": 0,
         "pred_sum": 0.0,
     })
+    # Parlay counts are per-parlay, but the leg hit rate is per unique prop: the same
+    # prop sits in many parlays, and counting it once per parlay would weight the rate
+    # by how often the builder happened to reuse it.
+    seen_props: set = set()
     for p in data["parlays"]:
         if p["parlay_hit"] is None:
             continue
@@ -1227,6 +1256,10 @@ def get_monthly_trends(sport: str | None = None) -> list[dict]:
         for leg in p["legs"]:
             if leg["outcome"] is None or leg["outcome"] == "void":
                 continue
+            prop = _prop_key(leg)
+            if prop in seen_props:
+                continue
+            seen_props.add(prop)
             months[month]["leg_total"] += 1
             if leg["outcome"] is True:
                 months[month]["leg_hits"] += 1
@@ -1304,6 +1337,7 @@ def get_calibration_drift(sport: str | None = None, days: int = 30,
     cutoff = (datetime.now() - timedelta(days=days)).isoformat()
     alltime: dict = defaultdict(lambda: {"actual": []})
     recent:  dict = defaultdict(lambda: {"actual": []})
+    seen_props: set = set()
     for parlay in data["parlays"]:
         if sport and parlay.get("sport") != sport:
             continue
@@ -1311,6 +1345,10 @@ def get_calibration_drift(sport: str | None = None, days: int = 30,
         for leg in parlay["legs"]:
             if leg["outcome"] is None or leg["outcome"] == "void":
                 continue
+            prop = _prop_key(leg)
+            if prop in seen_props:
+                continue
+            seen_props.add(prop)
             a = 1.0 if leg["outcome"] is True else 0.0
             alltime[leg["stat_type"]]["actual"].append(a)
             if is_recent:
@@ -1347,12 +1385,17 @@ def get_line_value_analysis(sport: str | None = None) -> dict:
     data = _load()
     pos: list[dict] = []
     neg: list[dict] = []
+    seen_props: set = set()
     for parlay in data["parlays"]:
         if sport and parlay.get("sport") != sport:
             continue
         for leg in parlay["legs"]:
             if leg["outcome"] is None or leg["outcome"] == "void":
                 continue
+            prop = _prop_key(leg)
+            if prop in seen_props:
+                continue
+            seen_props.add(prop)
             implied = _implied_from_odds(leg.get("american_odds"))
             pred    = leg["predicted_hit_rate"]
             edge    = pred - implied

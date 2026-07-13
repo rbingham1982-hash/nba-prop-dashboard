@@ -373,12 +373,18 @@ def main():
 
 if __name__ == "__main__":
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _real_stdout, _real_stderr = sys.stdout, sys.stderr
     with open(LOG_PATH, "a", encoding="utf-8") as _log:
-        sys.stdout = _Tee(sys.stdout, _log)
-        sys.stderr = _Tee(sys.stderr, _log)   # tracebacks belong in the log too
+        sys.stdout = _Tee(_real_stdout, _log)
+        sys.stderr = _Tee(_real_stderr, _log)   # tracebacks belong in the log too
         try:
             main()
         except Exception:
             import traceback
             traceback.print_exc()
             raise
+        finally:
+            # Restore before the log file closes: leaving sys.stdout wrapped around a
+            # closed file makes the interpreter's shutdown flush raise, which exits
+            # non-zero (120) even on a clean run and reads as a failed scheduled task.
+            sys.stdout, sys.stderr = _real_stdout, _real_stderr
