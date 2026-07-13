@@ -682,10 +682,16 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     probabilities. Neither holds, and the error compounds with pick count — 4-leg
     parlays were booked at ~16% and hit ~4%, against a 10% break-even, a structural
     -58% ROI. parlay_cal (from parlay_tracker.get_parlay_calibration) deflates the
-    product by the measured overestimate for that pick count, and any combo whose EV is
-    still non-positive on the calibrated probability is dropped rather than offered.
-    The calibrated probability is what gets returned and logged, so the next round of
-    calibration measures the model we actually ship.
+    product by the measured overestimate for that pick count. The calibrated probability
+    is what gets returned and logged, so the next round of calibration measures the
+    model we actually ship.
+
+    EV decides what is *recommended*, not what is *built*. Every combo is still returned
+    and logged, tagged recommended=(ev > min_ev). Dropping the losers at build time was
+    the obvious move and the wrong one: the parlay log is the training data — only legs
+    inside logged parlays ever get resolved — so filtering generation cut leg-resolution
+    data by ~85% and starved the very calibration the filter depends on. Bet only the
+    recommended ones; keep learning from all of them.
 
     pool_size caps the input to the top-N legs by hit_rate before generating
     combinations — Underdog/fallback data can return hundreds of legs, and
@@ -714,12 +720,11 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
             # Payouts are gross (a 2-pick returns 3x the entry), so a win nets
             # payout-1 and EV = prob*(payout-1) - (1-prob) = prob*payout - 1.
             ev = round(prob * payout - 1.0, 4)
-            if ev <= min_ev:
-                continue   # never offer a bet the calibrated model says loses money
             results.append({
                 "legs": list(combo), "n": n,
                 "prob": round(prob, 4), "raw_prob": round(raw, 4),
                 "payout": payout, "ev": ev,
+                "recommended": bool(ev > min_ev),
             })
 
     def _top(pool, key_fn, exclude_keys=None, max_uses=None):
@@ -739,10 +744,14 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
                 leg_uses[lk] += 1
         return out
 
-    safe_out = _top(results, lambda x: x["prob"], max_uses=max_leg_uses)[:top_n]
+    # Recommended (positive-EV) combos sort ahead of the rest in both lists, so the bets
+    # worth making lead. The losers are still returned and logged — they are the training
+    # data — they just never sit at the top of the board.
+    safe_out = _top(results, lambda x: (x["recommended"], x["prob"]),
+                    max_uses=max_leg_uses)[:top_n]
     safe_keys = {frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]) for p in safe_out}
-    value_pool = sorted(results, key=lambda x: (x["n"], x["ev"]), reverse=True)
-    value_out = _top(value_pool, lambda x: x["ev"], exclude_keys=safe_keys, max_uses=max_leg_uses)[:top_n]
+    value_out = _top(results, lambda x: (x["recommended"], x["ev"]),
+                     exclude_keys=safe_keys, max_uses=max_leg_uses)[:top_n]
 
     return safe_out, value_out
 

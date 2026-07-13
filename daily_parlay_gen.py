@@ -334,12 +334,21 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
 
         safe, value = build_parlays(legs, sportsbook=sb, parlay_cal=p_cal)
         if not safe and not value:
-            print(f"    No positive-EV parlays on the calibrated model — none logged.")
             continue
         s = parlay_tracker.log_parlays(safe,  sport_label, sb, kind="safe")
         v = parlay_tracker.log_parlays(value, sport_label, sb, kind="value")
-        sizes = sorted({p["n"] for p in safe + value})
-        print(f"    Logged {s} safe + {v} value parlays (pick counts: {sizes}).")
+
+        # The whole slate is logged — it is the training data. Only the positive-EV ones
+        # are worth betting, so say which those are.
+        rec = [p for p in safe + value if p.get("recommended")]
+        sizes = sorted({p["n"] for p in rec})
+        print(f"    Logged {s} safe + {v} value parlays.")
+        if rec:
+            best = max(rec, key=lambda p: p["ev"])
+            print(f"    RECOMMENDED (positive EV): {len(rec)} of {len(safe) + len(value)} "
+                  f"— pick counts {sizes}, best EV {best['ev']:+.3f} on a {best['n']}-leg.")
+        else:
+            print(f"    RECOMMENDED: none — no positive-EV parlay on the board today.")
         total += s + v
 
     return total

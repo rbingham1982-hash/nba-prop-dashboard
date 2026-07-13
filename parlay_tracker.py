@@ -166,6 +166,11 @@ def log_parlays(
             "iso_week":         week,
             "predicted_prob":   round(parlay["prob"], 4),
             "payout":           parlay.get("payout"),
+            # EV on the calibrated probability, and whether it clears zero. Losers are
+            # logged too — they are the training data — but only the recommended ones
+            # are worth betting.
+            "ev":               parlay.get("ev"),
+            "recommended":      bool(parlay.get("recommended", True)),
             "parlay_hit":       None,
             "legs":             [],
         }

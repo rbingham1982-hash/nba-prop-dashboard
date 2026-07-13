@@ -495,6 +495,11 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
 .pl-prob { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); }
 .pl-tag { font-size: 0.68rem; font-weight: 700; background: rgba(129,140,248,0.12); color: var(--accent); padding: 0.18rem 0.55rem; border-radius: 4px; letter-spacing: 0.06em; white-space: nowrap; }
 .pl-ev { font-size: 0.65rem; color: var(--text-muted); margin-left: auto; }
+.pl-rec { font-size: 0.62rem; font-weight: 800; background: rgba(34,197,94,0.14); color: #4ade80; padding: 0.18rem 0.5rem; border-radius: 4px; letter-spacing: 0.05em; white-space: nowrap; }
+.pl-norec { font-size: 0.62rem; font-weight: 700; background: rgba(148,163,184,0.10); color: #94a3b8; padding: 0.18rem 0.5rem; border-radius: 4px; letter-spacing: 0.04em; white-space: nowrap; }
+/* A negative-EV parlay is logged for calibration, not offered as a bet — mute it. */
+.pl-card-norec { opacity: 0.62; }
+.pl-card-norec:hover { opacity: 1; }
 .pl-leg { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 0.4rem; }
 .pl-leg:last-child { border-bottom: none; }
 .pl-name { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; flex-shrink: 0; }
@@ -2723,12 +2728,23 @@ def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
     else:
         payout_span = f"<span class='pl-tag'>{parlay['n']}-Pick &nbsp;·&nbsp; {parlay['payout']}x</span>"
     ev_str = f"+{parlay['ev']:.2f}" if parlay['ev'] >= 0 else f"{parlay['ev']:.2f}"
+    # EV here is on the calibrated probability, so a negative number means the model
+    # itself expects this bet to lose. Say so on the card rather than leaving the reader
+    # to notice the minus sign.
+    recommended = parlay.get("recommended", parlay["ev"] > 0)
+    if recommended:
+        rec_badge = "<span class='pl-rec'>✓ +EV</span>"
+        card_extra = " pl-card-rec"
+    else:
+        rec_badge = "<span class='pl-norec'>−EV · not recommended</span>"
+        card_extra = " pl-card-norec"
     return (
-        f"<div class='pl-card pl-card-{kind}'>"
+        f"<div class='pl-card pl-card-{kind}{card_extra}'>"
         f"<div class='pl-header'>"
         f"<span class='pl-prob'>{parlay['prob']*100:.1f}%</span>"
         f"{payout_span}"
         f"<span class='pl-ev'>EV {ev_str}</span>"
+        f"{rec_badge}"
         f"</div>"
         f"{legs_html}"
         f"</div>"
