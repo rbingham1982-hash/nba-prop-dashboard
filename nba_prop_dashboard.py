@@ -442,7 +442,7 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
         font-size: 1.1rem !important;
     }
     [data-testid="metric-container"] label {
-        font-size: 0.54rem !important;
+        font-size: 0.7rem !important;
     }
 
     /* ── Player cards ── */
@@ -495,6 +495,20 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
 .pl-prob { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); }
 .pl-tag { font-size: 0.68rem; font-weight: 700; background: rgba(129,140,248,0.12); color: var(--accent); padding: 0.18rem 0.55rem; border-radius: 4px; letter-spacing: 0.06em; white-space: nowrap; }
 .pl-ev { font-size: 0.65rem; color: var(--text-muted); margin-left: auto; }
+/* ── Verdict strip (Accuracy tab) ── */
+.verdict { border: 1px solid var(--border); border-left-width: 3px; border-radius: 8px; padding: 0.6rem 0.8rem; background: var(--card-bg); display: flex; flex-direction: column; gap: 0.15rem; height: 100%; }
+.verdict-k { font-size: 0.95rem; font-weight: 800; color: var(--text-primary); }
+.verdict-v { font-size: 0.68rem; color: var(--text-muted); }
+.verdict-good { border-left-color: #0ca30c; }
+.verdict-good .verdict-k { color: #4ade80; }
+.verdict-warn { border-left-color: #fab219; }
+.verdict-warn .verdict-k { color: #fbbf24; }
+.verdict-bad  { border-left-color: #d03b3b; }
+.verdict-bad .verdict-k { color: #f87171; }
+
+.pl-summary { font-size: 0.8rem; margin: 0.2rem 0 0.6rem; }
+.pl-summary-good { color: #4ade80; }
+.pl-summary-none { color: #f59e0b; }
 .pl-rec { font-size: 0.62rem; font-weight: 800; background: rgba(34,197,94,0.14); color: #4ade80; padding: 0.18rem 0.5rem; border-radius: 4px; letter-spacing: 0.05em; white-space: nowrap; }
 .pl-norec { font-size: 0.62rem; font-weight: 700; background: rgba(148,163,184,0.10); color: #94a3b8; padding: 0.18rem 0.5rem; border-radius: 4px; letter-spacing: 0.04em; white-space: nowrap; }
 /* A negative-EV parlay is logged for calibration, not offered as a bet — mute it. */
@@ -505,9 +519,9 @@ div[data-baseweb="select"] > div { border-radius: 8px !important; }
 .pl-name { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; flex-shrink: 0; }
 .pl-stat { font-size: 0.72rem; color: var(--text-muted); flex: 1; text-align: center; }
 .pl-rate { font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
-.pl-rate-hi { color: #22c55e; }
-.pl-rate-mid { color: #f59e0b; }
-.pl-rate-lo { color: #f87171; }
+.pl-rate-hi { color: #0ca30c; }   /* VIZ_HIT */
+.pl-rate-mid { color: #fab219; }  /* VIZ_PENDING */
+.pl-rate-lo { color: #d03b3b; }   /* VIZ_MISS */
 .pl-rate-none { color: var(--text-muted); font-weight: 400; }
 .pl-section-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.35rem 0; }
 </style>
@@ -2756,6 +2770,85 @@ def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
         f"</div>"
     )
 
+
+def _grouped_tabs(groups: list):
+    """
+    Build two-level tabs but hand back a flat iterator in declaration order.
+
+    Eleven top-level tabs is past the point anyone scans them. Nesting them cuts the top
+    row to five without touching a single page body: callers still pull tabs off an
+    iterator in the same order, so `with tab_parlays:` keeps working unchanged.
+
+    A group with no children renders as a plain leaf tab, which keeps Home on the top
+    row rather than burying the landing page one click deep.
+
+    groups: [(group_name, [child_name, ...]), ...]
+    """
+    outer = st.tabs([name for name, _children in groups])
+    flat = []
+    for container, (_name, children) in zip(outer, groups):
+        if not children:
+            flat.append(container)
+            continue
+        with container:
+            flat.extend(st.tabs(children))
+    return iter(flat)
+
+
+def _render_parlay_pair(safe: list, value: list, key: str,
+                        safe_label: str = "Safe Parlays — Most Likely to Hit",
+                        value_label: str = "Value Parlays — Best Payout Potential",
+                        safe_empty: str = "Not enough legs with sufficient historical data. Try adding more stat types.",
+                        value_empty: str = "No additional value parlays found beyond safe parlays."):
+    """
+    Render the safe/value columns behind one recommended-only toggle.
+
+    The +EV badge alone left a recommendation findable only by eye — with a hundred
+    parlays on the board you scroll and squint at badges. The toggle is what turns the
+    flag into a decision, and it is the only control on this page that changes what you
+    would actually bet, so it defaults to on whenever there is anything to recommend.
+    """
+    rec_total = sum(1 for p in safe + value if p.get("recommended"))
+    total = len(safe) + len(value)
+
+    _hc1, _hc2 = st.columns([3, 1])
+    with _hc1:
+        if total:
+            tone = "pl-summary-good" if rec_total else "pl-summary-none"
+            msg = (f"<strong>{rec_total}</strong> of {total} parlays are positive-EV "
+                   f"on the calibrated model"
+                   if rec_total else
+                   f"None of {total} parlays are positive-EV today — the calibrated "
+                   f"model expects every one of them to lose")
+            st.markdown(f"<p class='pl-summary {tone}'>{msg}</p>", unsafe_allow_html=True)
+    with _hc2:
+        only_rec = st.toggle("Recommended only", value=bool(rec_total),
+                             key=f"rec_only_{key}",
+                             help="Hide parlays the calibrated model expects to lose.")
+
+    if only_rec:
+        safe = [p for p in safe if p.get("recommended")]
+        value = [p for p in value if p.get("recommended")]
+
+    _cs, _cv = st.columns(2)
+    with _cs:
+        st.markdown(f"<p class='pl-section-label'>{safe_label}</p>", unsafe_allow_html=True)
+        if safe:
+            for _p in safe:
+                st.markdown(_parlay_card_html(_p, "safe"), unsafe_allow_html=True)
+        else:
+            st.caption("No recommended safe parlays — untick the filter to see the rest."
+                       if only_rec else safe_empty)
+    with _cv:
+        st.markdown(f"<p class='pl-section-label'>{value_label}</p>", unsafe_allow_html=True)
+        if value:
+            for _p in value:
+                st.markdown(_parlay_card_html(_p, "value"), unsafe_allow_html=True)
+        else:
+            st.caption("No recommended value parlays — untick the filter to see the rest."
+                       if only_rec else value_empty)
+
+
 def get_real_time_line(player_name, market="points"):
     try:
         api_key = st.secrets["ODDS_API_KEY"]
@@ -4209,7 +4302,38 @@ PP_STAT_MAP = {
 }
 SEASONS = ["2022-23", "2023-24", "2024-25", "2025-26"]
 
+# ── Chart palette ───────────────────────────────────────────────────────────
+# Validated against this dashboard's own dark chart surface (#191c23), not a generic
+# one — contrast and lightness only mean anything against the surface a chart actually
+# renders on. Worst adjacent CVD ΔE is 35.9 (target ≥12), all slots inside the dark
+# lightness band and ≥3:1 on the surface.
+#
+# Slot 1 is the brand indigo snapped one step darker: the accent itself (#818cf8) sits
+# at L 0.68, just outside the 0.48–0.67 band for a dark surface, so it was too light to
+# hold as a data mark. Same hue, one step down, passes.
+#
+# The order is fixed and never cycled — a fifth series folds into "Other" rather than
+# inventing a hue, and colour follows the entity, never its rank, so filtering a series
+# out must never repaint the survivors.
+#
+# No red here on purpose. Red means "miss", and nothing that isn't a miss is allowed to
+# borrow it: a status colour must never impersonate a series. Dropping it also raised
+# the worst adjacent CVD separation from ΔE 35.9 to 41.3.
+VIZ_SERIES = ["#6366f1", "#199e70", "#c98500", "#3987e5"]
+
+# One hue, monotone lightness, low value nearest the surface. There were three
+# different ad-hoc ramps doing this job, each starting at the *gridline* colour, so the
+# low end of every magnitude scale dissolved into the grid.
+VIZ_SEQUENTIAL = ["#184f95", "#2a78d6", "#86b6ef"]
+
+# Reserved. Never reused as a series colour, and never the only signal — every use is
+# paired with an icon or a label, because colour alone is not a channel everyone has.
+VIZ_HIT     = "#0ca30c"   # good
+VIZ_PENDING = "#fab219"   # warning
+VIZ_MISS    = "#d03b3b"   # critical
+
 _SHARED_CHART = dict(
+    colorway=VIZ_SERIES,
     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#191c23",
     font_color="#5c6272", title_font_color="#dfe1ea", title_font_size=13, title_text="",
     font=dict(family="Inter, sans-serif", size=11),
@@ -4423,6 +4547,49 @@ def _render_accuracy_tab(sport_filter: str) -> None:
             key=f"acc_week_{sport_filter}",
         )
     st.divider()
+
+    # ── Verdict strip ─────────────────────────────────────────────────────────
+    # Seven tables follow, and the two facts that actually change a decision — is any
+    # stat drifting, and is this sport making money — were buried among them. Answer
+    # both before the tables, not after.
+    _drift = parlay_tracker.get_drift_warnings(sport=sport_filter)
+    _roi   = parlay_tracker.get_roi_simulation(sport=sport_filter)
+    _pcal  = parlay_tracker.get_parlay_calibration(sport=sport_filter)
+
+    _v1, _v2, _v3 = st.columns(3)
+    with _v1:
+        if _drift:
+            _worst = _drift[0]
+            st.markdown(
+                f"<div class='verdict verdict-bad'><span class='verdict-k'>{len(_drift)} stat"
+                f"{'s' if len(_drift) > 1 else ''} drifting</span>"
+                f"<span class='verdict-v'>worst: {_worst['stat_type']} "
+                f"{_worst['bias']:+.0%} over {_worst['samples']} props</span></div>",
+                unsafe_allow_html=True)
+        else:
+            st.markdown("<div class='verdict verdict-good'><span class='verdict-k'>No drift</span>"
+                        "<span class='verdict-v'>every stat within tolerance</span></div>",
+                        unsafe_allow_html=True)
+    with _v2:
+        _r = _roi["roi_pct"]
+        _cls = "verdict-good" if _r > 0 else "verdict-bad"
+        st.markdown(
+            f"<div class='verdict {_cls}'><span class='verdict-k'>{_r:+.1f}% ROI</span>"
+            f"<span class='verdict-v'>flat $10 over {_roi['n_parlays']:,} resolved parlays</span></div>",
+            unsafe_allow_html=True)
+    with _v3:
+        if _pcal:
+            _worst_n = min(_pcal, key=lambda k: _pcal[k])
+            st.markdown(
+                f"<div class='verdict verdict-warn'><span class='verdict-k'>"
+                f"{_worst_n}-leg overrated {1/_pcal[_worst_n]:.1f}x</span>"
+                f"<span class='verdict-v'>parlay calibration deflates it automatically</span></div>",
+                unsafe_allow_html=True)
+        else:
+            st.markdown("<div class='verdict verdict-warn'><span class='verdict-k'>No parlay "
+                        "calibration yet</span><span class='verdict-v'>needs more resolved "
+                        "parlays per pick count</span></div>", unsafe_allow_html=True)
+    st.write("")
 
     # ── Weekly KPIs ───────────────────────────────────────────────────────────
     _wsum = parlay_tracker.get_weekly_summary(_sel_week, sport=sport_filter)
@@ -4660,7 +4827,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
         _cdf["Actual Hit%"]    = (_cdf["actual_hit_rate"]    * 100).round(1).astype(str) + "%"
         st.dataframe(
             _cdf[["stat_type", "samples", "Predicted Hit%", "Actual Hit%", "Calibration Factor"]]
-            .rename(columns={"stat_type": "Stat Type", "samples": "Samples"}),
+            .rename(columns={"stat_type": "Stat Type", "samples": "Props"}),
             hide_index=True, width="stretch",
         )
     else:
@@ -4675,7 +4842,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
             b = d["bias"]
             _sb_rows.append({
                 "Stat Type":      stat,
-                "Legs":           d["n"],
+                "Props":          d["n"],
                 "Predicted Hit%": f"{d['predicted_hit_rate']*100:.1f}%",
                 "Actual Hit%":    f"{d['actual_hit_rate']*100:.1f}%",
                 "Bias":           f"{'+' if b >= 0 else ''}{b*100:.1f}%",
@@ -4699,7 +4866,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
         with st.expander(f"Player Accuracy Table ({len(_pa)} player/stat combos)", expanded=False):
             st.caption("Sorted by sample count. Edge = predicted hit rate − sportsbook implied probability.")
             _pa_df = pd.DataFrame(_pa)
-            _pa_df.columns = ["Player", "Stat", "Legs", "Pred Hit%", "Actual Hit%", "Bias (ppts)", "Avg Edge (ppts)"]
+            _pa_df.columns = ["Player", "Stat", "Props", "Pred Hit%", "Actual Hit%", "Bias (ppts)", "Avg Edge (ppts)"]
             st.dataframe(_pa_df, hide_index=True, width="stretch")
     st.divider()
 
@@ -5021,13 +5188,13 @@ if sport == "🏀 NBA":
         del st.query_params["ticker_sport"]
         st.rerun()
 
-    _nba_tab_labels = [
-        "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
-        "Bet Simulation", "First Basket", "Sportsbook", "Parlays",
-        *( ["Accuracy"] if _IS_LOCAL else [] ),
-        "Daily Blog", "Disclaimer",
-    ]
-    _nba_tabs_iter = iter(st.tabs(_nba_tab_labels))
+    _nba_tabs_iter = _grouped_tabs([
+        ("Home",    []),
+        ("Analyze", ["Player Stats", "Opponent Breakdown", "vs. Opponent"]),
+        ("Bet",     ["Bet Simulation", "First Basket", "Sportsbook", "Parlays"]),
+        *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
+        ("About",   ["Daily Blog", "Disclaimer"]),
+    ])
     tab_home        = next(_nba_tabs_iter)
     tab_stats       = next(_nba_tabs_iter)
     tab_opp         = next(_nba_tabs_iter)
@@ -5519,7 +5686,7 @@ if sport == "🏀 NBA":
                         section("Hit Rate by Opponent")
                         fig = px.bar(opp_stats.reset_index(), x="Hit Rate", y="OPPONENT",
                                      orientation="h", color="Hit Rate",
-                                     color_continuous_scale=["#252a35", "#4a5280", "#818cf8"],
+                                     color_continuous_scale=VIZ_SEQUENTIAL,
                                      text=opp_stats["Games"].astype(str).values + " G")
                         fig.add_vline(x=0.5, line_dash="dot", line_color="#3a4055")
                         fig.update_coloraxes(showscale=False)
@@ -5677,7 +5844,7 @@ if sport == "🏀 NBA":
                         section("Cumulative P&L")
                         fig = px.line(df.reset_index(), y="CUMULATIVE_PROFIT",
                                       labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
-                                      color_discrete_sequence=["#818cf8"])
+                                      color_discrete_sequence=[VIZ_SERIES[0]])
                         fig.add_hline(y=0, line_dash="dot", line_color="#3a4055")
                         st.plotly_chart(nba_fig(fig), width="stretch", config=_CHART_CFG)
 
@@ -5738,7 +5905,7 @@ if sport == "🏀 NBA":
                         df_scorers.head(12), x="First Baskets", y="Player",
                         orientation="h",
                         color="First Baskets",
-                        color_continuous_scale=["#3a4055", "#818cf8"],
+                        color_continuous_scale=VIZ_SEQUENTIAL,
                         text="First Baskets",
                     )
                     fig_bar.update_traces(textposition="outside")
@@ -6231,23 +6398,7 @@ if sport == "🏀 NBA":
                 unsafe_allow_html=True,
             )
 
-            _cs, _cv = st.columns(2)
-            with _cs:
-                st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
-                            unsafe_allow_html=True)
-                if _safe_p:
-                    for _p in _safe_p:
-                        st.markdown(_parlay_card_html(_p, "safe"), unsafe_allow_html=True)
-                else:
-                    st.caption("Not enough legs with sufficient historical data. Try adding more stat types.")
-            with _cv:
-                st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
-                            unsafe_allow_html=True)
-                if _value_p:
-                    for _p in _value_p:
-                        st.markdown(_parlay_card_html(_p, "value"), unsafe_allow_html=True)
-                else:
-                    st.caption("No additional value parlays found beyond safe parlays.")
+            _render_parlay_pair(_safe_p, _value_p, key="nba")
 
             # ── Same-Game Parlays ─────────────────────────────────────────────
             st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
@@ -6315,13 +6466,13 @@ elif sport == "🏀 WNBA":
         del st.query_params["ticker_sport"]
         st.rerun()
 
-    _wnba_tab_labels = [
-        "Home", "Player Stats", "Opponent Breakdown", "vs. Opponent",
-        "Bet Simulation", "Sportsbook", "Parlays",
-        *( ["Accuracy"] if _IS_LOCAL else [] ),
-        "Daily Blog", "Disclaimer",
-    ]
-    _wnba_tabs_iter = iter(st.tabs(_wnba_tab_labels))
+    _wnba_tabs_iter = _grouped_tabs([
+        ("Home",    []),
+        ("Analyze", ["Player Stats", "Opponent Breakdown", "vs. Opponent"]),
+        ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
+        *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
+        ("About",   ["Daily Blog", "Disclaimer"]),
+    ])
     tab_w_home     = next(_wnba_tabs_iter)
     tab_w_stats    = next(_wnba_tabs_iter)
     tab_w_opp      = next(_wnba_tabs_iter)
@@ -6616,7 +6767,7 @@ elif sport == "🏀 WNBA":
                             section(f"Hit Rate by Opponent — {wobprop}")
                             wob_fig = px.bar(wob_grouped.reset_index(), x="Hit_Rate", y="OPPONENT",
                                             orientation="h", color="Hit_Rate",
-                                            color_continuous_scale=["#252a35", "#4a5280", "#818cf8"],
+                                            color_continuous_scale=VIZ_SEQUENTIAL,
                                             text=wob_grouped["Games"].astype(str).values + " G")
                             wob_fig.add_vline(x=0.5, line_dash="dot", line_color="#3a4055")
                             wob_fig.update_coloraxes(showscale=False)
@@ -6760,7 +6911,7 @@ elif sport == "🏀 WNBA":
                         wsim_df["CUMULATIVE"] = wsim_df["PROFIT"].cumsum()
                         section("Cumulative P&L")
                         wsim_fig = px.line(wsim_df.reset_index(), x=wsim_df.index, y="CUMULATIVE",
-                                          color_discrete_sequence=["#818cf8"])
+                                          color_discrete_sequence=[VIZ_SERIES[0]])
                         wsim_fig.add_hline(y=0, line_dash="dot", line_color="#3a4055")
                         st.plotly_chart(nba_fig(wsim_fig), width="stretch", config=_CHART_CFG)
                         ws1, ws2, ws3, ws4 = st.columns(4)
@@ -6978,23 +7129,10 @@ elif sport == "🏀 WNBA":
                 unsafe_allow_html=True,
             )
 
-            _wcs, _wcv = st.columns(2)
-            with _wcs:
-                st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
-                            unsafe_allow_html=True)
-                if _wsafe_p:
-                    for _wp in _wsafe_p:
-                        st.markdown(_parlay_card_html(_wp, "safe"), unsafe_allow_html=True)
-                else:
-                    st.caption("Not enough legs with data. Try adding more stat types or use historical mode.")
-            with _wcv:
-                st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
-                            unsafe_allow_html=True)
-                if _wvalue_p:
-                    for _wp in _wvalue_p:
-                        st.markdown(_parlay_card_html(_wp, "value"), unsafe_allow_html=True)
-                else:
-                    st.caption("No additional value parlays found beyond safe parlays.")
+            _render_parlay_pair(
+                _wsafe_p, _wvalue_p, key="wnba",
+                safe_empty="Not enough legs with data. Try adding more stat types or use historical mode.",
+            )
 
             # Same-Game Parlays
             st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
@@ -7108,13 +7246,13 @@ elif sport == "⚾ MLB":
         del st.query_params["ticker_game"]
         del st.query_params["ticker_sport"]
         st.rerun()
-    _mlb_tab_labels = [
-        "Home", "Hitter Analysis", "Pitcher Analysis", "vs Opponent",
-        "Bet Simulation", "Sportsbook", "Parlays",
-        *( ["Accuracy"] if _IS_LOCAL else [] ),
-        "Daily Blog", "Disclaimer",
-    ]
-    _mlb_tabs_iter  = iter(st.tabs(_mlb_tab_labels))
+    _mlb_tabs_iter  = _grouped_tabs([
+        ("Home",    []),
+        ("Analyze", ["Hitter Analysis", "Pitcher Analysis", "vs Opponent"]),
+        ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
+        *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
+        ("About",   ["Daily Blog", "Disclaimer"]),
+    ])
     tab_mlb_home    = next(_mlb_tabs_iter)
     tab_hitter      = next(_mlb_tabs_iter)
     tab_pitcher     = next(_mlb_tabs_iter)
@@ -7550,7 +7688,7 @@ elif sport == "⚾ MLB":
                             opp_h.reset_index(),
                             x=f"Avg {h_stat}", y="opponent", orientation="h",
                             color=f"Avg {h_stat}",
-                            color_continuous_scale=["#252a35", "#818cf8"],
+                            color_continuous_scale=VIZ_SEQUENTIAL,
                             text=opp_h["Games"].astype(str).values + "G",
                         )
                         fig_opp.add_vline(x=h_df[h_stat].mean(), line_dash="dot", line_color="#a78bfa")
@@ -7746,7 +7884,7 @@ elif sport == "⚾ MLB":
                     mlb_section("K Distribution")
                     fig_hist = px.histogram(
                         p_df, x="K", nbins=12,
-                        color_discrete_sequence=["#818cf8"],
+                        color_discrete_sequence=[VIZ_SERIES[0]],
                     )
                     fig_hist.add_vline(x=p_line, line_dash="dot", line_color="#a78bfa",
                                        annotation_text=f"Line {p_line}", annotation_font_color="#a78bfa")
@@ -7976,7 +8114,7 @@ elif sport == "⚾ MLB":
                     mlb_section("Cumulative P&L")
                     fig_sim = px.line(sim_df.reset_index(), y="CUMULATIVE_PROFIT",
                                       labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
-                                      color_discrete_sequence=["#3b82f6"])
+                                      color_discrete_sequence=[VIZ_SERIES[0]])
                     fig_sim.add_hline(y=0, line_dash="dot", line_color="#1e2d3d")
                     st.plotly_chart(mlb_fig(fig_sim), width="stretch", config=_CHART_CFG)
                     mlb_section("Game Log")
@@ -8100,7 +8238,24 @@ elif sport == "⚾ MLB":
                 key="mlb_par_stats",
                 label_visibility="collapsed",
             )
-            st.caption("RBIs removed — calibration data (54 resolved legs) shows a 3.7% real hit rate. Total Bases re-added after fixing a resolver bug that had wrongly scored it as 0% (see accuracy tab); real hit rate is 72.5%.")
+            # Read the hit rates out of the tracker instead of hard-coding them. The
+            # sentence that lived here quoted 72.5% for Total Bases and 3.7% for RBIs;
+            # both came from the pre-dedupe, pre-resolver-fix log and are now wrong
+            # (52.6% and 25.0%). A caption asserting a number it doesn't measure is a
+            # caption that goes stale the moment the data moves.
+            _mlb_worst = [
+                r for r in parlay_tracker.get_all_time_calibration_table(sport="MLB")
+                if r["samples"] >= 5 and r["actual_hit_rate"] < 0.40
+            ]
+            if _mlb_worst:
+                _w = ", ".join(
+                    f"{r['stat_type']} {r['actual_hit_rate']:.0%} ({r['samples']} props)"
+                    for r in sorted(_mlb_worst, key=lambda x: x["actual_hit_rate"])[:3]
+                )
+                st.caption(f"Lowest-hitting MLB props on resolved data: {_w}. "
+                           f"Calibration deflates these automatically — see the Accuracy tab.")
+            else:
+                st.caption("Per-stat hit rates and calibration factors are on the Accuracy tab.")
 
         if st.button("Build MLB Parlays", type="primary", key="mlb_build_parlays"):
             st.session_state["mlb_parlays_built"] = True
@@ -8288,23 +8443,7 @@ elif sport == "⚾ MLB":
                 unsafe_allow_html=True,
             )
 
-            _cms, _cmv = st.columns(2)
-            with _cms:
-                st.markdown("<p class='pl-section-label'>Safe Parlays — Most Likely to Hit</p>",
-                            unsafe_allow_html=True)
-                if _safe_m:
-                    for _pm in _safe_m:
-                        st.markdown(_parlay_card_html(_pm, "safe"), unsafe_allow_html=True)
-                else:
-                    st.caption("Not enough legs with sufficient historical data. Try adding more stat types.")
-            with _cmv:
-                st.markdown("<p class='pl-section-label'>Value Parlays — Best Payout Potential</p>",
-                            unsafe_allow_html=True)
-                if _value_m:
-                    for _pm in _value_m:
-                        st.markdown(_parlay_card_html(_pm, "value"), unsafe_allow_html=True)
-                else:
-                    st.caption("No additional value parlays found beyond safe parlays.")
+            _render_parlay_pair(_safe_m, _value_m, key="mlb")
 
             # ── Same-Game Parlays ─────────────────────────────────────────────
             st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
