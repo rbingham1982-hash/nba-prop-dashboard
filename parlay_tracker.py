@@ -17,6 +17,24 @@ from pathlib import Path
 import pandas as pd
 
 LOG_PATH = Path(__file__).parent / "parlay_log.json"
+
+# Which model produced a parlay's predicted_prob. Bump this whenever a change alters
+# what predicted_prob *means*, so calibration stops grading a model that no longer
+# exists.
+#
+# Parlay calibration is actual/predicted. Every parlay resolved before "devig" was
+# predicted by a model that pinned the book's implied probability at a constant 0.50 —
+# it never saw the market at all. Feeding it de-vigged prices made its leg
+# probabilities markedly more honest, so applying the *old* model's overconfidence on
+# top of the new one deflates twice, and the whole board reports as unprofitable.
+#
+# Those factors were also non-monotonic in pick count (WNBA 4-leg 0.179 but 5-leg
+# 0.471). Overconfidence that compounds per leg cannot rise again at five; the factor
+# was really encoding which builder produced the parlay — the daily generator capped at
+# 4 and EV-ranked its worst legs, while 5-leg parlays came from the dashboard's better
+# pool. A number that measures its own source is not a calibration.
+_MODEL_EPOCH = "devig"
+
 CAL_MIN_SAMPLES = 15          # minimum weighted resolved legs per stat before calibration kicks in
 CAL_MAX_FACTOR = 1.35         # clamp calibration multiplier upper bound
 CAL_MIN_FACTOR = 0.05         # allow deep deflation for stats like RBI/HR that rarely hit
@@ -166,6 +184,9 @@ def log_parlays(
             "iso_week":         week,
             "predicted_prob":   round(parlay["prob"], 4),
             "payout":           parlay.get("payout"),
+            # Which model produced predicted_prob. Calibration grades a model against
+            # its own predictions; without this it grades whatever came before too.
+            "model_epoch":      _MODEL_EPOCH,
             # EV on the calibrated probability, and whether it clears zero. Losers are
             # logged too — they are the training data — but only the recommended ones
             # are worth betting.
@@ -1087,7 +1108,13 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
     data = _load()
     parlays = [p for p in data["parlays"]
                if p["parlay_hit"] is not None
-               and (not sport or p.get("sport") == sport)]
+               and (not sport or p.get("sport") == sport)
+               # Only grade predictions this model actually made. Every parlay resolved
+               # before the de-vig fix was predicted by a model that never saw the
+               # market; its overconfidence is not this model's overconfidence, and
+               # applying it on top of corrected legs deflates twice — which is how the
+               # board came to report that every parlay on it loses.
+               and p.get("model_epoch") == _MODEL_EPOCH]
     if not parlays:
         return {}
 

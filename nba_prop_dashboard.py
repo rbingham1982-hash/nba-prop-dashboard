@@ -2795,7 +2795,7 @@ def _grouped_tabs(groups: list):
     return iter(flat)
 
 
-def _render_parlay_pair(safe: list, value: list, key: str,
+def _render_parlay_pair(safe: list, value: list, key: str, sport: str | None = None,
                         safe_label: str = "Safe Parlays — Most Likely to Hit",
                         value_label: str = "Value Parlays — Best Payout Potential",
                         safe_empty: str = "Not enough legs with sufficient historical data. Try adding more stat types.",
@@ -2811,15 +2811,22 @@ def _render_parlay_pair(safe: list, value: list, key: str,
     rec_total = sum(1 for p in safe + value if p.get("recommended"))
     total = len(safe) + len(value)
 
+    # Say which correction is actually behind the EV. Parlay-level calibration only
+    # counts parlays this model predicted, so right after a model change there is none,
+    # and EV rests on leg calibration and the real payout alone. Claiming "the
+    # calibrated model" in that state overstates what stands behind the number.
+    _pcal_live = bool(parlay_tracker.get_parlay_calibration(sport=sport)) if sport else False
+
     _hc1, _hc2 = st.columns([3, 1])
     with _hc1:
         if total:
             tone = "pl-summary-good" if rec_total else "pl-summary-none"
+            basis = ("calibrated model" if _pcal_live
+                     else "leg-calibrated model (no parlay-level calibration yet)")
             msg = (f"<strong>{rec_total}</strong> of {total} parlays are positive-EV "
-                   f"on the calibrated model"
+                   f"on the {basis}"
                    if rec_total else
-                   f"None of {total} parlays are positive-EV today — the calibrated "
-                   f"model expects every one of them to lose")
+                   f"None of {total} parlays clear break-even on the {basis}")
             st.markdown(f"<p class='pl-summary {tone}'>{msg}</p>", unsafe_allow_html=True)
     with _hc2:
         only_rec = st.toggle("Recommended only", value=bool(rec_total),
@@ -6398,7 +6405,7 @@ if sport == "🏀 NBA":
                 unsafe_allow_html=True,
             )
 
-            _render_parlay_pair(_safe_p, _value_p, key="nba")
+            _render_parlay_pair(_safe_p, _value_p, key="nba", sport="NBA")
 
             # ── Same-Game Parlays ─────────────────────────────────────────────
             st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
@@ -7130,7 +7137,7 @@ elif sport == "🏀 WNBA":
             )
 
             _render_parlay_pair(
-                _wsafe_p, _wvalue_p, key="wnba",
+                _wsafe_p, _wvalue_p, key="wnba", sport="WNBA",
                 safe_empty="Not enough legs with data. Try adding more stat types or use historical mode.",
             )
 
@@ -8443,7 +8450,7 @@ elif sport == "⚾ MLB":
                 unsafe_allow_html=True,
             )
 
-            _render_parlay_pair(_safe_m, _value_m, key="mlb")
+            _render_parlay_pair(_safe_m, _value_m, key="mlb", sport="MLB")
 
             # ── Same-Game Parlays ─────────────────────────────────────────────
             st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.07);'>",
