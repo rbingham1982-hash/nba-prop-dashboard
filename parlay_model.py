@@ -105,6 +105,33 @@ BVP_COL_MAP = {"H": "h", "HR": "hr", "TB": "tb", "K": "k", "BB": "bb", "RBI": "r
 BVP_MIN_AB = 15  # minimum career AB vs pitcher to apply adjustment
 
 
+def american_to_implied(odds) -> float:
+    """American odds -> implied probability (vig included)."""
+    try:
+        o = float(odds)
+    except (TypeError, ValueError):
+        return 0.50
+    if o == 0:
+        return 0.50
+    return 100.0 / (o + 100.0) if o > 0 else -o / (-o + 100.0)
+
+
+def devig_two_way(implied_over: float, implied_under: float | None) -> float:
+    """
+    Strip the book's margin from a two-way market.
+
+    The two sides' raw implied probabilities sum to more than 1; the excess is the
+    vig. Normalising by that sum recovers the book's true view of the over. With no
+    under price there is nothing to normalise against, so the raw number stands.
+    """
+    if implied_under is None:
+        return implied_over
+    total = implied_over + implied_under
+    if total <= 0:
+        return implied_over
+    return implied_over / total
+
+
 # ── MLB player ID + game logs ────────────────────────────────────────────────
 
 @_ttl_cache(86400)

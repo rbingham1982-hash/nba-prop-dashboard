@@ -1898,18 +1898,31 @@ def get_underdog_props(sport: str = "nba") -> pd.DataFrame:
             if " @ " in game_title:
                 away_abbr, home_abbr = game_title.split(" @ ", 1)
                 team = away_abbr if app.get("team_id") == game.get("away_team_id") else home_abbr
-            over_opt = next((o for o in line.get("options", []) if o.get("choice") == "higher"), None)
+            _opts = line.get("options", [])
+            over_opt  = next((o for o in _opts if o.get("choice") == "higher"), None)
+            under_opt = next((o for o in _opts if o.get("choice") == "lower"), None)
             if not over_opt:
                 continue
             try:
                 american = int(str(over_opt.get("american_price", "-110")).replace("+", ""))
             except Exception:
                 american = -110
+            # De-vig against the under price: the raw over probability carries the book's
+            # margin and runs high, which biases the model toward the over.
+            _imp_over = _american_to_implied(american)
+            _imp_under = None
+            if under_opt is not None:
+                try:
+                    _imp_under = _american_to_implied(
+                        int(str(under_opt.get("american_price", "-110")).replace("+", ""))
+                    )
+                except Exception:
+                    _imp_under = None
             rows.append({
                 "player_name": name, "team": team,
                 "stat_type": stat_type, "line_score": stat_value,
                 "odds_type": "standard", "american_odds": american,
-                "implied_prob": round(_american_to_implied(american), 3),
+                "implied_prob": round(_pm.devig_two_way(_imp_over, _imp_under), 3),
                 "game_id": str(app.get("match_id", "")),
                 "game_label": game_title,
                 "start_time": game.get("scheduled_at", ""),

@@ -176,6 +176,9 @@ def log_parlays(
                 "line_score":        float(leg["line_score"]),
                 "predicted_hit_rate": round(float(leg["hit_rate"]), 4),
                 "american_odds":     leg.get("american_odds"),
+                # The de-vigged book probability the model actually scored against.
+                # Recomputing it later from american_odds gives a vig-inflated number.
+                "implied_prob":      leg.get("implied_prob"),
                 "game_id":           str(leg.get("game_id", "")),
                 "game_label":        str(leg.get("game_label", "")),
                 "start_time":        str(leg.get("start_time", "")),
@@ -1059,6 +1062,22 @@ def _implied_from_odds(american_odds) -> float:
     return 0.524  # default -110
 
 
+def _leg_implied(leg: dict) -> float:
+    """
+    The book's probability for a leg: the de-vigged value stored at generation time
+    when present, otherwise derived from the American price. Legs logged before the
+    de-vig fix have no stored value, so they fall back to the vig-inflated number.
+    """
+    value = leg.get("implied_prob")
+    try:
+        value = float(value)
+        if 0.0 <= value <= 1.0:
+            return value
+    except (TypeError, ValueError):
+        pass
+    return _implied_from_odds(leg.get("american_odds"))
+
+
 def get_player_accuracy(sport: str | None = None) -> list[dict]:
     """Per-player, per-stat hit rate table from all resolved legs, sorted by sample count."""
     data = _load()
@@ -1077,7 +1096,7 @@ def get_player_accuracy(sport: str | None = None) -> list[dict]:
             key = (leg["player_name"], leg["stat_type"])
             buckets[key]["predicted"].append(leg["predicted_hit_rate"])
             buckets[key]["actual"].append(1.0 if leg["outcome"] is True else 0.0)
-            buckets[key]["implied"].append(_implied_from_odds(leg.get("american_odds")))
+            buckets[key]["implied"].append(_leg_implied(leg))
     rows = []
     for (player, stat), d in buckets.items():
         n = len(d["predicted"])
@@ -1442,7 +1461,7 @@ def get_line_value_analysis(sport: str | None = None) -> dict:
             if prop in seen_props:
                 continue
             seen_props.add(prop)
-            implied = _implied_from_odds(leg.get("american_odds"))
+            implied = _leg_implied(leg)
             pred    = leg["predicted_hit_rate"]
             edge    = pred - implied
             entry   = {"edge": edge, "hit": leg["outcome"] is True,

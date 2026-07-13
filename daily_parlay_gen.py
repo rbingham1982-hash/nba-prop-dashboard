@@ -184,17 +184,37 @@ def fetch_underdog(sport: str) -> pd.DataFrame:
             if " @ " in title:
                 away, home = title.split(" @ ", 1)
                 team = away if app.get("team_id") == game.get("away_team_id") else home
-            over_opt = next((o for o in line.get("options", []) if o.get("choice") == "higher"), None)
+            opts = line.get("options", [])
+            over_opt  = next((o for o in opts if o.get("choice") == "higher"), None)
+            under_opt = next((o for o in opts if o.get("choice") == "lower"), None)
             if not over_opt:
                 continue
             try:
                 american = int(str(over_opt.get("american_price", "-110")).replace("+", ""))
             except Exception:
                 american = -110
+
+            # The price is the sharpest signal on the board and this used to throw it
+            # away, pinning implied_prob at 0.50 for every Underdog leg. That left the
+            # model's "30% market" term a constant, so predictions barely moved with the
+            # line: where the book priced a WNBA leg at 14% it still predicted 26% (those
+            # legs hit 0%), and where the book said 81% it predicted 76% (they hit 84%).
+            # Model-vs-book edge was therefore inverted for WNBA — the legs it liked most
+            # hit least. De-vigged book probability restores the signal.
+            implied_over = pm.american_to_implied(american)
+            implied_under = None
+            if under_opt is not None:
+                try:
+                    under_american = int(str(under_opt.get("american_price", "-110")).replace("+", ""))
+                    implied_under = pm.american_to_implied(under_american)
+                except Exception:
+                    implied_under = None
+            implied = round(pm.devig_two_way(implied_over, implied_under), 4)
+
             rows.append({
                 "player_name": name, "team": team, "stat_type": st_type,
                 "line_score": val, "odds_type": "standard",
-                "american_odds": american, "implied_prob": 0.50,
+                "american_odds": american, "implied_prob": implied,
                 "game_id": app.get("match_id", ""), "game_label": title,
                 "start_time": game.get("scheduled_at", ""),
                 "sportsbook": "Underdog",
