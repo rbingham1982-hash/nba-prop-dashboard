@@ -234,6 +234,17 @@ def _team_label_to_abbrev(token: str) -> str:
     return token.upper()[:3]
 
 
+def _parse_log_date(raw: str) -> date | None:
+    """Parse a PlayerGameLog GAME_DATE ('MMM DD, YYYY', or ISO) into a date."""
+    try:
+        return datetime.strptime(raw.title(), "%b %d, %Y").date()
+    except ValueError:
+        try:
+            return date.fromisoformat(raw[:10])
+        except Exception:
+            return None
+
+
 def _find_game_by_label(df: pd.DataFrame, game_label: str, generated_at: str) -> pd.Series | None:
     """
     Match a game log row using team names extracted from game_label (e.g. 'SAS @ OKC'
@@ -260,14 +271,9 @@ def _find_game_by_label(df: pd.DataFrame, game_label: str, generated_at: str) ->
         matchup = str(row.get("MATCHUP", "")).upper()
         if abbrev_a not in matchup or abbrev_b not in matchup:
             continue
-        raw = str(row.get("GAME_DATE", ""))
-        try:
-            gd = datetime.strptime(raw.title(), "%b %d, %Y").date()
-        except ValueError:
-            try:
-                gd = date.fromisoformat(raw[:10])
-            except Exception:
-                continue
+        gd = _parse_log_date(str(row.get("GAME_DATE", "")))
+        if gd is None:
+            continue
         if gen_date is not None:
             delta = abs((gd - gen_date).days)
             if delta < best_delta.days:
@@ -348,23 +354,52 @@ def _stat_from_row(row, spec: tuple):
     return sum(float(row.get(c, 0) or 0) for c in cols)
 
 
-def _find_game_in_log(df: pd.DataFrame, target_date: date) -> pd.Series | None:
-    """Find a game log row matching target_date (±1 day tolerance)."""
+def _find_game_in_log(df: pd.DataFrame, target_date: date,
+                      game_label: str = "") -> pd.Series | None:
+    """
+    Find the game log row for target_date, within +/-1 day.
+
+    Picks the *closest* game and prefers an exact date match. Returning the first
+    row inside the tolerance window — the previous behaviour — silently resolved a
+    leg against the following day's game whenever a player played on back-to-back
+    days, because nba_api returns game logs newest-first. When game_label names
+    both teams, only rows whose MATCHUP contains them are eligible, which settles
+    adjacent-day games outright; if that finds nothing (unmappable abbreviation),
+    fall back to date-only matching rather than dropping the leg.
+    """
     if df.empty or "GAME_DATE" not in df.columns:
         return None
-    for _, row in df.iterrows():
-        raw = str(row["GAME_DATE"])
-        try:
-            # NBA API returns "MMM DD, YYYY" e.g. "MAY 18, 2026"
-            gd = datetime.strptime(raw.title(), "%b %d, %Y").date()
-        except ValueError:
-            try:
-                gd = date.fromisoformat(raw[:10])
-            except Exception:
+
+    abbrevs: list[str] = []
+    if game_label:
+        parts = [p.strip() for p in game_label.replace("@", " @ ").split("@")]
+        if len(parts) >= 2:
+            abbrevs = [_team_label_to_abbrev(parts[0]), _team_label_to_abbrev(parts[1])]
+
+    def _scan(require_teams: bool) -> pd.Series | None:
+        best_row, best_delta = None, None
+        for _, row in df.iterrows():
+            if require_teams:
+                matchup = str(row.get("MATCHUP", "")).upper()
+                if any(a not in matchup for a in abbrevs):
+                    continue
+            gd = _parse_log_date(str(row.get("GAME_DATE", "")))
+            if gd is None:
                 continue
-        if abs((gd - target_date).days) <= 1:
+            delta = abs((gd - target_date).days)
+            if delta > 1:
+                continue
+            if best_delta is None or delta < best_delta:
+                best_row, best_delta = row, delta
+                if delta == 0:
+                    break
+        return best_row
+
+    if abbrevs:
+        row = _scan(True)
+        if row is not None:
             return row
-    return None
+    return _scan(False)
 
 
 def _fetch_player_gamelog(player_id: int) -> pd.DataFrame:
@@ -427,7 +462,7 @@ def resolve_nba_legs() -> int:
                 target = _parse_game_date(leg, parlay["generated_at"])
                 if target is None:
                     continue
-                row = _find_game_in_log(df, target)
+                row = _find_game_in_log(df, target, leg.get("game_label", ""))
             if row is None:
                 continue
             try:
@@ -637,7 +672,7 @@ def _resolve_wnba_legs() -> int:
                 target = _parse_game_date(leg, parlay["generated_at"])
                 if target is None:
                     continue
-                row = _find_game_in_log(df, target)
+                row = _find_game_in_log(df, target, leg.get("game_label", ""))
             if row is None:
                 continue
             try:
@@ -653,6 +688,29 @@ def _resolve_wnba_legs() -> int:
     return resolved_count
 
 
+def reset_outcomes(sport: str) -> int:
+    """
+    Clear resolved outcomes for a sport so they can be re-resolved from scratch.
+
+    Needed after a resolver fix: outcomes are persisted, so a bug that scored legs
+    against the wrong game stays baked into parlay_log.json (and into calibration)
+    until the affected legs are re-run. Returns the number of legs cleared.
+    """
+    data = _load()
+    cleared = 0
+    for parlay in data["parlays"]:
+        if parlay.get("sport") != sport:
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is not None:
+                leg["outcome"] = None
+                cleared += 1
+        parlay["parlay_hit"] = None
+    if cleared:
+        _save(data)
+    return cleared
+
+
 def resolve_all_legs() -> dict:
     """Resolve NBA, MLB, and WNBA pending legs. Returns {nba: count, mlb: count, wnba: count}."""
     nba  = resolve_nba_legs()
@@ -664,6 +722,26 @@ def resolve_all_legs() -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 # Calibration
 # ─────────────────────────────────────────────────────────────────────────────
+
+def _prop_key(leg: dict) -> tuple:
+    """
+    Identity of the underlying prop (player + stat + line + game).
+
+    The parlay builder reuses one leg across many parlays (up to max_leg_uses, and
+    again in both the safe and value pools), so counting leg rows measures how
+    often a prop was *bet*, not how often the model was *right* about it. Every
+    per-stat accuracy number — and every calibration factor — has to dedupe on
+    this key, or a single prop can satisfy CAL_MIN_SAMPLES on its own.
+    """
+    game = (leg.get("game_id") or leg.get("game_label")
+            or str(leg.get("start_time", ""))[:10])
+    return (
+        _normalize_name(str(leg.get("player_name", ""))),
+        str(leg.get("stat_type", "")),
+        leg.get("line_score"),
+        str(game),
+    )
+
 
 def _week_ordinal(iso_week: str) -> int | None:
     """Convert '2026-W27' to a comparable weekly ordinal (Monday's date // 7)."""
@@ -699,6 +777,7 @@ def get_calibration(sport: str | None = None) -> dict:
     predicted: dict[str, float] = defaultdict(float)
     actual: dict[str, float] = defaultdict(float)
     weight_sum: dict[str, float] = defaultdict(float)
+    seen_props: set = set()
 
     for parlay in parlays:
         w = 1.0
@@ -710,6 +789,10 @@ def get_calibration(sport: str | None = None) -> dict:
         for leg in parlay["legs"]:
             if leg["outcome"] is None or leg["outcome"] == "void":
                 continue
+            key = _prop_key(leg)
+            if key in seen_props:
+                continue  # same prop, reused in another parlay — one observation
+            seen_props.add(key)
             stat = leg["stat_type"]
             predicted[stat] += w * leg["predicted_hit_rate"]
             actual[stat] += w * (1.0 if leg["outcome"] is True else 0.0)
@@ -730,6 +813,20 @@ def get_calibration(sport: str | None = None) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 # Reporting
 # ─────────────────────────────────────────────────────────────────────────────
+
+def last_parlay_time(sport: str | None = None) -> datetime | None:
+    """Timestamp of the most recently logged parlay, for detecting a missed daily run."""
+    data = _load()
+    stamps = []
+    for p in data["parlays"]:
+        if sport and p.get("sport") != sport:
+            continue
+        try:
+            stamps.append(datetime.fromisoformat(p["generated_at"]))
+        except Exception:
+            continue
+    return max(stamps) if stamps else None
+
 
 def get_all_weeks() -> list:
     """Return ISO weeks that have logged parlays, most-recent first."""
@@ -763,8 +860,16 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
     resolved_legs = [l for l in all_legs if l["outcome"] is not None and l["outcome"] != "void"]
     hit_legs      = [l for l in resolved_legs if l["outcome"] is True]
 
+    # Per-stat accuracy is measured on unique props, not leg rows: the same prop is
+    # reused across many parlays, which would otherwise multiply one right-or-wrong
+    # call into a dozen and make a thin stat look statistically settled.
     stat_data: dict = defaultdict(lambda: {"predicted": [], "actual": []})
+    seen_props: set = set()
     for leg in resolved_legs:
+        key = _prop_key(leg)
+        if key in seen_props:
+            continue
+        seen_props.add(key)
         s = leg["stat_type"]
         stat_data[s]["predicted"].append(leg["predicted_hit_rate"])
         stat_data[s]["actual"].append(1.0 if leg["outcome"] is True else 0.0)
@@ -803,6 +908,8 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
         "avg_predicted_prob": round(avg_predicted_prob, 3) if avg_predicted_prob is not None else None,
         "total_legs":        len(all_legs),
         "resolved_legs":     len(resolved_legs),
+        # Distinct props behind resolved_legs — the real accuracy sample size.
+        "unique_resolved_props": len(seen_props),
         "leg_hit_rate":      round(len(hit_legs) / len(resolved_legs), 3) if resolved_legs else None,
         "stat_breakdown":    stat_breakdown,
         "sportsbook_breakdown": {sb: d for sb, d in sb_data.items()},
@@ -815,16 +922,23 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
     data = _load()
     predicted: dict[str, list] = defaultdict(list)
     actual: dict[str, list] = defaultdict(list)
+    seen_props: set = set()
 
     for parlay in data["parlays"]:
         if sport and parlay.get("sport") != sport:
             continue
         for leg in parlay["legs"]:
-            if leg["outcome"] is None:
+            # "void" is a truthy string, so it has to be screened out explicitly or
+            # a postponed game scores as a hit.
+            if leg["outcome"] is None or leg["outcome"] == "void":
                 continue
+            key = _prop_key(leg)
+            if key in seen_props:
+                continue
+            seen_props.add(key)
             stat = leg["stat_type"]
             predicted[stat].append(leg["predicted_hit_rate"])
-            actual[stat].append(1.0 if leg["outcome"] else 0.0)
+            actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
 
     rows = []
     for stat in sorted(predicted):
@@ -844,6 +958,36 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             "active":             factor is not None,
         })
     return rows
+
+
+DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise
+DRIFT_BIAS_ALERT = 0.15  # actual vs predicted this far apart is real miscalibration
+
+
+def get_drift_warnings(sport: str | None = None,
+                       min_props: int = DRIFT_MIN_PROPS,
+                       bias_alert: float = DRIFT_BIAS_ALERT) -> list:
+    """
+    Stats whose actual hit rate has drifted materially from predicted, on a sample
+    large enough to trust. Calibration already corrects these quietly; surfacing
+    them is what makes a prop that is bleeding EV visible while it is happening
+    instead of a month later.
+    """
+    rows = get_all_time_calibration_table(sport=sport)
+    out = []
+    for r in rows:
+        if r["samples"] < min_props:
+            continue
+        bias = round(r["actual_hit_rate"] - r["predicted_hit_rate"], 3)
+        if abs(bias) >= bias_alert:
+            out.append({
+                "stat_type":          r["stat_type"],
+                "samples":            r["samples"],
+                "predicted_hit_rate": r["predicted_hit_rate"],
+                "actual_hit_rate":    r["actual_hit_rate"],
+                "bias":               bias,
+            })
+    return sorted(out, key=lambda x: abs(x["bias"]), reverse=True)
 
 
 def export_csv(week: str | None = None, sport: str | None = None) -> str:

@@ -11,12 +11,43 @@ so the two stop drifting apart.
 """
 import sys, time, os, requests, pandas as pd
 from datetime import datetime
+from pathlib import Path
 sys.stdout.reconfigure(encoding="utf-8")
 
 # parlay_tracker / parlay_model live in the same directory
 sys.path.insert(0, os.path.dirname(__file__))
 import parlay_tracker
 import parlay_model as pm
+
+LOG_PATH = Path(__file__).parent / "logs" / "daily_parlay_gen.log"
+
+
+class _Tee:
+    """
+    Mirror a stream to the run log.
+
+    The log used to be written by the shell redirect in run_daily_parlay_gen.bat,
+    so any run started another way left no trace — the log undercounted real
+    output and showed phantom gaps. Owning the log here means every invocation is
+    recorded however it was launched.
+    """
+
+    def __init__(self, stream, sink):
+        self._stream = stream
+        self._sink = sink
+
+    def write(self, text):
+        self._stream.write(text)
+        self._sink.write(text)
+        self._sink.flush()
+        return len(text)
+
+    def flush(self):
+        self._stream.flush()
+        self._sink.flush()
+
+    def __getattr__(self, name):
+        return getattr(self._stream, name)
 
 PP_PAYOUTS       = pm.PP_PAYOUTS
 PP_ODDS_IMPLIED  = pm.PP_ODDS_IMPLIED
@@ -244,6 +275,14 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
     if cal:
         print(f"  Calibration: { {k: round(v,3) for k,v in cal.items()} }")
 
+    try:
+        for w in parlay_tracker.get_drift_warnings(sport=sport_label):
+            print(f"  ! DRIFT {w['stat_type']}: predicted {w['predicted_hit_rate']:.1%} "
+                  f"vs actual {w['actual_hit_rate']:.1%} ({w['bias']:+.1%}) "
+                  f"over {w['samples']} props")
+    except Exception:
+        pass
+
     total = 0
     for sb, fetch_fn in [("PrizePicks", lambda: fetch_prizepicks(pp_league_id)),
                           ("Underdog",   lambda: fetch_underdog(sport_key))]:
@@ -267,6 +306,43 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
 
     return total
 
+# ── Pre-run housekeeping ───────────────────────────────────────────────────
+
+STALE_RUN_HOURS = 36   # a daily job that hasn't logged a parlay in this long has missed a day
+
+
+def resolve_pending():
+    """
+    Settle finished games before scoring today's slate.
+
+    Calibration is derived from resolved legs, so running this first is what makes
+    today's factors reflect last night's results. Nothing else calls it — leaving
+    it to a manual invocation is how the model ended up generating a full week of
+    parlays against stale factors.
+    """
+    print(f"\n{'='*62}\n  Resolving pending legs\n{'='*62}")
+    try:
+        counts = parlay_tracker.resolve_all_legs()
+        print(f"  Resolved — MLB {counts['mlb']}, WNBA {counts['wnba']}, NBA {counts['nba']}")
+    except Exception as e:
+        # A resolver outage must not block generation; today's factors just stay put.
+        print(f"  Resolution failed ({e}) — continuing with existing calibration.")
+
+
+def warn_if_stale(now):
+    """Flag a missed run: if the last logged parlay predates STALE_RUN_HOURS, a day was skipped."""
+    try:
+        last = parlay_tracker.last_parlay_time()
+    except Exception:
+        return
+    if last is None:
+        return
+    gap_h = (now - last).total_seconds() / 3600
+    if gap_h >= STALE_RUN_HOURS:
+        print(f"\n  ** MISSED RUN ** last parlay logged {gap_h:.1f}h ago "
+              f"({last:%Y-%m-%d %H:%M}) — expected a run within {STALE_RUN_HOURS}h.")
+
+
 # ── Entry point ────────────────────────────────────────────────────────────
 
 def main():
@@ -274,6 +350,9 @@ def main():
     month = now.month
     print(f"\nKonjure Analytics — Daily Parlay Generator")
     print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}")
+
+    warn_if_stale(now)
+    resolve_pending()
 
     total = 0
     total += run_sport("mlb",  "MLB",  2, MLB_STAT_TYPES,  mlb_hit_rate)
@@ -293,4 +372,13 @@ def main():
     print(f"{'='*62}\n")
 
 if __name__ == "__main__":
-    main()
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(LOG_PATH, "a", encoding="utf-8") as _log:
+        sys.stdout = _Tee(sys.stdout, _log)
+        sys.stderr = _Tee(sys.stderr, _log)   # tracebacks belong in the log too
+        try:
+            main()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
