@@ -6126,7 +6126,11 @@ if sport == "🏀 NBA":
                 if _legs_nba_data:
                     st.caption("Using historical averages as prop lines (no live sportsbook data). Lines set at ~88% of rolling average.")
                 _legs_nba_data = [l for l in _legs_nba_data if l["hit_rate"] >= 0.35]
-                _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
+                _safe_p, _value_p = _build_parlays(
+                    _legs_nba_data, min_legs=_b_min, max_legs=_b_max,
+                    sportsbook=_sb_choice_nba,
+                    parlay_cal=parlay_tracker.get_parlay_calibration("NBA"),
+                )
             else:
                 _pp_filt = _pp_filt.sort_values("implied_prob" if "implied_prob" in _pp_filt.columns else "line_score", ascending=False).head(50)
                 _legs_nba = []
@@ -6181,7 +6185,11 @@ if sport == "🏀 NBA":
                 _prog.empty()
 
                 _legs_nba_data = [l for l in _legs_nba if l["sample_n"] >= 1 and l["hit_rate"] >= 0.35]
-                _safe_p, _value_p = _build_parlays(_legs_nba_data, min_legs=_b_min, max_legs=_b_max)
+                _safe_p, _value_p = _build_parlays(
+                    _legs_nba_data, min_legs=_b_min, max_legs=_b_max,
+                    sportsbook=_sb_choice_nba,
+                    parlay_cal=parlay_tracker.get_parlay_calibration("NBA"),
+                )
 
             # Log generated parlays for accuracy tracking
             try:
@@ -6870,7 +6878,11 @@ elif sport == "🏀 WNBA":
                 if _wlegs_data:
                     st.caption("Using historical averages as prop lines (no live sportsbook data).")
                 _wlegs_data = [l for l in _wlegs_data if l["hit_rate"] >= 0.35]
-                _wsafe_p, _wvalue_p = _build_parlays(_wlegs_data, min_legs=_wb_min, max_legs=_wb_max)
+                _wsafe_p, _wvalue_p = _build_parlays(
+                    _wlegs_data, min_legs=_wb_min, max_legs=_wb_max,
+                    sportsbook=_wb_sb,
+                    parlay_cal=parlay_tracker.get_parlay_calibration("WNBA"),
+                )
             else:
                 _wfilt = _wfilt.sort_values("implied_prob" if "implied_prob" in _wfilt.columns else "line_score", ascending=False).head(40)
                 _wlegs = []
@@ -6921,7 +6933,11 @@ elif sport == "🏀 WNBA":
                 _wprog2.empty()
 
                 _wlegs_data = [l for l in _wlegs if l["sample_n"] >= 1 and l["hit_rate"] >= 0.35]
-                _wsafe_p, _wvalue_p = _build_parlays(_wlegs_data, min_legs=_wb_min, max_legs=_wb_max)
+                _wsafe_p, _wvalue_p = _build_parlays(
+                    _wlegs_data, min_legs=_wb_min, max_legs=_wb_max,
+                    sportsbook=_wb_sb,
+                    parlay_cal=parlay_tracker.get_parlay_calibration("WNBA"),
+                )
 
             # Log to accuracy tracker
             try:
@@ -8142,7 +8158,11 @@ elif sport == "⚾ MLB":
                     st.caption("Using historical averages as prop lines (no live sportsbook data).")
                 # Drop legs whose calibrated hit rate is below threshold (< 35%)
                 _legs_mlb_data = [l for l in _legs_mlb_data if l["hit_rate"] >= 0.35]
-                _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
+                _safe_m, _value_m = _build_parlays(
+                    _legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max,
+                    sportsbook=_sb_choice_mlb,
+                    parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
+                )
             else:
                 _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(50)
                 _legs_mlb = []
@@ -8222,7 +8242,11 @@ elif sport == "⚾ MLB":
                     _legs_mlb_data = _legs_mlb_data + _hist_legs_m
                 # Drop legs whose calibrated hit rate is below threshold (< 35%)
                 _legs_mlb_data = [l for l in _legs_mlb_data if l["hit_rate"] >= 0.35]
-                _safe_m, _value_m = _build_parlays(_legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max)
+                _safe_m, _value_m = _build_parlays(
+                    _legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max,
+                    sportsbook=_sb_choice_mlb,
+                    parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
+                )
 
             # Log generated parlays for accuracy tracking
             try:
@@ -8392,7 +8416,10 @@ elif sport == "⚾ MLB":
                         "hit_rate":    _pick["score"],
                         "sample_n":    _pick.get("games_played", 10),
                     })
-                _hr_safe, _hr_value = _build_parlays(_hr_legs, min_legs=2, max_legs=4)
+                _hr_safe, _hr_value = _build_parlays(
+                    _hr_legs, min_legs=2, max_legs=4, sportsbook="PrizePicks",
+                    parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
+                )
                 _hc1, _hc2 = st.columns(2)
                 with _hc1:
                     st.markdown("<p class='pl-section-label'>Safe HR Parlays</p>", unsafe_allow_html=True)

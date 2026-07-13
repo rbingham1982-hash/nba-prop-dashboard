@@ -242,9 +242,14 @@ def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
     return pm._nba_hit_rate(player_name, stat_type, line, odds_type=odds_type,
                              implied_override=implied, cal_factor=cal)
 
-def build_parlays(legs, min_legs=2, max_legs=4, top_n=50, pool_size=30, max_leg_uses=6):
+def build_parlays(legs, min_legs=2, max_legs=5, top_n=50, pool_size=30, max_leg_uses=6,
+                  sportsbook="PrizePicks", parlay_cal=None):
+    # max_legs was 4, so the daily job could never emit a 5-leg parlay — the only size
+    # that has actually been profitable (+100% ROI on MLB, vs -58% for the 4-leg it did
+    # emit). The EV filter decides which sizes survive; the cap no longer prejudges it.
     return pm._build_parlays(legs, min_legs=min_legs, max_legs=max_legs,
-                              top_n=top_n, pool_size=pool_size, max_leg_uses=max_leg_uses)
+                              top_n=top_n, pool_size=pool_size, max_leg_uses=max_leg_uses,
+                              sportsbook=sportsbook, parlay_cal=parlay_cal)
 
 # ── Leg scorer ─────────────────────────────────────────────────────────────
 
@@ -303,6 +308,15 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
     except Exception:
         pass
 
+    p_cal = {}
+    try:
+        p_cal = parlay_tracker.get_parlay_calibration(sport=sport_label)
+        if p_cal:
+            print(f"  Parlay calibration by pick count: "
+                  f"{ {k: round(v, 3) for k, v in sorted(p_cal.items())} }")
+    except Exception:
+        pass
+
     total = 0
     for sb, fetch_fn in [("PrizePicks", lambda: fetch_prizepicks(pp_league_id)),
                           ("Underdog",   lambda: fetch_underdog(sport_key))]:
@@ -318,10 +332,14 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
         if len(legs) < 2:
             continue
 
-        safe, value = build_parlays(legs)
+        safe, value = build_parlays(legs, sportsbook=sb, parlay_cal=p_cal)
+        if not safe and not value:
+            print(f"    No positive-EV parlays on the calibrated model — none logged.")
+            continue
         s = parlay_tracker.log_parlays(safe,  sport_label, sb, kind="safe")
         v = parlay_tracker.log_parlays(value, sport_label, sb, kind="value")
-        print(f"    Logged {s} safe + {v} value parlays.")
+        sizes = sorted({p["n"] for p in safe + value})
+        print(f"    Logged {s} safe + {v} value parlays (pick counts: {sizes}).")
         total += s + v
 
     return total
@@ -347,6 +365,21 @@ def resolve_pending():
     except Exception as e:
         # A resolver outage must not block generation; today's factors just stay put.
         print(f"  Resolution failed ({e}) — continuing with existing calibration.")
+        return
+
+    try:
+        abandoned = parlay_tracker.get_abandoned_legs()
+        if abandoned:
+            total = sum(a["legs"] for a in abandoned)
+            print(f"\n  Gave up on {total} leg(s) after "
+                  f"{parlay_tracker.RESOLVE_MAX_ATTEMPTS} tries — they stop costing API calls:")
+            for a in abandoned[:6]:
+                print(f"    {a['sport']:5s} {a['stat_type']:22s} {a['legs']:4d} legs, "
+                      f"{a['players']} player(s)")
+            print("    (a whole stat type here means the resolver can't name it — "
+                  "fix the mapping, then reset_outcomes() to re-try)")
+    except Exception:
+        pass
 
 
 def warn_if_stale(now):

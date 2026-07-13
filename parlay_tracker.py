@@ -214,8 +214,41 @@ def _parse_game_date(leg: dict, parlay_generated_at: str) -> date | None:
         return None
 
 
+RESOLVE_MAX_ATTEMPTS  = 5   # tries before a long-finished leg is presumed unresolvable
+RESOLVE_GIVE_UP_DAYS  = 3   # ...and only once its game is this far in the past
+
+
+def _leg_is_abandoned(leg: dict, now: datetime | None = None) -> bool:
+    """
+    True once a leg has been tried enough times, long enough after its game, that it is
+    never going to resolve — a player the boxscore doesn't name, a game the schedule
+    doesn't list.
+
+    Without this, a leg that cannot resolve is retried against the API on every run,
+    forever. Resolution now runs before every daily generation, so that cost sits on
+    the critical path and grows with every dead leg the log accumulates.
+
+    Deliberately *not* an age cutoff alone: reset_outcomes() clears the counter, so a
+    backfill after a resolver fix still re-tries everything. A bare age check would have
+    silently refused to re-resolve the WNBA legs the wrong-game fix depended on.
+    """
+    if int(leg.get("resolve_attempts", 0)) < RESOLVE_MAX_ATTEMPTS:
+        return False
+    start = leg.get("start_time", "")
+    if not start:
+        return True   # no game date to wait on, and out of attempts
+    try:
+        game_start = datetime.fromisoformat(start.replace("Z", "+00:00")).astimezone()
+    except Exception:
+        return True
+    now = now or datetime.now(timezone.utc).astimezone()
+    return now >= game_start + timedelta(days=RESOLVE_GIVE_UP_DAYS)
+
+
 def _leg_is_resolvable(leg: dict, generated_at: str) -> bool:
     """True if enough time has passed that the game should be finished."""
+    if _leg_is_abandoned(leg):
+        return False
     start = leg.get("start_time", "")
     if start:
         try:
@@ -454,6 +487,7 @@ def resolve_nba_legs() -> int:
     """Auto-resolve pending NBA legs against NBA API box scores. Returns resolved count."""
     data = _load()
     player_legs: dict[str, list] = defaultdict(list)
+    attempted = 0
     for parlay in data["parlays"]:
         if parlay["sport"] != "NBA":
             continue
@@ -464,6 +498,10 @@ def resolve_nba_legs() -> int:
                 continue  # fallback legs have no real game — skip permanently
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
+            # Count the try up front. A leg the API never returns is only ever seen
+            # here, so this is the one place the give-up counter can advance.
+            leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
+            attempted += 1
             player_legs[leg["player_name"]].append((parlay, leg))
 
     if not player_legs:
@@ -502,8 +540,8 @@ def resolve_nba_legs() -> int:
                 continue
 
     marked = _mark_parlay_outcomes(data)
-    if resolved_count or marked:
-        _save(data)
+    if resolved_count or marked or attempted:
+        _save(data)   # attempt counters must persist, or a dead leg is retried forever
     return resolved_count
 
 
@@ -520,6 +558,7 @@ def _resolve_mlb_legs() -> int:
 
     data = _load()
     player_legs: dict[str, list] = defaultdict(list)
+    attempted = 0
     for parlay in data["parlays"]:
         if parlay["sport"] != "MLB":
             continue
@@ -530,6 +569,10 @@ def _resolve_mlb_legs() -> int:
                 continue
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
+            # Count the try up front. A leg the API never returns is only ever seen
+            # here, so this is the one place the give-up counter can advance.
+            leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
+            attempted += 1
             player_legs[leg["player_name"]].append((parlay, leg))
 
     if not player_legs:
@@ -616,8 +659,8 @@ def _resolve_mlb_legs() -> int:
                                 continue
 
     marked = _mark_parlay_outcomes(data)
-    if resolved_count or marked:
-        _save(data)
+    if resolved_count or marked or attempted:
+        _save(data)   # attempt counters must persist, or a dead leg is retried forever
     return resolved_count
 
 
@@ -625,6 +668,7 @@ def _resolve_wnba_legs() -> int:
     """Auto-resolve pending WNBA legs via nba_api PlayerGameLog (league 10). Returns resolved count."""
     data = _load()
     player_legs: dict[str, list] = defaultdict(list)
+    attempted = 0
     for parlay in data["parlays"]:
         if parlay["sport"] != "WNBA":
             continue
@@ -635,6 +679,10 @@ def _resolve_wnba_legs() -> int:
                 continue
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
+            # Count the try up front. A leg the API never returns is only ever seen
+            # here, so this is the one place the give-up counter can advance.
+            leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
+            attempted += 1
             player_legs[leg["player_name"]].append((parlay, leg))
 
     if not player_legs:
@@ -706,9 +754,33 @@ def _resolve_wnba_legs() -> int:
                 continue
 
     marked = _mark_parlay_outcomes(data)
-    if resolved_count or marked:
-        _save(data)
+    if resolved_count or marked or attempted:
+        _save(data)   # attempt counters must persist, or a dead leg is retried forever
     return resolved_count
+
+
+def get_abandoned_legs(sport: str | None = None) -> list:
+    """
+    Legs the resolver has given up on, grouped by stat type. Silently dropping them is
+    how "Runs Scored" went months without a single resolved leg; surfacing the count is
+    what turns an unresolvable stat into something you can see and fix.
+    """
+    data = _load()
+    counts: dict = defaultdict(lambda: {"n": 0, "players": set()})
+    for parlay in data["parlays"]:
+        if sport and parlay.get("sport") != sport:
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is not None or not _leg_is_abandoned(leg):
+                continue
+            key = (parlay.get("sport"), leg["stat_type"])
+            counts[key]["n"] += 1
+            counts[key]["players"].add(leg["player_name"])
+    return sorted(
+        ({"sport": s, "stat_type": st, "legs": d["n"], "players": len(d["players"])}
+         for (s, st), d in counts.items()),
+        key=lambda x: -x["legs"],
+    )
 
 
 def reset_outcomes(sport: str) -> int:
@@ -728,6 +800,10 @@ def reset_outcomes(sport: str) -> int:
             if leg["outcome"] is not None:
                 leg["outcome"] = None
                 cleared += 1
+            # Clearing the attempt counter is what makes a backfill possible: legs the
+            # resolver had given up on become eligible again, which is the whole point
+            # of re-running after fixing the resolver.
+            leg.pop("resolve_attempts", None)
         parlay["parlay_hit"] = None
     if cleared:
         _save(data)
@@ -981,6 +1057,65 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             "active":             factor is not None,
         })
     return rows
+
+
+PARLAY_CAL_MIN_SAMPLES = 30    # resolved parlays of a given size before its factor is trusted
+PARLAY_CAL_MIN_FACTOR  = 0.05
+PARLAY_CAL_MAX_FACTOR  = 1.50
+
+
+def get_parlay_calibration(sport: str | None = None) -> dict:
+    """
+    Per-leg-count calibration for whole-parlay probability. Returns {n_legs: factor};
+    a factor below 1 means the model overestimates parlays of that size.
+
+    A parlay's probability is the product of its legs', which assumes the legs are
+    independent and that each leg's probability is honest. Neither holds. Leg-level
+    overconfidence compounds multiplicatively, so the error grows with pick count:
+    measured at 1.3x on 2-leg but 3.7x on MLB 4-leg and 5.3x on WNBA 4-leg. Leg
+    calibration cannot see this — it is a property of the product, not of any one leg —
+    which is how 4-leg parlays came to be booked at a 16.5% chance while hitting 4.4%,
+    against a 10% break-even.
+
+    Recency-weighted on the same half-life as leg calibration.
+    """
+    data = _load()
+    parlays = [p for p in data["parlays"]
+               if p["parlay_hit"] is not None
+               and (not sport or p.get("sport") == sport)]
+    if not parlays:
+        return {}
+
+    week_ords = [_week_ordinal(p.get("iso_week", "")) for p in parlays]
+    week_ords = [w for w in week_ords if w is not None]
+    latest = max(week_ords) if week_ords else None
+
+    predicted: dict[int, float] = defaultdict(float)
+    actual: dict[int, float] = defaultdict(float)
+    weight: dict[int, float] = defaultdict(float)
+
+    for p in parlays:
+        w = 1.0
+        if latest is not None:
+            wk = _week_ordinal(p.get("iso_week", ""))
+            if wk is not None:
+                w = 0.5 ** (max(0, latest - wk) / CAL_HALF_LIFE_WEEKS)
+        n = len(p["legs"])
+        predicted[n] += w * float(p["predicted_prob"])
+        actual[n]    += w * (1.0 if p["parlay_hit"] else 0.0)
+        weight[n]    += w
+
+    factors = {}
+    for n, wsum in weight.items():
+        if wsum < PARLAY_CAL_MIN_SAMPLES:
+            continue
+        p_mean = predicted[n] / wsum
+        a_mean = actual[n] / wsum
+        if p_mean > 0:
+            raw = a_mean / p_mean
+            factors[n] = round(max(PARLAY_CAL_MIN_FACTOR,
+                                   min(PARLAY_CAL_MAX_FACTOR, raw)), 4)
+    return factors
 
 
 DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise

@@ -57,7 +57,45 @@ def _ttl_cache(ttl_seconds):
 
 # ── Stat-type / column mappings ─────────────────────────────────────────────
 
-PP_PAYOUTS = {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0}
+# Payout ladders for DFS pick'em books, where an all-must-hit play pays a fixed
+# multiplier by pick count. Traditional sportsbooks have no ladder — a parlay there
+# pays the product of its legs' decimal odds — so they are deliberately absent, and
+# parlay_payout() derives their payout from the odds instead.
+PAYOUT_TABLES = {
+    "PrizePicks": {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0},
+    "Underdog":   {2: 3.0, 3: 6.0, 4: 10.0, 5: 20.0},   # UD's 3-pick pays 6x, not PP's 5x
+}
+PP_PAYOUTS = PAYOUT_TABLES["PrizePicks"]
+
+
+def american_to_decimal(odds) -> float:
+    """American odds -> gross decimal multiplier (-110 -> 1.909, +150 -> 2.5)."""
+    try:
+        o = float(odds)
+    except (TypeError, ValueError):
+        return 2.0
+    if o == 0:
+        return 2.0
+    return 1.0 + (o / 100.0 if o > 0 else 100.0 / -o)
+
+
+def parlay_payout(sportsbook: str, legs: list) -> float:
+    """
+    Gross payout multiplier for a parlay.
+
+    PrizePicks' ladder used to be applied to every book. A DraftKings 3-leg parlay was
+    therefore booked at 5x when it actually pays the product of its legs' odds — a
+    payout that was never on offer, which made its EV and ROI fiction. DFS books get
+    their own ladder; traditional books get the product of decimal odds.
+    """
+    n = len(legs)
+    table = PAYOUT_TABLES.get(sportsbook)
+    if table is not None:
+        return table.get(n, float(n) * 2.0)
+    payout = 1.0
+    for leg in legs:
+        payout *= american_to_decimal(leg.get("american_odds"))
+    return round(payout, 4)
 
 # PrizePicks implied over-probability by odds_type (market signal)
 # goblin = easier line (~62% implied), demon = harder line (~38% implied)
@@ -628,8 +666,10 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
 
 # ── Parlay builder ───────────────────────────────────────────────────────────
 
-def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int = 50,
-                    pool_size: int = 30, max_leg_uses: int = 6):
+def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int = 50,
+                    pool_size: int = 30, max_leg_uses: int = 6,
+                    sportsbook: str = "PrizePicks", parlay_cal: dict | None = None,
+                    min_ev: float = 0.0):
     """
     Safe  — highest probability combos (most likely to hit).
     Value — highest EV combos that are NOT already in Safe.
@@ -637,6 +677,15 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
              higher-pick combos naturally rise here even at lower probability,
              so Safe and Value show genuinely different options.
     Same player never appears twice in one parlay.
+
+    Probability is the product of the legs', which assumes independence and honest leg
+    probabilities. Neither holds, and the error compounds with pick count — 4-leg
+    parlays were booked at ~16% and hit ~4%, against a 10% break-even, a structural
+    -58% ROI. parlay_cal (from parlay_tracker.get_parlay_calibration) deflates the
+    product by the measured overestimate for that pick count, and any combo whose EV is
+    still non-positive on the calibrated probability is dropped rather than offered.
+    The calibrated probability is what gets returned and logged, so the next round of
+    calibration measures the model we actually ship.
 
     pool_size caps the input to the top-N legs by hit_rate before generating
     combinations — Underdog/fallback data can return hundreds of legs, and
@@ -647,28 +696,30 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
     highest-confidence legs (e.g. all "Hits" props flooding the safe list).
     """
     legs = sorted(legs, key=lambda x: x["hit_rate"], reverse=True)[:pool_size]
+    parlay_cal = parlay_cal or {}
 
     results = []
     for n in range(min_legs, max_legs + 1):
         if n > len(legs):
             continue
-        payout = PP_PAYOUTS.get(n, float(n) * 2.0)
+        factor = float(parlay_cal.get(n, parlay_cal.get(str(n), 1.0)))
         for combo in combinations(legs, n):
             if len({l["player_name"] for l in combo}) < n:
                 continue
-            prob = 1.0
+            raw = 1.0
             for leg in combo:
-                prob *= leg["hit_rate"]
-            # PP_PAYOUTS are gross multipliers (a 2-pick returns 3x the entry), so a
-            # win nets payout-1: EV = prob*(payout-1) - (1-prob) = prob*payout - 1.
-            # Subtracting only (1-prob) treated the returned stake as profit and
-            # overstated EV by `prob`. Selection is unaffected — value_pool sorts by
-            # (n, ev) and within a fixed n both forms rank identically in prob — but
-            # the stored ev is now the real per-dollar edge.
+                raw *= leg["hit_rate"]
+            prob = min(0.99, max(0.001, raw * factor))
+            payout = parlay_payout(sportsbook, combo)
+            # Payouts are gross (a 2-pick returns 3x the entry), so a win nets
+            # payout-1 and EV = prob*(payout-1) - (1-prob) = prob*payout - 1.
             ev = round(prob * payout - 1.0, 4)
+            if ev <= min_ev:
+                continue   # never offer a bet the calibrated model says loses money
             results.append({
                 "legs": list(combo), "n": n,
-                "prob": round(prob, 4), "payout": payout, "ev": ev,
+                "prob": round(prob, 4), "raw_prob": round(raw, 4),
+                "payout": payout, "ev": ev,
             })
 
     def _top(pool, key_fn, exclude_keys=None, max_uses=None):
