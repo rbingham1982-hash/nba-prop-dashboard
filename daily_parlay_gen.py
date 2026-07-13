@@ -9,7 +9,7 @@ The prediction model itself (hit-rate calculators, BvP, game-log fetchers,
 parlay builder) lives in parlay_model.py, shared with nba_prop_dashboard.py,
 so the two stop drifting apart.
 """
-import sys, time, os, requests, pandas as pd
+import sys, time, os, re, requests, pandas as pd
 from datetime import datetime
 from pathlib import Path
 sys.stdout.reconfigure(encoding="utf-8")
@@ -59,8 +59,12 @@ PP_HEADERS       = {
 }
 
 MLB_STAT_TYPES  = ["Hits", "Pitcher Strikeouts", "Home Runs", "Runs Scored", "Total Bases"]
-WNBA_STAT_TYPES = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "3-PT Made"]
-NBA_STAT_TYPES  = ["Points", "Rebounds", "Assists", "Pts+Rebs+Asts", "3-PT Made"]
+# FanDuel prices the combo props too, and the resolver already knows all of them
+# (_NBA_RESOLVE), so leaving them out just discarded half the board it hands us.
+WNBA_STAT_TYPES = ["Points", "Rebounds", "Assists", "3-PT Made",
+                   "Pts+Rebs+Asts", "Pts+Rebs", "Pts+Asts", "Rebs+Asts"]
+NBA_STAT_TYPES  = ["Points", "Rebounds", "Assists", "3-PT Made",
+                   "Pts+Rebs+Asts", "Pts+Rebs", "Pts+Asts", "Rebs+Asts"]
 
 UD_MLB_STAT_MAP = {
     "Hits": "Hits", "Strikeouts": "Pitcher Strikeouts",
@@ -224,6 +228,10 @@ def fetch_underdog(sport: str) -> pd.DataFrame:
         print(f"    Underdog fetch failed: {e}")
         return pd.DataFrame()
 
+# FanDuel lives in parlay_model so the dashboard and this script cannot drift
+# apart on it — the same mistake that produced two divergent copies of the model.
+fetch_fanduel = pm.fetch_fanduel
+
 # ── Hit-rate adapters ───────────────────────────────────────────────────────
 # Thin shims translating this script's (implied=, cal=, team=) calling
 # convention into parlay_model's canonical (implied_override=, cal_factor=,
@@ -318,8 +326,12 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
         pass
 
     total = 0
-    for sb, fetch_fn in [("PrizePicks", lambda: fetch_prizepicks(pp_league_id)),
-                          ("Underdog",   lambda: fetch_underdog(sport_key))]:
+    # FanDuel leads: it is the only book here that quotes both sides of a prop, so it is
+    # the only one the de-vig can fully use. Underdog and PrizePicks still run — a book
+    # returning nothing (off-season, no slate) must not take the others down with it.
+    for sb, fetch_fn in [("FanDuel",    lambda: fetch_fanduel(sport_key)),
+                          ("Underdog",   lambda: fetch_underdog(sport_key)),
+                          ("PrizePicks", lambda: fetch_prizepicks(pp_league_id))]:
         print(f"\n  [{sb}]")
         raw = fetch_fn()
         if raw.empty:
@@ -350,6 +362,12 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
         else:
             print(f"    RECOMMENDED: none — no positive-EV parlay on the board today.")
         total += s + v
+
+    if pm._FD_UNMAPPED:
+        # A FanDuel market we can't name is a prop we silently never bet — the same
+        # failure mode as the stat types that went months without resolving.
+        print(f"\n  FanDuel markets with no stat mapping: {sorted(pm._FD_UNMAPPED)}")
+        pm._FD_UNMAPPED.clear()
 
     return total
 

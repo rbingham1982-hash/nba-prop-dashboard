@@ -2442,7 +2442,13 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
                 return df
         return get_draftkings_props(sport)
     elif sportsbook == "FanDuel":
-        # Try SharpAPI first (free, no CC); fall back to The Odds API
+        # FanDuel's own public web API: no key, no quota, and it quotes both sides of
+        # every prop so the de-vig has a real under price to work with. Shared with
+        # daily_parlay_gen via parlay_model so the two can't drift.
+        df = _pm.fetch_fanduel(sport)
+        if not df.empty:
+            return df
+        # Metered fallbacks only if the free path yields nothing.
         if _get_sharp_api_key():
             df = get_sharpapi_props(sport, "FanDuel")
             if not df.empty:
@@ -5962,7 +5968,7 @@ if sport == "🏀 NBA":
         with _sb_nba_col1:
             _sb_nba = st.radio(
                 "Sportsbook",
-                ["Underdog", "PrizePicks"],
+                ["FanDuel", "Underdog", "PrizePicks"],
                 horizontal=True,
                 key="sb_nba_select",
             )
@@ -6078,7 +6084,7 @@ if sport == "🏀 NBA":
             _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
 
             _nba_sb = st.session_state.get("nba_sportsbook", "Underdog")
-            _SB_OPTS = ["Underdog", "PrizePicks"]
+            _SB_OPTS = ["FanDuel", "Underdog", "PrizePicks"]
             if _nba_sb not in _SB_OPTS:
                 _nba_sb = "Underdog"
             _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
@@ -6767,7 +6773,7 @@ elif sport == "🏀 WNBA":
     with tab_w_pp:
         _wsb_col1, _wsb_col2 = st.columns([4, 1])
         with _wsb_col1:
-            _wsb_choice = st.radio("Sportsbook", ["PrizePicks", "Underdog"], key="wsb_choice", horizontal=True)
+            _wsb_choice = st.radio("Sportsbook", ["FanDuel", "Underdog", "PrizePicks"], key="wsb_choice", horizontal=True)
         with _wsb_col2:
             if st.button("⟳ Refresh", key="wsb_refresh"):
                 _ud_cache.pop("wnba", None)
@@ -6837,7 +6843,7 @@ elif sport == "🏀 WNBA":
 
         _wpar_sb_col1, _wpar_sb_col2 = st.columns([4, 1])
         with _wpar_sb_col1:
-            _wsb_par = st.radio("Sportsbook", ["PrizePicks", "Underdog"],
+            _wsb_par = st.radio("Sportsbook", ["FanDuel", "Underdog", "PrizePicks"],
                                 horizontal=True, key="wpar_sb")
         with _wpar_sb_col2:
             if st.button("Refresh", key="wpar_refresh"):
@@ -7988,7 +7994,7 @@ elif sport == "⚾ MLB":
         with _sb_mlb_col1:
             _sb_mlb = st.radio(
                 "Sportsbook",
-                ["Underdog", "PrizePicks"],
+                ["FanDuel", "Underdog", "PrizePicks"],
                 horizontal=True,
                 key="sb_mlb_select",
             )
@@ -8108,7 +8114,7 @@ elif sport == "⚾ MLB":
             _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
 
             _mlb_sb = st.session_state.get("mlb_sportsbook", "Underdog")
-            _MLB_SB_OPTS = ["Underdog", "PrizePicks"]
+            _MLB_SB_OPTS = ["FanDuel", "Underdog", "PrizePicks"]
             if _mlb_sb not in _MLB_SB_OPTS:
                 _mlb_sb = "Underdog"
             _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])

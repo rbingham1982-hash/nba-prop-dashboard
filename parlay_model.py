@@ -17,6 +17,7 @@ apart twice — a BvP adjustment existed only in the dashboard, and a
 combinatorial-explosion pool-size cap existed only in the generator — each
 causing a real bug. This module exists so that can't happen again.
 """
+import re
 import time
 import requests
 import pandas as pd
@@ -104,6 +105,7 @@ PP_ODDS_IMPLIED = {"goblin": 0.62, "standard": 0.50, "demon": 0.38}
 NBA_STAT_COL = {
     "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
     "Pts+Rebs+Asts": "PRA", "Pts+Asts": "PA", "Pts+Rebs": "PR",
+    "Rebs+Asts": "RA",
     "3-PT Made": "FG3M", "Blocked Shots": "BLK", "Steals": "STL",
     "Turnovers": "TOV", "Fantasy Score": "FS", "Spread": None,
 }
@@ -138,6 +140,7 @@ WNBA_STAT_COL = {
     "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
     "Steals": "STL", "Blocks": "BLK", "3-PT Made": "FG3M",
     "Pts+Rebs+Asts": "PRA", "Pts+Rebs": "PR", "Pts+Asts": "PA",
+    "Rebs+Asts": "RA",
 }
 BVP_COL_MAP = {"H": "h", "HR": "hr", "TB": "tb", "K": "k", "BB": "bb", "RBI": "rbi"}
 BVP_MIN_AB = 15  # minimum career AB vs pitcher to apply adjustment
@@ -168,6 +171,206 @@ def devig_two_way(implied_over: float, implied_under: float | None) -> float:
     if total <= 0:
         return implied_over
     return implied_over / total
+
+
+# ── FanDuel public sportsbook API (no key, unofficial) ──────────────────────
+# FanDuel's own web client calls these endpoints with a public app key, so no
+# signup or quota applies. Unlike Underdog it quotes *both* sides of every prop,
+# which is what lets the de-vig below normalise against a real under price rather
+# than falling back to the raw, vig-inflated over.
+#
+# DraftKings has no equivalent: its old eventgroup endpoint now serves HTML and
+# the newer host answers 403, so DK is reachable only through a metered API.
+FD_BASE     = "https://sbapi.va.sportsbook.fanduel.com/api"
+FD_AK       = "FhMFpcPWXMeyZxOx"
+FD_PAGE_ID  = {"mlb": "mlb", "wnba": "wnba", "nba": "nba"}
+FD_HEADERS  = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/136.0 Safari/537.36",
+    "Accept": "application/json",
+}
+
+# Over/under props are typed PLAYER_<letter>_TOTAL_<core>_<LEAGUE>; the letter is just
+# a per-event index. Strip it and map the core exactly — substring matching would let
+# POINTS swallow POINTS_+_REBOUNDS_+_ASSISTS.
+_FD_MARKET_RE = re.compile(r"^PLAYER_[A-Z]+_TOTAL_(?P<core>.+)_(?:WNBA|NBA|MLB)$")
+
+_FD_HOOPS_CORE = {
+    "POINTS":                       "Points",
+    "REBOUNDS":                     "Rebounds",
+    "ASSISTS":                      "Assists",
+    "MADE_3_POINT_FIELD_GOALS":     "3-PT Made",
+    "POINTS_+_REBOUNDS_+_ASSISTS":  "Pts+Rebs+Asts",
+    "POINTS_+_REBOUNDS":            "Pts+Rebs",
+    "POINTS_+_ASSISTS":             "Pts+Asts",
+    "REBOUNDS_+_ASSISTS":           "Rebs+Asts",
+}
+# MLB is in the All-Star break as this ships, so these cores are inferred from FanDuel's
+# naming scheme rather than observed. run_sport prints any core it cannot map, so the
+# first in-season run names whatever is missing instead of silently fetching nothing.
+_FD_MLB_CORE = {
+    "HITS":              "Hits",
+    "HOME_RUNS":         "Home Runs",
+    "TOTAL_BASES":       "Total Bases",
+    "RUNS_SCORED":       "Runs Scored",
+    "RUNS":              "Runs Scored",
+    "STRIKEOUTS":        "Pitcher Strikeouts",
+    "PITCHER_STRIKEOUTS": "Pitcher Strikeouts",
+    "EARNED_RUNS":       "Earned Runs Allowed",
+    "HITS_ALLOWED":      "Hits Allowed",
+    "WALKS":             "Walks",
+}
+_FD_CORE_MAP = {"wnba": _FD_HOOPS_CORE, "nba": _FD_HOOPS_CORE, "mlb": _FD_MLB_CORE}
+
+# The resolver matches WNBA games on the abbreviations nba_api uses in MATCHUP, and
+# FanDuel names teams in full, so a leg built from "Phoenix Mercury @ Minnesota Lynx"
+# resolves only if the label says "PHX @ MIN".
+_FD_WNBA_ABBR = {
+    "atlanta dream": "ATL", "chicago sky": "CHI", "connecticut sun": "CON",
+    "dallas wings": "DAL", "golden state valkyries": "GSV", "indiana fever": "IND",
+    "las vegas aces": "LVA", "los angeles sparks": "LAS", "minnesota lynx": "MIN",
+    "new york liberty": "NYL", "phoenix mercury": "PHX", "portland fire": "PDX",
+    "seattle storm": "SEA", "toronto tempo": "TOR", "washington mystics": "WAS",
+}
+_FD_UNMAPPED: set = set()   # cores seen but not mapped — reported once per run
+
+
+# ── FanDuel API ────────────────────────────────────────────────────────────
+
+def _fd_team_abbr(sport: str, full_name: str) -> str:
+    """FanDuel's full team name -> the abbreviation the resolver matches games on."""
+    key = full_name.strip().lower()
+    if sport == "wnba":
+        return _FD_WNBA_ABBR.get(key, full_name.strip().upper()[:3])
+    if sport == "nba":
+        try:
+            from nba_api.stats.static import teams as _t  # type: ignore
+            for t in _t.get_teams():
+                if t["full_name"].lower() == key:
+                    return t["abbreviation"]
+        except Exception:
+            pass
+    return full_name.strip().upper()[:3]
+
+
+def _fd_american(runner: dict):
+    """American price off a FanDuel runner, or None when it isn't quoted."""
+    try:
+        return int(runner["winRunnerOdds"]["americanDisplayOdds"]["americanOddsInt"])
+    except Exception:
+        return None
+
+
+def fetch_fanduel(sport: str) -> pd.DataFrame:
+    """
+    Player props from FanDuel's public web API. No key, no quota.
+
+    Tabs are discovered from the event's own layout rather than hard-coded, so this
+    keeps working when FanDuel renames or adds one — and so MLB, which is mid-All-Star
+    break and unobservable right now, works off whatever tabs it actually ships.
+    """
+    page_id = FD_PAGE_ID.get(sport)
+    core_map = _FD_CORE_MAP.get(sport, {})
+    if not page_id:
+        return pd.DataFrame()
+
+    try:
+        r = requests.get(f"{FD_BASE}/content-managed-page",
+                         params={"page": "CUSTOM", "customPageId": page_id,
+                                 "_ak": FD_AK, "timezone": "America/New_York"},
+                         headers=FD_HEADERS, timeout=20)
+        if r.status_code != 200:
+            print(f"    FanDuel page fetch failed: HTTP {r.status_code}")
+            return pd.DataFrame()
+        events = r.json().get("attachments", {}).get("events", {})
+    except Exception as e:
+        print(f"    FanDuel fetch failed: {e}")
+        return pd.DataFrame()
+
+    # Futures and specials share the page; only real matchups have an "A @ B" name.
+    games = {i: e for i, e in events.items() if " @ " in (e.get("name") or "")}
+    rows = []
+
+    for ev_id, ev in games.items():
+        away_full, home_full = [s.strip() for s in ev["name"].split(" @ ", 1)]
+        away = _fd_team_abbr(sport, away_full)
+        home = _fd_team_abbr(sport, home_full)
+        label = f"{away} @ {home}"
+        start = ev.get("openDate", "")
+
+        try:
+            time.sleep(0.25)
+            base = requests.get(f"{FD_BASE}/event-page",
+                                params={"eventId": ev_id, "_ak": FD_AK},
+                                headers=FD_HEADERS, timeout=25)
+            tabs = base.json().get("layout", {}).get("tabs", {}) if base.status_code == 200 else {}
+        except Exception:
+            continue
+
+        prop_tabs = [t["title"] for t in tabs.values()
+                     if any(w in (t.get("title") or "").lower()
+                            for w in ("player", "batter", "pitcher", "hitter"))]
+
+        for title in prop_tabs:
+            try:
+                time.sleep(0.25)
+                rt = requests.get(f"{FD_BASE}/event-page",
+                                  params={"eventId": ev_id, "_ak": FD_AK,
+                                          "tab": title.lower().replace(" ", "-")},
+                                  headers=FD_HEADERS, timeout=25)
+                if rt.status_code != 200:
+                    continue
+                markets = rt.json().get("attachments", {}).get("markets", {})
+            except Exception:
+                continue
+
+            for m in markets.values():
+                match = _FD_MARKET_RE.match(m.get("marketType", ""))
+                if not match:
+                    continue                      # alt lines ("To Score 20+") aren't over/unders
+                core = match.group("core")
+                stat = core_map.get(core)
+                if not stat:
+                    _FD_UNMAPPED.add(core)
+                    continue
+
+                over = under = None
+                for run in m.get("runners", []):
+                    name = (run.get("runnerName") or "")
+                    if name.endswith(" Over"):
+                        over = run
+                    elif name.endswith(" Under"):
+                        under = run
+                if over is None:
+                    continue
+                american = _fd_american(over)
+                if american is None:
+                    continue
+
+                player = (over.get("runnerName") or "")[: -len(" Over")].strip()
+                try:
+                    line = float(over.get("handicap"))
+                except (TypeError, ValueError):
+                    continue
+
+                # Both sides are quoted, so the vig can actually be stripped — the whole
+                # reason FanDuel is a better price source for the model than Underdog.
+                imp_over = american_to_implied(american)
+                imp_under = None
+                if under is not None:
+                    au = _fd_american(under)
+                    if au is not None:
+                        imp_under = american_to_implied(au)
+
+                rows.append({
+                    "player_name": player, "team": "", "stat_type": stat,
+                    "line_score": line, "odds_type": "standard",
+                    "american_odds": american,
+                    "implied_prob": round(devig_two_way(imp_over, imp_under), 4),
+                    "game_id": str(ev_id), "game_label": label,
+                    "start_time": start, "sportsbook": "FanDuel",
+                })
+
+    return pd.DataFrame(rows) if rows else pd.DataFrame()
 
 
 # ── MLB player ID + game logs ────────────────────────────────────────────────
@@ -488,7 +691,7 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
         df = get_gamelogs(pid, ("2024-25",))
     if df.empty:
         return 0.5, 0
-    if col in ("PRA", "PA", "PR", "FS"):
+    if col in ("PRA", "PA", "PR", "RA", "FS"):
         df = df.copy()
         if col == "PRA":
             df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
@@ -496,6 +699,8 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
             df["PA"] = df["PTS"] + df["AST"]
         elif col == "PR":
             df["PR"] = df["PTS"] + df["REB"]
+        elif col == "RA":
+            df["RA"] = df["REB"] + df["AST"]
         elif col == "FS":
             df["FS"] = (df["PTS"]
                         + 1.2 * df.get("REB", 0)
@@ -546,7 +751,7 @@ def _wnba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str
         df = get_wnba_gamelogs(pid, ("2024",))
     if df.empty:
         return 0.5, 0
-    if col in ("PRA", "PR", "PA"):
+    if col in ("PRA", "PR", "PA", "RA"):
         df = df.copy()
         if col == "PRA":
             df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
@@ -554,6 +759,8 @@ def _wnba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str
             df["PR"] = df["PTS"] + df["REB"]
         elif col == "PA":
             df["PA"] = df["PTS"] + df["AST"]
+        elif col == "RA":
+            df["RA"] = df["REB"] + df["AST"]
     if col not in df.columns:
         return 0.5, 0
     vals = df[col].values
