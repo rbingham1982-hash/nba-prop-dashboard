@@ -1096,10 +1096,28 @@ def get_player_accuracy(sport: str | None = None) -> list[dict]:
     return sorted(rows, key=lambda x: -x["n_legs"])
 
 
-def get_roi_simulation(sport: str | None = None, flat_bet: float = 10.0) -> dict:
+KELLY_START_BANKROLL = 1000.0
+KELLY_SLATE_CAP = 0.25   # most of the bankroll a single day's slate may risk
+
+
+def get_roi_simulation(sport: str | None = None, flat_bet: float = 10.0,
+                       slate_cap: float = KELLY_SLATE_CAP,
+                       start_bankroll: float = KELLY_START_BANKROLL) -> dict:
     """
-    Simulate flat-bet and Kelly-criterion ROI across all resolved parlays.
-    Kelly fraction = max(0, (prob*(payout+1)-1)/payout), capped at 25% of bankroll.
+    Simulate flat-bet and Kelly ROI across all resolved parlays.
+
+    `payout` is the gross multiplier the book advertises — a PrizePicks 2-pick pays
+    3x the entry — so profit on a win is stake*(payout-1), not stake*payout. This
+    used to credit the full gross as profit, handing back an extra stake on every
+    win and inflating ROI by roughly 20 points. get_leg_count_breakdown already had
+    it right, which is why the two disagreed.
+
+    Kelly is staked per slate rather than per parlay. A day's parlays are placed at
+    once and share legs, so compounding each one against a bankroll already updated
+    by the previous one isn't a strategy anyone could run — chained across thousands
+    of correlated bets it ran the bankroll into the billions. Stakes for a day are
+    sized off the bankroll as it stood that morning, the slate's total exposure is
+    capped at slate_cap of it, and the bankroll settles once at day's end.
     """
     data = _load()
     resolved = [p for p in data["parlays"]
@@ -1110,29 +1128,52 @@ def get_roi_simulation(sport: str | None = None, flat_bet: float = 10.0) -> dict
     flat_pnl = 0.0
     total_wagered = 0.0
     flat_series: list[float] = []
-
-    kelly_bankroll = 1000.0
-    kelly_series: list[float] = []
     dates: list[str] = []
 
     for p in resolved:
         payout = float(p.get("payout") or 2.0)
-        prob = float(p["predicted_prob"])
-        hit = bool(p["parlay_hit"])
-
-        # Flat bet
+        net = max(payout - 1.0, 0.0)          # profit per unit staked
         total_wagered += flat_bet
-        flat_pnl += (flat_bet * payout) if hit else -flat_bet
+        flat_pnl += (flat_bet * net) if p["parlay_hit"] else -flat_bet
         flat_series.append(round(flat_pnl, 2))
-
-        # Kelly
-        kelly_f = max(0.0, min(0.25, (prob * (payout + 1) - 1) / payout))
-        kelly_bet = kelly_bankroll * kelly_f
-        kelly_bankroll += (kelly_bet * payout) if hit else -kelly_bet
-        kelly_bankroll = max(kelly_bankroll, 0.01)
-        kelly_series.append(round(kelly_bankroll, 2))
-
         dates.append(p["generated_at"][:10])
+
+    # ── Kelly, settled once per slate ────────────────────────────────────────
+    slates: dict[str, list] = defaultdict(list)
+    for p in resolved:
+        slates[p["generated_at"][:10]].append(p)
+
+    kelly_bankroll = start_bankroll
+    kelly_series: list[float] = []
+    kelly_staked = 0.0
+
+    # Days ascend in the same order as `resolved`, and each slate keeps that order,
+    # so kelly_series lines up one-to-one with flat_series and dates.
+    for day in sorted(slates):
+        slate = slates[day]
+        day_open = kelly_bankroll
+
+        fractions = []
+        for p in slate:
+            payout = float(p.get("payout") or 2.0)
+            net = payout - 1.0
+            prob = float(p["predicted_prob"])
+            # Kelly on net odds b: f = (p*(b+1) - 1) / b, with b = payout - 1.
+            f = ((prob * payout) - 1.0) / net if net > 0 else 0.0
+            fractions.append(max(0.0, f))
+
+        wanted = sum(fractions)
+        scale = min(1.0, slate_cap / wanted) if wanted > slate_cap else 1.0
+
+        day_pnl = 0.0
+        for p, f in zip(slate, fractions):
+            payout = float(p.get("payout") or 2.0)
+            stake = day_open * f * scale
+            kelly_staked += stake
+            day_pnl += stake * (payout - 1.0) if p["parlay_hit"] else -stake
+
+        kelly_bankroll = max(day_open + day_pnl, 0.01)
+        kelly_series.extend([round(kelly_bankroll, 2)] * len(slate))
 
     return {
         "n_parlays":      len(resolved),
@@ -1141,6 +1182,8 @@ def get_roi_simulation(sport: str | None = None, flat_bet: float = 10.0) -> dict
         "roi_pct":        round(flat_pnl / total_wagered * 100, 1) if total_wagered else 0.0,
         "flat_series":    flat_series,
         "kelly_bankroll": round(kelly_bankroll, 2),
+        "kelly_staked":   round(kelly_staked, 2),
+        "kelly_roi_pct":  round((kelly_bankroll - start_bankroll) / start_bankroll * 100, 1),
         "kelly_series":   kelly_series,
         "dates":          dates,
     }
@@ -1160,7 +1203,10 @@ def get_leg_count_breakdown(sport: str | None = None) -> list[dict]:
         prob = float(p["predicted_prob"])
         buckets[n]["total"] += 1
         buckets[n]["bet"] += 10.0
-        buckets[n]["ev"] += prob * payout - (1 - prob)
+        # payout is gross, so a win nets (payout - 1): EV = prob*(payout-1) - (1-prob),
+        # which reduces to prob*payout - 1. Subtracting only (1-prob) double-counted the
+        # returned stake and overstated EV by `prob` on every parlay.
+        buckets[n]["ev"] += prob * payout - 1.0
         if p["parlay_hit"]:
             buckets[n]["hits"] += 1
             buckets[n]["returns"] += 10.0 * payout

@@ -606,7 +606,7 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
     """
     Safe  — highest probability combos (most likely to hit).
     Value — highest EV combos that are NOT already in Safe.
-             Because EV = prob*(payout+1)-1 and payout grows with pick count,
+             Because EV grows with payout and payout grows with pick count,
              higher-pick combos naturally rise here even at lower probability,
              so Safe and Value show genuinely different options.
     Same player never appears twice in one parlay.
@@ -632,7 +632,13 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 4, top_n: int 
             prob = 1.0
             for leg in combo:
                 prob *= leg["hit_rate"]
-            ev = round(prob * payout - (1.0 - prob), 4)
+            # PP_PAYOUTS are gross multipliers (a 2-pick returns 3x the entry), so a
+            # win nets payout-1: EV = prob*(payout-1) - (1-prob) = prob*payout - 1.
+            # Subtracting only (1-prob) treated the returned stake as profit and
+            # overstated EV by `prob`. Selection is unaffected — value_pool sorts by
+            # (n, ev) and within a fixed n both forms rank identically in prob — but
+            # the stored ev is now the real per-dollar edge.
+            ev = round(prob * payout - 1.0, 4)
             results.append({
                 "legs": list(combo), "n": n,
                 "prob": round(prob, 4), "payout": payout, "ev": ev,

@@ -4516,7 +4516,14 @@ def _render_accuracy_tab(sport_filter: str) -> None:
 
     # ── ROI simulation ────────────────────────────────────────────────────────
     st.markdown("#### ROI Simulation")
-    st.caption("Simulates $10 flat bet and Kelly criterion on every resolved parlay in historical order.")
+    st.caption(
+        "Simulates a $10 flat bet on every resolved parlay in historical order. "
+        "Payouts are gross (a 2-pick returns 3x the entry), so a win profits payout − 1. "
+        "Kelly is staked per slate — a day's parlays are placed at once and share legs, "
+        "so stakes are sized off that morning's bankroll and the day's total exposure is "
+        "capped at 25% of it. Kelly sizes off the model's predicted probability, which "
+        "still runs optimistic, so treat its growth as an upper bound."
+    )
     _roi = parlay_tracker.get_roi_simulation(sport=sport_filter)
     if _roi["n_parlays"] > 0:
         _r1, _r2, _r3, _r4 = st.columns(4)
