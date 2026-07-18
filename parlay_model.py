@@ -56,6 +56,18 @@ def _ttl_cache(ttl_seconds):
     return decorator
 
 
+@_ttl_cache(86400)
+def _mlb_team_abbr_map():
+    """{team_id: abbreviation} for all MLB clubs. The gameLog `opponent` object
+    carries an id and name but no abbreviation, so we resolve it ourselves."""
+    try:
+        resp = requests.get(f"{MLB_BASE}/teams?sportId=1&season={MLB_SEASON}", timeout=10)
+        return {t["id"]: t.get("abbreviation", "")
+                for t in resp.json().get("teams", []) if t.get("id")}
+    except Exception:
+        return {}
+
+
 # ── Stat-type / column mappings ─────────────────────────────────────────────
 
 # Payout ladders for DFS pick'em books, where an all-must-hit play pays a fixed
@@ -430,6 +442,7 @@ def mlb_player_id(name: str):
 @_ttl_cache(3600)
 def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
     frames = []
+    abbr_map = _mlb_team_abbr_map()
     for season in seasons:
         for attempt in range(2):
             try:
@@ -444,10 +457,11 @@ def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
                     _hr = int(st_data.get("homeRuns") or 0)
                     _2b = int(st_data.get("doubles") or 0)
                     _3b = int(st_data.get("triples") or 0)
+                    _opp = s.get("opponent", {}) or {}
                     rows.append({
                         "date": s.get("date", ""),
                         "season": season,
-                        "opponent": s.get("opponent", {}).get("abbreviation", ""),
+                        "opponent": _opp.get("abbreviation") or abbr_map.get(_opp.get("id"), ""),
                         "AB": int(st_data.get("atBats") or 0),
                         "H": _h, "HR": _hr, "2B": _2b, "3B": _3b,
                         "RBI": int(st_data.get("rbi") or 0),
@@ -476,6 +490,7 @@ def get_mlb_hitting_logs(player_id, seasons=(MLB_SEASON,)):
 @_ttl_cache(3600)
 def get_mlb_pitching_logs(player_id, seasons=(MLB_SEASON,)):
     frames = []
+    abbr_map = _mlb_team_abbr_map()
     for season in seasons:
         for attempt in range(2):
             try:
@@ -492,20 +507,30 @@ def get_mlb_pitching_logs(player_id, seasons=(MLB_SEASON,)):
                         ip = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
                     except Exception:
                         ip = 0.0
-                    k9 = round((int(st_data.get("strikeOuts") or 0) / ip * 9), 2) if ip > 0 else 0
+                    _k  = int(st_data.get("strikeOuts") or 0)
+                    _er = int(st_data.get("earnedRuns") or 0)
+                    _h  = int(st_data.get("hits") or 0)
+                    _bb = int(st_data.get("baseOnBalls") or 0)
+                    # The API's era/whip are season-to-date cumulative values, not
+                    # this game's. Compute per-game rates so each row matches its box.
+                    k9   = round((_k  / ip * 9), 2) if ip > 0 else 0
+                    era  = round((_er / ip * 9), 2) if ip > 0 else 0.0
+                    whip = round(((_h + _bb) / ip), 2) if ip > 0 else 0.0
+                    _opp = s.get("opponent", {}) or {}
+                    _opp_abbr = _opp.get("abbreviation") or abbr_map.get(_opp.get("id"), "")
                     rows.append({
                         "date": s.get("date", ""),
                         "season": season,
-                        "opponent": s.get("opponent", {}).get("abbreviation", ""),
+                        "opponent": _opp_abbr,
                         "IP": round(ip, 1),
-                        "H": int(st_data.get("hits") or 0),
-                        "ER": int(st_data.get("earnedRuns") or 0),
-                        "BB": int(st_data.get("baseOnBalls") or 0),
-                        "K": int(st_data.get("strikeOuts") or 0),
+                        "H": _h,
+                        "ER": _er,
+                        "BB": _bb,
+                        "K": _k,
                         "HR": int(st_data.get("homeRuns") or 0),
                         "NP": int(st_data.get("numberOfPitches") or 0),
-                        "ERA": float(st_data.get("era") or 0),
-                        "WHIP": float(st_data.get("whip") or 0),
+                        "ERA": era,
+                        "WHIP": whip,
                         "K9": k9,
                     })
                 if rows:

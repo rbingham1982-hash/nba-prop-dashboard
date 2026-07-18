@@ -3759,10 +3759,12 @@ def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id,
                       "BB": "Walks", "H": "Hits Allowed", "HR": "HR Allowed"}
     stat_col   = prop_stat or "K"
     stat_label = _P_STAT_LABELS.get(stat_col, stat_col)
-    era  = df["ERA"].mean()
-    whip = df["WHIP"].mean()
-    k9   = df["K9"].mean()
     tip  = df["IP"].sum()
+    # Season rates from totals — averaging per-game ERA/WHIP would let short
+    # outings dominate.
+    era  = (df["ER"].sum() / tip * 9) if tip > 0 else 0.0
+    whip = ((df["H"].sum() + df["BB"].sum()) / tip) if tip > 0 else 0.0
+    k9   = (df["K"].sum() / tip * 9) if tip > 0 else 0.0
     bb9  = df["BB"].sum() / tip * 9 if tip > 0 else 0
     kbb  = df["K"].sum() / max(df["BB"].sum(), 1)
     qs   = ((df["IP"] >= 6) & (df["ER"] <= 3)).mean() * 100
@@ -7814,8 +7816,10 @@ elif sport == "⚾ MLB":
                     _p_ip = p_df["IP"].sum()
                     _p_k = p_df["K"].sum()
                     _p_bb = p_df["BB"].sum()
-                    _p_era = p_df["ERA"].mean()
-                    _p_whip = p_df["WHIP"].mean()
+                    # Season ERA/WHIP must come from totals — averaging per-game
+                    # rates lets short blowup outings distort the number.
+                    _p_era = (p_df["ER"].sum() / _p_ip * 9) if _p_ip > 0 else 0.0
+                    _p_whip = ((p_df["H"].sum() + _p_bb) / _p_ip) if _p_ip > 0 else 0.0
                     _p_k9 = _p_k / _p_ip * 9 if _p_ip > 0 else 0
                     _p_bb9 = _p_bb / _p_ip * 9 if _p_ip > 0 else 0
                     _p_kbb = _p_k / _p_bb if _p_bb > 0 else 0
@@ -7853,7 +7857,13 @@ elif sport == "⚾ MLB":
                     qc_c[2].metric("K Consistency", f"{_p_cons:.0f}/100")
                     qc_c[3].metric("Form (L5)", _p_form)
 
-                    proj_p = {c: rolling_projection(p_df, c, p_window) for c in ["K", "IP", "ER", "BB", "ERA", "WHIP", "K9"]}
+                    proj_p = {c: rolling_projection(p_df, c, p_window) for c in ["K", "IP", "ER", "BB", "K9"]}
+                    # ERA/WHIP over the window come from summed totals, not an
+                    # average of per-game rates (which short starts would skew).
+                    _pw = p_df.tail(p_window) if len(p_df) >= p_window else p_df
+                    _pw_ip = _pw["IP"].sum()
+                    proj_p["ERA"] = (_pw["ER"].sum() / _pw_ip * 9) if _pw_ip > 0 else 0.0
+                    proj_p["WHIP"] = ((_pw["H"].sum() + _pw["BB"].sum()) / _pw_ip) if _pw_ip > 0 else 0.0
 
                     mlb_section("Season Projections (Rolling Avg)")
                     pp1, pp2, pp3, pp4 = st.columns(4)
