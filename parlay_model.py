@@ -189,20 +189,35 @@ FD_HEADERS  = {
     "Accept": "application/json",
 }
 
-# Over/under props are typed PLAYER_<letter>_TOTAL_<core>_<LEAGUE>; the letter is just
+# Over/under props are typed <ROLE>_<letter>_TOTAL_<core>[_<LEAGUE>]; the letter is just
 # a per-event index. Strip it and map the core exactly — substring matching would let
 # POINTS swallow POINTS_+_REBOUNDS_+_ASSISTS.
-_FD_MARKET_RE = re.compile(r"^PLAYER_[A-Z]+_TOTAL_(?P<core>.+)_(?:WNBA|NBA|MLB)$")
+#
+# FanDuel is inconsistent across leagues: WNBA still tags markets with a trailing
+# _WNBA, but NBA and MLB dropped the league suffix (PLAYER_A_TOTAL_POINTS), and MLB
+# pitcher lines use a PITCHER_ role instead of PLAYER_ (PITCHER_C_TOTAL_STRIKEOUTS).
+# So the role is an alternation, the suffix is optional, and <core> is non-greedy so
+# the optional suffix is stripped rather than swallowed into the core.
+_FD_MARKET_RE = re.compile(
+    r"^(?:PLAYER|PITCHER|BATTER)_[A-Z]+_TOTAL_(?P<core>.+?)(?:_(?:WNBA|NBA|MLB))?$"
+)
 
 _FD_HOOPS_CORE = {
     "POINTS":                       "Points",
     "REBOUNDS":                     "Rebounds",
     "ASSISTS":                      "Assists",
     "MADE_3_POINT_FIELD_GOALS":     "3-PT Made",
+    # WNBA spells combos out in full; NBA abbreviates them (POINTS_+_REB_+_AST). Both
+    # forms map to the same stat — a league only ever emits one of them. The 3-way is
+    # observed live; the two-way abbreviations follow the identical naming scheme.
     "POINTS_+_REBOUNDS_+_ASSISTS":  "Pts+Rebs+Asts",
     "POINTS_+_REBOUNDS":            "Pts+Rebs",
     "POINTS_+_ASSISTS":             "Pts+Asts",
     "REBOUNDS_+_ASSISTS":           "Rebs+Asts",
+    "POINTS_+_REB_+_AST":           "Pts+Rebs+Asts",
+    "POINTS_+_REB":                 "Pts+Rebs",
+    "POINTS_+_AST":                 "Pts+Asts",
+    "REB_+_AST":                    "Rebs+Asts",
 }
 # MLB is in the All-Star break as this ships, so these cores are inferred from FanDuel's
 # naming scheme rather than observed. run_sport prints any core it cannot map, so the
