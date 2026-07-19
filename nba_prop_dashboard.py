@@ -6311,11 +6311,22 @@ if sport == "🏀 NBA":
 
             _using_fallback_nba = False
             if _pp_raw.empty:
-                if _sb_choice_nba in ("DraftKings", "FanDuel") and not _get_sharp_api_key():
+                if _sb_choice_nba == "DraftKings" and not _get_sharp_api_key():
+                    # DraftKings only works through SharpAPI here (direct endpoint is blocked).
                     st.warning(
-                        f"**{_sb_choice_nba} requires a SharpAPI key** (free, no credit card). "
+                        "**DraftKings requires a SharpAPI key** (free, no credit card). "
                         "Register at [sharpapi.io](https://sharpapi.io) then add "
                         "`SHARP_API_KEY = \"sk_live_xxx\"` to `.streamlit/secrets.toml`."
+                    )
+                elif _sb_choice_nba == "FanDuel" and not _get_sharp_api_key():
+                    # FanDuel's own API is free and keyless — an empty result just means lines
+                    # aren't posted yet, not that a key is required. Mention SharpAPI as an
+                    # *optional* backup rather than a requirement.
+                    st.caption(
+                        "FanDuel's free lines aren't posted right now (they usually appear "
+                        "closer to game time). Optionally add a free "
+                        "[sharpapi.io](https://sharpapi.io) `SHARP_API_KEY` to "
+                        "`.streamlit/secrets.toml` as a backup source."
                     )
                 st.info(f"No live {_sb_choice_nba} NBA lines found — building parlays from historical data.")
                 _using_fallback_nba = True
@@ -8338,11 +8349,22 @@ elif sport == "⚾ MLB":
 
             _using_fallback_mlb = False
             if _mlb_pp_raw.empty:
-                if _sb_choice_mlb in ("DraftKings", "FanDuel") and not _get_sharp_api_key():
+                if _sb_choice_mlb == "DraftKings" and not _get_sharp_api_key():
+                    # DraftKings only works through SharpAPI here (direct endpoint is blocked).
                     st.warning(
-                        f"**{_sb_choice_mlb} requires a SharpAPI key** (free, no credit card). "
+                        "**DraftKings requires a SharpAPI key** (free, no credit card). "
                         "Register at [sharpapi.io](https://sharpapi.io) then add "
                         "`SHARP_API_KEY = \"sk_live_xxx\"` to `.streamlit/secrets.toml`."
+                    )
+                elif _sb_choice_mlb == "FanDuel" and not _get_sharp_api_key():
+                    # FanDuel's own API is free and keyless — an empty result just means lines
+                    # aren't posted yet, not that a key is required. Mention SharpAPI as an
+                    # *optional* backup rather than a requirement.
+                    st.caption(
+                        "FanDuel's free lines aren't posted right now (they usually appear "
+                        "closer to game time). Optionally add a free "
+                        "[sharpapi.io](https://sharpapi.io) `SHARP_API_KEY` to "
+                        "`.streamlit/secrets.toml` as a backup source."
                     )
                 st.info(f"No live {_sb_choice_mlb} MLB lines found — building parlays from historical data.")
                 _using_fallback_mlb = True
