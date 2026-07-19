@@ -1087,7 +1087,11 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
 
 PARLAY_CAL_MIN_SAMPLES = 30    # resolved parlays of a given size before its factor is trusted
 PARLAY_CAL_MIN_FACTOR  = 0.05
-PARLAY_CAL_MAX_FACTOR  = 1.50
+# Parlay calibration only ever DEFLATES: correlated legs and leg-level overconfidence
+# push a parlay's true joint probability below the independence-product, never above.
+# A measured factor >1 is small-sample noise, and letting it inflate the probability
+# manufactures fake positive EV (it was marking +150%-EV 5-leg parlays "recommended").
+PARLAY_CAL_MAX_FACTOR  = 1.0
 
 
 def get_parlay_calibration(sport: str | None = None) -> dict:
