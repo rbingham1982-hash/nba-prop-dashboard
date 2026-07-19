@@ -50,6 +50,23 @@ _mlb_hit_rate  = _pm._mlb_hit_rate
 _build_parlays = _pm._build_parlays
 _build_sgp     = _pm._build_sgp
 
+
+def _latch_parlay_build(flag_key: str, val_map: dict):
+    """on_click handler for the 'Build … Parlays' buttons.
+
+    These buttons live inside st.tabs. Gating the build on the transient
+    `if st.button(...)` return value drops the click when it lands in the same
+    rerun as a preceding widget change (e.g. editing the stat-type multiselect,
+    then clicking Build) — the flag never gets set and the page looks unchanged,
+    "as if the button wasn't pushed". A callback fires reliably regardless of
+    the tab-rerun timing, so it latches the intent and snapshots the current
+    widget values (read from session_state by their widget keys) here instead.
+    """
+    st.session_state[flag_key] = True
+    for dest_key, widget_key in val_map.items():
+        if widget_key in st.session_state:
+            st.session_state[dest_key] = st.session_state[widget_key]
+
 # True when running on a local machine; False in Codespaces / deployed environments
 _IS_LOCAL = not bool(os.environ.get("CODESPACE_NAME") or os.environ.get("GITPOD_WORKSPACE_ID"))
 
@@ -6246,11 +6263,15 @@ if sport == "🏀 NBA":
                 label_visibility="collapsed",
             )
 
-        if st.button("Build NBA Parlays", type="primary", key="nba_build_parlays"):
-            st.session_state["nba_parlays_built"] = True
-            st.session_state["nba_par_min_val"] = _par_min
-            st.session_state["nba_par_max_val"] = _par_max
-            st.session_state["nba_par_stats_val"] = _par_stats
+        st.button(
+            "Build NBA Parlays", type="primary", key="nba_build_parlays",
+            on_click=_latch_parlay_build,
+            args=("nba_parlays_built", {
+                "nba_par_min_val": "nba_par_min",
+                "nba_par_max_val": "nba_par_max",
+                "nba_par_stats_val": "nba_par_stats",
+            }),
+        )
 
         if st.session_state.get("nba_parlays_built"):
             _b_min = st.session_state.get("nba_par_min_val", _par_min)
@@ -7011,12 +7032,16 @@ elif sport == "🏀 WNBA":
                     _ud_cache.pop("wnba", None); _ud_cache_ts.pop("wnba", None)
                 _safe_rerun()
 
-        if st.button("Build WNBA Parlays", type="primary", key="wpar_build"):
-            st.session_state["wnba_parlays_built"] = True
-            st.session_state["wpar_min_val"]   = _wpar_min
-            st.session_state["wpar_max_val"]   = _wpar_max
-            st.session_state["wpar_stats_val"] = _wpar_stats
-            st.session_state["wpar_sb_val"]    = _wsb_par
+        st.button(
+            "Build WNBA Parlays", type="primary", key="wpar_build",
+            on_click=_latch_parlay_build,
+            args=("wnba_parlays_built", {
+                "wpar_min_val": "wpar_min",
+                "wpar_max_val": "wpar_max",
+                "wpar_stats_val": "wpar_stats",
+                "wpar_sb_val": "wpar_sb",
+            }),
+        )
 
         if st.session_state.get("wnba_parlays_built"):
             _wb_min   = st.session_state.get("wpar_min_val", _wpar_min)
@@ -8264,11 +8289,15 @@ elif sport == "⚾ MLB":
             else:
                 st.caption("Per-stat hit rates and calibration factors are on the Accuracy tab.")
 
-        if st.button("Build MLB Parlays", type="primary", key="mlb_build_parlays"):
-            st.session_state["mlb_parlays_built"] = True
-            st.session_state["mlb_par_min_val"] = _mlb_par_min
-            st.session_state["mlb_par_max_val"] = _mlb_par_max
-            st.session_state["mlb_par_stats_val"] = _mlb_par_stats
+        st.button(
+            "Build MLB Parlays", type="primary", key="mlb_build_parlays",
+            on_click=_latch_parlay_build,
+            args=("mlb_parlays_built", {
+                "mlb_par_min_val": "mlb_par_min",
+                "mlb_par_max_val": "mlb_par_max",
+                "mlb_par_stats_val": "mlb_par_stats",
+            }),
+        )
 
         if st.session_state.get("mlb_parlays_built"):
             _mb_min = st.session_state.get("mlb_par_min_val", _mlb_par_min)
