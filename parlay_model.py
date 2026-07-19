@@ -18,6 +18,8 @@ combinatorial-explosion pool-size cap existed only in the generator — each
 causing a real bug. This module exists so that can't happen again.
 """
 import re
+import io
+import math
 import time
 import requests
 import pandas as pd
@@ -66,6 +68,76 @@ def _mlb_team_abbr_map():
                 for t in resp.json().get("teams", []) if t.get("id")}
     except Exception:
         return {}
+
+
+# ── Statcast (Baseball Savant) advanced metrics ─────────────────────────────
+# Barrel rate is the best non-market predictor of a home run; xISO/xSLG measure
+# true power, and the batted-ball mix (fly-ball%, pull%) tells you whether that
+# power leaves the yard. Savant's custom leaderboard is a public CSV keyed by
+# player_id == the MLBAM id we already use, so batter and pitcher rows join
+# straight onto our roster IDs. Cached 6h — these are season-to-date rates.
+SAVANT_URL = "https://baseballsavant.mlb.com/leaderboard/custom"
+_SAVANT_BAT_SEL = ["pa", "barrel_batted_rate", "xiso", "xslg", "hard_hit_percent",
+                   "flyballs_percent", "pull_percent", "exit_velocity_avg", "launch_angle_avg"]
+_SAVANT_PIT_SEL = ["pa", "barrel_batted_rate", "flyballs_percent", "groundballs_percent",
+                   "hard_hit_percent", "xslg"]
+
+def _savant_fetch(kind, sels, season):
+    out = {}
+    url = (f"{SAVANT_URL}?year={season}&type={kind}&filter=&min=10"
+           f"&selections={','.join(sels)}&chart=false&x={sels[1]}&y={sels[1]}&r=no"
+           f"&chartType=beeswarm&sort={sels[1]}&sortDir=desc&csv=true")
+    try:
+        r = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+        df = pd.read_csv(io.StringIO(r.content.decode("utf-8-sig")))
+    except Exception:
+        return out
+    for _, row in df.iterrows():
+        try:
+            pid = int(row["player_id"])
+        except (TypeError, ValueError):
+            continue
+        def g(c):
+            v = row.get(c)
+            return float(v) if pd.notna(v) else None
+        br = g("barrel_batted_rate")
+        out[pid] = {
+            "barrel": br / 100 if br is not None else None,   # fraction
+            "fb": g("flyballs_percent"), "pull": g("pull_percent"),
+            "gb": g("groundballs_percent"), "hardhit": g("hard_hit_percent"),
+            "xiso": g("xiso"), "xslg": g("xslg"),
+            "ev": g("exit_velocity_avg"), "la": g("launch_angle_avg"),
+            "pa": int(row["pa"]) if pd.notna(row.get("pa")) else 0,
+        }
+    return out
+
+@_ttl_cache(21600)
+def savant_batter_stats(season=MLB_SEASON):
+    """{mlbam_id: {barrel, xiso, xslg, fb, pull, hardhit, ev, la, pa}} for hitters."""
+    return _savant_fetch("batter", _SAVANT_BAT_SEL, season)
+
+@_ttl_cache(21600)
+def savant_pitcher_stats(season=MLB_SEASON):
+    """{mlbam_id: {barrel(allowed), fb, gb, hardhit, xslg, pa}} for pitchers."""
+    return _savant_fetch("pitcher", _SAVANT_PIT_SEL, season)
+
+_BARREL_TO_HR_GAME = 1.65   # folds batted-balls/game (~3) and HR-per-barrel (~0.55)
+
+def barrel_hr_prob(batter_id, opp_pitcher_id=None):
+    """Barrel-rate estimate of P(>=1 HR) in a game, optionally adjusted for the
+    opposing pitcher's barrels-allowed via the log5 odds ratio. Returns None when
+    the hitter has no Statcast data. Used to fold contact quality into the HR
+    hit-rate that the recency model alone predicts poorly."""
+    b = savant_batter_stats().get(batter_id) or {}
+    barrel = b.get("barrel")
+    if barrel is None:
+        return None
+    eff = barrel
+    if opp_pitcher_id:
+        pbrl = (savant_pitcher_stats().get(opp_pitcher_id) or {}).get("barrel")
+        if pbrl:
+            eff = barrel * pbrl / 0.065
+    return max(0.01, min(0.60, 1 - math.exp(-eff * _BARREL_TO_HR_GAME)))
 
 
 # ── Stat-type / column mappings ─────────────────────────────────────────────

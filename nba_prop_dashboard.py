@@ -3644,10 +3644,24 @@ def nba_scout_report(player_name, team_code, df, next_opp, prop_type, rolling_wi
     return " ".join(p for p in parts if p)
 
 def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id,
-                             line=None, prop_stat=None, ud_line=None, ud_odds=None, ud_implied=None):
+                             line=None, prop_stat=None, ud_line=None, ud_odds=None, ud_implied=None,
+                             player_id=None):
     if df.empty:
         return None
     _H_STAT_LABELS = {"H": "Hits", "HR": "Home Runs", "RBI": "RBIs", "K": "Strikeouts", "BB": "Walks"}
+    # Statcast quality-of-contact line (barrel rate is the sharpest HR signal)
+    _sc_pid = player_id or _pm.mlb_player_id(hitter_name)
+    _sc = _pm.savant_batter_stats().get(_sc_pid) if _sc_pid else None
+    sc_txt = ""
+    if _sc and _sc.get("barrel") is not None:
+        _bits = [f"{_sc['barrel']*100:.1f}% barrel rate"]
+        if _sc.get("xiso") is not None:
+            _bits.append(f".{int(_sc['xiso']*1000):03d} xISO")
+        if _sc.get("hardhit") is not None:
+            _bits.append(f"{_sc['hardhit']:.0f}% hard-hit")
+        if _sc.get("fb") is not None and _sc.get("pull") is not None:
+            _bits.append(f"{_sc['fb']:.0f}% FB / {_sc['pull']:.0f}% pull")
+        sc_txt = "Statcast: " + ", ".join(_bits) + "."
     stat_col   = prop_stat or "H"
     stat_label = _H_STAT_LABELS.get(stat_col, stat_col)
     avg = df["AVG"].iloc[-1] if len(df) > 0 else 0.0
@@ -3744,6 +3758,7 @@ def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id,
         f"{hitter_name} ({team_abbr}) brings a {q} slash line "
         f".{int(avg*1000):03d}/.{int(obp*1000):03d}/.{int(slg*1000):03d} (OPS {ops:.3f}), "
         f"averaging {season_stat:.2f} {stat_label}/G this season — {trend}.",
+        sc_txt,
         pitcher_txt, opp_hist_txt,
         hit_rate_str, streak_str, form,
         f"10-game rolling projection: {pred_h:.1f} H / {pred_hr:.2f} HR / {pred_rbi:.1f} RBI.",
@@ -3752,11 +3767,23 @@ def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id,
     return " ".join(p for p in parts if p)
 
 def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id,
-                              line=None, prop_stat=None, ud_line=None, ud_odds=None, ud_implied=None):
+                              line=None, prop_stat=None, ud_line=None, ud_odds=None, ud_implied=None,
+                              player_id=None):
     if df.empty:
         return None
     _P_STAT_LABELS = {"K": "Strikeouts", "IP": "Innings", "ER": "Earned Runs",
                       "BB": "Walks", "H": "Hits Allowed", "HR": "HR Allowed"}
+    # Statcast contact-allowed line (barrel/flyball tendencies drive HR risk)
+    _sc_pid = player_id or _pm.mlb_player_id(pitcher_name)
+    _sc = _pm.savant_pitcher_stats().get(_sc_pid) if _sc_pid else None
+    sc_txt = ""
+    if _sc and _sc.get("barrel") is not None:
+        _bits = [f"allows a {_sc['barrel']*100:.1f}% barrel rate"]
+        if _sc.get("hardhit") is not None:
+            _bits.append(f"{_sc['hardhit']:.0f}% hard contact")
+        if _sc.get("fb") is not None:
+            _bits.append(f"{_sc['fb']:.0f}% fly balls")
+        sc_txt = "Statcast: " + ", ".join(_bits) + "."
     stat_col   = prop_stat or "K"
     stat_label = _P_STAT_LABELS.get(stat_col, stat_col)
     tip  = df["IP"].sum()
@@ -3844,6 +3871,7 @@ def mlb_pitcher_scout_report(pitcher_name, team_abbr, df, team_id,
         f"{pitcher_name} ({team_abbr}) is a {tier} arm: {era:.2f} ERA / {whip:.2f} WHIP / "
         f"{k9:.1f} K/9 / {bb9:.1f} BB/9 / {kbb:.2f} K/BB / {qs:.0f}% QS rate. "
         f"Season average: {season_stat:.1f} {stat_label}/start.",
+        sc_txt,
         opp_txt, bat_txt,
         hit_rate_str, streak_str, form,
         f"5-start rolling projection: {pred_k:.1f} K / {pred_ip:.1f} IP.",
@@ -7590,11 +7618,20 @@ elif sport == "⚾ MLB":
                             odds_type="standard", implied_override=_h_imp_override,
                             cal_factor=_h_cal_f, opp_pitcher_id=_h_opp_pid,
                         )
+                        # For HR props the recency hit-rate is a weak predictor; blend in
+                        # the Statcast barrel model (best non-market HR signal) 50/50.
+                        _h_hr_help = "Calibrated: 65% historical + BvP adjustment + 25% market implied"
+                        if _h_stat_type == "Home Runs" and h_line <= 0.5:
+                            _h_bhr = _pm.barrel_hr_prob(sel_hitter["id"], _h_opp_pid)
+                            if _h_bhr is not None:
+                                _h_model_rate = round(0.5 * _h_model_rate + 0.5 * _h_bhr, 3)
+                                _h_hr_help = (f"HR blend: 50% recency/market + 50% Statcast barrel model "
+                                              f"({_h_bhr:.0%} from barrel rate)")
                         _h_raw_rate = (h_df[h_stat] > h_line).mean()
                         _h_edge = _h_model_rate - _ud_h_implied if _ud_h_implied is not None else None
                         mlb_section("Model Prediction")
                         _hm_cols = st.columns(4)
-                        _hm_cols[0].metric("Model Hit Rate",     f"{_h_model_rate:.1%}", help="Calibrated: 65% historical + BvP adjustment + 25% market implied")
+                        _hm_cols[0].metric("Model Hit Rate",     f"{_h_model_rate:.1%}", help=_h_hr_help)
                         _hm_cols[1].metric("Raw Historical",     f"{_h_raw_rate:.1%}",  help="Simple hit rate from game log vs this line")
                         _hm_cols[2].metric("Calibration Factor", f"{_h_cal_f:.3f}",     help=f"Accuracy factor for {_h_stat_type} props based on resolved parlay history")
                         _hm_cols[3].metric("Edge vs Market",     f"{_h_edge:+.1%}" if _h_edge is not None else "—", help="Model rate minus UD implied. Positive = model sees value.")
@@ -7603,7 +7640,8 @@ elif sport == "⚾ MLB":
                     _h_report = mlb_hitter_scout_report(
                         sel_hitter["name"], sel_team["abbr"], h_df, sel_team["id"],
                         line=h_line, prop_stat=h_stat,
-                        ud_line=_ud_h_line, ud_odds=_ud_h_odds, ud_implied=_ud_h_implied)
+                        ud_line=_ud_h_line, ud_odds=_ud_h_odds, ud_implied=_ud_h_implied,
+                        player_id=sel_hitter["id"])
                     if _h_report:
                         mlb_section("Scout Report")
                         st.markdown(_scout_card_mlb(_h_report), unsafe_allow_html=True)
@@ -7622,6 +7660,23 @@ elif sport == "⚾ MLB":
                     sl_c[2].metric("SLG", f"{_h_slg:.3f}")
                     sl_c[3].metric("OPS", f"{_h_ops:.3f}")
                     sl_c[4].metric("ISO", f"{_h_iso:.3f}")
+
+                    # ── Statcast — Quality of Contact ─────────────────────
+                    _h_sc = _pm.savant_batter_stats().get(sel_hitter["id"])
+                    if _h_sc and _h_sc.get("barrel") is not None:
+                        mlb_section("Statcast — Quality of Contact")
+                        _scc = st.columns(5)
+                        _scc[0].metric("Barrel%", f"{_h_sc['barrel']*100:.1f}%",
+                                       help="Barrels per batted ball — the best non-market HR predictor. League ~7–8%.")
+                        _scc[1].metric("xISO", f"{_h_sc['xiso']:.3f}" if _h_sc.get("xiso") is not None else "—",
+                                       help="Expected isolated power from contact quality (strips batted-ball luck).")
+                        _scc[2].metric("Hard-Hit%", f"{_h_sc['hardhit']:.0f}%" if _h_sc.get("hardhit") is not None else "—",
+                                       help="Share of batted balls hit 95+ mph. League ~38%.")
+                        _scc[3].metric("Avg EV", f"{_h_sc['ev']:.1f}" if _h_sc.get("ev") is not None else "—",
+                                       help="Average exit velocity (mph).")
+                        _scc[4].metric("FB% / Pull%",
+                                       f"{_h_sc['fb']:.0f}/{_h_sc['pull']:.0f}" if _h_sc.get("fb") is not None else "—",
+                                       help="Fly-ball% and pull% — whether that power actually leaves the yard.")
 
                     mlb_section("Recent Form — Last 10 Games vs Season Avg")
                     _last10h = h_df.tail(10)
@@ -7805,7 +7860,8 @@ elif sport == "⚾ MLB":
                     _p_report = mlb_pitcher_scout_report(
                         sel_pitcher["name"], sel_team_p["abbr"], p_df, sel_team_p["id"],
                         line=p_line, prop_stat=p_stat,
-                        ud_line=_ud_p_line, ud_odds=_ud_p_odds, ud_implied=_ud_p_implied)
+                        ud_line=_ud_p_line, ud_odds=_ud_p_odds, ud_implied=_ud_p_implied,
+                        player_id=sel_pitcher["id"])
                     if _p_report:
                         mlb_section("Scout Report")
                         st.markdown(_scout_card_mlb(_p_report), unsafe_allow_html=True)
@@ -7829,6 +7885,22 @@ elif sport == "⚾ MLB":
                     pm_c[2].metric("K/9", f"{_p_k9:.1f}")
                     pm_c[3].metric("BB/9", f"{_p_bb9:.1f}")
                     pm_c[4].metric("K/BB", f"{_p_kbb:.2f}")
+
+                    # ── Statcast — Contact Allowed ────────────────────────
+                    _p_sc = _pm.savant_pitcher_stats().get(sel_pitcher["id"])
+                    if _p_sc and _p_sc.get("barrel") is not None:
+                        mlb_section("Statcast — Contact Allowed")
+                        _psc = st.columns(5)
+                        _psc[0].metric("Barrel% Allowed", f"{_p_sc['barrel']*100:.1f}%",
+                                       help="Barrels allowed per batted ball — a flyball/barrel-prone arm gives up more HR. Lower is better; league ~7–8%.")
+                        _psc[1].metric("Hard-Hit% Allowed", f"{_p_sc['hardhit']:.0f}%" if _p_sc.get("hardhit") is not None else "—",
+                                       help="Share of batted balls allowed at 95+ mph.")
+                        _psc[2].metric("FB% Allowed", f"{_p_sc['fb']:.0f}%" if _p_sc.get("fb") is not None else "—",
+                                       help="Fly-ball rate allowed — flyball pitchers surrender more home runs.")
+                        _psc[3].metric("GB% Allowed", f"{_p_sc['gb']:.0f}%" if _p_sc.get("gb") is not None else "—",
+                                       help="Ground-ball rate allowed — groundball pitchers suppress HR.")
+                        _psc[4].metric("xSLG Allowed", f"{_p_sc['xslg']:.3f}" if _p_sc.get("xslg") is not None else "—",
+                                       help="Expected slugging allowed from contact quality.")
 
                     mlb_section("Recent Form — Last 5 Starts vs Season Avg")
                     _last5p = p_df.tail(5)
