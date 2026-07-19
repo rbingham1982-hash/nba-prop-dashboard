@@ -8458,7 +8458,12 @@ elif sport == "⚾ MLB":
                     if _pid:
                         _mlb_warm.append((_pid, _is_p))
                 _mwarm_prog = st.progress(0, text=f"Loading {len(_mlb_warm)} player histories…")
-                with ThreadPoolExecutor(max_workers=5) as _mwex:
+                with ThreadPoolExecutor(max_workers=8) as _mwex:
+                    # Prewarm the Statcast leaderboards in the same pool so the
+                    # expected-stat model doesn't block the scoring loop serially on
+                    # the first build (the pool waits for these on exit too).
+                    _mwex.submit(_pm.savant_batter_stats)
+                    _mwex.submit(_pm.savant_pitcher_stats)
                     _mwfuts = {
                         _mwex.submit(
                             get_mlb_pitching_logs if _isp else get_mlb_hitting_logs,
