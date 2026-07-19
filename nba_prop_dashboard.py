@@ -7618,15 +7618,17 @@ elif sport == "⚾ MLB":
                             odds_type="standard", implied_override=_h_imp_override,
                             cal_factor=_h_cal_f, opp_pitcher_id=_h_opp_pid,
                         )
-                        # For HR props the recency hit-rate is a weak predictor; blend in
-                        # the Statcast barrel model (best non-market HR signal) 50/50.
-                        _h_hr_help = "Calibrated: 65% historical + BvP adjustment + 25% market implied"
-                        if _h_stat_type == "Home Runs" and h_line <= 0.5:
-                            _h_bhr = _pm.barrel_hr_prob(sel_hitter["id"], _h_opp_pid)
-                            if _h_bhr is not None:
-                                _h_model_rate = round(0.5 * _h_model_rate + 0.5 * _h_bhr, 3)
-                                _h_hr_help = (f"HR blend: 50% recency/market + 50% Statcast barrel model "
-                                              f"({_h_bhr:.0%} from barrel rate)")
+                        # _mlb_hit_rate now folds a Statcast expected-stat model into the
+                        # rate for supported props (barrel→HR, xBA→hits, xSLG→TB, K%→K, …).
+                        _h_sc_prob = None
+                        try:
+                            _h_sc_prob = _pm.statcast_over_prob(sel_hitter["id"], _h_stat_type, h_line, False, _h_opp_pid)
+                        except Exception:
+                            _h_sc_prob = None
+                        _h_hr_help = ("Blends recency + market + a Statcast expected-stat model "
+                                      f"({_h_sc_prob:.0%} from the {_h_stat_type} model)"
+                                      if _h_sc_prob is not None
+                                      else "Calibrated: 65% historical + BvP adjustment + 25% market implied")
                         _h_raw_rate = (h_df[h_stat] > h_line).mean()
                         _h_edge = _h_model_rate - _ud_h_implied if _ud_h_implied is not None else None
                         mlb_section("Model Prediction")

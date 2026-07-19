@@ -77,10 +77,11 @@ def _mlb_team_abbr_map():
 # player_id == the MLBAM id we already use, so batter and pitcher rows join
 # straight onto our roster IDs. Cached 6h — these are season-to-date rates.
 SAVANT_URL = "https://baseballsavant.mlb.com/leaderboard/custom"
-_SAVANT_BAT_SEL = ["pa", "barrel_batted_rate", "xiso", "xslg", "hard_hit_percent",
-                   "flyballs_percent", "pull_percent", "exit_velocity_avg", "launch_angle_avg"]
-_SAVANT_PIT_SEL = ["pa", "barrel_batted_rate", "flyballs_percent", "groundballs_percent",
-                   "hard_hit_percent", "xslg"]
+_SAVANT_BAT_SEL = ["pa", "barrel_batted_rate", "xiso", "xslg", "xba", "k_percent",
+                   "bb_percent", "hard_hit_percent", "flyballs_percent", "pull_percent",
+                   "exit_velocity_avg", "launch_angle_avg"]
+_SAVANT_PIT_SEL = ["pa", "barrel_batted_rate", "xslg", "xba", "k_percent", "bb_percent",
+                   "flyballs_percent", "groundballs_percent", "hard_hit_percent"]
 
 def _savant_fetch(kind, sels, season):
     out = {}
@@ -105,7 +106,8 @@ def _savant_fetch(kind, sels, season):
             "barrel": br / 100 if br is not None else None,   # fraction
             "fb": g("flyballs_percent"), "pull": g("pull_percent"),
             "gb": g("groundballs_percent"), "hardhit": g("hard_hit_percent"),
-            "xiso": g("xiso"), "xslg": g("xslg"),
+            "xiso": g("xiso"), "xslg": g("xslg"), "xba": g("xba"),
+            "k_pct": g("k_percent"), "bb_pct": g("bb_percent"),
             "ev": g("exit_velocity_avg"), "la": g("launch_angle_avg"),
             "pa": int(row["pa"]) if pd.notna(row.get("pa")) else 0,
         }
@@ -138,6 +140,94 @@ def barrel_hr_prob(batter_id, opp_pitcher_id=None):
         if pbrl:
             eff = barrel * pbrl / 0.065
     return max(0.01, min(0.60, 1 - math.exp(-eff * _BARREL_TO_HR_GAME)))
+
+
+# ── Statcast expected-stat model — P(over line) for any supported prop ───────
+# The same idea as barrels→HR, generalised: each counting prop has a Statcast
+# rate that predicts it better than recency (xBA→hits, xSLG→total bases, K%→
+# strikeouts, BB%→walks). We turn that rate into a per-game count distribution
+# and read off P(over the line). Where a hitter faces a specific pitcher, the
+# rate is combined with the pitcher's rate-against via the log5 odds ratio.
+_AB_PER_GAME = 4      # at-bats per game for a regular (binomial trials)
+_PA_PER_GAME = 4      # plate appearances per game
+_BF_START    = 22     # batters faced by a starter (~5.2 IP)
+
+@_ttl_cache(21600)
+def _savant_league():
+    reg = [v for v in savant_batter_stats().values() if v.get("pa", 0) >= 200]
+    def m(k, dflt):
+        xs = [v[k] for v in reg if v.get(k) is not None]
+        return sum(xs) / len(xs) if xs else dflt
+    return {"xba": m("xba", 0.245), "k": m("k_pct", 22.5),
+            "bb": m("bb_pct", 8.5), "xslg": m("xslg", 0.400)}
+
+def _over_int(line):
+    """Smallest integer strictly greater than the line (o0.5 -> 1, o1.5 -> 2)."""
+    return int(math.floor(line)) + 1
+
+def _binom_ge(k, n, p):
+    if k <= 0:
+        return 1.0
+    if k > n:
+        return 0.0
+    p = min(max(p, 0.0), 1.0)
+    return min(1.0, sum(math.comb(n, i) * p ** i * (1 - p) ** (n - i) for i in range(k, n + 1)))
+
+def _pois_ge(k, lam):
+    if k <= 0:
+        return 1.0
+    cdf = sum(math.exp(-lam) * lam ** i / math.factorial(i) for i in range(0, k))
+    return max(0.0, min(1.0, 1 - cdf))
+
+def _matchup(rate_b, rate_p, lg):
+    """log5 odds ratio of a batter rate with the pitcher's rate-against."""
+    if rate_b is None:
+        return None
+    if rate_p is not None and lg:
+        return rate_b * rate_p / lg
+    return rate_b
+
+def statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id=None):
+    """P(stat > line) from Statcast expected rates, or None when unsupported."""
+    lg = _savant_league()
+    k_over = _over_int(line)
+    if is_pitcher:
+        p = savant_pitcher_stats().get(pid) or {}
+        if stat_type in ("Pitcher Strikeouts", "Strikeouts"):
+            kp = p.get("k_pct")
+            return _pois_ge(k_over, (kp / 100) * _BF_START) if kp is not None else None
+        if stat_type == "Walks Allowed":
+            bb = p.get("bb_pct")
+            return _pois_ge(k_over, (bb / 100) * _BF_START) if bb is not None else None
+        if stat_type == "Hits Allowed":
+            xba = p.get("xba")
+            return _pois_ge(k_over, xba * _BF_START) if xba is not None else None
+        return None
+    b = savant_batter_stats().get(pid) or {}
+    opp = savant_pitcher_stats().get(opp_pitcher_id) if opp_pitcher_id else None
+    if stat_type in ("Hits", "Singles"):
+        r = _matchup(b.get("xba"), opp.get("xba") if opp else None, lg["xba"])
+        if r is None:
+            return None
+        if stat_type == "Singles":
+            r *= 0.66                      # singles are ~2/3 of all hits
+        return _binom_ge(k_over, _AB_PER_GAME, min(0.65, max(0.05, r)))
+    if stat_type == "Home Runs":
+        return barrel_hr_prob(pid, opp_pitcher_id)
+    if stat_type == "Total Bases":
+        xslg = b.get("xslg")
+        if xslg is None:
+            return None
+        if opp and opp.get("xslg") and lg["xslg"]:
+            xslg = xslg * opp["xslg"] / lg["xslg"]
+        return _pois_ge(k_over, xslg * _AB_PER_GAME)
+    if stat_type in ("Hitter Strikeouts", "Strikeouts"):
+        r = _matchup(b.get("k_pct"), opp.get("k_pct") if opp else None, lg["k"])
+        return _binom_ge(k_over, _PA_PER_GAME, min(0.70, max(0.05, r / 100))) if r is not None else None
+    if stat_type == "Walks":
+        r = _matchup(b.get("bb_pct"), opp.get("bb_pct") if opp else None, lg["bb"])
+        return _binom_ge(k_over, _PA_PER_GAME, min(0.50, max(0.02, r / 100))) if r is not None else None
+    return None
 
 
 # ── Stat-type / column mappings ─────────────────────────────────────────────
@@ -1040,7 +1130,18 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
         hist = min(0.97, max(0.03, hist + (r10_cur - r_prev) * 0.1))
 
     implied = implied_override if implied_override >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
-    rate = 0.7 * hist + 0.3 * implied
+    # Statcast expected-stat model, when the prop has one (xBA→hits, xSLG→total
+    # bases, K%→strikeouts, barrel→HR, …). It predicts these far better than the
+    # game-log recency rate, so give it real weight when available.
+    sc = None
+    try:
+        sc = statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id)
+    except Exception:
+        sc = None
+    if sc is not None:
+        rate = 0.40 * hist + 0.35 * sc + 0.25 * implied
+    else:
+        rate = 0.7 * hist + 0.3 * implied
     rate = rate * cal_factor
     return round(min(0.97, max(0.03, rate)), 3), n
 
