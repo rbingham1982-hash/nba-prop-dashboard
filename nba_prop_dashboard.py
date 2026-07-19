@@ -6297,10 +6297,10 @@ if sport == "🏀 NBA":
             _b_max = st.session_state.get("nba_par_max_val", _par_max)
             _b_stats = st.session_state.get("nba_par_stats_val", _par_stats) or list(_PP_NBA_STAT_COL.keys())
 
-            _nba_sb = st.session_state.get("nba_sportsbook", "Underdog")
+            _nba_sb = st.session_state.get("nba_sportsbook", "FanDuel")
             _SB_OPTS = ["FanDuel", "Underdog", "PrizePicks"]
             if _nba_sb not in _SB_OPTS:
-                _nba_sb = "Underdog"
+                _nba_sb = "FanDuel"
             _par_sb_col1, _par_sb_col2 = st.columns([4, 1])
             with _par_sb_col1:
                 _sb_choice_nba = st.radio(
@@ -8369,10 +8369,10 @@ elif sport == "⚾ MLB":
             _mb_max = st.session_state.get("mlb_par_max_val", _mlb_par_max)
             _mb_stats = st.session_state.get("mlb_par_stats_val", _mlb_par_stats) or list(_PP_MLB_HIT_COL.keys())
 
-            _mlb_sb = st.session_state.get("mlb_sportsbook", "Underdog")
+            _mlb_sb = st.session_state.get("mlb_sportsbook", "FanDuel")
             _MLB_SB_OPTS = ["FanDuel", "Underdog", "PrizePicks"]
             if _mlb_sb not in _MLB_SB_OPTS:
-                _mlb_sb = "Underdog"
+                _mlb_sb = "FanDuel"
             _mlb_par_sb_col1, _mlb_par_sb_col2 = st.columns([4, 1])
             with _mlb_par_sb_col1:
                 _sb_choice_mlb = st.radio(
