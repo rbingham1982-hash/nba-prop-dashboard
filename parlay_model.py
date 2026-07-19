@@ -26,6 +26,7 @@ import pandas as pd
 from functools import wraps
 from itertools import combinations
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 from nba_api.stats.static import players
@@ -507,121 +508,137 @@ def fetch_fanduel(sport: str) -> pd.DataFrame:
 
     # Futures and specials share the page; only real matchups have an "A @ B" name.
     games = {i: e for i, e in events.items() if " @ " in (e.get("name") or "")}
+
+    # Each event is independent (own id, own tabs), so fetch them concurrently — the
+    # serial walk with per-request sleeps was the whole reason a build took ~30-40s.
+    rows = []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        futures = [ex.submit(_fd_parse_event, sport, core_map, ev_id, ev)
+                   for ev_id, ev in games.items()]
+        for fut in futures:
+            try:
+                rows.extend(fut.result())
+            except Exception:
+                continue
+    return pd.DataFrame(rows) if rows else pd.DataFrame()
+
+
+def _fd_parse_event(sport, core_map, ev_id, ev):
+    """Fetch and parse one FanDuel event's player-prop tabs. Returns a list of leg
+    rows (over/under + MLB milestone). Runs in a worker thread, so it owns all its
+    state and shares nothing but the read-only maps."""
+    try:
+        away_full, home_full = [s.strip() for s in ev["name"].split(" @ ", 1)]
+    except (KeyError, ValueError):
+        return []
+    label = f"{_fd_team_abbr(sport, away_full)} @ {_fd_team_abbr(sport, home_full)}"
+    start = ev.get("openDate", "")
+
+    try:
+        base = requests.get(f"{FD_BASE}/event-page",
+                            params={"eventId": ev_id, "_ak": FD_AK},
+                            headers=FD_HEADERS, timeout=25)
+        tabs = base.json().get("layout", {}).get("tabs", {}) if base.status_code == 200 else {}
+    except Exception:
+        return []
+
+    prop_tabs = [t["title"] for t in tabs.values()
+                 if any(w in (t.get("title") or "").lower()
+                        for w in ("player", "batter", "pitcher", "hitter"))]
+
     rows = []
     # MLB milestone markets offer the same player at several thresholds (2+/3+/4+
     # Total Bases). They are correlated, so keep just one line per player+stat —
     # the one closest to a coin flip, which is the most informative and avoids the
     # heavy chalk ("To Record A Hit" at -425) crowding out balanced lines.
     milestone_best: dict = {}
-
-    for ev_id, ev in games.items():
-        away_full, home_full = [s.strip() for s in ev["name"].split(" @ ", 1)]
-        away = _fd_team_abbr(sport, away_full)
-        home = _fd_team_abbr(sport, home_full)
-        label = f"{away} @ {home}"
-        start = ev.get("openDate", "")
-
+    for title in prop_tabs:
         try:
-            time.sleep(0.25)
-            base = requests.get(f"{FD_BASE}/event-page",
-                                params={"eventId": ev_id, "_ak": FD_AK},
-                                headers=FD_HEADERS, timeout=25)
-            tabs = base.json().get("layout", {}).get("tabs", {}) if base.status_code == 200 else {}
+            rt = requests.get(f"{FD_BASE}/event-page",
+                              params={"eventId": ev_id, "_ak": FD_AK,
+                                      "tab": title.lower().replace(" ", "-")},
+                              headers=FD_HEADERS, timeout=25)
+            if rt.status_code != 200:
+                continue
+            markets = rt.json().get("attachments", {}).get("markets", {})
         except Exception:
             continue
 
-        prop_tabs = [t["title"] for t in tabs.values()
-                     if any(w in (t.get("title") or "").lower()
-                            for w in ("player", "batter", "pitcher", "hitter"))]
-
-        for title in prop_tabs:
-            try:
-                time.sleep(0.25)
-                rt = requests.get(f"{FD_BASE}/event-page",
-                                  params={"eventId": ev_id, "_ak": FD_AK,
-                                          "tab": title.lower().replace(" ", "-")},
-                                  headers=FD_HEADERS, timeout=25)
-                if rt.status_code != 200:
-                    continue
-                markets = rt.json().get("attachments", {}).get("markets", {})
-            except Exception:
+        for m in markets.values():
+            mtype = m.get("marketType", "")
+            match = _FD_MARKET_RE.match(mtype)
+            if not match:
+                # MLB batter props are milestone yes/no markets, not over/unders.
+                if sport == "mlb":
+                    key = mtype[7:] if mtype.startswith("PLAYER_") else mtype
+                    milestone = _FD_MLB_MILESTONE.get(key)
+                    if milestone:
+                        mstat, mline = milestone
+                        for run in m.get("runners", []):
+                            american = _fd_american(run)
+                            if american is None:
+                                continue
+                            player = (run.get("runnerName") or "").strip()
+                            if not player:
+                                continue
+                            # One-sided market — no under to de-vig, raw implied stands.
+                            implied = round(american_to_implied(american), 4)
+                            bk = (player, mstat)
+                            prev = milestone_best.get(bk)
+                            if prev is None or abs(implied - 0.5) < abs(prev["implied_prob"] - 0.5):
+                                milestone_best[bk] = {
+                                    "player_name": player, "team": "", "stat_type": mstat,
+                                    "line_score": mline, "odds_type": "standard",
+                                    "american_odds": american, "implied_prob": implied,
+                                    "game_id": str(ev_id), "game_label": label,
+                                    "start_time": start, "sportsbook": "FanDuel",
+                                }
+                continue                      # alt lines ("To Score 20+") aren't over/unders
+            core = match.group("core")
+            stat = core_map.get(core)
+            if not stat:
+                _FD_UNMAPPED.add(core)
                 continue
 
-            for m in markets.values():
-                mtype = m.get("marketType", "")
-                match = _FD_MARKET_RE.match(mtype)
-                if not match:
-                    # MLB batter props are milestone yes/no markets, not over/unders.
-                    if sport == "mlb":
-                        key = mtype[7:] if mtype.startswith("PLAYER_") else mtype
-                        milestone = _FD_MLB_MILESTONE.get(key)
-                        if milestone:
-                            mstat, mline = milestone
-                            for run in m.get("runners", []):
-                                american = _fd_american(run)
-                                if american is None:
-                                    continue
-                                player = (run.get("runnerName") or "").strip()
-                                if not player:
-                                    continue
-                                # One-sided market — no under to de-vig, raw implied stands.
-                                implied = round(american_to_implied(american), 4)
-                                bk = (ev_id, player, mstat)
-                                prev = milestone_best.get(bk)
-                                if prev is None or abs(implied - 0.5) < abs(prev["implied_prob"] - 0.5):
-                                    milestone_best[bk] = {
-                                        "player_name": player, "team": "", "stat_type": mstat,
-                                        "line_score": mline, "odds_type": "standard",
-                                        "american_odds": american, "implied_prob": implied,
-                                        "game_id": str(ev_id), "game_label": label,
-                                        "start_time": start, "sportsbook": "FanDuel",
-                                    }
-                    continue                      # alt lines ("To Score 20+") aren't over/unders
-                core = match.group("core")
-                stat = core_map.get(core)
-                if not stat:
-                    _FD_UNMAPPED.add(core)
-                    continue
+            over = under = None
+            for run in m.get("runners", []):
+                name = (run.get("runnerName") or "")
+                if name.endswith(" Over"):
+                    over = run
+                elif name.endswith(" Under"):
+                    under = run
+            if over is None:
+                continue
+            american = _fd_american(over)
+            if american is None:
+                continue
 
-                over = under = None
-                for run in m.get("runners", []):
-                    name = (run.get("runnerName") or "")
-                    if name.endswith(" Over"):
-                        over = run
-                    elif name.endswith(" Under"):
-                        under = run
-                if over is None:
-                    continue
-                american = _fd_american(over)
-                if american is None:
-                    continue
+            player = (over.get("runnerName") or "")[: -len(" Over")].strip()
+            try:
+                line = float(over.get("handicap"))
+            except (TypeError, ValueError):
+                continue
 
-                player = (over.get("runnerName") or "")[: -len(" Over")].strip()
-                try:
-                    line = float(over.get("handicap"))
-                except (TypeError, ValueError):
-                    continue
+            # Both sides are quoted, so the vig can actually be stripped — the whole
+            # reason FanDuel is a better price source for the model than Underdog.
+            imp_over = american_to_implied(american)
+            imp_under = None
+            if under is not None:
+                au = _fd_american(under)
+                if au is not None:
+                    imp_under = american_to_implied(au)
 
-                # Both sides are quoted, so the vig can actually be stripped — the whole
-                # reason FanDuel is a better price source for the model than Underdog.
-                imp_over = american_to_implied(american)
-                imp_under = None
-                if under is not None:
-                    au = _fd_american(under)
-                    if au is not None:
-                        imp_under = american_to_implied(au)
-
-                rows.append({
-                    "player_name": player, "team": "", "stat_type": stat,
-                    "line_score": line, "odds_type": "standard",
-                    "american_odds": american,
-                    "implied_prob": round(devig_two_way(imp_over, imp_under), 4),
-                    "game_id": str(ev_id), "game_label": label,
-                    "start_time": start, "sportsbook": "FanDuel",
-                })
+            rows.append({
+                "player_name": player, "team": "", "stat_type": stat,
+                "line_score": line, "odds_type": "standard",
+                "american_odds": american,
+                "implied_prob": round(devig_two_way(imp_over, imp_under), 4),
+                "game_id": str(ev_id), "game_label": label,
+                "start_time": start, "sportsbook": "FanDuel",
+            })
 
     rows.extend(milestone_best.values())
-    return pd.DataFrame(rows) if rows else pd.DataFrame()
+    return rows
 
 
 # ── MLB player ID + game logs ────────────────────────────────────────────────

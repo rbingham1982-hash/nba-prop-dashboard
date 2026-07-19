@@ -2459,8 +2459,18 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
         # FanDuel's own public web API: no key, no quota, and it quotes both sides of
         # every prop so the de-vig has a real under price to work with. Shared with
         # daily_parlay_gen via parlay_model so the two can't drift.
+        # It walks every game×prop-tab serially (~30-40s), so cache the result for
+        # 10 min — otherwise every parlay build / rerun pays the full fetch again.
+        # Reuses _toa_cache under the "<sport>_FanDuel" key the Refresh button clears.
+        _fd_key = f"{sport}_FanDuel"
+        _fd_now = time.time()
+        _fd_cached = _toa_cache.get(_fd_key)
+        if _fd_cached is not None and not _fd_cached.empty and _fd_now - _toa_cache_ts.get(_fd_key, 0) < 600:
+            return _fd_cached
         df = _pm.fetch_fanduel(sport)
         if not df.empty:
+            _toa_cache[_fd_key] = df
+            _toa_cache_ts[_fd_key] = _fd_now
             return df
         # Metered fallbacks only if the free path yields nothing.
         if _get_sharp_api_key():
