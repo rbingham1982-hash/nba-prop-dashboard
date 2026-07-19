@@ -1,5 +1,7 @@
-import sys, requests, time, pandas as pd
+import sys, requests, time, unicodedata, pandas as pd
 sys.stdout.reconfigure(encoding="utf-8")
+
+import parlay_model as pm
 
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 MLB_SEASON = "2026"
@@ -57,15 +59,23 @@ VENUE_COORDS = {
     "Las Vegas Ballpark": (36.1699, -115.1398),
 }
 
-# ── Games to analyze ───────────────────────────────────────────────────────
-# Derived from 371 resolved MLB HR legs: avg predicted 35.3%, avg actual 17.0%
-HR_CAL_FACTOR = 0.48
+# The FanDuel market price is the spine of this generator. Historically it is the
+# single best predictor of a home run — sharper than any recency signal — so the
+# board is ranked by the vig-stripped market probability. The park/weather/pitcher
+# model rides alongside only as an EDGE signal (model% - market%): it flags where
+# our read disagrees with the book, it does not overrule the book.
+#
+# On 65 resolved HR legs the recency model's high-confidence bucket (40-60%
+# predicted) hit just 13.6% — worse than its low-confidence picks — so the model's
+# own probability is deliberately down-weighted here and shown for context/edge only.
+HR_CAL_FACTOR = 0.48        # raw recency model overshoots ~2x; calibrated down
+MODEL_WEIGHT  = 0.30        # blended prob = 0.30*model + 0.70*market
+TOP_TO_SCORE  = 60          # cap model API calls to the top market threats
+MIN_MARKET    = 0.08        # ignore sub-8% market longshots
 
-TARGET_GAMES = {
-    ("BOS", "COL"),
-    ("BAL", "LAA"),
-    ("ATL", "SD"),
-}
+def norm_name(s):
+    s = unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode()
+    return "".join(c for c in s.lower() if c.isalnum())
 
 def get_weather(venue):
     coords = VENUE_COORDS.get(venue)
@@ -81,7 +91,7 @@ def get_weather(venue):
             "temp_f": round(float(cur.get("temperature_2m", 75)), 1),
             "wind_mph": round(float(cur.get("wind_speed_10m", 5)), 1),
         }
-    except:
+    except Exception:
         return {"temp_f": 75, "wind_mph": 5}
 
 def context_boost(venue, weather):
@@ -91,9 +101,13 @@ def context_boost(venue, weather):
     wind = 0.0 if venue in DOMES else min(0.08, weather.get("wind_mph", 0) / 20 * 0.08)
     return 1.0 + park + temp + wind, pf
 
+_hr9_cache = {}
 def pitcher_hr9(pid):
     if not pid:
         return 1.1
+    if pid in _hr9_cache:
+        return _hr9_cache[pid]
+    val = 1.1
     try:
         url = f"{MLB_BASE}/people/{pid}/stats?stats=season&season={MLB_SEASON}&group=pitching"
         splits = requests.get(url, timeout=8).json().get("stats", [{}])[0].get("splits", [])
@@ -104,10 +118,11 @@ def pitcher_hr9(pid):
             ip = int(parts[0]) + (int(parts[1]) / 3 if len(parts) > 1 and parts[1] else 0)
             hr = int(s.get("homeRuns", 0) or 0)
             if ip >= 20:
-                return round(hr / ip * 9, 2)
-    except:
+                val = round(hr / ip * 9, 2)
+    except Exception:
         pass
-    return 1.1
+    _hr9_cache[pid] = val
+    return val
 
 def get_roster(team_id):
     try:
@@ -119,7 +134,7 @@ def get_roster(team_id):
             if pos not in ("P", "RP", "SP"):
                 hitters.append({"name": p["person"]["fullName"], "id": p["person"]["id"]})
         return hitters
-    except:
+    except Exception:
         return []
 
 def get_hitting_logs(pid):
@@ -138,173 +153,165 @@ def get_hitting_logs(pid):
                 })
             if rows:
                 frames.append(pd.DataFrame(rows))
-        except:
+        except Exception:
             pass
     if not frames:
         return pd.DataFrame()
     return pd.concat(frames, ignore_index=True)
 
+_hand_cache = {}
 def get_player_hand(pid):
+    if pid in _hand_cache:
+        return _hand_cache[pid]
+    res = ("R", "R")
     try:
         resp = requests.get(f"{MLB_BASE}/people/{pid}", timeout=6).json()
         person = (resp.get("people") or [{}])[0]
-        return person.get("batSide", {}).get("code", "R"), person.get("pitchHand", {}).get("code", "R")
-    except:
-        return "R", "R"
+        res = (person.get("batSide", {}).get("code", "R"),
+               person.get("pitchHand", {}).get("code", "R"))
+    except Exception:
+        pass
+    _hand_cache[pid] = res
+    return res
 
-# ── Fetch today's schedule ─────────────────────────────────────────────────
-today = __import__("datetime").datetime.now().strftime("%Y-%m-%d")
-print(f"Fetching schedule for {today}…")
-sched = requests.get(
-    f"{MLB_BASE}/schedule?sportId=1&date={today}&hydrate=probablePitcher,team,venue",
-    timeout=10
-).json()
+def model_hr_prob(pid, opp_pid, mult):
+    """Recency + pitcher + platoon model, calibrated. Returns (score, hist, l10, l20, slg)."""
+    df = get_hitting_logs(pid)
+    if df.empty or "HR" not in df.columns or len(df) < 5:
+        return None
+    gp = len(df)
+    last20 = df["HR"].values[-20:]
+    last15 = df["HR"].values[-15:] if gp >= 15 else df["HR"].values
+    last10 = df["HR"].values[-10:] if gp >= 10 else df["HR"].values
+    last7  = df["HR"].values[-7:]  if gp >= 7  else df["HR"].values
+    last5  = df["HR"].values[-5:]  if gp >= 5  else df["HR"].values
+    r20 = float((last20 > 0).sum()) / len(last20)
+    r10 = float((last10 > 0).sum()) / max(len(last10), 1)
+    r5  = float((last5  > 0).sum()) / max(len(last5),  1)
+    hist = 0.35 * r5 + 0.40 * r10 + 0.25 * r20
+    if int((last7 > 0).sum()) == 0:
+        hist *= 0.60
+    p_hr9 = pitcher_hr9(opp_pid)
+    pitcher_boost = min(0.12, max(-0.08, (p_hr9 - 1.1) / 1.0 * 0.10))
+    b_hand = get_player_hand(pid)[0]
+    p_hand = get_player_hand(opp_pid)[1] if opp_pid else "R"
+    platoon = 0.03 if (b_hand in ("L", "R") and b_hand != p_hand) else 0.0
+    if b_hand == "S":
+        platoon = 0.015
+    raw = (hist + pitcher_boost + platoon) * mult
+    score = round(min(0.97, max(0.01, raw * HR_CAL_FACTOR)), 3)
+    slg = float(df["SLG"].iloc[-1]) if "SLG" in df.columns else 0
+    return score, round(hist, 3), int((last10 > 0).sum()), int((last20 > 0).sum()), slg
 
-all_games = []
-for de in sched.get("dates", []):
-    for g in de.get("games", []):
-        at = g["teams"]["away"]
-        ht = g["teams"]["home"]
-        ap = at.get("probablePitcher", {})
-        hp = ht.get("probablePitcher", {})
-        away_abbr = at["team"].get("abbreviation", "")
-        home_abbr = ht["team"].get("abbreviation", "")
-        all_games.append({
-            "away_abbr": away_abbr,
-            "home_abbr": home_abbr,
-            "away_id": at["team"]["id"],
-            "home_id": ht["team"]["id"],
-            "away_pid": ap.get("id"),
-            "away_pitcher": ap.get("fullName", "TBD"),
-            "home_pid": hp.get("id"),
-            "home_pitcher": hp.get("fullName", "TBD"),
-            "venue": g.get("venue", {}).get("name", ""),
-        })
-
-# Filter to the 3 target games
-games = [g for g in all_games
-         if (g["away_abbr"], g["home_abbr"]) in TARGET_GAMES]
-
-if not games:
-    print("\nNo matching games found. Games on schedule today:")
-    for g in all_games:
-        print(f"  {g['away_abbr']} @ {g['home_abbr']}  — {g['venue']}")
+# ── FanDuel HR market (the spine) ──────────────────────────────────────────
+print("Fetching FanDuel MLB home-run lines…")
+fd = pm.fetch_fanduel("mlb")
+hr_market = {}
+if not fd.empty:
+    hrs = fd[fd["stat_type"] == "Home Runs"]
+    for _, r in hrs.iterrows():
+        hr_market[norm_name(r["player_name"])] = {
+            "player": r["player_name"],
+            "implied": float(r["implied_prob"]),
+            "odds": int(r["american_odds"]),
+            "fd_game": r.get("game_label", ""),
+        }
+print(f"  {len(hr_market)} players with a FanDuel 'To Hit A Home Run' price.")
+if not hr_market:
+    print("No FanDuel HR lines available right now (lines usually post closer to game time).")
     sys.exit(0)
 
-# ── Score hitters ──────────────────────────────────────────────────────────
-candidates = []
+# ── Today's schedule → per-player context (venue, opposing pitcher) ─────────
+today = __import__("datetime").datetime.now().strftime("%Y-%m-%d")
+print(f"Fetching schedule + rosters for {today}…")
+sched = requests.get(
+    f"{MLB_BASE}/schedule?sportId=1&date={today}&hydrate=probablePitcher,team,venue",
+    timeout=10,
+).json()
 
-for g in games:
-    venue = g["venue"]
-    weather = get_weather(venue)
-    mult, pf = context_boost(venue, weather)
-    dome_str = " (dome)" if venue in DOMES else f" / {weather['wind_mph']:.0f} mph wind"
-    print(f"\n{'─'*60}")
-    print(f"  {g['away_abbr']} @ {g['home_abbr']}  |  {venue}  (PF {pf})")
-    print(f"  Weather: {weather['temp_f']:.0f}°F{dome_str}")
-    print(f"  Away SP: {g['away_pitcher']}  |  Home SP: {g['home_pitcher']}")
+player_ctx = {}   # norm(name) -> context dict
+for de in sched.get("dates", []):
+    for g in de.get("games", []):
+        at, ht = g["teams"]["away"], g["teams"]["home"]
+        venue = g.get("venue", {}).get("name", "")
+        weather = get_weather(venue)
+        mult, pf = context_boost(venue, weather)
+        label = f"{at['team'].get('abbreviation','')} @ {ht['team'].get('abbreviation','')}"
+        for side, team, opp in (("away", at, ht), ("home", ht, at)):
+            opp_prob = opp.get("probablePitcher", {}) or {}
+            for h in get_roster(team["team"]["id"]):
+                player_ctx[norm_name(h["name"])] = {
+                    "pid": h["id"], "team": team["team"].get("abbreviation", ""),
+                    "opp_pid": opp_prob.get("id"),
+                    "opp_pitcher": opp_prob.get("fullName", "TBD"),
+                    "venue": venue, "pf": pf, "mult": mult,
+                    "temp_f": weather["temp_f"], "wind_mph": weather["wind_mph"],
+                    "game": label, "dome": venue in DOMES,
+                }
 
-    for side, team_abbr, team_id, opp_pid, opp_name in [
-        ("home", g["home_abbr"], g["home_id"], g["away_pid"], g["away_pitcher"]),
-        ("away", g["away_abbr"], g["away_id"], g["home_pid"], g["home_pitcher"]),
-    ]:
-        p_hr9 = pitcher_hr9(opp_pid)
-        pitcher_boost = min(0.12, max(-0.08, (p_hr9 - 1.1) / 1.0 * 0.10))
-        p_hand = get_player_hand(opp_pid)[1] if opp_pid else "R"
-
-        hitters = get_roster(team_id)
-        print(f"  Scoring {len(hitters)} {team_abbr} hitters vs {opp_name} (HR/9={p_hr9:.2f})…")
-        for h in hitters[:15]:
-            pid = h["id"]
-            df = get_hitting_logs(pid)
-            if df.empty or "HR" not in df.columns or len(df) < 5:
-                continue
-            gp = len(df)
-            last20 = df["HR"].values[-20:]
-            last15 = df["HR"].values[-15:] if gp >= 15 else df["HR"].values
-            last10 = df["HR"].values[-10:] if gp >= 10 else df["HR"].values
-            last7  = df["HR"].values[-7:]  if gp >= 7  else df["HR"].values
-            last5  = df["HR"].values[-5:]  if gp >= 5  else df["HR"].values
-
-            # Mirror dashboard: skip players with 0 HR in last 15 (enough sample)
-            if gp >= 15 and int((last15 > 0).sum()) == 0:
-                continue
-
-            r20 = float((last20 > 0).sum()) / len(last20)
-            r10 = float((last10 > 0).sum()) / max(len(last10), 1)
-            r5  = float((last5  > 0).sum()) / max(len(last5),  1)
-            hist = 0.35 * r5 + 0.40 * r10 + 0.25 * r20
-            if int((last7 > 0).sum()) == 0:
-                hist *= 0.60
-
-            b_hand = get_player_hand(pid)[0]
-            platoon = 0.03 if (b_hand in ("L", "R") and b_hand != p_hand) else 0.0
-            if b_hand == "S":
-                platoon = 0.015
-
-            raw = (hist + pitcher_boost + platoon) * mult
-            score = round(min(0.97, max(0.01, raw * HR_CAL_FACTOR)), 3)
-            slg = float(df["SLG"].iloc[-1]) if "SLG" in df.columns else 0
-
-            candidates.append({
-                "player": h["name"], "team": team_abbr,
-                "opp_pitcher": opp_name, "pitcher_hr9": p_hr9,
-                "venue": venue, "park_factor": pf,
-                "temp_f": weather["temp_f"], "wind_mph": weather["wind_mph"],
-                "last10_hr": int((last10 > 0).sum()), "last20_hr": int((last20 > 0).sum()),
-                "hist_rate": round(hist, 3), "platoon": round(platoon, 3),
-                "pitcher_boost": round(pitcher_boost, 3),
-                "context_mult": round(mult, 3),
-                "slg": slg, "score": score,
-                "game": f"{g['away_abbr']} @ {g['home_abbr']}",
-            })
-            time.sleep(0.04)
-
-# ── Results: top 3 per game + overall top 6 ───────────────────────────────
-candidates.sort(key=lambda x: x["score"], reverse=True)
-
-print(f"\n\n{'═'*65}")
-print("TOP HR CANDIDATES — BOS@COL  |  BAL@LAA  |  ATL@SD")
-print(f"{'═'*65}")
-
-# Top 3 per game
-for game_key in [("BOS","COL"), ("BAL","LAA"), ("ATL","SD")]:
-    label = f"{game_key[0]} @ {game_key[1]}"
-    game_picks = [c for c in candidates if c["game"] == label][:3]
-    if not game_picks:
-        print(f"\n  {label} — no data")
+# ── Join market ∩ slate, score the top market threats ──────────────────────
+joined = []
+for key, mk in hr_market.items():
+    if mk["implied"] < MIN_MARKET:
         continue
-    venue = game_picks[0]["venue"] if game_picks else ""
-    pf    = game_picks[0]["park_factor"] if game_picks else 100
-    print(f"\n  {label}  |  {venue}  (PF {pf})")
-    print(f"  {'─'*57}")
-    for i, p in enumerate(game_picks, 1):
-        dome = venue in DOMES
-        weather_str = f"{p['temp_f']:.0f}°F (dome)" if dome else f"{p['temp_f']:.0f}°F / {p['wind_mph']:.0f} mph"
-        platoon_str = "✓ platoon adv" if p["platoon"] > 0 else "same hand"
-        print(f"  #{i}  {p['player']:<22} ({p['team']})  HR prob: {p['score']*100:.1f}%")
-        print(f"       vs {p['opp_pitcher']:<25}  HR/9={p['pitcher_hr9']:.2f}")
-        print(f"       Last 10g: {p['last10_hr']} HR  |  Last 20g: {p['last20_hr']} HR  |  {platoon_str}")
-        print(f"       Weather: {weather_str}  |  Context mult: {p['context_mult']:.3f}")
+    ctx = player_ctx.get(key)
+    if ctx:
+        joined.append((key, mk, ctx))
+joined.sort(key=lambda x: x[1]["implied"], reverse=True)
+to_score = joined[:TOP_TO_SCORE]
+print(f"  {len(joined)} FanDuel HR players matched to today's rosters; "
+      f"scoring the top {len(to_score)} by market price…\n")
 
-print(f"\n{'═'*65}")
-print("BEST BET ACROSS ALL 3 GAMES (no team duplication)")
-print(f"{'═'*65}")
-seen_teams = set()
-top_diverse = []
-for c in candidates:
-    if c["team"] not in seen_teams:
-        seen_teams.add(c["team"])
-        top_diverse.append(c)
-    if len(top_diverse) == 6:
-        break
+picks = []
+for key, mk, ctx in to_score:
+    m = model_hr_prob(ctx["pid"], ctx["opp_pid"], ctx["mult"])
+    model_p, hist, l10, l20, slg = (m if m else (None, None, None, None, None))
+    market_p = mk["implied"]
+    blended = round(MODEL_WEIGHT * model_p + (1 - MODEL_WEIGHT) * market_p, 3) if model_p is not None else market_p
+    edge = round(model_p - market_p, 3) if model_p is not None else None
+    picks.append({
+        "player": mk["player"], "team": ctx["team"], "game": ctx["game"],
+        "market": market_p, "odds": mk["odds"], "model": model_p,
+        "blended": blended, "edge": edge, "pitcher": ctx["opp_pitcher"],
+        "hr9": pitcher_hr9(ctx["opp_pid"]), "venue": ctx["venue"], "pf": ctx["pf"],
+        "temp_f": ctx["temp_f"], "wind_mph": ctx["wind_mph"], "dome": ctx["dome"],
+        "l10": l10, "l20": l20, "slg": slg,
+    })
+    time.sleep(0.03)
 
-for i, p in enumerate(top_diverse, 1):
-    dome = p["venue"] in DOMES
-    weather_str = f"{p['temp_f']:.0f}°F (dome)" if dome else f"{p['temp_f']:.0f}°F / {p['wind_mph']:.0f} mph"
-    print(f"\n#{i}  {p['player']} ({p['team']})  —  {p['game']}")
-    print(f"    vs {p['opp_pitcher']}  |  Pitcher HR/9: {p['pitcher_hr9']:.2f}")
-    print(f"    Venue: {p['venue']} (PF {p['park_factor']})")
-    print(f"    Weather: {weather_str}")
-    print(f"    Last 10g: {p['last10_hr']} HR  |  Last 20g: {p['last20_hr']} HR")
-    print(f"    Platoon adv: {'yes' if p['platoon'] > 0 else 'no'}  |  HR prob: {p['score']*100:.1f}%")
+def odds_fmt(o):
+    return f"+{o}" if o > 0 else str(o)
+
+def wx(p):
+    return f"{p['temp_f']:.0f}°F (dome)" if p["dome"] else f"{p['temp_f']:.0f}°F / {p['wind_mph']:.0f} mph"
+
+# ── Board 1: most likely to homer (ranked by market) ───────────────────────
+picks.sort(key=lambda x: x["market"], reverse=True)
+print("═" * 70)
+print(f"  MOST LIKELY TO HOMER TODAY — ranked by FanDuel market price")
+print("═" * 70)
+print(f"  {'Player':<22} {'Team':<4} {'Mkt':>5} {'Odds':>6} {'Model':>6} {'Edge':>6}  Matchup")
+print(f"  {'-'*68}")
+for p in picks[:15]:
+    model_s = f"{p['model']*100:.0f}%" if p["model"] is not None else "  —"
+    edge_s  = f"{p['edge']*100:+.0f}%" if p["edge"] is not None else "  —"
+    print(f"  {p['player']:<22} {p['team']:<4} {p['market']*100:>4.0f}% {odds_fmt(p['odds']):>6} "
+          f"{model_s:>6} {edge_s:>6}  {p['game']} · PF{p['pf']}")
+
+# ── Board 2: value plays (model sees more than the market) ──────────────────
+value = [p for p in picks if p["edge"] is not None and p["edge"] > 0.03]
+value.sort(key=lambda x: x["edge"], reverse=True)
+print("\n" + "═" * 70)
+print("  MODEL VALUE PLAYS — model HR% exceeds the market (treat as lean, not gospel)")
+print("═" * 70)
+if not value:
+    print("  None today — the model doesn't beat the market on any priced hitter.")
+for i, p in enumerate(value[:8], 1):
+    print(f"\n  #{i}  {p['player']} ({p['team']}) — {p['game']}")
+    print(f"      Market {p['market']*100:.0f}% ({odds_fmt(p['odds'])})  |  Model {p['model']*100:.0f}%  |  Edge {p['edge']*100:+.0f}%  |  Blended {p['blended']*100:.0f}%")
+    print(f"      vs {p['pitcher']} (HR/9 {p['hr9']:.2f})  |  {p['venue']} (PF {p['pf']})  |  {wx(p)}")
+    print(f"      Recent: {p['l10']} HR L10 · {p['l20']} HR L20  |  SLG {p['slg']:.3f}")
+
+print(f"\n{'─'*70}")
+print("Market price is the primary signal; the model is a secondary edge read.")
+print("Recent-HR streaks are noisy — don't chase a hot bat the market has already priced.")

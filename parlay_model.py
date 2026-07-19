@@ -248,6 +248,36 @@ _FD_MLB_CORE = {
 }
 _FD_CORE_MAP = {"wnba": _FD_HOOPS_CORE, "nba": _FD_HOOPS_CORE, "mlb": _FD_MLB_CORE}
 
+# MLB batter props aren't <ROLE>_TOTAL_<core> over/under lines like the hoops
+# leagues turned out to be — FanDuel ships them as milestone yes/no markets, one
+# runner per player, with the threshold baked into the market type ("2+ Hits" =
+# Over 1.5, "A Hit" = Over 0.5). They are single-sided, so there is no under
+# price to de-vig against; the raw implied over-probability stands, the same way
+# Underdog's one-sided lines are handled. Keys are matched after stripping an
+# optional leading PLAYER_ (FanDuel is inconsistent about the prefix). RBIs is
+# deliberately absent — resolved history shows it is a genuinely bad prop — and
+# triples / novelty markets have no model column to score against.
+_FD_MLB_MILESTONE = {
+    "TO_RECORD_A_HIT":             ("Hits", 0.5),
+    "TO_RECORD_2+_HITS":           ("Hits", 1.5),
+    "TO_RECORD_3+_HITS":           ("Hits", 2.5),
+    "TO_HIT_A_HOME_RUN":           ("Home Runs", 0.5),
+    "TO_HIT_2+_HOME_RUNS":         ("Home Runs", 1.5),
+    "TO_RECORD_1+_HITS+RUNS+RBIS": ("Hits+Runs+RBIs", 0.5),
+    "TO_RECORD_2+_HITS+RUNS+RBIS": ("Hits+Runs+RBIs", 1.5),
+    "TO_RECORD_3+_HITS+RUNS+RBIS": ("Hits+Runs+RBIs", 2.5),
+    "TO_RECORD_2+_TOTAL_BASES":    ("Total Bases", 1.5),
+    "TO_RECORD_3+_TOTAL_BASES":    ("Total Bases", 2.5),
+    "TO_RECORD_4+_TOTAL_BASES":    ("Total Bases", 3.5),
+    "TO_RECORD_5+_TOTAL_BASES":    ("Total Bases", 4.5),
+    "TO_RECORD_A_RUN":             ("Runs Scored", 0.5),
+    "TO_RECORD_2+_RUNS":           ("Runs Scored", 1.5),
+    "TO_RECORD_A_STOLEN_BASE":     ("Stolen Bases", 0.5),
+    "TO_RECORD_2+_STOLEN_BASES":   ("Stolen Bases", 1.5),
+    "TO_HIT_A_SINGLE":             ("Singles", 0.5),
+    "TO_HIT_A_DOUBLE":             ("Doubles", 0.5),
+}
+
 # The resolver matches WNBA games on the abbreviations nba_api uses in MATCHUP, and
 # FanDuel names teams in full, so a leg built from "Phoenix Mercury @ Minnesota Lynx"
 # resolves only if the label says "PHX @ MIN".
@@ -316,6 +346,11 @@ def fetch_fanduel(sport: str) -> pd.DataFrame:
     # Futures and specials share the page; only real matchups have an "A @ B" name.
     games = {i: e for i, e in events.items() if " @ " in (e.get("name") or "")}
     rows = []
+    # MLB milestone markets offer the same player at several thresholds (2+/3+/4+
+    # Total Bases). They are correlated, so keep just one line per player+stat —
+    # the one closest to a coin flip, which is the most informative and avoids the
+    # heavy chalk ("To Record A Hit" at -425) crowding out balanced lines.
+    milestone_best: dict = {}
 
     for ev_id, ev in games.items():
         away_full, home_full = [s.strip() for s in ev["name"].split(" @ ", 1)]
@@ -351,8 +386,34 @@ def fetch_fanduel(sport: str) -> pd.DataFrame:
                 continue
 
             for m in markets.values():
-                match = _FD_MARKET_RE.match(m.get("marketType", ""))
+                mtype = m.get("marketType", "")
+                match = _FD_MARKET_RE.match(mtype)
                 if not match:
+                    # MLB batter props are milestone yes/no markets, not over/unders.
+                    if sport == "mlb":
+                        key = mtype[7:] if mtype.startswith("PLAYER_") else mtype
+                        milestone = _FD_MLB_MILESTONE.get(key)
+                        if milestone:
+                            mstat, mline = milestone
+                            for run in m.get("runners", []):
+                                american = _fd_american(run)
+                                if american is None:
+                                    continue
+                                player = (run.get("runnerName") or "").strip()
+                                if not player:
+                                    continue
+                                # One-sided market — no under to de-vig, raw implied stands.
+                                implied = round(american_to_implied(american), 4)
+                                bk = (ev_id, player, mstat)
+                                prev = milestone_best.get(bk)
+                                if prev is None or abs(implied - 0.5) < abs(prev["implied_prob"] - 0.5):
+                                    milestone_best[bk] = {
+                                        "player_name": player, "team": "", "stat_type": mstat,
+                                        "line_score": mline, "odds_type": "standard",
+                                        "american_odds": american, "implied_prob": implied,
+                                        "game_id": str(ev_id), "game_label": label,
+                                        "start_time": start, "sportsbook": "FanDuel",
+                                    }
                     continue                      # alt lines ("To Score 20+") aren't over/unders
                 core = match.group("core")
                 stat = core_map.get(core)
@@ -397,6 +458,7 @@ def fetch_fanduel(sport: str) -> pd.DataFrame:
                     "start_time": start, "sportsbook": "FanDuel",
                 })
 
+    rows.extend(milestone_best.values())
     return pd.DataFrame(rows) if rows else pd.DataFrame()
 
 
