@@ -1,10 +1,13 @@
-import sys, requests, time, unicodedata, pandas as pd
+import sys, os, json, math, requests, time, io, unicodedata
+from collections import defaultdict
+import pandas as pd
 sys.stdout.reconfigure(encoding="utf-8")
 
 import parlay_model as pm
 
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 MLB_SEASON = "2026"
+LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hr_market_log.json")
 
 # ── Full park factor table from dashboard ──────────────────────────────────
 PARK_FACTORS = {
@@ -13,7 +16,8 @@ PARK_FACTORS = {
     "Yankee Stadium": 118, "Globe Life Field": 115, "Citizens Bank Park": 112,
     "Rogers Centre": 112, "Chase Field": 110, "Fenway Park": 108,
     "American Family Field": 105, "Wrigley Field": 105, "Truist Park": 103,
-    "Guaranteed Rate Field": 103, "Minute Maid Park": 102, "Nationals Park": 102,
+    "Guaranteed Rate Field": 103, "Minute Maid Park": 102, "Daikin Park": 102,
+    "Nationals Park": 102,
     "Busch Stadium": 100, "Progressive Field": 100, "Angel Stadium": 99,
     "Dodger Stadium": 98, "Target Field": 98, "Citi Field": 96, "PNC Park": 96,
     "Tropicana Field": 95, "T-Mobile Park": 90, "loanDepot park": 90,
@@ -22,7 +26,7 @@ PARK_FACTORS = {
 }
 DOMES = {
     "Chase Field", "Globe Life Field", "American Family Field",
-    "Rogers Centre", "Minute Maid Park", "Tropicana Field", "loanDepot park",
+    "Rogers Centre", "Minute Maid Park", "Daikin Park", "Tropicana Field", "loanDepot park",
 }
 VENUE_COORDS = {
     "Coors Field": (39.7559, -104.9942),
@@ -45,6 +49,7 @@ VENUE_COORDS = {
     "Citizens Bank Park": (39.9061, -75.1665),
     "Rogers Centre": (43.6414, -79.3894),
     "Minute Maid Park": (29.7572, -95.3555),
+    "Daikin Park": (29.7572, -95.3555),
     "Dodger Stadium": (34.0739, -118.2400),
     "Oracle Park": (37.7786, -122.3893),
     "Petco Park": (32.7076, -117.1570),
@@ -59,19 +64,28 @@ VENUE_COORDS = {
     "Las Vegas Ballpark": (36.1699, -115.1398),
 }
 
-# The FanDuel market price is the spine of this generator. Historically it is the
-# single best predictor of a home run — sharper than any recency signal — so the
-# board is ranked by the vig-stripped market probability. The park/weather/pitcher
-# model rides alongside only as an EDGE signal (model% - market%): it flags where
-# our read disagrees with the book, it does not overrule the book.
+# The FanDuel market price is the spine — historically the single best predictor
+# of a home run. The board is ranked by the vig market probability; the model
+# rides alongside only as an EDGE read (model% - market%).
 #
-# On 65 resolved HR legs the recency model's high-confidence bucket (40-60%
-# predicted) hit just 13.6% — worse than its low-confidence picks — so the model's
-# own probability is deliberately down-weighted here and shown for context/edge only.
-HR_CAL_FACTOR = 0.48        # raw recency model overshoots ~2x; calibrated down
-MODEL_WEIGHT  = 0.30        # blended prob = 0.30*model + 0.70*market
-TOP_TO_SCORE  = 60          # cap model API calls to the top market threats
-MIN_MARKET    = 0.08        # ignore sub-8% market longshots
+# The model is now built on Statcast BARREL RATE, not recent-HR streaks. On 65
+# resolved legs the old recency model's high-confidence bucket hit just 13.6% —
+# it had no discrimination. Barrel rate (barrels per batted ball) is the best
+# *non-market* HR predictor: it measures the quality of contact that actually
+# produces home runs, and it stabilises far faster than HR counts. The per-game
+# HR rate is modelled as a Poisson mean:
+#
+#   lambda = barrel_rate * BARREL_TO_HR_GAME * park/weather * pitcher * platoon
+#   P(>=1 HR) = 1 - exp(-lambda)
+#
+# BARREL_TO_HR_GAME folds "batted balls per game" (~3) and "HR per barrel" (~0.55)
+# into one coefficient, tuned so the model lands on the same scale as the market.
+BARREL_TO_HR_GAME = 1.65
+LEAGUE_BARREL     = 0.065     # fallback barrel rate for players Savant hasn't qualified
+MODEL_WEIGHT      = 0.35      # blended prob = 0.35*model + 0.65*market
+TOP_TO_SCORE      = 60        # cap per-run scoring to the top market threats
+MIN_MARKET        = 0.08      # ignore sub-8% market longshots
+VALUE_EDGE        = 0.03      # model must beat market by this to be a "value play"
 
 def norm_name(s):
     s = unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode()
@@ -137,28 +151,6 @@ def get_roster(team_id):
     except Exception:
         return []
 
-def get_hitting_logs(pid):
-    frames = []
-    for season in ("2025", "2026"):
-        try:
-            url = f"{MLB_BASE}/people/{pid}/stats?stats=gameLog&season={season}&group=hitting"
-            splits = requests.get(url, timeout=10).json().get("stats", [{}])[0].get("splits", [])
-            rows = []
-            for s in splits:
-                st = s.get("stat", {})
-                rows.append({
-                    "HR": int(st.get("homeRuns", 0) or 0),
-                    "AB": int(st.get("atBats", 0) or 0),
-                    "SLG": float(st.get("slg", 0) or 0),
-                })
-            if rows:
-                frames.append(pd.DataFrame(rows))
-        except Exception:
-            pass
-    if not frames:
-        return pd.DataFrame()
-    return pd.concat(frames, ignore_index=True)
-
 _hand_cache = {}
 def get_player_hand(pid):
     if pid in _hand_cache:
@@ -174,36 +166,128 @@ def get_player_hand(pid):
     _hand_cache[pid] = res
     return res
 
+# ── Statcast barrel-rate leaderboards (one fetch each, keyed by MLBAM id) ───
+# Batter barrel rate = quality of contact a hitter makes; pitcher barrel rate =
+# quality of contact a pitcher allows. Both come from the same Savant leaderboard
+# with type=batter / type=pitcher, and both use the MLBAM player_id we already key on.
+_savant = {"batter": {}, "pitcher": {}}
+def savant_barrels(kind):
+    if _savant[kind]:
+        return _savant[kind]
+    url = ("https://baseballsavant.mlb.com/leaderboard/custom"
+           f"?year={MLB_SEASON}&type={kind}&filter=&min=10"
+           "&selections=pa,barrel_batted_rate,xslg&chart=false"
+           "&x=barrel_batted_rate&y=barrel_batted_rate&r=no&chartType=beeswarm"
+           "&sort=barrel_batted_rate&sortDir=desc&csv=true")
+    try:
+        r = requests.get(url, timeout=25, headers={"User-Agent": "Mozilla/5.0"})
+        df = pd.read_csv(io.StringIO(r.content.decode("utf-8-sig")))
+        for _, row in df.iterrows():
+            try:
+                pid = int(row["player_id"])
+            except (TypeError, ValueError):
+                continue
+            br = row.get("barrel_batted_rate")
+            _savant[kind][pid] = {
+                "barrel": float(br) / 100 if pd.notna(br) else None,
+                "xslg": float(row["xslg"]) if pd.notna(row.get("xslg")) else None,
+                "pa": int(row["pa"]) if pd.notna(row.get("pa")) else 0,
+            }
+    except Exception as e:
+        print(f"  Savant {kind} barrel fetch failed ({e}); using fallbacks.")
+    return _savant[kind]
+
 def model_hr_prob(pid, opp_pid, mult):
-    """Recency + pitcher + platoon model, calibrated. Returns (score, hist, l10, l20, slg)."""
-    df = get_hitting_logs(pid)
-    if df.empty or "HR" not in df.columns or len(df) < 5:
-        return None
-    gp = len(df)
-    last20 = df["HR"].values[-20:]
-    last15 = df["HR"].values[-15:] if gp >= 15 else df["HR"].values
-    last10 = df["HR"].values[-10:] if gp >= 10 else df["HR"].values
-    last7  = df["HR"].values[-7:]  if gp >= 7  else df["HR"].values
-    last5  = df["HR"].values[-5:]  if gp >= 5  else df["HR"].values
-    r20 = float((last20 > 0).sum()) / len(last20)
-    r10 = float((last10 > 0).sum()) / max(len(last10), 1)
-    r5  = float((last5  > 0).sum()) / max(len(last5),  1)
-    hist = 0.35 * r5 + 0.40 * r10 + 0.25 * r20
-    if int((last7 > 0).sum()) == 0:
-        hist *= 0.60
+    """Barrel-rate Poisson HR model. Returns (prob, batter_barrel%, xslg, is_fallback, pitcher_barrel%)."""
+    info = savant_barrels("batter").get(pid) or {}
+    barrel = info.get("barrel")
+    is_fallback = barrel is None
+    if barrel is None:
+        barrel = LEAGUE_BARREL
+    # Pitcher signal: prefer barrel-allowed via the log5 odds ratio
+    # (batter x pitcher / league), which is the standard way to combine two rate
+    # stats. A pitcher who allows more barrels than league lifts the matchup rate;
+    # a stingy one suppresses it. HR/9 stays as a light residual (it carries the
+    # pitcher's HR-per-barrel tendency that barrel rate alone misses). When the
+    # pitcher has no Statcast data, fall back to the HR/9 factor alone.
+    pinfo = savant_barrels("pitcher").get(opp_pid) or {}
+    pbrl = pinfo.get("barrel")
     p_hr9 = pitcher_hr9(opp_pid)
-    pitcher_boost = min(0.12, max(-0.08, (p_hr9 - 1.1) / 1.0 * 0.10))
+    if pbrl and pbrl > 0:
+        eff_barrel = barrel * pbrl / LEAGUE_BARREL
+        pitcher_factor = 1 + 0.4 * (min(1.4, max(0.7, p_hr9 / 1.1)) - 1)
+        pbrl_pct = round(pbrl * 100, 1)
+    else:
+        eff_barrel = barrel
+        pitcher_factor = min(1.4, max(0.7, p_hr9 / 1.1))
+        pbrl_pct = None
     b_hand = get_player_hand(pid)[0]
     p_hand = get_player_hand(opp_pid)[1] if opp_pid else "R"
-    platoon = 0.03 if (b_hand in ("L", "R") and b_hand != p_hand) else 0.0
-    if b_hand == "S":
-        platoon = 0.015
-    raw = (hist + pitcher_boost + platoon) * mult
-    score = round(min(0.97, max(0.01, raw * HR_CAL_FACTOR)), 3)
-    slg = float(df["SLG"].iloc[-1]) if "SLG" in df.columns else 0
-    return score, round(hist, 3), int((last10 > 0).sum()), int((last20 > 0).sum()), slg
+    platoon = 0.03 if (b_hand in ("L", "R") and b_hand != p_hand) else (0.015 if b_hand == "S" else 0.0)
+    lam = eff_barrel * BARREL_TO_HR_GAME * mult * pitcher_factor * (1 + platoon)
+    prob = round(min(0.60, max(0.01, 1 - math.exp(-lam))), 3)
+    return prob, round(barrel * 100, 1), info.get("xslg"), is_fallback, pbrl_pct
+
+# ── Persistent HR market log + backfill resolver ───────────────────────────
+def load_log():
+    try:
+        return json.load(open(LOG_PATH, encoding="utf-8")) if os.path.exists(LOG_PATH) else []
+    except Exception:
+        return []
+
+def resolve_log(entries, today):
+    """Fill outcome (1/0) for past unresolved entries from each player's game log."""
+    pending = [e for e in entries if e.get("outcome") is None
+               and e.get("date", "") < today and e.get("player_id")]
+    if not pending:
+        return 0
+    by_pid = defaultdict(list)
+    for e in pending:
+        by_pid[e["player_id"]].append(e)
+    print(f"Resolving {len(pending)} past HR log entr(ies) across {len(by_pid)} player(s)…")
+    resolved = 0
+    for pid, es in by_pid.items():
+        hr_by_date = {}
+        for season in ("2025", "2026"):
+            try:
+                url = f"{MLB_BASE}/people/{pid}/stats?stats=gameLog&season={season}&group=hitting"
+                splits = requests.get(url, timeout=8).json().get("stats", [{}])[0].get("splits", [])
+                for s in splits:
+                    d = s.get("date")
+                    if d:
+                        hr_by_date[d] = hr_by_date.get(d, 0) + int(s.get("stat", {}).get("homeRuns", 0) or 0)
+            except Exception:
+                pass
+        for e in es:
+            if e["date"] in hr_by_date:
+                e["outcome"] = 1 if hr_by_date[e["date"]] > 0 else 0
+                resolved += 1
+        time.sleep(0.03)
+    return resolved
+
+def calibration_report(entries):
+    done = [e for e in entries if e.get("outcome") in (0, 1)]
+    if len(done) < 10:
+        return
+    n = len(done)
+    hit = sum(e["outcome"] for e in done)
+    mkt = sum(e.get("market_implied") or 0 for e in done) / n
+    mdl = [e for e in done if isinstance(e.get("model"), (int, float))]
+    print(f"\n  Log calibration on {n} resolved picks: actual {hit/n:.1%}  |  "
+          f"market avg {mkt:.1%}" +
+          (f"  |  model avg {sum(e['model'] for e in mdl)/len(mdl):.1%}" if mdl else ""))
 
 # ── FanDuel HR market (the spine) ──────────────────────────────────────────
+today = __import__("datetime").datetime.now().strftime("%Y-%m-%d")
+log_entries = load_log()
+try:
+    done = resolve_log(log_entries, today)
+    if done:
+        json.dump(log_entries, open(LOG_PATH, "w", encoding="utf-8"), indent=1)
+        print(f"  resolved {done} outcome(s).")
+except Exception as e:
+    print(f"  (resolver skipped: {e})")
+
 print("Fetching FanDuel MLB home-run lines…")
 fd = pm.fetch_fanduel("mlb")
 hr_market = {}
@@ -214,22 +298,25 @@ if not fd.empty:
             "player": r["player_name"],
             "implied": float(r["implied_prob"]),
             "odds": int(r["american_odds"]),
-            "fd_game": r.get("game_label", ""),
         }
 print(f"  {len(hr_market)} players with a FanDuel 'To Hit A Home Run' price.")
 if not hr_market:
     print("No FanDuel HR lines available right now (lines usually post closer to game time).")
     sys.exit(0)
 
+print("Loading Statcast barrel-rate leaderboards (batter + pitcher)…")
+savant_barrels("batter")
+savant_barrels("pitcher")
+print(f"  {len(_savant['batter'])} batters, {len(_savant['pitcher'])} pitchers with barrel data.")
+
 # ── Today's schedule → per-player context (venue, opposing pitcher) ─────────
-today = __import__("datetime").datetime.now().strftime("%Y-%m-%d")
 print(f"Fetching schedule + rosters for {today}…")
 sched = requests.get(
     f"{MLB_BASE}/schedule?sportId=1&date={today}&hydrate=probablePitcher,team,venue",
     timeout=10,
 ).json()
 
-player_ctx = {}   # norm(name) -> context dict
+player_ctx = {}
 for de in sched.get("dates", []):
     for g in de.get("games", []):
         at, ht = g["teams"]["away"], g["teams"]["home"]
@@ -256,28 +343,25 @@ for key, mk in hr_market.items():
         continue
     ctx = player_ctx.get(key)
     if ctx:
-        joined.append((key, mk, ctx))
-joined.sort(key=lambda x: x[1]["implied"], reverse=True)
+        joined.append((mk, ctx))
+joined.sort(key=lambda x: x[0]["implied"], reverse=True)
 to_score = joined[:TOP_TO_SCORE]
-print(f"  {len(joined)} FanDuel HR players matched to today's rosters; "
-      f"scoring the top {len(to_score)} by market price…\n")
+print(f"  {len(joined)} FanDuel HR players matched to rosters; scoring the top {len(to_score)}…\n")
 
 picks = []
-for key, mk, ctx in to_score:
-    m = model_hr_prob(ctx["pid"], ctx["opp_pid"], ctx["mult"])
-    model_p, hist, l10, l20, slg = (m if m else (None, None, None, None, None))
+for mk, ctx in to_score:
+    model_p, barrel, xslg, fb, pbrl = model_hr_prob(ctx["pid"], ctx["opp_pid"], ctx["mult"])
     market_p = mk["implied"]
-    blended = round(MODEL_WEIGHT * model_p + (1 - MODEL_WEIGHT) * market_p, 3) if model_p is not None else market_p
-    edge = round(model_p - market_p, 3) if model_p is not None else None
+    blended = round(MODEL_WEIGHT * model_p + (1 - MODEL_WEIGHT) * market_p, 3)
+    edge = round(model_p - market_p, 3)
     picks.append({
-        "player": mk["player"], "team": ctx["team"], "game": ctx["game"],
-        "market": market_p, "odds": mk["odds"], "model": model_p,
-        "blended": blended, "edge": edge, "pitcher": ctx["opp_pitcher"],
-        "hr9": pitcher_hr9(ctx["opp_pid"]), "venue": ctx["venue"], "pf": ctx["pf"],
-        "temp_f": ctx["temp_f"], "wind_mph": ctx["wind_mph"], "dome": ctx["dome"],
-        "l10": l10, "l20": l20, "slg": slg,
+        "player": mk["player"], "pid": ctx["pid"], "team": ctx["team"], "game": ctx["game"],
+        "market": market_p, "odds": mk["odds"], "model": model_p, "blended": blended,
+        "edge": edge, "barrel": barrel, "xslg": xslg, "fallback": fb, "pbrl": pbrl,
+        "pitcher": ctx["opp_pitcher"], "hr9": pitcher_hr9(ctx["opp_pid"]),
+        "venue": ctx["venue"], "pf": ctx["pf"], "temp_f": ctx["temp_f"],
+        "wind_mph": ctx["wind_mph"], "dome": ctx["dome"],
     })
-    time.sleep(0.03)
 
 def odds_fmt(o):
     return f"+{o}" if o > 0 else str(o)
@@ -285,33 +369,53 @@ def odds_fmt(o):
 def wx(p):
     return f"{p['temp_f']:.0f}°F (dome)" if p["dome"] else f"{p['temp_f']:.0f}°F / {p['wind_mph']:.0f} mph"
 
+# ── Persist today's board (market price + model, outcome to be resolved) ────
+log_entries = [e for e in log_entries if e.get("date") != today]
+for p in picks:
+    log_entries.append({
+        "date": today, "player": p["player"], "player_id": p["pid"], "team": p["team"],
+        "game": p["game"], "line": 0.5, "market_implied": p["market"],
+        "american_odds": p["odds"], "model": p["model"], "blended": p["blended"],
+        "edge": p["edge"], "barrel_pct": p["barrel"], "pitcher_barrel_pct": p["pbrl"],
+        "venue": p["venue"], "pf": p["pf"], "outcome": None,
+    })
+try:
+    json.dump(log_entries, open(LOG_PATH, "w", encoding="utf-8"), indent=1)
+    print(f"Logged {len(picks)} HR market prices → {os.path.basename(LOG_PATH)}")
+except Exception as e:
+    print(f"(could not write log: {e})")
+
 # ── Board 1: most likely to homer (ranked by market) ───────────────────────
 picks.sort(key=lambda x: x["market"], reverse=True)
-print("═" * 70)
-print(f"  MOST LIKELY TO HOMER TODAY — ranked by FanDuel market price")
-print("═" * 70)
-print(f"  {'Player':<22} {'Team':<4} {'Mkt':>5} {'Odds':>6} {'Model':>6} {'Edge':>6}  Matchup")
-print(f"  {'-'*68}")
+print("\n" + "═" * 74)
+print("  MOST LIKELY TO HOMER TODAY — ranked by FanDuel market price")
+print("═" * 74)
+print(f"  {'Player':<22} {'Tm':<4} {'Mkt':>5} {'Odds':>6} {'Model':>6} {'Edge':>6} {'Brl%':>5}  Matchup")
+print(f"  {'-'*72}")
 for p in picks[:15]:
-    model_s = f"{p['model']*100:.0f}%" if p["model"] is not None else "  —"
-    edge_s  = f"{p['edge']*100:+.0f}%" if p["edge"] is not None else "  —"
+    brl = f"{p['barrel']:.1f}" + ("*" if p["fallback"] else "")
     print(f"  {p['player']:<22} {p['team']:<4} {p['market']*100:>4.0f}% {odds_fmt(p['odds']):>6} "
-          f"{model_s:>6} {edge_s:>6}  {p['game']} · PF{p['pf']}")
+          f"{p['model']*100:>5.0f}% {p['edge']*100:>+5.0f}% {brl:>5}  {p['game']} · PF{p['pf']}")
+print("  * = no Statcast barrel data (league-average fallback)")
 
-# ── Board 2: value plays (model sees more than the market) ──────────────────
-value = [p for p in picks if p["edge"] is not None and p["edge"] > 0.03]
+# ── Board 2: value plays (model beats the market) ──────────────────────────
+value = [p for p in picks if p["edge"] > VALUE_EDGE and not p["fallback"]]
 value.sort(key=lambda x: x["edge"], reverse=True)
-print("\n" + "═" * 70)
-print("  MODEL VALUE PLAYS — model HR% exceeds the market (treat as lean, not gospel)")
-print("═" * 70)
+print("\n" + "═" * 74)
+print("  MODEL VALUE PLAYS — barrel model beats the market (lean, not gospel)")
+print("═" * 74)
 if not value:
-    print("  None today — the model doesn't beat the market on any priced hitter.")
+    print("  None today — the barrel model doesn't beat the market on any priced hitter.")
 for i, p in enumerate(value[:8], 1):
+    xslg_s = f"xSLG {p['xslg']:.3f}" if p["xslg"] is not None else "xSLG —"
+    pbrl_s = f"allows {p['pbrl']:.1f}% barrels" if p.get("pbrl") is not None else f"HR/9 {p['hr9']:.2f}"
     print(f"\n  #{i}  {p['player']} ({p['team']}) — {p['game']}")
-    print(f"      Market {p['market']*100:.0f}% ({odds_fmt(p['odds'])})  |  Model {p['model']*100:.0f}%  |  Edge {p['edge']*100:+.0f}%  |  Blended {p['blended']*100:.0f}%")
-    print(f"      vs {p['pitcher']} (HR/9 {p['hr9']:.2f})  |  {p['venue']} (PF {p['pf']})  |  {wx(p)}")
-    print(f"      Recent: {p['l10']} HR L10 · {p['l20']} HR L20  |  SLG {p['slg']:.3f}")
+    print(f"      Market {p['market']*100:.0f}% ({odds_fmt(p['odds'])})  |  Model {p['model']*100:.0f}%  |  "
+          f"Edge {p['edge']*100:+.0f}%  |  Blended {p['blended']*100:.0f}%")
+    print(f"      Batter barrel {p['barrel']:.1f}%  |  {xslg_s}  |  vs {p['pitcher']} ({pbrl_s})")
+    print(f"      {p['venue']} (PF {p['pf']})  |  {wx(p)}")
 
-print(f"\n{'─'*70}")
-print("Market price is the primary signal; the model is a secondary edge read.")
-print("Recent-HR streaks are noisy — don't chase a hot bat the market has already priced.")
+calibration_report(log_entries)
+print(f"\n{'─'*74}")
+print("Market price is the primary signal; the barrel model is a secondary edge read.")
+print("Outcomes backfill automatically on the next run so edges can be validated over time.")
