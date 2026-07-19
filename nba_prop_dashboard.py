@@ -6275,7 +6275,7 @@ if sport == "🏀 NBA":
             _par_min = st.selectbox("Min Picks", [2, 3], index=0, key="nba_par_min", label_visibility="collapsed")
         with _pc2:
             st.markdown("**Maximum Picks**")
-            _par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=2, key="nba_par_max", label_visibility="collapsed")
+            _par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=3, key="nba_par_max", label_visibility="collapsed")
         with _pc3:
             st.markdown("**Stat Types to Include**")
             _par_stats = st.multiselect(
@@ -7030,7 +7030,7 @@ elif sport == "🏀 WNBA":
             _wpar_min = st.selectbox("Min", [2, 3], index=0, key="wpar_min", label_visibility="collapsed")
         with _wpc2:
             st.markdown("**Maximum Picks**")
-            _wpar_max = st.selectbox("Max", [2, 3, 4, 5], index=2, key="wpar_max", label_visibility="collapsed")
+            _wpar_max = st.selectbox("Max", [2, 3, 4, 5], index=3, key="wpar_max", label_visibility="collapsed")
         with _wpc3:
             st.markdown("**Stat Types to Include**")
             _wpar_stats = st.multiselect(
@@ -8328,7 +8328,7 @@ elif sport == "⚾ MLB":
             _mlb_par_min = st.selectbox("Min Picks", [2, 3], index=0, key="mlb_par_min", label_visibility="collapsed")
         with _mp2:
             st.markdown("**Maximum Picks**")
-            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=1, key="mlb_par_max", label_visibility="collapsed")
+            _mlb_par_max = st.selectbox("Max Picks", [2, 3, 4, 5], index=3, key="mlb_par_max", label_visibility="collapsed")
         with _mp3:
             st.markdown("**Stat Types to Include**")
             _all_mlb_stat_types = list(_PP_MLB_HIT_COL.keys()) + list(_PP_MLB_PIT_COL.keys())

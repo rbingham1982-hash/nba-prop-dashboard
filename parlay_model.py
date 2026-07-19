@@ -1226,31 +1226,58 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
                 "recommended": bool(ev > min_ev),
             })
 
+    def _lk(p):
+        return [f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]]
+
     def _top(pool, key_fn, exclude_keys=None, max_uses=None):
+        # Guarantee every requested pick count is represented instead of letting the
+        # global sort fill the board with small parlays. Larger parlays are selected
+        # FIRST so they get fresh legs — otherwise 2- and 3-leg combos exhaust the
+        # per-leg use budget and 5-leg parlays never make the cut (a 5-leg was
+        # effectively ungeneratable). Each count gets an even share of the slots, then
+        # any remaining slots are filled by the global ranking.
+        counts = sorted({p["n"] for p in pool}, reverse=True)
+        per = max(1, top_n // max(1, len(counts)))
         seen: set = set()
-        out = []
+        excl = exclude_keys or set()
         leg_uses = defaultdict(int)
-        for p in sorted(pool, key=key_fn, reverse=True):
-            leg_keys = [f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]]
+        out = []
+
+        def _try_add(p):
+            leg_keys = _lk(p)
             k = frozenset(leg_keys)
-            if k in seen or (exclude_keys and k in exclude_keys):
-                continue
+            if k in seen or k in excl:
+                return False
             if max_uses is not None and any(leg_uses[lk] >= max_uses for lk in leg_keys):
-                continue
+                return False
             seen.add(k)
             out.append(p)
             for lk in leg_keys:
                 leg_uses[lk] += 1
+            return True
+
+        for n in counts:                       # large parlays first, even share each
+            added = 0
+            for p in sorted((x for x in pool if x["n"] == n), key=key_fn, reverse=True):
+                if added >= per or len(out) >= top_n:
+                    break
+                if _try_add(p):
+                    added += 1
+        for p in sorted(pool, key=key_fn, reverse=True):   # fill remainder globally
+            if len(out) >= top_n:
+                break
+            _try_add(p)
+
+        out.sort(key=key_fn, reverse=True)     # display best-first
         return out
 
     # Recommended (positive-EV) combos sort ahead of the rest in both lists, so the bets
     # worth making lead. The losers are still returned and logged — they are the training
     # data — they just never sit at the top of the board.
-    safe_out = _top(results, lambda x: (x["recommended"], x["prob"]),
-                    max_uses=max_leg_uses)[:top_n]
-    safe_keys = {frozenset(f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]) for p in safe_out}
+    safe_out = _top(results, lambda x: (x["recommended"], x["prob"]), max_uses=max_leg_uses)
+    safe_keys = {frozenset(_lk(p)) for p in safe_out}
     value_out = _top(results, lambda x: (x["recommended"], x["ev"]),
-                     exclude_keys=safe_keys, max_uses=max_leg_uses)[:top_n]
+                     exclude_keys=safe_keys, max_uses=max_leg_uses)
 
     return safe_out, value_out
 
