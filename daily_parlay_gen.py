@@ -448,11 +448,30 @@ def warn_if_stale(now):
 
 # ── Entry point ────────────────────────────────────────────────────────────
 
+def already_ran_today(now) -> bool:
+    """True if a parlay was already logged today.
+
+    The scheduled task repeats hourly through the day so a 2 PM run missed while
+    the machine was hibernated/in modern-standby is caught the next time it's
+    awake. Only the first success each day should generate; every later firing
+    exits here instead of producing a duplicate slate.
+    """
+    try:
+        last = parlay_tracker.last_parlay_time()
+    except Exception:
+        return False
+    return last is not None and last.date() == now.date()
+
+
 def main():
     now   = datetime.now()
     month = now.month
     print(f"\nKonjure Analytics — Daily Parlay Generator")
     print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}")
+
+    if already_ran_today(now):
+        print("  Already generated today — nothing to do (hourly catch-up firing).")
+        return
 
     warn_if_stale(now)
     resolve_pending()
