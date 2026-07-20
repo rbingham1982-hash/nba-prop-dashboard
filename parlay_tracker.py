@@ -209,6 +209,10 @@ def log_parlays(
                 "stat_type":         leg["stat_type"],
                 "line_score":        float(leg["line_score"]),
                 "predicted_hit_rate": round(float(leg["hit_rate"]), 4),
+                # Distinct scoring model, when a builder uses one that isn't the
+                # standard game-log/Statcast scorer (e.g. "hr_power_picks"). Keeps
+                # its calibration in its own bucket — see _cal_key.
+                **({"source": leg["source"]} if leg.get("source") else {}),
                 # Pre-blend model probability. get_market_blend refits the blend
                 # weight against this, not the shipped (already-blended) number —
                 # fitting against the blended value would shrink toward the market
@@ -882,6 +886,31 @@ def _prop_key(leg: dict) -> tuple:
     )
 
 
+def _cal_key(leg: dict) -> str:
+    """
+    Calibration bucket for a leg — usually just its stat_type, but a leg tagged
+    with a distinct model `source` gets its own bucket ("Home Runs::hr_power_picks").
+
+    HR Power Picks scores home-run probability with a six-factor model (recent
+    rate, BvP, pitcher HR/9, park, weather, platoon) that predicts nearly double
+    what the game-log HR scorer does — 40.5% vs 20.9% over resolved legs — so
+    pooling both into one "Home Runs" factor fits neither. Same rule the epoch
+    comment states: a number that measures two different sources is not a
+    calibration.
+    """
+    src = leg.get("source")
+    stat = str(leg.get("stat_type", ""))
+    return f"{stat}::{src}" if src else stat
+
+
+def _cal_key_label(key: str) -> str:
+    """Human-readable label for a calibration bucket key (for display tables)."""
+    if "::" in key:
+        stat, src = key.split("::", 1)
+        return f"{stat} ({src.replace('_', ' ')})"
+    return key
+
+
 def _week_ordinal(iso_week: str) -> int | None:
     """Convert '2026-W27' to a comparable weekly ordinal (Monday's date // 7)."""
     try:
@@ -905,12 +934,13 @@ def get_calibration(sport: str | None = None) -> dict:
     Only populated once a stat's weighted sample size reaches CAL_MIN_SAMPLES.
     """
     data = _load()
-    # Grade only the current model's predictions — same epoch rule as parlay
-    # calibration. Blended probabilities mean something different from raw devig
-    # ones; correcting the new model with the old model's bias deflates twice.
-    parlays = [p for p in data["parlays"]
-               if p.get("model_epoch") == _MODEL_EPOCH
-               and (not sport or p.get("sport") == sport)]
+    # NOT epoch-filtered (unlike parlay calibration). This factor corrects the
+    # base per-stat model — the game-log/Statcast (and six-factor HR) scorers —
+    # which the market blend did not touch; the blend is a separate correction
+    # layered on top afterward. Epoch-filtering here would throw away every
+    # hard-won per-stat factor the moment the epoch is bumped, leaving known-
+    # overconfident props (Home Runs, combo props) undeflated during the gap.
+    parlays = [p for p in data["parlays"] if not sport or p.get("sport") == sport]
     if not parlays:
         return {}
 
@@ -937,7 +967,7 @@ def get_calibration(sport: str | None = None) -> dict:
             if key in seen_props:
                 continue  # same prop, reused in another parlay — one observation
             seen_props.add(key)
-            stat = leg["stat_type"]
+            stat = _cal_key(leg)
             predicted[stat] += w * leg["predicted_hit_rate"]
             actual[stat] += w * (1.0 if leg["outcome"] is True else 0.0)
             weight_sum[stat] += w
@@ -1080,7 +1110,7 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             if key in seen_props:
                 continue
             seen_props.add(key)
-            stat = leg["stat_type"]
+            stat = _cal_key(leg)
             predicted[stat].append(leg["predicted_hit_rate"])
             actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
 
@@ -1094,7 +1124,7 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             raw = a_mean / p_mean
             factor = round(max(CAL_MIN_FACTOR, min(CAL_MAX_FACTOR, raw)), 3)
         rows.append({
-            "stat_type":          stat,
+            "stat_type":          _cal_key_label(stat),
             "samples":            n,
             "predicted_hit_rate": round(p_mean, 3),
             "actual_hit_rate":    round(a_mean, 3),

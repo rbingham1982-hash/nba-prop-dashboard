@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konjure Weekly Model Report — 2026-W29</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --plane:      #0d0d0d;
+    --surface:    #16181d;
+    --surface-2:  #1b1e24;
+    --border:     rgba(255,255,255,0.09);
+    --text:       #f4f5f7;
+    --text-2:     #a9adb8;
+    --muted:      #7c8091;
+    --grid:       #24262c;
+    --axis:       #34373f;
+    --accent:     #818cf8;
+    /* diverging pair (validated blue↔red, gray midpoint) */
+    --pos:        #3987e5;   /* underconfident — model left value */
+    --neg:        #e34948;   /* overconfident — model ran too hot  */
+    --good:       #0ca30c;
+    --warn:       #fab219;
+    --crit:       #d03b3b;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:where(:not([data-theme="dark"])) {
+      color-scheme: light;
+      --plane:     #f4f4f2;
+      --surface:   #ffffff;
+      --surface-2: #f7f7f5;
+      --border:    rgba(11,11,11,0.12);
+      --text:      #12131a;
+      --text-2:    #4b4e57;
+      --muted:     #767a86;
+      --grid:      #e6e6e1;
+      --axis:      #cdcdc6;
+      --accent:    #5b63d6;
+      --pos:       #2a78d6;
+      --neg:       #cf3b3a;
+    }
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --plane:#f4f4f2; --surface:#ffffff; --surface-2:#f7f7f5;
+    --border:rgba(11,11,11,0.12); --text:#12131a; --text-2:#4b4e57;
+    --muted:#767a86; --grid:#e6e6e1; --axis:#cdcdc6; --accent:#5b63d6;
+    --pos:#2a78d6; --neg:#cf3b3a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--plane); color: var(--text);
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 2.6rem 1.5rem 4rem; }
+
+  /* ── Header ── */
+  .eyebrow {
+    font-size: 0.66rem; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 0.5rem;
+  }
+  h1 { font-size: 1.9rem; font-weight: 800; margin: 0 0 0.35rem; letter-spacing: -0.01em; }
+  .sub { color: var(--text-2); font-size: 0.95rem; margin: 0; }
+  .rule { height: 1px; background: var(--border); border: 0; margin: 1.8rem 0; }
+
+  /* ── Caveat ── */
+  .caveat {
+    background: color-mix(in srgb, var(--warn) 8%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
+    border-radius: 12px; padding: 0.85rem 1.1rem; margin: 1.4rem 0 2rem;
+    display: flex; gap: 0.7rem; align-items: flex-start;
+  }
+  .caveat .ico { font-size: 1rem; line-height: 1.4; }
+  .caveat p { margin: 0; font-size: 0.86rem; color: var(--text-2); }
+  .caveat strong { color: var(--text); }
+
+  h2 {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted); margin: 2.4rem 0 1rem;
+  }
+  .lead { font-size: 1.02rem; color: var(--text); margin: 0 0 1.3rem; font-weight: 600; }
+  .lead .em-neg { color: var(--neg); }
+
+  /* ── KPI tiles ── */
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; }
+  @media (max-width: 720px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+  .tile {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.05rem 1.1rem; position: relative; overflow: hidden;
+  }
+  .tile::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--tile-accent, var(--accent));
+  }
+  .tile .label {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.11em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 0.5rem;
+  }
+  .tile .val { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+  .tile .val.pos { color: var(--good); }
+  .tile .note { font-size: 0.72rem; color: var(--text-2); margin: 0.4rem 0 0; }
+
+  /* ── Parlay-size bars ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.3rem 1.4rem;
+  }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 1rem 1.4rem; margin: 0 0 1.2rem;
+    font-size: 0.75rem; color: var(--text-2);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .be-key { width: 12px; height: 0; border-top: 2px dashed var(--muted); display: inline-block; }
+
+  .prow { display: grid; grid-template-columns: 3.1rem 1fr; gap: 0.9rem; align-items: center; margin: 0.55rem 0; }
+  .prow .plabel { font-size: 0.78rem; color: var(--text-2); font-variant-numeric: tabular-nums; text-align: right; }
+  .track {
+    position: relative; height: 26px; background: var(--surface-2);
+    border-radius: 6px; overflow: visible;
+  }
+  .fill {
+    position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px 3px 3px 6px;
+    min-width: 2px; transition: width .3s;
+  }
+  .fill.win  { background: var(--sport, var(--accent)); }
+  .be {
+    position: absolute; top: -3px; bottom: -3px; width: 0;
+    border-left: 2px dashed var(--muted);
+  }
+  .be::after {
+    content: attr(data-be); position: absolute; top: -1.2rem; left: 50%;
+    transform: translateX(-50%); font-size: 0.58rem; color: var(--muted); white-space: nowrap;
+    background: var(--surface); padding: 0 0.25rem; border-radius: 3px;
+    font-variant-numeric: tabular-nums; z-index: 2;
+  }
+  .fill .flbl {
+    position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
+    font-size: 0.72rem; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  }
+  .fill.out .flbl { right: auto; left: calc(100% + 0.45rem); color: var(--text-2); text-shadow: none; }
+  .sport-head { font-size: 0.78rem; font-weight: 700; color: var(--text); margin: 1.1rem 0 0.3rem; }
+  .sport-head:first-child { margin-top: 0; }
+
+  /* ── Diverging calibration chart ── */
+  .cal { margin-top: 0.4rem; }
+  .crow { display: grid; grid-template-columns: 9.5rem 1fr; gap: 0.7rem; align-items: center; margin: 0.32rem 0; }
+  @media (max-width: 560px) { .crow { grid-template-columns: 7rem 1fr; } }
+  .cname { font-size: 0.76rem; color: var(--text-2); text-align: right; }
+  .cname .tag { color: var(--muted); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; }
+  .cbar-area {
+    position: relative; height: 22px; background:
+      linear-gradient(90deg, transparent calc(50% - 0.5px), var(--axis) calc(50% - 0.5px), var(--axis) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+  }
+  .cbar {
+    position: absolute; top: 4px; height: 14px; border-radius: 3px; cursor: default;
+  }
+  .cbar.neg { background: var(--neg); border-radius: 3px 4px 4px 3px; }
+  .cbar.pos { background: var(--pos); border-radius: 4px 3px 3px 4px; }
+  .cbar .cv {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-size: 0.68rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums;
+  }
+  .cbar.neg .cv { right: calc(100% + 0.4rem); }
+  .cbar.pos .cv { left: calc(100% + 0.4rem); }
+  .cbar[title]:hover { filter: brightness(1.12); }
+  .caxis { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--muted); margin-top: 0.5rem; padding-top: 0.4rem; border-top: 1px solid var(--grid); }
+  .caption { font-size: 0.78rem; color: var(--text-2); margin: 0.9rem 0 0; }
+
+  .takeaway {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 9%, var(--surface)), var(--surface));
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+    border-radius: 14px; padding: 1.2rem 1.4rem; margin-top: 1rem;
+  }
+  .takeaway p { margin: 0; font-size: 0.92rem; color: var(--text); }
+  .takeaway strong { color: var(--accent); }
+  footer { margin-top: 2.6rem; font-size: 0.72rem; color: var(--muted); text-align: center; }
+
+  table.dt { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.78rem; }
+  table.dt caption { text-align: left; font-size: 0.7rem; color: var(--muted); padding-bottom: 0.5rem; }
+  table.dt th, table.dt td { text-align: right; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  table.dt th:first-child, table.dt td:first-child { text-align: left; font-variant-numeric: normal; }
+  table.dt th { color: var(--muted); font-weight: 600; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  details { margin-top: 1rem; }
+  details summary { cursor: pointer; font-size: 0.76rem; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Konjure Analytics · Weekly Model Report</p>
+  <h1>What the numbers said — Week 2026-W29</h1>
+  <p class="sub">Prop-parlay model performance · resolved through July 19, 2026</p>
+
+  <div class="caveat">
+    <span class="ico">⚠️</span>
+    <p>Everything that resolved this week was generated by the <strong>previous&nbsp;(<code>devig</code>) model</strong>. The market-blend shrinkage and same-game correlation penalty committed this week ship forward from the next daily run — so this is the <strong>diagnosis the corrections are built from</strong>, not the corrections in action.</p>
+  </div>
+
+  <h2>The headline</h2>
+  <p class="lead">It made money — but not for the reason it thought.</p>
+
+  <div class="tiles">
+    <div class="tile" style="--tile-accent: var(--good);">
+      <p class="label">MLB · ROI (recommended)</p>
+      <div class="val pos">+116%</div>
+      <p class="note">+285u over 246 flat-1u bets · 92 hit</p>
+    </div>
+    <div class="tile" style="--tile-accent: var(--good);">
+      <p class="label">WNBA · ROI (recommended)</p>
+      <div class="val pos">+10%</div>
+      <p class="note">+31u over 323 flat-1u bets · 85 hit</p>
+    </div>
+    <div class="tile" style="--tile-accent: var(--accent);">
+      <p class="label">MLB · Parlays resolved</p>
+      <div class="val">377</div>
+      <p class="note">of 1,802 generated this week</p>
+    </div>
+    <div class="tile" style="--tile-accent: var(--accent);">
+      <p class="label">WNBA · Parlays resolved</p>
+      <div class="val">1,200</div>
+      <p class="note">of 1,779 generated · NBA offseason (0)</p>
+    </div>
+  </div>
+
+  <h2>Hit rate by parlay size — vs break-even</h2>
+  <div class="card">
+    <div class="legend">
+      <span><span class="swatch" style="background: var(--pos);"></span> MLB win rate</span>
+      <span><span class="swatch" style="background: #d55181;"></span> WNBA win rate</span>
+      <span><span class="be-key"></span> break-even (payout-implied)</span>
+    </div>
+
+    <div class="sport-head">MLB</div>
+    <!-- scale: 0–60% maps to 0–100% width; break-even markers at be/60 -->
+    <div class="prow"><div class="plabel">2-leg</div>
+      <div class="track"><div class="fill win out" style="--sport: var(--pos); width: 81.7%;"><span class="flbl">49%</span></div><div class="be" data-be="33%" style="left: 55.5%;"></div></div></div>
+    <div class="prow"><div class="plabel">3-leg</div>
+      <div class="track"><div class="fill win out" style="--sport: var(--pos); width: 68.3%;"><span class="flbl">41%</span></div><div class="be" data-be="17%" style="left: 27.8%;"></div></div></div>
+    <div class="prow"><div class="plabel">4-leg</div>
+      <div class="track"><div class="fill win out" style="--sport: var(--pos); width: 2%;"><span class="flbl">0%</span></div><div class="be" data-be="10%" style="left: 16.7%;"></div></div></div>
+    <div class="prow"><div class="plabel">5-leg</div>
+      <div class="track"><div class="fill win" style="--sport: var(--pos); width: 36.7%;"><span class="flbl">22%</span></div><div class="be" data-be="5%" style="left: 8.3%;"></div></div></div>
+
+    <div class="sport-head">WNBA</div>
+    <div class="prow"><div class="plabel">2-leg</div>
+      <div class="track"><div class="fill win out" style="--sport: #d55181; width: 65%;"><span class="flbl">39%</span></div><div class="be" data-be="33%" style="left: 55.5%;"></div></div></div>
+    <div class="prow"><div class="plabel">3-leg</div>
+      <div class="track"><div class="fill win" style="--sport: #d55181; width: 26.7%;"><span class="flbl">16%</span></div><div class="be" data-be="17%" style="left: 27.8%;"></div></div></div>
+    <div class="prow"><div class="plabel">4-leg</div>
+      <div class="track"><div class="fill win" style="--sport: #d55181; width: 38.3%;"><span class="flbl">23%</span></div><div class="be" data-be="10%" style="left: 16.7%;"></div></div></div>
+    <div class="prow"><div class="plabel">5-leg</div>
+      <div class="track"><div class="fill win out" style="--sport: #d55181; width: 2%;"><span class="flbl">0%</span></div><div class="be" data-be="5%" style="left: 8.3%;"></div></div></div>
+
+    <p class="caption">2-leg parlays carried both books. The tails cratered — MLB 5-leg hit 22%, and <strong style="color: var(--neg);">WNBA went 0-for-82 on 5-leggers</strong>. That compounding overconfidence is exactly what the new same-game penalty and market blend target.</p>
+  </div>
+
+  <h2>Where the model lied to itself — per-stat calibration gap</h2>
+  <div class="card">
+    <div class="legend">
+      <span><span class="swatch" style="background: var(--neg);"></span> Overconfident (predicted &gt; actual)</span>
+      <span><span class="swatch" style="background: var(--pos);"></span> Underconfident (left value on the table)</span>
+    </div>
+    <div class="cal">
+      <!-- scale: ±30 ppts maps to ±50% of width from center (50%) -->
+      <div class="crow"><div class="cname">Pts+Rebs+Asts <span class="tag">WNBA</span></div>
+        <div class="cbar-area"><div class="cbar neg" title="WNBA Pts+Rebs+Asts · pred 61.9% → actual 46.4% · n=28" style="right: 50%; width: 25.8%;"><span class="cv">−15.5</span></div></div></div>
+      <div class="crow"><div class="cname">Pts+Rebs <span class="tag">WNBA</span></div>
+        <div class="cbar-area"><div class="cbar neg" title="WNBA Pts+Rebs · pred 63.9% → actual 53.1% · n=32" style="right: 50%; width: 18%;"><span class="cv">−10.8</span></div></div></div>
+      <div class="crow"><div class="cname">Hits <span class="tag">MLB</span></div>
+        <div class="cbar-area"><div class="cbar neg" title="MLB Hits · pred 67.4% → actual 57.6% · n=59 (highest-volume MLB leg)" style="right: 50%; width: 16.2%;"><span class="cv">−9.7</span></div></div></div>
+      <div class="crow"><div class="cname">Rebounds <span class="tag">WNBA</span></div>
+        <div class="cbar-area"><div class="cbar neg" title="WNBA Rebounds · pred 52.7% → actual 43.2% · n=37" style="right: 50%; width: 15.7%;"><span class="cv">−9.4</span></div></div></div>
+      <div class="crow"><div class="cname">Points <span class="tag">WNBA</span></div>
+        <div class="cbar-area"><div class="cbar neg" title="WNBA Points · pred 59.4% → actual 58.7% · n=92" style="right: 50%; width: 1.2%;"><span class="cv" style="right: calc(100% + 0.4rem);">−0.7</span></div></div></div>
+      <div class="crow"><div class="cname">3-PT Made <span class="tag">WNBA</span></div>
+        <div class="cbar-area"><div class="cbar pos" title="WNBA 3-PT Made · pred 47.1% → actual 48.0% · n=25" style="left: 50%; width: 1.5%;"><span class="cv" style="left: calc(100% + 0.4rem);">+0.9</span></div></div></div>
+      <div class="crow"><div class="cname">Pts+Asts <span class="tag">WNBA</span></div>
+        <div class="cbar-area"><div class="cbar pos" title="WNBA Pts+Asts · pred 65.3% → actual 66.7% · n=15" style="left: 50%; width: 2.3%;"><span class="cv" style="left: calc(100% + 0.4rem);">+1.4</span></div></div></div>
+      <div class="crow"><div class="cname">Assists <span class="tag">WNBA</span></div>
+        <div class="cbar-area"><div class="cbar pos" title="WNBA Assists · pred 49.4% → actual 70.8% · n=24" style="left: 50%; width: 35.8%;"><span class="cv">+21.5</span></div></div></div>
+      <div class="crow"><div class="cname">Pitcher K's <span class="tag">MLB</span></div>
+        <div class="cbar-area"><div class="cbar pos" title="MLB Pitcher Strikeouts · pred 43.4% → actual 72.2% · n=18" style="left: 50%; width: 48%;"><span class="cv">+28.8</span></div></div></div>
+      <div class="caxis"><span>−30 ppts</span><span>overconfident ← 0 → underconfident</span><span>+30 ppts</span></div>
+    </div>
+    <p class="caption">Overall leg gaps were small (MLB −2.0%, WNBA −2.9%) but that average hides the real story: combo props and Hits ran hot, while Pitcher Strikeouts and Assists were badly under-priced. The market blend bites hardest exactly on the overconfident legs.</p>
+
+    <details>
+      <summary>Show data table</summary>
+      <table class="dt">
+        <caption>Deduped resolved legs, week 2026-W29 (n ≥ 15 shown)</caption>
+        <thead><tr><th>Stat</th><th>League</th><th>n</th><th>Predicted</th><th>Actual</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td>Pts+Rebs+Asts</td><td>WNBA</td><td>28</td><td>61.9%</td><td>46.4%</td><td>−15.5</td></tr>
+          <tr><td>Pts+Rebs</td><td>WNBA</td><td>32</td><td>63.9%</td><td>53.1%</td><td>−10.8</td></tr>
+          <tr><td>Hits</td><td>MLB</td><td>59</td><td>67.4%</td><td>57.6%</td><td>−9.7</td></tr>
+          <tr><td>Rebounds</td><td>WNBA</td><td>37</td><td>52.7%</td><td>43.2%</td><td>−9.4</td></tr>
+          <tr><td>Points</td><td>WNBA</td><td>92</td><td>59.4%</td><td>58.7%</td><td>−0.7</td></tr>
+          <tr><td>3-PT Made</td><td>WNBA</td><td>25</td><td>47.1%</td><td>48.0%</td><td>+0.9</td></tr>
+          <tr><td>Pts+Asts</td><td>WNBA</td><td>15</td><td>65.3%</td><td>66.7%</td><td>+1.4</td></tr>
+          <tr><td>Assists</td><td>WNBA</td><td>24</td><td>49.4%</td><td>70.8%</td><td>+21.5</td></tr>
+          <tr><td>Pitcher Strikeouts</td><td>MLB</td><td>18</td><td>43.4%</td><td>72.2%</td><td>+28.8</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </div>
+
+  <h2>Closing line value</h2>
+  <div class="card">
+    <p style="margin:0; font-size:0.9rem; color: var(--text-2);">Still essentially empty — closing-line snapshots only started stamping today. <strong style="color: var(--text);">CLV is the metric to watch next week</strong>: it tells you whether the blended picks are sharp within days, instead of waiting on 5-leg variance to resolve.</p>
+  </div>
+
+  <h2>Takeaway</h2>
+  <div class="takeaway">
+    <p>The book was profitable on the strength of <strong>2-leg parlays</strong> and got taxed by wildly overconfident 5-leggers and combo props — precisely the two failure modes the changes committed this week target. <strong>Next week's resolved numbers are the first honest test of whether they worked.</strong></p>
+  </div>
+
+  <footer>Konjure Analytics · generated from parlay_log.json · flat-1u ROI assumes PrizePicks-style payouts (2-leg 3×, 3-leg 6×, 4-leg 10×, 5-leg 20×)</footer>
+
+</div>
+</body>
+</html>

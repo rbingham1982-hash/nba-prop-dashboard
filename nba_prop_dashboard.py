@@ -8760,7 +8760,9 @@ elif sport == "⚾ MLB":
 
         if st.session_state.get("mlb_hr_picks_built"):
             with st.spinner("Scoring today's hitters for HR probability…"):
-                _hr_cal_factor = _load_calibration("MLB").get("Home Runs", 0.48)
+                # Read the power-picks-specific HR factor, not the game-log one —
+                # they measure different models (see parlay_tracker._cal_key).
+                _hr_cal_factor = _load_calibration("MLB").get("Home Runs::hr_power_picks", 0.48)
                 _hr_picks = _build_hr_power_picks(top_n=6, cal_factor=_hr_cal_factor)
 
             # Cache in session state so the blog tab can read the top pick instantly
@@ -8848,10 +8850,20 @@ elif sport == "⚾ MLB":
                         "game_label":  _pick.get("game_label", ""),
                         "hit_rate":    _pick["score"],
                         "sample_n":    _pick.get("games_played", 10),
+                        # Six-factor HR model — calibrates in its own bucket, apart
+                        # from the game-log HR scorer (see parlay_tracker._cal_key).
+                        "source":      "hr_power_picks",
                     })
+                # No market_blend here: these legs carry a placeholder implied
+                # (_PP_ODDS_IMPLIED["standard"] ≈ 0.50), not a real HR line, so
+                # blending toward it would inflate the true ~27% HR rate toward a
+                # coin flip — the exact overconfidence the blend exists to prevent.
+                # The same-game penalty still applies (game_id is set per pick), so
+                # two hitters from one game are priced as the correlated bet they are.
                 _hr_safe, _hr_value = _build_parlays(
                     _hr_legs, min_legs=2, max_legs=4, sportsbook="PrizePicks",
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
+                    same_game_penalty=parlay_tracker.get_same_game_penalty("MLB"),
                 )
                 _hc1, _hc2 = st.columns(2)
                 with _hc1:
