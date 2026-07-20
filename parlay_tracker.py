@@ -260,6 +260,11 @@ def _parse_game_date(leg: dict, parlay_generated_at: str) -> date | None:
 
 RESOLVE_MAX_ATTEMPTS  = 5   # tries before a long-finished leg is presumed unresolvable
 RESOLVE_GIVE_UP_DAYS  = 3   # ...and only once its game is this far in the past
+# statsapi (MLB) and commonallplayers (WNBA) issue requests with no timeout, so one
+# stalled connection freezes the whole resolve run indefinitely. A process-wide
+# socket timeout during resolve turns that hang into a caught exception the per-call
+# try/except already handles — the leg is skipped and retried next run.
+RESOLVE_HTTP_TIMEOUT  = 15  # seconds; ceiling on any single resolve network read
 
 
 def _leg_is_abandoned(leg: dict, now: datetime | None = None) -> bool:
@@ -624,6 +629,31 @@ def _resolve_mlb_legs() -> int:
         _save(data)
         return 0
 
+    # One schedule per date and one boxscore per game, cached for the whole run.
+    # The old code re-fetched both inside the per-player loop, so a slate of N
+    # players sharing M games issued N×M boxscore calls (each with a 0.4s sleep) —
+    # thousands of requests that made even a healthy run take 20+ minutes.
+    _sched_cache: dict = {}
+    _box_cache: dict = {}
+
+    def _get_schedule(date_str):
+        if date_str not in _sched_cache:
+            try:
+                _time.sleep(0.4)
+                _sched_cache[date_str] = statsapi.schedule(date=date_str, sportId=1)
+            except Exception:
+                _sched_cache[date_str] = []
+        return _sched_cache[date_str]
+
+    def _get_box(game_pk):
+        if game_pk not in _box_cache:
+            try:
+                _time.sleep(0.4)
+                _box_cache[game_pk] = statsapi.boxscore_data(game_pk)
+            except Exception:
+                _box_cache[game_pk] = None
+        return _box_cache[game_pk]
+
     resolved_count = 0
     for player_name, entries in player_legs.items():
         norm_name = _normalize_name(player_name)
@@ -634,11 +664,7 @@ def _resolve_mlb_legs() -> int:
                 dates_needed.add(d.strftime("%m/%d/%Y"))
 
         for date_str in dates_needed:
-            try:
-                _time.sleep(0.4)
-                schedule = statsapi.schedule(date=date_str, sportId=1)
-            except Exception:
-                continue
+            schedule = _get_schedule(date_str)
 
             for game_info in schedule:
                 game_pk = game_info.get("game_id")
@@ -660,10 +686,8 @@ def _resolve_mlb_legs() -> int:
                 # Only resolve Final games — skip in-progress/scheduled
                 if game_status and "final" not in game_status and "completed" not in game_status and "over" not in game_status:
                     continue
-                try:
-                    _time.sleep(0.4)
-                    box = statsapi.boxscore_data(game_pk)
-                except Exception:
+                box = _get_box(game_pk)
+                if box is None:
                     continue
 
                 for side in ("home", "away"):
@@ -856,9 +880,15 @@ def reset_outcomes(sport: str) -> int:
 
 def resolve_all_legs() -> dict:
     """Resolve NBA, MLB, and WNBA pending legs. Returns {nba: count, mlb: count, wnba: count}."""
-    nba  = resolve_nba_legs()
-    mlb  = _resolve_mlb_legs()
-    wnba = _resolve_wnba_legs()
+    import socket
+    _prev_timeout = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(RESOLVE_HTTP_TIMEOUT)
+    try:
+        nba  = resolve_nba_legs()
+        mlb  = _resolve_mlb_legs()
+        wnba = _resolve_wnba_legs()
+    finally:
+        socket.setdefaulttimeout(_prev_timeout)
     return {"nba": nba, "mlb": mlb, "wnba": wnba}
 
 
