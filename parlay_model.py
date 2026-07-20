@@ -1187,10 +1187,50 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
 
 # ── Parlay builder ───────────────────────────────────────────────────────────
 
+def _apply_market_blend(legs: list, weight: float) -> list:
+    """
+    Shrink each leg's probability toward the de-vigged market price:
+    hit_rate = weight*model + (1-weight)*implied.
+
+    The raw model's disagreements with the market measured anti-predictive
+    (audit 2026-07-19: pred>implied legs hit 45.5%, pred<=implied hit 63.3%),
+    so the shipped probability leans market. The pre-blend number is kept on
+    the leg as model_hit_rate — it is what future blend-weight fits grade —
+    and re-blending is a no-op, so shared leg lists can pass through both the
+    parlay builder and the SGP builder safely.
+    """
+    out = []
+    for leg in legs:
+        implied = leg.get("implied_prob")
+        if implied is None:
+            out.append(leg)
+            continue
+        leg = dict(leg)
+        model_p = leg.get("model_hit_rate")
+        if model_p is None:
+            model_p = leg["hit_rate"]
+            leg["model_hit_rate"] = model_p
+        leg["hit_rate"] = round(
+            min(0.97, max(0.03, weight * float(model_p) + (1 - weight) * float(implied))), 4)
+        out.append(leg)
+    return out
+
+
+def _same_game_pairs(combo) -> int:
+    """Number of leg pairs sharing a game — the unit the correlation penalty prices."""
+    counts: dict = {}
+    for leg in combo:
+        gid = leg.get("game_id") or leg.get("game_label") or ""
+        if gid:
+            counts[gid] = counts.get(gid, 0) + 1
+    return sum(c * (c - 1) // 2 for c in counts.values())
+
+
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int = 50,
                     pool_size: int = 30, max_leg_uses: int = 6,
                     sportsbook: str = "PrizePicks", parlay_cal: dict | None = None,
-                    min_ev: float = 0.0):
+                    min_ev: float = 0.0, market_blend: float | None = None,
+                    same_game_penalty: float = 1.0):
     """
     Safe  — highest probability combos (most likely to hit).
     Value — highest EV combos that are NOT already in Safe.
@@ -1221,7 +1261,15 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     max_leg_uses caps how many output parlays any single player+stat leg can
     appear in, so top_n isn't just recombinations of the same handful of
     highest-confidence legs (e.g. all "Hits" props flooding the safe list).
+
+    market_blend (parlay_tracker.get_market_blend) shrinks leg probabilities
+    toward the de-vigged market before combining. same_game_penalty
+    (parlay_tracker.get_same_game_penalty) multiplies the product once per
+    same-game leg pair — measured correlation, applied before parlay_cal so
+    the residual calibration grades what actually shipped.
     """
+    if market_blend is not None:
+        legs = _apply_market_blend(legs, market_blend)
     legs = sorted(legs, key=lambda x: x["hit_rate"], reverse=True)[:pool_size]
     parlay_cal = parlay_cal or {}
 
@@ -1236,7 +1284,9 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
             raw = 1.0
             for leg in combo:
                 raw *= leg["hit_rate"]
-            prob = min(0.99, max(0.001, raw * factor))
+            sg_pairs = _same_game_pairs(combo) if same_game_penalty < 1.0 else 0
+            corr = same_game_penalty ** sg_pairs if sg_pairs else 1.0
+            prob = min(0.99, max(0.001, raw * corr * factor))
             payout = parlay_payout(sportsbook, combo)
             # Payouts are gross (a 2-pick returns 3x the entry), so a win nets
             # payout-1 and EV = prob*(payout-1) - (1-prob) = prob*payout - 1.
@@ -1304,8 +1354,13 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     return safe_out, value_out
 
 
-def _build_sgp(legs: list, min_legs: int = 2, max_legs: int = 5) -> list:
-    """Group legs by game, return best parlay(s) per game sorted by probability."""
+def _build_sgp(legs: list, min_legs: int = 2, max_legs: int = 5,
+               market_blend: float | None = None,
+               same_game_penalty: float = 1.0) -> list:
+    """Group legs by game, return best parlay(s) per game sorted by probability.
+
+    Every combo here is all-same-game, so the correlation penalty applies to
+    each pair — SGP boards price honestly instead of riding independence."""
     game_groups: dict = defaultdict(list)
     for leg in legs:
         gid = leg.get("game_id", "")
@@ -1317,7 +1372,9 @@ def _build_sgp(legs: list, min_legs: int = 2, max_legs: int = 5) -> list:
         if len(game_legs) < min_legs:
             continue
         cap = min(max_legs, len(game_legs))
-        safe, _ = _build_parlays(game_legs, min_legs=min_legs, max_legs=cap, top_n=3)
+        safe, _ = _build_parlays(game_legs, min_legs=min_legs, max_legs=cap, top_n=3,
+                                 market_blend=market_blend,
+                                 same_game_penalty=same_game_penalty)
         if safe:
             sgp_results.append({"game_label": glabel, "game_id": gid, "parlays": safe[:3]})
     sgp_results.sort(key=lambda x: x["parlays"][0]["prob"] if x["parlays"] else 0, reverse=True)

@@ -33,7 +33,15 @@ LOG_PATH = Path(__file__).parent / "parlay_log.json"
 # was really encoding which builder produced the parlay — the daily generator capped at
 # 4 and EV-ranked its worst legs, while 5-leg parlays came from the dashboard's better
 # pool. A number that measures its own source is not a calibration.
-_MODEL_EPOCH = "devig"
+#
+# "blend": leg probabilities are shrunk toward the de-vigged market price with a
+# weight fit from this log (see get_market_blend), and same-game combos carry a
+# measured correlation penalty. Audit of 243 resolved devig legs showed the raw
+# model was overconfident above 70% and its disagreements with the market were
+# anti-predictive (pred>implied legs hit 45.5%, pred<=implied hit 63.3%), while
+# same-game pairs hit at 0.72x what independence implied even after controlling
+# for leg overconfidence. Both change what predicted numbers mean → new epoch.
+_MODEL_EPOCH = "blend"
 
 CAL_MIN_SAMPLES = 15          # minimum weighted resolved legs per stat before calibration kicks in
 CAL_MAX_FACTOR = 1.35         # clamp calibration multiplier upper bound
@@ -201,6 +209,12 @@ def log_parlays(
                 "stat_type":         leg["stat_type"],
                 "line_score":        float(leg["line_score"]),
                 "predicted_hit_rate": round(float(leg["hit_rate"]), 4),
+                # Pre-blend model probability. get_market_blend refits the blend
+                # weight against this, not the shipped (already-blended) number —
+                # fitting against the blended value would shrink toward the market
+                # twice.
+                "model_hit_rate":    round(float(leg["model_hit_rate"]), 4)
+                                     if leg.get("model_hit_rate") is not None else None,
                 "american_odds":     leg.get("american_odds"),
                 # The de-vigged book probability the model actually scored against.
                 # Recomputing it later from american_odds gives a vig-inflated number.
@@ -891,7 +905,12 @@ def get_calibration(sport: str | None = None) -> dict:
     Only populated once a stat's weighted sample size reaches CAL_MIN_SAMPLES.
     """
     data = _load()
-    parlays = [p for p in data["parlays"] if not sport or p.get("sport") == sport]
+    # Grade only the current model's predictions — same epoch rule as parlay
+    # calibration. Blended probabilities mean something different from raw devig
+    # ones; correcting the new model with the old model's bias deflates twice.
+    parlays = [p for p in data["parlays"]
+               if p.get("model_epoch") == _MODEL_EPOCH
+               and (not sport or p.get("sport") == sport)]
     if not parlays:
         return {}
 
@@ -1152,6 +1171,253 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
             factors[n] = round(max(PARLAY_CAL_MIN_FACTOR,
                                    min(PARLAY_CAL_MAX_FACTOR, raw)), 4)
     return factors
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Market blend, same-game correlation, reliability, CLV
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Epochs whose legs carry an honest de-vigged implied_prob — the pool the blend
+# weight and correlation penalty are measured on. Pre-devig legs pinned implied
+# at 0.50 and would poison both fits.
+_MARKET_EPOCHS = ("devig", "blend")
+
+MB_PRIOR_WEIGHT   = 0.35   # prior blend weight (model share) before data speaks
+MB_PRIOR_STRENGTH = 150.0  # weighted legs the prior counts as — small samples move slowly
+MB_MAX_WEIGHT     = 0.70   # never trust the model more than this over the market
+
+
+def _market_legs(sport: str | None):
+    """Resolved, deduped legs from market-aware epochs with (model_prob, implied, hit, w)."""
+    data = _load()
+    parlays = [p for p in data["parlays"]
+               if p.get("model_epoch") in _MARKET_EPOCHS
+               and (not sport or p.get("sport") == sport)]
+    week_ords = [_week_ordinal(p["iso_week"]) for p in parlays if p.get("iso_week")]
+    week_ords = [w for w in week_ords if w is not None]
+    latest = max(week_ords) if week_ords else None
+    seen: set = set()
+    out = []
+    for p in parlays:
+        w = 1.0
+        if latest is not None:
+            wk = _week_ordinal(p.get("iso_week", ""))
+            if wk is not None:
+                w = 0.5 ** (max(0, latest - wk) / CAL_HALF_LIFE_WEEKS)
+        for leg in p["legs"]:
+            if leg.get("outcome") not in (True, False):
+                continue
+            implied = leg.get("implied_prob")
+            if not implied:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            model_p = leg.get("model_hit_rate")
+            if model_p is None:
+                model_p = leg.get("predicted_hit_rate")
+            out.append((float(model_p), float(implied),
+                        1.0 if leg["outcome"] is True else 0.0, w))
+    return out
+
+
+def get_market_blend(sport: str | None = None) -> float:
+    """
+    Weight on the model's probability when blending with the de-vigged market:
+    shipped_prob = w*model + (1-w)*implied.
+
+    Fit by grid-searching the weighted Brier score over resolved legs, then
+    shrunk toward MB_PRIOR_WEIGHT by MB_PRIOR_STRENGTH pseudo-legs so a thin
+    sample can't slam the weight to an extreme. First audit (2026-07-19,
+    n=243): WNBA fit 0.00 — the market alone beat every blend — MLB fit 0.25.
+    """
+    legs = _market_legs(sport)
+    wsum = sum(w for *_, w in legs)
+    if wsum <= 0:
+        return MB_PRIOR_WEIGHT
+    best_lam, best_brier = MB_PRIOR_WEIGHT, None
+    for i in range(21):
+        lam = i / 20.0
+        brier = sum(w * (lam * mp + (1 - lam) * ip - y) ** 2
+                    for mp, ip, y, w in legs) / wsum
+        if best_brier is None or brier < best_brier:
+            best_lam, best_brier = lam, brier
+    lam = (wsum * best_lam + MB_PRIOR_STRENGTH * MB_PRIOR_WEIGHT) / (wsum + MB_PRIOR_STRENGTH)
+    return round(min(MB_MAX_WEIGHT, max(0.0, lam)), 3)
+
+
+SG_MIN_PAIRS   = 150   # same-game pairs before the measured penalty is trusted
+SG_DEFAULT     = 0.85  # conservative fallback until the log can speak
+SG_FLOOR       = 0.55
+
+
+def get_same_game_penalty(sport: str | None = None) -> float:
+    """
+    Multiplier applied to a parlay's probability once per same-game leg pair.
+
+    Measured as the joint-hit ratio of same-game pairs normalized by the same
+    ratio for cross-game pairs — the normalization strips leg-level
+    overconfidence, leaving pure correlation. First audit: same-game pairs hit
+    62.5% of their independence prediction while cross-game pairs hit 87.3%,
+    a correlation-only penalty of 0.716 (n=524 same-game pairs).
+
+    Falls back to the all-sport measurement, then SG_DEFAULT, when thin.
+    """
+    def _pairs(sp):
+        data = _load()
+        sg = [0.0, 0.0, 0.0]; xg = [0.0, 0.0, 0.0]   # [n, joint_hits, indep_pred]
+        for p in data["parlays"]:
+            if p.get("model_epoch") not in _MARKET_EPOCHS or p.get("parlay_hit") is None:
+                continue
+            if sp and p.get("sport") != sp:
+                continue
+            legs = p["legs"]
+            gids = [l.get("game_id") or l.get("game_label") for l in legs]
+            for i in range(len(legs)):
+                for j in range(i + 1, len(legs)):
+                    li, lj = legs[i], legs[j]
+                    if li.get("outcome") not in (True, False) or lj.get("outcome") not in (True, False):
+                        continue
+                    t = sg if gids[i] == gids[j] else xg
+                    t[0] += 1
+                    t[1] += 1 if (li["outcome"] is True and lj["outcome"] is True) else 0
+                    t[2] += float(li["predicted_hit_rate"]) * float(lj["predicted_hit_rate"])
+        return sg, xg
+
+    for scope in (sport, None):
+        sg, xg = _pairs(scope)
+        if sg[0] >= SG_MIN_PAIRS and xg[0] >= SG_MIN_PAIRS and sg[2] > 0 and xg[2] > 0:
+            sg_ratio = (sg[1] / sg[0]) / (sg[2] / sg[0])
+            xg_ratio = (xg[1] / xg[0]) / (xg[2] / xg[0])
+            if xg_ratio > 0:
+                return round(min(1.0, max(SG_FLOOR, sg_ratio / xg_ratio)), 3)
+        if scope is None:
+            break
+    return SG_DEFAULT
+
+
+def get_reliability_curve(sport: str | None = None) -> dict:
+    """
+    Decile reliability of shipped leg probabilities (market-aware epochs,
+    deduped, unweighted — the chart answers "how honest have the numbers
+    been", not "what factor should we apply").
+
+    Returns {"buckets": [{lo, hi, n, predicted, actual}], "brier": float,
+    "n": int, "base_rate": float}.
+    """
+    data = _load()
+    seen: set = set()
+    buckets = {i: [0.0, 0.0, 0] for i in range(10)}   # i -> [pred_sum, hits, n]
+    brier_sum, n_total, hits_total = 0.0, 0, 0.0
+    for p in data["parlays"]:
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        for leg in p["legs"]:
+            if leg.get("outcome") not in (True, False):
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            pr = float(leg["predicted_hit_rate"])
+            hit = 1.0 if leg["outcome"] is True else 0.0
+            b = min(int(pr * 10), 9)
+            buckets[b][0] += pr; buckets[b][1] += hit; buckets[b][2] += 1
+            brier_sum += (pr - hit) ** 2
+            n_total += 1; hits_total += hit
+    rows = []
+    for i in range(10):
+        s, h, n = buckets[i]
+        if n == 0:
+            continue
+        rows.append({"lo": i / 10, "hi": (i + 1) / 10, "n": n,
+                     "predicted": round(s / n, 4), "actual": round(h / n, 4)})
+    return {"buckets": rows,
+            "brier": round(brier_sum / n_total, 4) if n_total else None,
+            "n": n_total,
+            "base_rate": round(hits_total / n_total, 4) if n_total else None}
+
+
+def update_market_snapshots(props_df, sport: str) -> int:
+    """
+    Stamp pending legs with the latest market price for the same
+    player+stat+line. Called after every FanDuel fetch; games stop being
+    listed once they start, so the last snapshot to land approximates the
+    closing line. Returns the number of legs updated.
+    """
+    try:
+        if props_df is None or props_df.empty:
+            return 0
+    except Exception:
+        return 0
+    quotes = {}
+    for _, r in props_df.iterrows():
+        implied = r.get("implied_prob")
+        if implied is None:
+            continue
+        key = (str(r.get("player_name", "")).lower(), str(r.get("stat_type", "")),
+               float(r.get("line_score", 0)))
+        quotes[key] = (float(implied), r.get("american_odds"))
+    if not quotes:
+        return 0
+    data = _load()
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    updated = 0
+    for p in data["parlays"]:
+        if p.get("sport") != sport:
+            continue
+        for leg in p["legs"]:
+            if leg.get("outcome") is not None:
+                continue   # game resolved — entry vs close is already frozen
+            key = (str(leg.get("player_name", "")).lower(), str(leg.get("stat_type", "")),
+                   float(leg.get("line_score", 0)))
+            q = quotes.get(key)
+            if q is None:
+                continue
+            implied, odds = q
+            if leg.get("closing_implied") != implied or leg.get("closing_odds") != odds:
+                leg["closing_implied"] = implied
+                leg["closing_odds"] = odds
+                leg["closing_seen_at"] = now_iso
+                updated += 1
+    if updated:
+        _save(data)
+    return updated
+
+
+def get_clv_summary(sport: str | None = None) -> dict:
+    """
+    Closing-line value of logged picks: closing implied minus entry implied,
+    in probability points. Positive CLV = the market moved toward the pick,
+    the standard sharpness signal — it converges per leg instead of waiting
+    on months of win/loss variance.
+    """
+    data = _load()
+    seen: set = set()
+    diffs = []
+    for p in data["parlays"]:
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        for leg in p["legs"]:
+            close = leg.get("closing_implied")
+            entry = leg.get("implied_prob")
+            if close is None or not entry:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            diffs.append(float(close) - float(entry))
+    if not diffs:
+        return {"n": 0, "avg_clv": None, "pct_positive": None}
+    return {"n": len(diffs),
+            "avg_clv": round(sum(diffs) / len(diffs), 4),
+            "pct_positive": round(sum(1 for d in diffs if d > 0) / len(diffs), 4)}
 
 
 DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise

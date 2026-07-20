@@ -2480,6 +2480,12 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
         if not df.empty:
             _toa_cache[_fd_key] = df
             _toa_cache_ts[_fd_key] = _fd_now
+            # CLV: stamp pending logged legs with the latest price. Games drop off
+            # the feed once they start, so the last stamp ≈ the closing line.
+            try:
+                parlay_tracker.update_market_snapshots(df, sport.upper())
+            except Exception:
+                pass
             return df
         # Metered fallbacks only if the free path yields nothing.
         if _get_sharp_api_key():
@@ -4877,6 +4883,83 @@ def _render_accuracy_tab(sport_filter: str) -> None:
             st.caption("No negative-edge legs resolved yet.")
     st.divider()
 
+    # ── Model reliability ─────────────────────────────────────────────────────
+    st.markdown("#### Model Reliability")
+    st.caption(
+        "How honest the shipped leg probabilities have been: each point is a "
+        "probability decile — on the dashed line means perfectly calibrated. "
+        "Below the line = overconfident."
+    )
+    _rel = parlay_tracker.get_reliability_curve(sport=sport_filter)
+    _rm1, _rm2, _rm3, _rm4 = st.columns(4)
+    if _rel["n"]:
+        _rm1.metric("Brier Score", f"{_rel['brier']:.4f}",
+                    help="Mean squared error of leg probabilities. Lower is better; "
+                         "predicting the base rate every time scores "
+                         f"{_rel['base_rate']*(1-_rel['base_rate']):.4f}.")
+        _rm2.metric("Resolved Legs", f"{_rel['n']}")
+        _rm3.metric("Base Hit Rate", f"{_rel['base_rate']:.1%}")
+    _clv = parlay_tracker.get_clv_summary(sport=sport_filter)
+    if _clv["n"]:
+        _rm4.metric("Avg CLV", f"{_clv['avg_clv']*100:+.1f} pts",
+                    f"{_clv['pct_positive']:.0%} positive · {_clv['n']} legs",
+                    delta_color="normal",
+                    help="Closing line value: closing implied minus entry implied. "
+                         "Positive = the market moved toward the pick — the standard "
+                         "sharpness signal, and it converges far faster than ROI.")
+    else:
+        _rm4.metric("Avg CLV", "—", "collecting closing lines",
+                    help="Closing-line snapshots are stamped on pending picks each "
+                         "time lines are fetched; data accrues from today forward.")
+    if _rel["buckets"]:
+        import plotly.graph_objects as _go
+        _rx = [b["predicted"] for b in _rel["buckets"]]
+        _ry = [b["actual"] for b in _rel["buckets"]]
+        _rn = [b["n"] for b in _rel["buckets"]]
+        _rfig = _go.Figure()
+        _rfig.add_trace(_go.Scatter(
+            x=[0, 1], y=[0, 1], mode="lines", hoverinfo="skip",
+            line=dict(color="#3a4050", width=1, dash="dash"), showlegend=False))
+        _rfig.add_trace(_go.Scatter(
+            x=_rx, y=_ry, mode="lines+markers", showlegend=False,
+            line=dict(color="#818cf8", width=2),
+            marker=dict(color="#818cf8", size=[max(8, min(22, 6 + n ** 0.5)) for n in _rn],
+                        line=dict(color="#11141a", width=2)),
+            customdata=[[f"{b['lo']:.0%}–{b['hi']:.0%}", n] for b, n in zip(_rel["buckets"], _rn)],
+            hovertemplate="bucket %{customdata[0]}<br>predicted %{x:.1%}<br>"
+                          "actual %{y:.1%}<br>n=%{customdata[1]}<extra></extra>"))
+        _rfig.update_layout(
+            height=340, margin=dict(l=10, r=10, t=10, b=10),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(title="Predicted probability", range=[0, 1], tickformat=".0%",
+                       gridcolor="#20242e", zeroline=False),
+            yaxis=dict(title="Actual hit rate", range=[0, 1], tickformat=".0%",
+                       gridcolor="#20242e", zeroline=False),
+            font=dict(color="#9294a8", size=12),
+        )
+        st.plotly_chart(_rfig, width="stretch", config={"displayModeBar": False})
+        with st.expander("Reliability data table"):
+            st.dataframe(pd.DataFrame([
+                {"Bucket": f"{b['lo']:.0%}–{b['hi']:.0%}", "Legs": b["n"],
+                 "Avg Predicted": f"{b['predicted']:.1%}", "Actual": f"{b['actual']:.1%}",
+                 "Gap": f"{b['actual']-b['predicted']:+.1%}"}
+                for b in _rel["buckets"]]), width="stretch", hide_index=True)
+    else:
+        st.caption("No resolved legs from market-aware model generations yet.")
+
+    # Applied model corrections, so the numbers on the parlay boards are explainable.
+    try:
+        _mb_w = parlay_tracker.get_market_blend(sport=sport_filter)
+        _sg_p = parlay_tracker.get_same_game_penalty(sport=sport_filter)
+        st.caption(
+            f"Applied corrections — market blend: **{_mb_w:.0%} model / "
+            f"{1-_mb_w:.0%} market**, fit from this log's resolved legs · "
+            f"same-game correlation penalty: **×{_sg_p:.3f}** per same-game leg pair."
+        )
+    except Exception:
+        pass
+    st.divider()
+
     # ── Calibration drift alerts ──────────────────────────────────────────────
     st.markdown("#### Calibration Drift Alerts")
     st.caption("Flags stat types where the rolling 30-day actual hit rate has shifted ≥15 ppts from the all-time baseline.")
@@ -6417,6 +6500,8 @@ if sport == "🏀 NBA":
                     _legs_nba_data, min_legs=_b_min, max_legs=_b_max,
                     sportsbook=_sb_choice_nba,
                     parlay_cal=parlay_tracker.get_parlay_calibration("NBA"),
+                    market_blend=parlay_tracker.get_market_blend("NBA"),
+                    same_game_penalty=parlay_tracker.get_same_game_penalty("NBA"),
                 )
             else:
                 _pp_filt = _pp_filt.sort_values("implied_prob" if "implied_prob" in _pp_filt.columns else "line_score", ascending=False).head(50)
@@ -6476,6 +6561,8 @@ if sport == "🏀 NBA":
                     _legs_nba_data, min_legs=_b_min, max_legs=_b_max,
                     sportsbook=_sb_choice_nba,
                     parlay_cal=parlay_tracker.get_parlay_calibration("NBA"),
+                    market_blend=parlay_tracker.get_market_blend("NBA"),
+                    same_game_penalty=parlay_tracker.get_same_game_penalty("NBA"),
                 )
 
             # Log generated parlays for accuracy tracking
@@ -6503,7 +6590,11 @@ if sport == "🏀 NBA":
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _sgp_results = _build_sgp(_legs_nba_data, min_legs=5, max_legs=5)
+            _sgp_results = _build_sgp(
+                _legs_nba_data, min_legs=5, max_legs=5,
+                market_blend=parlay_tracker.get_market_blend("NBA"),
+                same_game_penalty=parlay_tracker.get_same_game_penalty("NBA"),
+            )
             if _sgp_results:
                 for _sgp in _sgp_results:
                     st.markdown(
@@ -7157,6 +7248,8 @@ elif sport == "🏀 WNBA":
                     _wlegs_data, min_legs=_wb_min, max_legs=_wb_max,
                     sportsbook=_wb_sb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("WNBA"),
+                    market_blend=parlay_tracker.get_market_blend("WNBA"),
+                    same_game_penalty=parlay_tracker.get_same_game_penalty("WNBA"),
                 )
             else:
                 _wfilt = _wfilt.sort_values("implied_prob" if "implied_prob" in _wfilt.columns else "line_score", ascending=False).head(40)
@@ -7212,6 +7305,8 @@ elif sport == "🏀 WNBA":
                     _wlegs_data, min_legs=_wb_min, max_legs=_wb_max,
                     sportsbook=_wb_sb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("WNBA"),
+                    market_blend=parlay_tracker.get_market_blend("WNBA"),
+                    same_game_penalty=parlay_tracker.get_same_game_penalty("WNBA"),
                 )
 
             # Log to accuracy tracker
@@ -7241,7 +7336,11 @@ elif sport == "🏀 WNBA":
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _wsgp = _build_sgp(_wlegs_data, min_legs=3, max_legs=5)
+            _wsgp = _build_sgp(
+                _wlegs_data, min_legs=3, max_legs=5,
+                market_blend=parlay_tracker.get_market_blend("WNBA"),
+                same_game_penalty=parlay_tracker.get_same_game_penalty("WNBA"),
+            )
             if _wsgp:
                 for _wg in _wsgp[:4]:
                     st.markdown(f"<p style='font-size:0.7rem;color:var(--text-muted);margin:0.6rem 0 0.2rem;'>"
@@ -8499,6 +8598,8 @@ elif sport == "⚾ MLB":
                     _legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max,
                     sportsbook=_sb_choice_mlb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
+                    market_blend=parlay_tracker.get_market_blend("MLB"),
+                    same_game_penalty=parlay_tracker.get_same_game_penalty("MLB"),
                 )
             else:
                 _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(50)
@@ -8588,6 +8689,8 @@ elif sport == "⚾ MLB":
                     _legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max,
                     sportsbook=_sb_choice_mlb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
+                    market_blend=parlay_tracker.get_market_blend("MLB"),
+                    same_game_penalty=parlay_tracker.get_same_game_penalty("MLB"),
                 )
 
             # Log generated parlays for accuracy tracking
@@ -8615,7 +8718,11 @@ elif sport == "⚾ MLB":
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=3, max_legs=5)
+            _mlb_sgp = _build_sgp(
+                _legs_mlb_data, min_legs=3, max_legs=5,
+                market_blend=parlay_tracker.get_market_blend("MLB"),
+                same_game_penalty=parlay_tracker.get_same_game_penalty("MLB"),
+            )
             if _mlb_sgp:
                 for _sgpm in _mlb_sgp:
                     st.markdown(
