@@ -6,6 +6,7 @@ Konjure Analytics — Multi-Sport Prop & Predictive Dashboard
 import os
 import re
 import time
+import html as _htmlmod
 import streamlit as st
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import streamlit.components.v1 as components
@@ -578,13 +579,21 @@ def _resolve_nba_abbr(espn_abbr: str) -> str:
     return _ESPN_TO_NBA_ABBR.get(espn_abbr.upper(), espn_abbr.upper())
 
 @st.cache_data(ttl=3600)
-def get_team_players(team_abbr):
+def _fetch_team_players(team_abbr):
+    # Raises on failure so st.cache_data never caches an error as an empty
+    # roster (a cached [] used to blank every player dropdown for an hour).
     team_id = get_team_id(team_abbr)
     if not team_id:
         return []
+    roster = commonteamroster.CommonTeamRoster(team_id=team_id, timeout=20).get_data_frames()[0]
+    players_list = roster["PLAYER"].tolist()
+    if not players_list:
+        raise ValueError(f"empty roster returned for {team_abbr}")
+    return players_list
+
+def get_team_players(team_abbr):
     try:
-        roster = commonteamroster.CommonTeamRoster(team_id=team_id).get_data_frames()[0]
-        return roster["PLAYER"].tolist()
+        return _fetch_team_players(team_abbr)
     except Exception:
         return []
 
@@ -2781,7 +2790,7 @@ def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
     )
 
 
-def _grouped_tabs(groups: list):
+def _grouped_tabs(groups: list, key_prefix: str = "tabs"):
     """
     Build two-level tabs but hand back a flat iterator in declaration order.
 
@@ -2793,6 +2802,12 @@ def _grouped_tabs(groups: list):
     row rather than burying the landing page one click deep.
 
     groups: [(group_name, [child_name, ...]), ...]
+
+    key_prefix keys the inner tab widgets per sport. Without it Streamlit reuses
+    the tab widget by position when the sport switches, and because the child
+    label lists differ between sports (NBA's Bet has "First Basket", MLB's does
+    not) the frontend keeps a phantom stale tab — dimmed leftover content from
+    the previous sport that never clears. Distinct keys force a clean remount.
     """
     outer = st.tabs([name for name, _children in groups])
     flat = []
@@ -2801,7 +2816,7 @@ def _grouped_tabs(groups: list):
             flat.append(container)
             continue
         with container:
-            flat.extend(st.tabs(children))
+            flat.extend(st.tabs(children, key=f"{key_prefix}_{_name.lower()}_tabs"))
     return iter(flat)
 
 
@@ -3048,24 +3063,32 @@ def get_mlb_teams():
         return []
 
 @st.cache_data(ttl=3600)
+def _fetch_mlb_roster(team_id):
+    # Raises on failure so a transient API error isn't cached as an empty
+    # roster for an hour (see get_team_players for the same pattern).
+    url = f"{MLB_BASE}/teams/{team_id}/roster?season={MLB_SEASON}&rosterType=active"
+    resp = requests.get(url, timeout=10)
+    resp.raise_for_status()
+    roster = resp.json().get("roster", [])
+    hitters, pitchers = [], []
+    for p in roster:
+        pos = p.get("position", {})
+        pos_abbr = pos.get("abbreviation", "")
+        pos_type = pos.get("type", "")
+        name = p.get("person", {}).get("fullName", "")
+        pid = p.get("person", {}).get("id")
+        entry = {"name": name, "id": pid, "pos": pos_abbr}
+        if pos_abbr == "P" or pos_type == "Pitcher":
+            pitchers.append(entry)
+        else:
+            hitters.append(entry)
+    if not hitters and not pitchers:
+        raise ValueError(f"empty roster returned for team {team_id}")
+    return hitters, pitchers
+
 def get_mlb_roster(team_id):
     try:
-        url = f"{MLB_BASE}/teams/{team_id}/roster?season={MLB_SEASON}&rosterType=active"
-        resp = requests.get(url, timeout=10)
-        roster = resp.json().get("roster", [])
-        hitters, pitchers = [], []
-        for p in roster:
-            pos = p.get("position", {})
-            pos_abbr = pos.get("abbreviation", "")
-            pos_type = pos.get("type", "")
-            name = p.get("person", {}).get("fullName", "")
-            pid = p.get("person", {}).get("id")
-            entry = {"name": name, "id": pid, "pos": pos_abbr}
-            if pos_abbr == "P" or pos_type == "Pitcher":
-                pitchers.append(entry)
-            else:
-                hitters.append(entry)
-        return hitters, pitchers
+        return _fetch_mlb_roster(team_id)
     except Exception as e:
         st.warning(f"Could not load MLB roster: {e}")
         return [], []
@@ -3976,14 +3999,23 @@ def _pitcher_desc(stats):
             else "a bonafide ace" if era < 3.50
             else "a solid mid-rotation starter" if era < 4.25
             else "a back-end starter fighting for consistency")
-    k_str = (f" a strikeout machine ({k9:.1f} K/9)" if k9 > 10
-              else f" high strikeout upside ({k9:.1f} K/9)" if k9 > 8
-              else "")
-    ctrl_str = (" with elite control" if whip < 1.05
-                else " with sharp control" if whip < 1.20
-                else " who has battled command issues at times" if whip > 1.40
-                else "")
-    return f"{tier}{k_str}{ctrl_str} ({era:.2f} ERA / {whip:.2f} WHIP)"
+    # Build "with X and Y" so the traits read as one sentence instead of
+    # concatenated fragments ("a bonafide ace high strikeout upside...").
+    traits = []
+    if k9 > 10:
+        traits.append(f"strikeout-machine stuff ({k9:.1f} K/9)")
+    elif k9 > 8:
+        traits.append(f"high strikeout upside ({k9:.1f} K/9)")
+    if whip < 1.05:
+        traits.append("elite control")
+    elif whip < 1.20:
+        traits.append("sharp control")
+    desc = tier
+    if traits:
+        desc += " with " + " and ".join(traits)
+    if whip > 1.40:
+        desc += " who has battled command issues at times"
+    return f"{desc} ({era:.2f} ERA / {whip:.2f} WHIP)"
 
 def _nba_game_html(g):
     aw = g.get("away", "")
@@ -4055,14 +4087,23 @@ def _mlb_game_html(g):
             f"<div class='blog-game-body'>{body}</div>"
             f"</div>")
 
+def _safe_news_text(text):
+    """Escape external text for embedding in raw-HTML st.markdown blocks.
+
+    html.escape guards the markup; swapping $ for &#36; keeps literal dollar
+    signs (e.g. "$4.7M") from pairing up as KaTeX math delimiters, which
+    otherwise swallows the text between them and leaks raw HTML on screen.
+    """
+    return _htmlmod.escape(str(text)).replace("$", "&#36;")
+
 def _news_rows_html(news, n=5):
     if not news:
         return "<p class='blog-body'>No recent stories available.</p>"
     rows = ""
     for item in news[:n]:
-        link = item.get("link", "#")
-        title = item.get("title", "")
-        date = item.get("date", "")
+        link = _htmlmod.escape(item.get("link", "#"), quote=True)
+        title = _safe_news_text(item.get("title", ""))
+        date = _safe_news_text(item.get("date", ""))
         rows += (f"<a href='{link}' target='_blank' style='text-decoration:none;color:inherit;'>"
                  f"<div class='blog-news-row'>"
                  f"<div class='blog-news-dot'></div>"
@@ -4494,12 +4535,12 @@ def render_news_panel(news):
         return
     for item in news:
         st.markdown(
-            f"<a href='{item['link']}' target='_blank' style='text-decoration:none;'>"
+            f"<a href='{_htmlmod.escape(item['link'], quote=True)}' target='_blank' style='text-decoration:none;'>"
             f"<div class='news-card'>"
             f"<p class='news-source'>AP / ESPN</p>"
-            f"<p class='news-headline'>{item['title']}</p>"
-            f"<p class='news-desc'>{item['desc']}</p>"
-            f"<p class='news-meta'>{item['date']}</p>"
+            f"<p class='news-headline'>{_safe_news_text(item['title'])}</p>"
+            f"<p class='news-desc'>{_safe_news_text(item['desc'])}</p>"
+            f"<p class='news-meta'>{_safe_news_text(item['date'])}</p>"
             f"</div></a>",
             unsafe_allow_html=True)
 
@@ -5049,23 +5090,29 @@ def _wnba_espn_slug(abbr: str) -> str:
     return _WNBA_ABBR_TO_ESPN_SLUG.get(abbr.upper(), abbr.lower())
 
 @st.cache_data(ttl=3600)
+def _fetch_wnba_team_roster_map(team_abbr: str) -> dict:
+    # Raises on failure so a transient API error isn't cached as an empty
+    # roster for an hour (see get_team_players for the same pattern).
+    slug = _wnba_espn_slug(team_abbr)
+    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{slug}/roster"
+    resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+    resp.raise_for_status()
+    result = {}
+    for a in resp.json().get("athletes", []):
+        name = a.get("displayName") or a.get("fullName", "")
+        espn_id = str(a.get("id", ""))
+        if name and espn_id:
+            result[name] = espn_id
+    if not result:
+        raise ValueError(f"empty WNBA roster returned for {team_abbr}")
+    return result
+
 def _get_wnba_team_roster_map(team_abbr: str) -> dict:
     """Returns {player_name: espn_id} for a team. Cached so both names and IDs are stored."""
-    slug = _wnba_espn_slug(team_abbr)
     try:
-        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{slug}/roster"
-        resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
-        if resp.status_code == 200:
-            result = {}
-            for a in resp.json().get("athletes", []):
-                name = a.get("displayName") or a.get("fullName", "")
-                espn_id = str(a.get("id", ""))
-                if name and espn_id:
-                    result[name] = espn_id
-            return result
+        return _fetch_wnba_team_roster_map(team_abbr)
     except Exception:
-        pass
-    return {}
+        return {}
 
 def get_wnba_team_players(team_abbr: str):
     """Return list of player names for a WNBA team."""
@@ -5241,7 +5288,7 @@ if sport == "🏀 NBA":
         ("Bet",     ["Bet Simulation", "First Basket", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
-    ])
+    ], key_prefix="nba")
     tab_home        = next(_nba_tabs_iter)
     tab_stats       = next(_nba_tabs_iter)
     tab_opp         = next(_nba_tabs_iter)
@@ -6241,6 +6288,10 @@ if sport == "🏀 NBA":
             section(f"{len(filtered)} Line(s) — {_sb_nba}")
             show_cols = ["player_name", "team", "stat_type", "line_score", "Odds", "Implied %", "game_label"]
             show_cols = [c for c in show_cols if c in filtered.columns]
+            # Books like FanDuel don't expose player teams — drop the column
+            # rather than render a blank one for every row.
+            if "team" in show_cols and filtered["team"].astype(str).str.strip().eq("").all():
+                show_cols.remove("team")
             st.dataframe(
                 filtered[show_cols].rename(columns={
                     "player_name": "Player", "team": "Team", "stat_type": "Stat",
@@ -6519,7 +6570,7 @@ elif sport == "🏀 WNBA":
         ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
-    ])
+    ], key_prefix="wnba")
     tab_w_home     = next(_wnba_tabs_iter)
     tab_w_stats    = next(_wnba_tabs_iter)
     tab_w_opp      = next(_wnba_tabs_iter)
@@ -6999,6 +7050,10 @@ elif sport == "🏀 WNBA":
             if "implied_prob" in _wsb_df2.columns:
                 _wsb_display_cols.append("implied_prob")
             _wsb_display_cols = [c for c in _wsb_display_cols if c in _wsb_df2.columns]
+            # Books like FanDuel don't expose player teams — drop the column
+            # rather than render a blank one for every row.
+            if "team" in _wsb_display_cols and _wsb_df2["team"].astype(str).str.strip().eq("").all():
+                _wsb_display_cols.remove("team")
             st.dataframe(
                 _wsb_df2[_wsb_display_cols].sort_values("implied_prob", ascending=False) if "implied_prob" in _wsb_df2.columns else _wsb_df2[_wsb_display_cols],
                 width="stretch", hide_index=True
@@ -7299,7 +7354,7 @@ elif sport == "⚾ MLB":
         ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
-    ])
+    ], key_prefix="mlb")
     tab_mlb_home    = next(_mlb_tabs_iter)
     tab_hitter      = next(_mlb_tabs_iter)
     tab_pitcher     = next(_mlb_tabs_iter)
@@ -8294,6 +8349,10 @@ elif sport == "⚾ MLB":
             mlb_section(f"{len(filt)} Line(s) — {_sb_mlb}")
             show_cols_mlb = ["player_name", "team", "stat_type", "line_score", "Odds", "Implied %", "game_label"]
             show_cols_mlb = [c for c in show_cols_mlb if c in filt.columns]
+            # Books like FanDuel don't expose player teams — drop the column
+            # rather than render a blank one for every row.
+            if "team" in show_cols_mlb and filt["team"].astype(str).str.strip().eq("").all():
+                show_cols_mlb.remove("team")
             st.dataframe(
                 filt[show_cols_mlb].rename(columns={
                     "player_name": "Player", "team": "Team", "stat_type": "Stat",

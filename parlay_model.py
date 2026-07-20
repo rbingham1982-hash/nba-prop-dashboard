@@ -451,6 +451,23 @@ _FD_WNBA_ABBR = {
     "new york liberty": "NYL", "phoenix mercury": "PHX", "portland fire": "PDX",
     "seattle storm": "SEA", "toronto tempo": "TOR", "washington mystics": "WAS",
 }
+# FanDuel names MLB teams in full; map to the ESPN-style abbreviations the rest
+# of the app displays (ticker, blog). First-3-letters fallback produced labels
+# like "ST. @ ARI" for St. Louis.
+_FD_MLB_ABBR = {
+    "arizona diamondbacks": "ARI", "athletics": "ATH", "atlanta braves": "ATL",
+    "baltimore orioles": "BAL", "boston red sox": "BOS", "chicago cubs": "CHC",
+    "chicago white sox": "CHW", "cincinnati reds": "CIN", "cleveland guardians": "CLE",
+    "colorado rockies": "COL", "detroit tigers": "DET", "houston astros": "HOU",
+    "kansas city royals": "KC", "los angeles angels": "LAA", "los angeles dodgers": "LAD",
+    "miami marlins": "MIA", "milwaukee brewers": "MIL", "minnesota twins": "MIN",
+    "new york mets": "NYM", "new york yankees": "NYY", "philadelphia phillies": "PHI",
+    "pittsburgh pirates": "PIT", "san diego padres": "SD", "san francisco giants": "SF",
+    "seattle mariners": "SEA", "st. louis cardinals": "STL", "tampa bay rays": "TB",
+    "texas rangers": "TEX", "toronto blue jays": "TOR", "washington nationals": "WSH",
+    # Legacy name still appears in some FanDuel feeds
+    "oakland athletics": "ATH",
+}
 _FD_UNMAPPED: set = set()   # cores seen but not mapped — reported once per run
 
 
@@ -458,9 +475,14 @@ _FD_UNMAPPED: set = set()   # cores seen but not mapped — reported once per ru
 
 def _fd_team_abbr(sport: str, full_name: str) -> str:
     """FanDuel's full team name -> the abbreviation the resolver matches games on."""
-    key = full_name.strip().lower()
+    # MLB event names embed the probable pitcher — "Los Angeles Dodgers (W Klein)" —
+    # so strip any trailing parenthetical before the lookup.
+    full_name = re.sub(r"\s*\([^)]*\)\s*$", "", full_name.strip())
+    key = full_name.lower()
     if sport == "wnba":
         return _FD_WNBA_ABBR.get(key, full_name.strip().upper()[:3])
+    if sport == "mlb":
+        return _FD_MLB_ABBR.get(key, full_name.strip().upper()[:3])
     if sport == "nba":
         try:
             from nba_api.stats.static import teams as _t  # type: ignore
