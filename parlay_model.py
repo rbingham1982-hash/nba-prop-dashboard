@@ -1263,10 +1263,13 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     highest-confidence legs (e.g. all "Hits" props flooding the safe list).
 
     market_blend (parlay_tracker.get_market_blend) shrinks leg probabilities
-    toward the de-vigged market before combining. same_game_penalty
-    (parlay_tracker.get_same_game_penalty) multiplies the product once per
-    same-game leg pair — measured correlation, applied before parlay_cal so
-    the residual calibration grades what actually shipped.
+    toward the de-vigged market before combining.
+
+    same_game_penalty would multiply the product once per same-game leg pair,
+    but it is DORMANT — it defaults to 1.0 and no caller passes a live value
+    (the correlation estimator proved unreliable; see
+    parlay_tracker.get_same_game_penalty). The parameter and _same_game_pairs
+    plumbing are retained so a future per-prop-type correlation model can slot in.
     """
     if market_blend is not None:
         legs = _apply_market_blend(legs, market_blend)

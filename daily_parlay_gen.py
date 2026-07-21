@@ -328,12 +328,13 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
     except Exception:
         pass
 
-    # Market blend + same-game correlation penalty, both fit from the log.
-    mkt_w, sg_pen = None, 1.0
+    # Market blend, fit from the log. (Same-game correlation is still measured by
+    # parlay_tracker.get_same_game_penalty but no longer applied to pricing — the
+    # estimator was unstable and deflate-only; see that function's docstring.)
+    mkt_w = None
     try:
         mkt_w = parlay_tracker.get_market_blend(sport=sport_label)
-        sg_pen = parlay_tracker.get_same_game_penalty(sport=sport_label)
-        print(f"  Market blend weight (model share): {mkt_w}; same-game penalty: {sg_pen}")
+        print(f"  Market blend weight (model share): {mkt_w}")
     except Exception:
         pass
 
@@ -367,7 +368,7 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
             continue
 
         safe, value = build_parlays(legs, sportsbook=sb, parlay_cal=p_cal,
-                                    market_blend=mkt_w, same_game_penalty=sg_pen)
+                                    market_blend=mkt_w)
         if not safe and not value:
             continue
         s = parlay_tracker.log_parlays(safe,  sport_label, sb, kind="safe")

@@ -4950,11 +4950,15 @@ def _render_accuracy_tab(sport_filter: str) -> None:
     # Applied model corrections, so the numbers on the parlay boards are explainable.
     try:
         _mb_w = parlay_tracker.get_market_blend(sport=sport_filter)
+        # Same-game correlation is measured but no longer applied to pricing — the
+        # estimator proved unstable (0.72x -> 1.34x as the sample grew) and its
+        # deflate-only design can't represent the positive correlation the fuller
+        # data shows. Shown here as a monitored metric, flagged as not applied.
         _sg_p = parlay_tracker.get_same_game_penalty(sport=sport_filter)
         st.caption(
-            f"Applied corrections — market blend: **{_mb_w:.0%} model / "
-            f"{1-_mb_w:.0%} market**, fit from this log's resolved legs · "
-            f"same-game correlation penalty: **×{_sg_p:.3f}** per same-game leg pair."
+            f"Applied correction — market blend: **{_mb_w:.0%} model / "
+            f"{1-_mb_w:.0%} market**, fit from this log's resolved legs. "
+            f"Same-game correlation (monitored, not applied): ×{_sg_p:.3f}/pair."
         )
     except Exception:
         pass
@@ -6501,7 +6505,6 @@ if sport == "🏀 NBA":
                     sportsbook=_sb_choice_nba,
                     parlay_cal=parlay_tracker.get_parlay_calibration("NBA"),
                     market_blend=parlay_tracker.get_market_blend("NBA"),
-                    same_game_penalty=parlay_tracker.get_same_game_penalty("NBA"),
                 )
             else:
                 _pp_filt = _pp_filt.sort_values("implied_prob" if "implied_prob" in _pp_filt.columns else "line_score", ascending=False).head(50)
@@ -6562,7 +6565,6 @@ if sport == "🏀 NBA":
                     sportsbook=_sb_choice_nba,
                     parlay_cal=parlay_tracker.get_parlay_calibration("NBA"),
                     market_blend=parlay_tracker.get_market_blend("NBA"),
-                    same_game_penalty=parlay_tracker.get_same_game_penalty("NBA"),
                 )
 
             # Log generated parlays for accuracy tracking
@@ -6593,7 +6595,6 @@ if sport == "🏀 NBA":
             _sgp_results = _build_sgp(
                 _legs_nba_data, min_legs=5, max_legs=5,
                 market_blend=parlay_tracker.get_market_blend("NBA"),
-                same_game_penalty=parlay_tracker.get_same_game_penalty("NBA"),
             )
             if _sgp_results:
                 for _sgp in _sgp_results:
@@ -7249,7 +7250,6 @@ elif sport == "🏀 WNBA":
                     sportsbook=_wb_sb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("WNBA"),
                     market_blend=parlay_tracker.get_market_blend("WNBA"),
-                    same_game_penalty=parlay_tracker.get_same_game_penalty("WNBA"),
                 )
             else:
                 _wfilt = _wfilt.sort_values("implied_prob" if "implied_prob" in _wfilt.columns else "line_score", ascending=False).head(40)
@@ -7306,7 +7306,6 @@ elif sport == "🏀 WNBA":
                     sportsbook=_wb_sb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("WNBA"),
                     market_blend=parlay_tracker.get_market_blend("WNBA"),
-                    same_game_penalty=parlay_tracker.get_same_game_penalty("WNBA"),
                 )
 
             # Log to accuracy tracker
@@ -7339,7 +7338,6 @@ elif sport == "🏀 WNBA":
             _wsgp = _build_sgp(
                 _wlegs_data, min_legs=3, max_legs=5,
                 market_blend=parlay_tracker.get_market_blend("WNBA"),
-                same_game_penalty=parlay_tracker.get_same_game_penalty("WNBA"),
             )
             if _wsgp:
                 for _wg in _wsgp[:4]:
@@ -8599,7 +8597,6 @@ elif sport == "⚾ MLB":
                     sportsbook=_sb_choice_mlb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
                     market_blend=parlay_tracker.get_market_blend("MLB"),
-                    same_game_penalty=parlay_tracker.get_same_game_penalty("MLB"),
                 )
             else:
                 _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(50)
@@ -8690,7 +8687,6 @@ elif sport == "⚾ MLB":
                     sportsbook=_sb_choice_mlb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
                     market_blend=parlay_tracker.get_market_blend("MLB"),
-                    same_game_penalty=parlay_tracker.get_same_game_penalty("MLB"),
                 )
 
             # Log generated parlays for accuracy tracking
@@ -8721,7 +8717,6 @@ elif sport == "⚾ MLB":
             _mlb_sgp = _build_sgp(
                 _legs_mlb_data, min_legs=3, max_legs=5,
                 market_blend=parlay_tracker.get_market_blend("MLB"),
-                same_game_penalty=parlay_tracker.get_same_game_penalty("MLB"),
             )
             if _mlb_sgp:
                 for _sgpm in _mlb_sgp:
@@ -8858,12 +8853,10 @@ elif sport == "⚾ MLB":
                 # (_PP_ODDS_IMPLIED["standard"] ≈ 0.50), not a real HR line, so
                 # blending toward it would inflate the true ~27% HR rate toward a
                 # coin flip — the exact overconfidence the blend exists to prevent.
-                # The same-game penalty still applies (game_id is set per pick), so
-                # two hitters from one game are priced as the correlated bet they are.
+                # (same_game_penalty is left dormant — see get_same_game_penalty.)
                 _hr_safe, _hr_value = _build_parlays(
                     _hr_legs, min_legs=2, max_legs=4, sportsbook="PrizePicks",
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
-                    same_game_penalty=parlay_tracker.get_same_game_penalty("MLB"),
                 )
                 _hc1, _hc2 = st.columns(2)
                 with _hc1:

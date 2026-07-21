@@ -1314,13 +1314,22 @@ SG_FLOOR       = 0.55
 
 def get_same_game_penalty(sport: str | None = None) -> float:
     """
-    Multiplier applied to a parlay's probability once per same-game leg pair.
+    DORMANT — measured but no longer applied to pricing (as of 2026-07-20). Kept
+    as a monitored metric and for a future per-prop-type correlation model; the
+    parlay builders default same_game_penalty to 1.0 and no call site passes this.
 
-    Measured as the joint-hit ratio of same-game pairs normalized by the same
-    ratio for cross-game pairs — the normalization strips leg-level
-    overconfidence, leaving pure correlation. First audit: same-game pairs hit
-    62.5% of their independence prediction while cross-game pairs hit 87.3%,
-    a correlation-only penalty of 0.716 (n=524 same-game pairs).
+    Multiplier that would deflate a parlay's probability once per same-game leg
+    pair, measured as the joint-hit ratio of same-game pairs normalized by the
+    cross-game ratio (the normalization strips leg overconfidence, leaving pure
+    correlation). Retired for two reasons the full-backlog resolution exposed:
+      1. Unstable: measured 0.716 on ~524 pairs, then 1.34 (MLB) once the sample
+         tripled — too high-variance to price against.
+      2. Wrong shape: it is deflate-only (min(1.0, ...)), but the fuller data
+         shows same-game legs hitting *more* than independence (positive
+         correlation, the intuitive pace/game-script effect), which a deflate-only
+         multiplier structurally cannot represent.
+    Doing this right needs a per-prop-type model (pace props correlate positively;
+    usage-competing props negatively), not one blended multiplier.
 
     Falls back to the all-sport measurement, then SG_DEFAULT, when thin.
     """
