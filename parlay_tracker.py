@@ -89,6 +89,49 @@ _MLB_PITCHING_RESOLVE = {
 }
 _MLB_PITCHER_TYPES = set(_MLB_PITCHING_RESOLVE)
 
+# Nickname / city keyword → 3-letter abbrev, for matching a schedule game (which the
+# MLB API returns as full names like "Los Angeles Dodgers") back to a leg's game_label
+# (which is abbreviated, e.g. "LAD @ NYY"). "red sox"/"white sox" are keyed on the full
+# two-word nickname so "sox" is never ambiguous.
+_MLB_NAME_TO_ABBR = {
+    "diamondbacks": "ARI", "braves": "ATL", "orioles": "BAL", "red sox": "BOS",
+    "cubs": "CHC", "white sox": "CWS", "reds": "CIN", "guardians": "CLE",
+    "rockies": "COL", "tigers": "DET", "astros": "HOU", "royals": "KC",
+    "angels": "LAA", "dodgers": "LAD", "marlins": "MIA", "brewers": "MIL",
+    "twins": "MIN", "mets": "NYM", "yankees": "NYY", "athletics": "OAK",
+    "phillies": "PHI", "pirates": "PIT", "padres": "SD", "giants": "SF",
+    "mariners": "SEA", "cardinals": "STL", "rays": "TB", "rangers": "TEX",
+    "blue jays": "TOR", "nationals": "WSH",
+}
+# Abbreviation variants that different books use for the same club, so a game_label
+# written "CHW @ TEX" still matches a schedule abbrev of CWS.
+_MLB_ABBR_ALIASES = {
+    "ARI": {"ARI", "AZ"}, "CWS": {"CWS", "CHW"}, "OAK": {"OAK", "ATH"},
+    "WSH": {"WSH", "WSN", "WAS"},
+}
+
+def _mlb_abbrev_from_name(full_name: str) -> str | None:
+    """Map an MLB full team name to its 3-letter abbrev, or None if unrecognized."""
+    low = (full_name or "").lower()
+    for keyword, abbr in _MLB_NAME_TO_ABBR.items():
+        if keyword in low:
+            return abbr
+    return None
+
+def _mlb_game_matches_label(away_name: str, home_name: str, game_label: str) -> bool:
+    """
+    True if a schedule game (full team names) is the same matchup as a leg's abbreviated
+    game_label. Requires *both* clubs present so a same-day postponement of a different
+    game never voids the wrong leg.
+    """
+    gl = (game_label or "").upper()
+    matched = 0
+    for name in (away_name, home_name):
+        abbr = _mlb_abbrev_from_name(name)
+        if abbr and any(v in gl for v in _MLB_ABBR_ALIASES.get(abbr, {abbr})):
+            matched += 1
+    return matched == 2
+
 
 def _mlb_derived_batting(stat_type: str, b: dict) -> float | None:
     """
@@ -673,13 +716,16 @@ def _resolve_mlb_legs() -> int:
                 game_status = (game_info.get("status") or "").lower()
                 # Void legs for postponed/suspended/cancelled games — parlay resolves on remaining legs
                 if "postponed" in game_status or "suspended" in game_status or "cancelled" in game_status:
-                    away_name = (game_info.get("away_name") or "").lower()
-                    home_name = (game_info.get("home_name") or "").lower()
+                    away_name = game_info.get("away_name") or ""
+                    home_name = game_info.get("home_name") or ""
                     for parlay, leg in entries:
                         if leg["outcome"] is not None:
                             continue
-                        gl = (leg.get("game_label") or "").lower()
-                        if any(t in gl for t in [away_name[:3], home_name[:3]]):
+                        # Match the postponed game to the leg by abbreviation, not by
+                        # full-name prefix — game_labels are abbreviated ("LAD @ NYY"),
+                        # so comparing "los"/"new" against them never matched and
+                        # postponed games silently never voided.
+                        if _mlb_game_matches_label(away_name, home_name, leg.get("game_label", "")):
                             leg["outcome"] = "void"
                             resolved_count += 1
                     continue
