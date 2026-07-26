@@ -4996,23 +4996,30 @@ if sport == "🏀 NBA":
                 height=0,
             )
         # ── 2026-27 Fantasy Draft Board (9-category value) ────────────────────
+        _mode = st.radio("Board mode", ["2026-27 Projection", "2025-26 Actuals"],
+                         horizontal=True, label_visibility="collapsed")
+        _is_proj = _mode.startswith("2026-27")
+        _sub = ("Projected 2026-27 value — 2025-26 + 2024-25 blend · aging curve · current "
+                "rosters · rookies from draft slot" if _is_proj
+                else "2025-26 actual per-game production")
         st.markdown(
             "<div class='draft-header'>"
             "<div class='draft-kicker'>2026-27 Fantasy Draft Board &nbsp;·&nbsp; 9-Category Value</div>"
-            "<div class='draft-countdown'>Ranked by per-category z-score over the fantasy pool &nbsp;·&nbsp; "
-            "baseline: <strong style='color:var(--text-primary);'>2025-26 per-game production</strong></div>"
+            f"<div class='draft-countdown'>Ranked by per-category z-score &nbsp;·&nbsp; "
+            f"<strong style='color:var(--text-primary);'>{_sub}</strong></div>"
             "</div>",
             unsafe_allow_html=True,
         )
 
         @st.cache_data(ttl=86400, show_spinner=False)
-        def _load_9cat_board(season):
+        def _load_9cat_board(is_proj):
             import fantasy_rankings
-            return fantasy_rankings.get_9cat_rankings(season=season)
+            return (fantasy_rankings.get_9cat_projections() if is_proj
+                    else fantasy_rankings.get_9cat_rankings())
 
         try:
-            with st.spinner("Building 9-category rankings from 2025-26 production…"):
-                _board = _load_9cat_board("2025-26")
+            with st.spinner("Building 9-category rankings…"):
+                _board = _load_9cat_board(_is_proj)
         except Exception as _e:
             _board = {"players": [], "n_pool": 0}
             st.error(f"Couldn't load rankings: {_e}")
@@ -5045,9 +5052,10 @@ if sport == "🏀 NBA":
             import pandas as _pd
             _df = _pd.DataFrame([{
                 "Rank": p["rank"], "Tier": p["tier"], "Player": p["name"], "Pos": p["pos"],
-                "Tm": p["team"], "Value": p["total"], "PTS": p["pts"], "REB": p["reb"],
-                "AST": p["ast"], "STL": p["stl"], "BLK": p["blk"], "3PM": p["fg3m"],
-                "FG%": p["fg_pct"], "FT%": p["ft_pct"], "TO": p["tov"], "GP": p["gp"], "MPG": p["mpg"],
+                "Tm": p["team"], "Note": p.get("note", ""), "Value": p["total"],
+                "PTS": p["pts"], "REB": p["reb"], "AST": p["ast"], "STL": p["stl"],
+                "BLK": p["blk"], "3PM": p["fg3m"], "FG%": p["fg_pct"], "FT%": p["ft_pct"],
+                "TO": p["tov"], "GP": p["gp"], "MPG": p["mpg"],
             } for p in _rows])
 
             if _df.empty:
@@ -5081,18 +5089,23 @@ if sport == "🏀 NBA":
                                  "BLK": "{:.1f}", "3PM": "{:.1f}", "TO": "{:.1f}", "MPG": "{:.1f}"}))
                 st.dataframe(_sty, use_container_width=True, hide_index=True,
                              height=min(720, 46 + 35 * len(_df)))
+            if _is_proj:
+                _method = (f"Projected 2026-27: {_board.get('blend', '2-season blend, aged, current rosters')}. "
+                           f"Rookies (note = 'rookie') projected from draft-slot tier averages — rough. "
+                           f"Minutes carried from recent production (no depth-chart model) is the main limit.")
+            else:
+                _method = "2025-26 actual per-game production."
             st.caption(
                 f"9-cat value = sum of per-category z-scores (turnovers negative; FG%/FT% "
-                f"volume-weighted) over a {_board.get('n_pool', 0)}-player pool. Category cells are "
-                f"heat-mapped by strength. Baseline: 2025-26 production — a minutes/role/aging "
-                f"projection layer for 2026-27 is the planned v2."
+                f"volume-weighted) over a {_board.get('n_pool', 0)}-player pool. Cells heat-mapped by "
+                f"strength; Note flags age/new team (→)/rookie. {_method}"
             )
 
         # ── News panel below cards ─────────────────────────────────────────────
         st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
         _fa_news_col, _fa_feat_col = st.columns([1.2, 1])
         with _fa_news_col:
-            section("NBA Free Agency News")
+            section("NBA News")
             with st.spinner("Loading news..."):
                 _nba_news = get_sport_news("nba")
             render_news_panel(_nba_news)
