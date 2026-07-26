@@ -2887,6 +2887,23 @@ def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
     if not games:
         return []
 
+    # Anchor to the market: books price HR props sharply, while the pure model's ranking
+    # doesn't discriminate (historically its top-rated hitters homered LESS than its
+    # low-rated ones). Blend heavily toward the book's implied HR probability and keep the
+    # model only as a secondary edge nudge.
+    import unicodedata as _ud
+    def _hrn(s):
+        return _ud.normalize("NFKD", str(s)).encode("ascii", "ignore").decode().lower().replace(".", "").strip()
+    _hr_market: dict = {}
+    try:
+        _hrdf = _pm.fetch_fanduel("mlb")
+        if _hrdf is not None and not _hrdf.empty:
+            for _, _hrr in _hrdf[_hrdf["stat_type"] == "Home Runs"].iterrows():
+                _hr_market[_hrn(_hrr["player_name"])] = float(_hrr["implied_prob"])
+    except Exception:
+        _hr_market = {}
+    _MKT_W = 0.78  # market share of the blend; the model contributes the remaining 0.22 as edge
+
     mlb_teams = get_mlb_teams()
     team_id_map = {t["abbr"]: t["id"] for t in mlb_teams}
 
@@ -2913,16 +2930,26 @@ def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
                 result = _score_hitter_for_hr(int(pid), opp_pitcher_id, venue, weather)
                 if not result:
                     continue
-                calibrated = round(min(0.97, max(0.01, result["score"] * cal_factor)), 3)
+                _model_p = round(min(0.97, max(0.01, result["score"] * cal_factor)), 3)
+                _mkt_p = _hr_market.get(_hrn(h["name"]))
+                _blend = (round(_MKT_W * _mkt_p + (1 - _MKT_W) * _model_p, 3)
+                          if _mkt_p is not None else _model_p)
                 candidates.append({
                     "player_name": h["name"], "team": team_abbr, "venue": venue,
                     "opp_pitcher": opp_pitcher_name, "opp_pitcher_id": opp_pitcher_id,
                     "game_label": f"{game.get('away_abbr','')} @ {game.get('home_abbr','')}",
                     "weather": weather,
                     **result,
-                    "score": calibrated,
+                    "market_implied": _mkt_p, "model_score": _model_p,
+                    "has_market": _mkt_p is not None,
+                    "score": _blend,
                 })
 
+    # Prefer bettable, market-vetted picks: if enough hitters carry a book HR line, drop the
+    # model-only ones (no market anchor = the unreliable pure-model signal).
+    _with_mkt = [c for c in candidates if c.get("has_market")]
+    if len(_with_mkt) >= top_n:
+        candidates = _with_mkt
     candidates.sort(key=lambda x: x["score"], reverse=True)
 
     # Enforce diversity: max 1 pick per team so a single favorable
@@ -8353,20 +8380,20 @@ elif sport == "⚾ MLB":
                         "line_score":  0.5,
                         "odds_type":   "standard",
                         "american_odds": -110,
-                        "implied_prob": _PP_ODDS_IMPLIED["standard"],
+                        # Real FanDuel HR implied prob now (was a 0.50 placeholder) — recorded
+                        # so model-vs-market can finally be graded on these legs.
+                        "implied_prob": _pick.get("market_implied") or _PP_ODDS_IMPLIED["standard"],
                         "sportsbook":  "PrizePicks",
                         "game_id":     _pick.get("game_label", ""),
                         "game_label":  _pick.get("game_label", ""),
+                        # hit_rate is the market-anchored blend from _build_hr_power_picks
+                        # (0.78 market + 0.22 model), not the raw pure-model score.
                         "hit_rate":    _pick["score"],
                         "sample_n":    _pick.get("games_played", 10),
                         # Six-factor HR model — calibrates in its own bucket, apart
                         # from the game-log HR scorer (see parlay_tracker._cal_key).
                         "source":      "hr_power_picks",
                     })
-                # No market_blend here: these legs carry a placeholder implied
-                # (_PP_ODDS_IMPLIED["standard"] ≈ 0.50), not a real HR line, so
-                # blending toward it would inflate the true ~27% HR rate toward a
-                # coin flip — the exact overconfidence the blend exists to prevent.
                 # (same_game_penalty is left dormant — see get_same_game_penalty.)
                 _hr_safe, _hr_value = _build_parlays(
                     _hr_legs, min_legs=2, max_legs=4, sportsbook="PrizePicks",
