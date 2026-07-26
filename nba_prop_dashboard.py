@@ -4687,7 +4687,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
 
     # ── Weekly KPIs ───────────────────────────────────────────────────────────
     _wsum = parlay_tracker.get_weekly_summary(_sel_week, sport=sport_filter)
-    _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
+    _mc1, _mc2, _mc3, _mc4, _mc5, _mc6 = st.columns(6)
     _mc1.metric("Parlays Generated", _wsum["total_parlays"])
     _mc2.metric("Resolved", _wsum["resolved_parlays"])
     _phit  = f"{_wsum['parlay_hit_rate']*100:.1f}%" if _wsum["parlay_hit_rate"] is not None else "—"
@@ -4696,6 +4696,20 @@ def _render_accuracy_tab(sport_filter: str) -> None:
     _lhit  = f"{_wsum['leg_hit_rate']*100:.1f}%" if _wsum["leg_hit_rate"] is not None else "—"
     _mc4.metric("Leg Hit Rate", _lhit)
     _mc5.metric("Legs Resolved", f"{_wsum['resolved_legs']} / {_wsum['total_legs']}")
+    # CLV belongs in the headline row: it's the leading edge indicator and converges far
+    # faster than hit rate / ROI, which are mostly variance at a week's sample size. Negative
+    # CLV means the market moved against the picks — a red flag even when the ROI looks green.
+    _wclv = _wsum.get("clv") or {}
+    if _wclv.get("n"):
+        _clv_val = f"{_wclv['avg_clv']*100:+.1f} pts"
+        _mc6.metric("Avg CLV (wk)", _clv_val,
+                    delta=f"{_wclv['pct_positive']:.0%} beat close", delta_color="off",
+                    help="Closing-line value: closing implied minus entry implied, deduped per "
+                         "prop. Positive = the market moved toward the pick (sharp); negative = "
+                         "it moved away (the ROI is likely variance, not edge). Converges far "
+                         "faster than win/loss.")
+    else:
+        _mc6.metric("Avg CLV (wk)", "—", "collecting closing lines", delta_color="off")
 
     # ── Streak ticker ─────────────────────────────────────────────────────────
     _streak = parlay_tracker.get_streak_info(sport=sport_filter)

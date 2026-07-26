@@ -47,6 +47,12 @@ CAL_MIN_SAMPLES = 15          # minimum weighted resolved legs per stat before c
 CAL_MAX_FACTOR = 1.35         # clamp calibration multiplier upper bound
 CAL_MIN_FACTOR = 0.05         # allow deep deflation for stats like RBI/HR that rarely hit
 CAL_HALF_LIFE_WEEKS = 3       # recency weighting: a week's legs count half as much every 3 weeks of age
+CAL_RECENCY_WEEKS = 2         # a stat with no legs generated within this many weeks of the latest
+                              # logged week is treated as RETIRED — the book stopped posting the line
+                              # or the model stopped scoring it — so it emits neither a calibration
+                              # factor nor a drift warning. Without this gate a dead market (e.g. Runs
+                              # Scored, last seen weeks ago) keeps producing a factor and a scary drift
+                              # warning from stale pre-epoch legs that nothing is betting anymore.
 
 # ── NBA stat resolution: how to compute a value from a PlayerGameLog row ─────
 # Format: "stat_type": ("single", col) or ("sum", [cols])
@@ -1049,6 +1055,34 @@ def _week_ordinal(iso_week: str) -> int | None:
         return None
 
 
+def _latest_week_ordinal(data: dict) -> int | None:
+    ords = [_week_ordinal(p.get("iso_week", "")) for p in data["parlays"] if p.get("iso_week")]
+    ords = [o for o in ords if o is not None]
+    return max(ords) if ords else None
+
+
+def _recent_active_stats(data: dict, sport: str | None, weeks: int = CAL_RECENCY_WEEKS) -> set | None:
+    """
+    Cal-keys generated within `weeks` of the latest logged week — i.e. the markets still
+    live. A stat absent from this set is retired: its only remaining legs are stale, so it
+    should emit neither a calibration factor nor a drift warning. Returns None when recency
+    can't be determined, in which case callers treat every stat as live (no gating).
+    """
+    latest = _latest_week_ordinal(data)
+    if latest is None:
+        return None
+    live: set = set()
+    for p in data["parlays"]:
+        if sport and p.get("sport") != sport:
+            continue
+        wo = _week_ordinal(p.get("iso_week", ""))
+        if wo is None or (latest - wo) >= weeks:
+            continue
+        for leg in p["legs"]:
+            live.add(_cal_key(leg))
+    return live
+
+
 def get_calibration(sport: str | None = None) -> dict:
     """
     Return per-stat calibration factors from resolved legs, recency-weighted
@@ -1100,8 +1134,11 @@ def get_calibration(sport: str | None = None) -> dict:
             actual[stat] += w * (1.0 if leg["outcome"] is True else 0.0)
             weight_sum[stat] += w
 
+    live = _recent_active_stats(data, sport)
     factors = {}
     for stat, wsum in weight_sum.items():
+        if live is not None and stat not in live:
+            continue  # retired market — don't carry a factor derived from stale legs
         if wsum < CAL_MIN_SAMPLES:
             continue
         p_mean = predicted[stat] / wsum
@@ -1202,6 +1239,31 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
         if resolved_parlays else None
     )
 
+    # Closing-line value for the week: closing implied minus entry implied (probability
+    # points), deduped per prop and restricted to market-priced epochs. Positive CLV = the
+    # market moved toward the pick — the sharpness signal that converges per leg instead of
+    # waiting on win/loss variance, so it belongs next to ROI in every performance view.
+    clv_diffs = []
+    clv_seen: set = set()
+    for p in week_parlays:
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        for leg in p["legs"]:
+            close = leg.get("closing_implied")
+            entry = leg.get("implied_prob")
+            if close is None or not entry:
+                continue
+            key = _prop_key(leg)
+            if key in clv_seen:
+                continue
+            clv_seen.add(key)
+            clv_diffs.append(float(close) - float(entry))
+    clv = {
+        "n":            len(clv_diffs),
+        "avg_clv":      round(sum(clv_diffs) / len(clv_diffs), 4) if clv_diffs else None,
+        "pct_positive": round(sum(1 for x in clv_diffs if x > 0) / len(clv_diffs), 4) if clv_diffs else None,
+    }
+
     return {
         "week":              week,
         "total_parlays":     len(week_parlays),
@@ -1215,6 +1277,7 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
         "leg_hit_rate":      round(len(hit_legs) / len(resolved_legs), 3) if resolved_legs else None,
         "stat_breakdown":    stat_breakdown,
         "sportsbook_breakdown": {sb: d for sb, d in sb_data.items()},
+        "clv":               clv,
     }
 
 
@@ -1242,13 +1305,17 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             predicted[stat].append(leg["predicted_hit_rate"])
             actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
 
+    live = _recent_active_stats(data, sport)
     rows = []
     for stat in sorted(predicted):
         n = len(predicted[stat])
         p_mean = sum(predicted[stat]) / n if n else 0
         a_mean = sum(actual[stat]) / n if n else 0
+        # Retired markets keep their historical row (for transparency) but carry no factor:
+        # the number is stale and is not applied to any current scoring.
+        recent = live is None or stat in live
         factor = None
-        if n >= CAL_MIN_SAMPLES and p_mean > 0:
+        if recent and n >= CAL_MIN_SAMPLES and p_mean > 0:
             raw = a_mean / p_mean
             factor = round(max(CAL_MIN_FACTOR, min(CAL_MAX_FACTOR, raw)), 3)
         rows.append({
@@ -1258,6 +1325,7 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             "actual_hit_rate":    round(a_mean, 3),
             "calibration_factor": factor,
             "active":             factor is not None,
+            "recent":             recent,
         })
     return rows
 
@@ -1593,25 +1661,53 @@ DRIFT_BIAS_ALERT = 0.15  # actual vs predicted this far apart is real miscalibra
 
 def get_drift_warnings(sport: str | None = None,
                        min_props: int = DRIFT_MIN_PROPS,
-                       bias_alert: float = DRIFT_BIAS_ALERT) -> list:
+                       bias_alert: float = DRIFT_BIAS_ALERT,
+                       weeks: int = CAL_RECENCY_WEEKS) -> list:
     """
-    Stats whose actual hit rate has drifted materially from predicted, on a sample
-    large enough to trust. Calibration already corrects these quietly; surfacing
-    them is what makes a prop that is bleeding EV visible while it is happening
-    instead of a month later.
+    Stats whose actual hit rate has drifted materially from predicted *recently*, on a
+    sample large enough to trust. Measured over the last `weeks` weeks only: an all-time
+    window let a market that stopped being generated weeks ago (Runs Scored) keep screaming
+    a -30% drift from stale pre-epoch legs, and let a live market's old, since-corrected
+    history dilute or inflate its current bias. A retired market has no recent props and so
+    drops out naturally; a live market with too few recent props (< min_props) is treated as
+    unsettled rather than drifting.
     """
-    rows = get_all_time_calibration_table(sport=sport)
-    out = []
-    for r in rows:
-        if r["samples"] < min_props:
+    data = _load()
+    latest = _latest_week_ordinal(data)
+    predicted: dict[str, list] = defaultdict(list)
+    actual: dict[str, list] = defaultdict(list)
+    seen_props: set = set()
+    for parlay in data["parlays"]:
+        if sport and parlay.get("sport") != sport:
             continue
-        bias = round(r["actual_hit_rate"] - r["predicted_hit_rate"], 3)
+        wo = _week_ordinal(parlay.get("iso_week", ""))
+        if latest is not None and (wo is None or (latest - wo) >= weeks):
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is None or leg["outcome"] == "void":
+                continue
+            key = _prop_key(leg)
+            if key in seen_props:
+                continue
+            seen_props.add(key)
+            stat = _cal_key(leg)
+            predicted[stat].append(leg["predicted_hit_rate"])
+            actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
+
+    out = []
+    for stat, preds in predicted.items():
+        n = len(preds)
+        if n < min_props:
+            continue
+        p_mean = sum(preds) / n
+        a_mean = sum(actual[stat]) / n
+        bias = round(a_mean - p_mean, 3)
         if abs(bias) >= bias_alert:
             out.append({
-                "stat_type":          r["stat_type"],
-                "samples":            r["samples"],
-                "predicted_hit_rate": r["predicted_hit_rate"],
-                "actual_hit_rate":    r["actual_hit_rate"],
+                "stat_type":          _cal_key_label(stat),
+                "samples":            n,
+                "predicted_hit_rate": round(p_mean, 3),
+                "actual_hit_rate":    round(a_mean, 3),
                 "bias":               bias,
             })
     return sorted(out, key=lambda x: abs(x["bias"]), reverse=True)
