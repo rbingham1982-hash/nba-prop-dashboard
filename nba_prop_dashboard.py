@@ -2903,6 +2903,7 @@ def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
     except Exception:
         _hr_market = {}
     _MKT_W = 0.78  # market share of the blend; the model contributes the remaining 0.22 as edge
+    _market_mode = bool(_hr_market)  # score only book-priced hitters when a market exists
 
     mlb_teams = get_mlb_teams()
     team_id_map = {t["abbr"]: t["id"] for t in mlb_teams}
@@ -2924,6 +2925,12 @@ def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
             except Exception:
                 continue
             for h in hitters[:15]:
+                # Only score hitters the book actually prices for a HR: no line means not a
+                # candidate anyway, and skipping them before _score_hitter_for_hr cuts ~225
+                # per-hitter API calls down to ~30-40 — the whole reason this build was slow.
+                _mkt_p = _hr_market.get(_hrn(h["name"]))
+                if _market_mode and _mkt_p is None:
+                    continue
                 pid = _mlb_player_id_by_name(h["name"])
                 if not pid:
                     continue
@@ -2931,7 +2938,6 @@ def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
                 if not result:
                     continue
                 _model_p = round(min(0.97, max(0.01, result["score"] * cal_factor)), 3)
-                _mkt_p = _hr_market.get(_hrn(h["name"]))
                 _blend = (round(_MKT_W * _mkt_p + (1 - _MKT_W) * _model_p, 3)
                           if _mkt_p is not None else _model_p)
                 candidates.append({
@@ -8284,9 +8290,9 @@ elif sport == "⚾ MLB":
         section("HR Power Picks")
         st.markdown("""
         <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
-        Ranks today's hitters by home run probability using <strong style='color:var(--text-primary)'>six combined factors</strong>:
-        recent HR rate, batter vs. pitcher career history, starting pitcher HR/9,
-        park HR factor, weather (temperature + wind), and handedness platoon split.
+        Ranks the book's home-run candidates by <strong style='color:var(--text-primary)'>market-anchored
+        probability</strong> — the FanDuel HR line (the primary signal) blended with a six-factor model
+        (recent HR rate, batter vs. pitcher history, pitcher HR/9, park, weather, platoon) as an edge nudge.
         </p>""", unsafe_allow_html=True)
 
         if st.button("Build HR Power Picks", type="primary", key="mlb_hr_picks_btn"):
