@@ -118,6 +118,36 @@ def _mlb_abbrev_from_name(full_name: str) -> str | None:
             return abbr
     return None
 
+def _mlb_strip_name(s: str) -> str:
+    """Normalized name with punctuation removed but spaces kept: 'C.J. Abrams' -> 'cj abrams'."""
+    import re
+    return re.sub(r"[^a-z0-9 ]", "", _normalize_name(s)).strip()
+
+def _mlb_match_player(box: dict, norm_name: str):
+    """
+    Find a player's boxscore entry, tolerant of name-form differences the raw normalized
+    name misses: punctuation ('C.J.' vs 'CJ') and first-name variants ('Josh' vs 'Joshua',
+    'Zach' vs 'Zac'). The first-name fallback fires only when exactly one player in the game
+    shares the last name + first initial, so it can never resolve against the wrong player.
+    Returns the player_data dict, or None.
+    """
+    target = _mlb_strip_name(norm_name)
+    if not target:
+        return None
+    tparts = target.split()
+    tlast, tinit = tparts[-1], tparts[0][:1]
+    players = [pdd for side in ("home", "away")
+               for pdd in box.get(side, {}).get("players", {}).values()]
+    # 1) punctuation-insensitive substring match (parity with the old norm-substring test)
+    for pdd in players:
+        if target in _mlb_strip_name(pdd.get("person", {}).get("fullName", "")):
+            return pdd
+    # 2) unambiguous last-name + first-initial fallback
+    cands = [pdd for pdd in players
+             if (fp := _mlb_strip_name(pdd.get("person", {}).get("fullName", "")).split())
+             and fp[-1] == tlast and fp[0][:1] == tinit]
+    return cands[0] if len(cands) == 1 else None
+
 def _mlb_game_matches_label(away_name: str, home_name: str, game_label: str) -> bool:
     """
     True if a schedule game (full team names) is the same matchup as a leg's abbreviated
@@ -704,7 +734,11 @@ def _resolve_mlb_legs() -> int:
         for parlay, leg in entries:
             d = _parse_game_date(leg, parlay["generated_at"])
             if d:
-                dates_needed.add(d.strftime("%m/%d/%Y"))
+                # ±1 day: a leg with no start_time dates off its parlay's generated_at,
+                # which can land a day before the real game (games also occasionally
+                # shift). The per-leg guard below keeps each leg pinned to the right game.
+                for _off in (-1, 0, 1):
+                    dates_needed.add((d + timedelta(days=_off)).strftime("%m/%d/%Y"))
 
         for date_str in dates_needed:
             schedule = _get_schedule(date_str)
@@ -736,41 +770,59 @@ def _resolve_mlb_legs() -> int:
                 if box is None:
                     continue
 
-                for side in ("home", "away"):
-                    team_data = box.get(side, {})
-                    for player_data in team_data.get("players", {}).values():
-                        full_name = player_data.get("person", {}).get("fullName", "")
-                        # Normalize both sides to handle accented characters (e.g. Vásquez)
-                        if norm_name not in _normalize_name(full_name):
+                try:
+                    game_date = datetime.strptime(date_str, "%m/%d/%Y").date()
+                except Exception:
+                    game_date = None
+                away_name = game_info.get("away_name") or ""
+                home_name = game_info.get("home_name") or ""
+
+                player_data = _mlb_match_player(box, norm_name)
+                if player_data is None:
+                    continue
+                stats = player_data.get("stats", {})
+                bstats = stats.get("batting", {})
+                pstats = stats.get("pitching", {})
+                for parlay, leg in entries:
+                    if leg["outcome"] is not None:
+                        continue
+                    # Pin this leg to the right game. A leg WITH a start_time has an
+                    # accurate date, so only the exact-date game is valid — this also
+                    # stops the ±1 window above from resolving it against an adjacent
+                    # day's game. A leg WITHOUT one dates off generated_at, so allow ±1
+                    # day but require the matchup to match, so a player's leg never
+                    # resolves against the wrong game in a series.
+                    leg_date = _parse_game_date(leg, parlay["generated_at"])
+                    if leg.get("start_time"):
+                        if game_date is not None and leg_date is not None and game_date != leg_date:
                             continue
-                        stats = player_data.get("stats", {})
-                        bstats = stats.get("batting", {})
-                        pstats = stats.get("pitching", {})
-                        for parlay, leg in entries:
-                            if leg["outcome"] is not None:
-                                continue
-                            stat_type = leg["stat_type"]
-                            is_pitching = stat_type in _MLB_PITCHER_TYPES
-                            if is_pitching:
-                                col = _MLB_PITCHING_RESOLVE.get(stat_type)
-                                source = pstats
-                                derived = None
-                            else:
-                                col = _MLB_BATTING_RESOLVE.get(stat_type)
-                                source = bstats
-                                # Composites (Total Bases, Singles, Hits+Runs+RBIs) have no
-                                # single boxscore key and must be computed from the raw stats.
-                                derived = _mlb_derived_batting(stat_type, bstats)
-                            if derived is None and (col is None or source is None):
-                                continue
-                            try:
-                                # Empty dict means player didn't appear; treat stat as 0
-                                actual = (derived if derived is not None
-                                          else float(source.get(col, 0) or 0))
-                                leg["outcome"] = bool(actual > leg["line_score"])
-                                resolved_count += 1
-                            except Exception:
-                                continue
+                    else:
+                        if game_date is None or leg_date is None or abs((game_date - leg_date).days) > 1:
+                            continue
+                        if not _mlb_game_matches_label(away_name, home_name, leg.get("game_label", "")):
+                            continue
+                    stat_type = leg["stat_type"]
+                    is_pitching = stat_type in _MLB_PITCHER_TYPES
+                    if is_pitching:
+                        col = _MLB_PITCHING_RESOLVE.get(stat_type)
+                        source = pstats
+                        derived = None
+                    else:
+                        col = _MLB_BATTING_RESOLVE.get(stat_type)
+                        source = bstats
+                        # Composites (Total Bases, Singles, Hits+Runs+RBIs) have no
+                        # single boxscore key and must be computed from the raw stats.
+                        derived = _mlb_derived_batting(stat_type, bstats)
+                    if derived is None and (col is None or source is None):
+                        continue
+                    try:
+                        # Empty dict means player didn't appear; treat stat as 0
+                        actual = (derived if derived is not None
+                                  else float(source.get(col, 0) or 0))
+                        leg["outcome"] = bool(actual > leg["line_score"])
+                        resolved_count += 1
+                    except Exception:
+                        continue
 
     marked = _mark_parlay_outcomes(data)
     if resolved_count or marked or attempted:
