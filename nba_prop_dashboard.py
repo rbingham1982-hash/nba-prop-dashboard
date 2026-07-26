@@ -4121,7 +4121,7 @@ def rolling_projection(df, col, window):
 # Restore sport from ticker link query param so the correct sport handler fires
 _qs_ticker_sport = st.query_params.get("ticker_sport", "")
 if _qs_ticker_sport and "sport_selector" not in st.session_state:
-    _sport_map = {"NBA": "🏀 NBA", "WNBA": "🏀 WNBA", "MLB": "⚾ MLB"}
+    _sport_map = {"NBA": "🏀 NBA", "WNBA": "🏀 WNBA", "MLB": "⚾ MLB", "NFL": "🏈 NFL"}
     if _qs_ticker_sport in _sport_map:
         st.session_state["sport_selector"] = _sport_map[_qs_ticker_sport]
 
@@ -4133,7 +4133,7 @@ with hdr_col:
         <p class="konjure-sub">Multi-Sport Prop Intelligence &nbsp;&middot;&nbsp; Powered by Data</p>
     </div>""", unsafe_allow_html=True)
 with sport_col:
-    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB"], key="sport_selector")
+    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL"], key="sport_selector")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SPORT-SPECIFIC CSS INJECTION
@@ -8450,4 +8450,88 @@ elif sport == "⚾ MLB":
             Konjure Analytics is not responsible for any financial decisions made based on this data.
             MLB data is sourced from the official MLB Stats API.
         </p>""", unsafe_allow_html=True)
+elif sport == "🏈 NFL":
+    # ══ NFL — Phase 1: Fantasy Draft Board (PPR · VOR). Analyze/Bet/Track mirror MLB in later phases. ══
+    _nfl_mode = st.radio("Board mode", ["2026 Projection", "2025 Actuals"],
+                         horizontal=True, label_visibility="collapsed", key="nfl_mode")
+    _nfl_proj = _nfl_mode.startswith("2026")
+    _nfl_sub = ("Projected 2026 PPR — 2025 + 2024 blend · position aging · current rosters · rookies from draft slot"
+                if _nfl_proj else "2025 actual PPR production")
+    st.markdown(
+        "<div style='margin:0.2rem 0 0.9rem;'>"
+        "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
+        "2026 NFL Fantasy Draft Board &nbsp;·&nbsp; PPR · Value Over Replacement</div>"
+        f"<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>{_nfl_sub}</div></div>",
+        unsafe_allow_html=True,
+    )
+
+    @st.cache_data(ttl=86400, show_spinner=False)
+    def _load_nfl_board(is_proj):
+        import nfl_fantasy_rankings as _nflf
+        return _nflf.get_ppr_projections() if is_proj else _nflf.get_ppr_rankings()
+
+    try:
+        with st.spinner("Building NFL PPR rankings from nflverse…"):
+            _nfl = _load_nfl_board(_nfl_proj)
+    except Exception as _e:
+        _nfl = {"players": [], "n_pool": 0}
+        st.error(f"Couldn't load NFL rankings: {_e}")
+
+    _np = _nfl.get("players", [])
+    if not _np:
+        st.info("NFL rankings unavailable right now — the nflverse data source didn't return data. Try again shortly.")
+    else:
+        _q1, _q2, _q3 = st.columns([2.2, 1, 1.4])
+        with _q1:
+            _pos_f = st.radio("Pos", ["All", "QB", "RB", "WR", "TE", "FLEX"], horizontal=True,
+                              label_visibility="collapsed", key="nfl_pos")
+        with _q2:
+            _cap_l = st.selectbox("Show", ["Top 50", "Top 100", "Top 200", "All"], index=1,
+                                  label_visibility="collapsed", key="nfl_cap")
+        with _q3:
+            _qtxt = st.text_input("Search", "", placeholder="Search player…",
+                                  label_visibility="collapsed", key="nfl_search")
+        _posmap = {"QB": ["QB"], "RB": ["RB"], "WR": ["WR"], "TE": ["TE"], "FLEX": ["RB", "WR", "TE"]}
+        _cap = {"Top 50": 50, "Top 100": 100, "Top 200": 200, "All": 10 ** 9}[_cap_l]
+        _rows = [p for p in _np
+                 if (_pos_f == "All" or p["pos"] in _posmap.get(_pos_f, []))
+                 and p["rank"] <= _cap and (not _qtxt or _qtxt.lower() in p["name"].lower())]
+        import pandas as _pd
+        _dfn = _pd.DataFrame([{
+            "Rank": p["rank"], "Tier": p["tier"], "Pos": p["pos_rank"], "Player": p["name"],
+            "Tm": p["team"], "Note": p.get("note", ""), "VOR": p["vor"], "Pts": p["proj_total"],
+            "PPG": p["ppg"], "G": p["games"], "PaYd": p["pass_yd"], "PaTD": p["pass_td"],
+            "RuYd": p["rush_yd"], "RuTD": p["rush_td"], "Rec": p["rec"], "ReYd": p["rec_yd"], "ReTD": p["rec_td"],
+        } for p in _rows])
+        if _dfn.empty:
+            st.caption("No players match the current filters.")
+        else:
+            def _nfl_heat(col):
+                v = col.astype(float); lo, hi = v.min(), v.max(); rng = (hi - lo) or 1.0; out = []
+                for x in v:
+                    t = (float(x) - lo) / rng
+                    if t < 0.5:
+                        f = t / 0.5; r, g, b = 215 + (255-215)*f, 48 + (255-48)*f, 39 + (191-39)*f
+                    else:
+                        f = (t - 0.5) / 0.5; r, g, b = 255 + (26-255)*f, 255 + (152-255)*f, 191 + (80-191)*f
+                    out.append(f"background-color: rgba({int(r)},{int(g)},{int(b)},0.60); color:#0b0e14;")
+                return out
+            _hc = ["VOR", "Pts", "PPG", "PaYd", "PaTD", "RuYd", "RuTD", "Rec", "ReYd", "ReTD"]
+            _sn = (_dfn.style.apply(_nfl_heat, subset=_hc, axis=0)
+                   .format({"VOR": "{:.0f}", "Pts": "{:.0f}", "PPG": "{:.1f}", "PaYd": "{:.0f}",
+                            "PaTD": "{:.1f}", "RuYd": "{:.0f}", "RuTD": "{:.1f}", "Rec": "{:.0f}",
+                            "ReYd": "{:.0f}", "ReTD": "{:.1f}"}))
+            st.dataframe(_sn, use_container_width=True, hide_index=True, height=min(760, 46 + 35 * len(_dfn)))
+        if _nfl_proj:
+            _nfl_m = (f"Projected 2026: {_nfl.get('blend', '')}. Rookies (Note='rookie') from draft-slot "
+                      f"tier averages — rough. Availability & depth-chart usage not modeled.")
+        else:
+            _nfl_m = "2025 actual PPR production."
+        st.caption(
+            f"VOR (value over replacement) = projected PPR minus the replacement-level player at the "
+            f"position — the cross-position draft metric. Pool {_nfl.get('n_pool', 0)}. Columns heat-mapped "
+            f"by strength; Note flags age / new team / rookie. {_nfl_m}"
+        )
+        st.caption("Analyze · Bet · Track tabs (mirroring MLB depth) are the next NFL phases.")
+
 # END OF FILE — orphaned block removed
