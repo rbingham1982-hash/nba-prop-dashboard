@@ -595,6 +595,16 @@ _ESPN_TO_NBA_ABBR = {
 def _resolve_nba_abbr(espn_abbr: str) -> str:
     return _ESPN_TO_NBA_ABBR.get(espn_abbr.upper(), espn_abbr.upper())
 
+def _current_nba_season() -> str:
+    """
+    Upcoming/current NBA season as 'YYYY-YY'. From ~July the rosters that matter are next
+    season's (free agency / trades have happened), so the start year rolls over mid-summer.
+    Auto-advances each year — no annual hardcode to update.
+    """
+    now = datetime.now()
+    start = now.year if now.month >= 7 else now.year - 1
+    return f"{start}-{str(start + 1)[-2:]}"
+
 @st.cache_data(ttl=3600)
 def _fetch_team_players(team_abbr):
     # Raises on failure so st.cache_data never caches an error as an empty
@@ -602,8 +612,16 @@ def _fetch_team_players(team_abbr):
     team_id = get_team_id(team_abbr)
     if not team_id:
         return []
-    roster = commonteamroster.CommonTeamRoster(team_id=team_id, timeout=20).get_data_frames()[0]
-    players_list = roster["PLAYER"].tolist()
+    # Current-season rosters so traded/signed players show under their new team, not the
+    # one they left. CommonTeamRoster with no season defaults to the just-completed season
+    # in the off-season, which is why the dropdowns were stale. Fall back to that default
+    # if the upcoming season isn't populated for a team yet.
+    def _roster(season=None):
+        kw = {"team_id": team_id, "timeout": 20}
+        if season:
+            kw["season"] = season
+        return commonteamroster.CommonTeamRoster(**kw).get_data_frames()[0]["PLAYER"].tolist()
+    players_list = _roster(_current_nba_season()) or _roster()
     if not players_list:
         raise ValueError(f"empty roster returned for {team_abbr}")
     return players_list
