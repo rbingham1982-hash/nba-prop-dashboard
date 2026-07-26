@@ -4673,7 +4673,14 @@ def _render_accuracy_tab(sport_filter: str) -> None:
     _wk_parlays = [p for p in _log_data["parlays"]
                    if p.get("iso_week") == _sel_week and p.get("sport") == sport_filter]
     if _wk_parlays:
-        for _wp in _wk_parlays:
+        # An expander per parlay is O(thousands) on a busy week (2000+ parlays) and stalls the
+        # whole tab. Render the recommended parlays only, capped and sorted best-first, and note
+        # the full count — the log is for spot-checking, not scrolling thousands of rows.
+        _rec_wk = [p for p in _wk_parlays if p.get("recommended")]
+        _show_wk = sorted(_rec_wk or _wk_parlays, key=lambda p: (p.get("ev") or 0), reverse=True)[:50]
+        st.caption(f"{len(_wk_parlays)} parlays logged this week · showing top {len(_show_wk)} "
+                   f"{'recommended ' if _rec_wk else ''}by EV.")
+        for _wp in _show_wk:
             _hit_icon = ("✅ Hit" if _wp["parlay_hit"] is True
                          else ("❌ Miss" if _wp["parlay_hit"] is False else "⏳ Pending"))
             _label = (f"{_wp.get('sportsbook','?')} · {_wp.get('kind','safe').title()} · "
@@ -7143,40 +7150,6 @@ elif sport == "⚾ MLB":
         if not _mlb_pitcher_tiles and not _top_hitters:
             st.caption("Player data unavailable right now.")
 
-        # ── Today's Best Plays ────────────────────────────────────────────────
-        with st.spinner("Analyzing today's best plays…"):
-            _tbp = _compute_todays_best_plays_mlb()
-        if _tbp:
-            mlb_section("Today's Best Plays")
-            st.markdown(
-                "<p style='font-size:0.75rem;color:var(--text-muted);margin:-0.25rem 0 0.9rem;'>"
-                "Top-edge props from Underdog Fantasy lines · 2 pitchers + 3 hitters · refreshed hourly</p>",
-                unsafe_allow_html=True,
-            )
-            _tbp_cols = st.columns(len(_tbp))
-            for _tcol, _tp in zip(_tbp_cols, _tbp):
-                with _tcol:
-                    _is_over = _tp["direction"] == "OVER"
-                    _dir_color = "#22c55e" if _is_over else "#f87171"
-                    _dir_bg    = "rgba(34,197,94,0.1)" if _is_over else "rgba(248,113,113,0.1)"
-                    _conf_pct  = int(_tp["edge"] * 100)
-                    _role      = "SP" if _tp["is_pitcher"] else "Hitter"
-                    st.markdown(f"""
-                    <div class='ptw-card' style='border-color:{_dir_color}44;'>
-                        <p class='ptw-player-name'>{_tp['player']}</p>
-                        <p class='ptw-team'>{_tp['team']} &nbsp;·&nbsp; {_role}</p>
-                        <p class='ptw-line' style='font-size:0.92rem;margin-bottom:0.3rem;'>
-                            {_tp['stat']} &nbsp;<span style='color:var(--text-muted);font-size:0.82rem;font-weight:500;'>{_tp['line']}</span>
-                        </p>
-                        <span style='display:inline-block;font-size:0.6rem;font-weight:700;letter-spacing:0.09em;
-                                     text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:4px;
-                                     color:{_dir_color};background:{_dir_bg};border:1px solid {_dir_color}40;'>
-                            {_tp['direction']}
-                        </span>
-                        <p style='font-size:0.64rem;color:var(--text-muted);margin:0.35rem 0 0;'>
-                            {_conf_pct}% confidence &nbsp;·&nbsp; {_tp['n']}G sample
-                        </p>
-                    </div>""", unsafe_allow_html=True)
 
         st.markdown("""
         <div class="sport-hero" style="background:linear-gradient(135deg,#111318 0%,#181d2e 55%,#111318 100%);">
