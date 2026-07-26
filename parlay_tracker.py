@@ -33,12 +33,26 @@ LOG_PATH = Path(__file__).parent / "parlay_log.json"
 # was really encoding which builder produced the parlay — the daily generator capped at
 # 4 and EV-ranked its worst legs, while 5-leg parlays came from the dashboard's better
 # pool. A number that measures its own source is not a calibration.
-_MODEL_EPOCH = "devig"
+#
+# "blend": leg probabilities are shrunk toward the de-vigged market price with a
+# weight fit from this log (see get_market_blend), and same-game combos carry a
+# measured correlation penalty. Audit of 243 resolved devig legs showed the raw
+# model was overconfident above 70% and its disagreements with the market were
+# anti-predictive (pred>implied legs hit 45.5%, pred<=implied hit 63.3%), while
+# same-game pairs hit at 0.72x what independence implied even after controlling
+# for leg overconfidence. Both change what predicted numbers mean → new epoch.
+_MODEL_EPOCH = "blend"
 
 CAL_MIN_SAMPLES = 15          # minimum weighted resolved legs per stat before calibration kicks in
 CAL_MAX_FACTOR = 1.35         # clamp calibration multiplier upper bound
 CAL_MIN_FACTOR = 0.05         # allow deep deflation for stats like RBI/HR that rarely hit
 CAL_HALF_LIFE_WEEKS = 3       # recency weighting: a week's legs count half as much every 3 weeks of age
+CAL_RECENCY_WEEKS = 2         # a stat with no legs generated within this many weeks of the latest
+                              # logged week is treated as RETIRED — the book stopped posting the line
+                              # or the model stopped scoring it — so it emits neither a calibration
+                              # factor nor a drift warning. Without this gate a dead market (e.g. Runs
+                              # Scored, last seen weeks ago) keeps producing a factor and a scary drift
+                              # warning from stale pre-epoch legs that nothing is betting anymore.
 
 # ── NBA stat resolution: how to compute a value from a PlayerGameLog row ─────
 # Format: "stat_type": ("single", col) or ("sum", [cols])
@@ -80,6 +94,79 @@ _MLB_PITCHING_RESOLVE = {
     "Walks Allowed":      "baseOnBalls",
 }
 _MLB_PITCHER_TYPES = set(_MLB_PITCHING_RESOLVE)
+
+# Nickname / city keyword → 3-letter abbrev, for matching a schedule game (which the
+# MLB API returns as full names like "Los Angeles Dodgers") back to a leg's game_label
+# (which is abbreviated, e.g. "LAD @ NYY"). "red sox"/"white sox" are keyed on the full
+# two-word nickname so "sox" is never ambiguous.
+_MLB_NAME_TO_ABBR = {
+    "diamondbacks": "ARI", "braves": "ATL", "orioles": "BAL", "red sox": "BOS",
+    "cubs": "CHC", "white sox": "CWS", "reds": "CIN", "guardians": "CLE",
+    "rockies": "COL", "tigers": "DET", "astros": "HOU", "royals": "KC",
+    "angels": "LAA", "dodgers": "LAD", "marlins": "MIA", "brewers": "MIL",
+    "twins": "MIN", "mets": "NYM", "yankees": "NYY", "athletics": "OAK",
+    "phillies": "PHI", "pirates": "PIT", "padres": "SD", "giants": "SF",
+    "mariners": "SEA", "cardinals": "STL", "rays": "TB", "rangers": "TEX",
+    "blue jays": "TOR", "nationals": "WSH",
+}
+# Abbreviation variants that different books use for the same club, so a game_label
+# written "CHW @ TEX" still matches a schedule abbrev of CWS.
+_MLB_ABBR_ALIASES = {
+    "ARI": {"ARI", "AZ"}, "CWS": {"CWS", "CHW"}, "OAK": {"OAK", "ATH"},
+    "WSH": {"WSH", "WSN", "WAS"},
+}
+
+def _mlb_abbrev_from_name(full_name: str) -> str | None:
+    """Map an MLB full team name to its 3-letter abbrev, or None if unrecognized."""
+    low = (full_name or "").lower()
+    for keyword, abbr in _MLB_NAME_TO_ABBR.items():
+        if keyword in low:
+            return abbr
+    return None
+
+def _mlb_strip_name(s: str) -> str:
+    """Normalized name with punctuation removed but spaces kept: 'C.J. Abrams' -> 'cj abrams'."""
+    import re
+    return re.sub(r"[^a-z0-9 ]", "", _normalize_name(s)).strip()
+
+def _mlb_match_player(box: dict, norm_name: str):
+    """
+    Find a player's boxscore entry, tolerant of name-form differences the raw normalized
+    name misses: punctuation ('C.J.' vs 'CJ') and first-name variants ('Josh' vs 'Joshua',
+    'Zach' vs 'Zac'). The first-name fallback fires only when exactly one player in the game
+    shares the last name + first initial, so it can never resolve against the wrong player.
+    Returns the player_data dict, or None.
+    """
+    target = _mlb_strip_name(norm_name)
+    if not target:
+        return None
+    tparts = target.split()
+    tlast, tinit = tparts[-1], tparts[0][:1]
+    players = [pdd for side in ("home", "away")
+               for pdd in box.get(side, {}).get("players", {}).values()]
+    # 1) punctuation-insensitive substring match (parity with the old norm-substring test)
+    for pdd in players:
+        if target in _mlb_strip_name(pdd.get("person", {}).get("fullName", "")):
+            return pdd
+    # 2) unambiguous last-name + first-initial fallback
+    cands = [pdd for pdd in players
+             if (fp := _mlb_strip_name(pdd.get("person", {}).get("fullName", "")).split())
+             and fp[-1] == tlast and fp[0][:1] == tinit]
+    return cands[0] if len(cands) == 1 else None
+
+def _mlb_game_matches_label(away_name: str, home_name: str, game_label: str) -> bool:
+    """
+    True if a schedule game (full team names) is the same matchup as a leg's abbreviated
+    game_label. Requires *both* clubs present so a same-day postponement of a different
+    game never voids the wrong leg.
+    """
+    gl = (game_label or "").upper()
+    matched = 0
+    for name in (away_name, home_name):
+        abbr = _mlb_abbrev_from_name(name)
+        if abbr and any(v in gl for v in _MLB_ABBR_ALIASES.get(abbr, {abbr})):
+            matched += 1
+    return matched == 2
 
 
 def _mlb_derived_batting(stat_type: str, b: dict) -> float | None:
@@ -156,6 +243,26 @@ def _parlay_id(parlay: dict, sport: str, sportsbook: str) -> str:
 # Public: log parlays
 # ─────────────────────────────────────────────────────────────────────────────
 
+EARLY_LEAD_HOURS = 8   # experiment threshold. A pick placed this many+ hours before first
+                       # pitch is tagged "early". Lead time is the single biggest CLV lever
+                       # found so far — early picks are ~break-even CLV and beat their implied
+                       # hit rate, late picks bleed — so every pick is TAGGED, not filtered, to
+                       # A/B the two cohorts prospectively (see get_lead_time_experiment).
+
+
+def _lead_hours(start_time: str, ref_utc: datetime) -> float | None:
+    """Hours from ref (UTC, taken at log time) to the game's start. None if unparseable."""
+    if not start_time:
+        return None
+    try:
+        s = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+        if s.tzinfo is None:
+            s = s.replace(tzinfo=timezone.utc)
+        return round((s - ref_utc).total_seconds() / 3600, 1)
+    except Exception:
+        return None
+
+
 def log_parlays(
     parlays: list,
     sport: str,
@@ -168,6 +275,7 @@ def log_parlays(
     data = _load()
     existing_ids = {p["id"] for p in data["parlays"]}
     now = datetime.now()
+    now_utc = datetime.now(timezone.utc)   # for tz-correct lead-time stamping
     week = now.strftime("%G-W%V")
     added = 0
 
@@ -195,12 +303,25 @@ def log_parlays(
             "parlay_hit":       None,
             "legs":             [],
         }
+        _leads = []
         for leg in parlay["legs"]:
+            _lh = _lead_hours(str(leg.get("start_time", "")), now_utc)
+            _leads.append(_lh)
             entry["legs"].append({
                 "player_name":       leg["player_name"],
                 "stat_type":         leg["stat_type"],
                 "line_score":        float(leg["line_score"]),
                 "predicted_hit_rate": round(float(leg["hit_rate"]), 4),
+                # Distinct scoring model, when a builder uses one that isn't the
+                # standard game-log/Statcast scorer (e.g. "hr_power_picks"). Keeps
+                # its calibration in its own bucket — see _cal_key.
+                **({"source": leg["source"]} if leg.get("source") else {}),
+                # Pre-blend model probability. get_market_blend refits the blend
+                # weight against this, not the shipped (already-blended) number —
+                # fitting against the blended value would shrink toward the market
+                # twice.
+                "model_hit_rate":    round(float(leg["model_hit_rate"]), 4)
+                                     if leg.get("model_hit_rate") is not None else None,
                 "american_odds":     leg.get("american_odds"),
                 # The de-vigged book probability the model actually scored against.
                 # Recomputing it later from american_odds gives a vig-inflated number.
@@ -208,8 +329,18 @@ def log_parlays(
                 "game_id":           str(leg.get("game_id", "")),
                 "game_label":        str(leg.get("game_label", "")),
                 "start_time":        str(leg.get("start_time", "")),
+                # Hours from log time to first pitch. Stamped, not filtered — the lead-time
+                # experiment flag (see EARLY_LEAD_HOURS / get_lead_time_experiment).
+                "lead_hours":        _lh,
                 "outcome":           None,
             })
+        # A parlay is only as "early" as its soonest game — that leg's line is already the
+        # most shaped — so bucket the whole parlay on the minimum leg lead.
+        _known = [x for x in _leads if x is not None]
+        _min_lead = min(_known) if _known else None
+        entry["min_lead_hours"] = _min_lead
+        entry["experiment"] = ("early" if _min_lead is not None and _min_lead >= EARLY_LEAD_HOURS
+                               else "late" if _min_lead is not None else "unknown")
         data["parlays"].append(entry)
         existing_ids.add(pid)
         added += 1
@@ -242,6 +373,11 @@ def _parse_game_date(leg: dict, parlay_generated_at: str) -> date | None:
 
 RESOLVE_MAX_ATTEMPTS  = 5   # tries before a long-finished leg is presumed unresolvable
 RESOLVE_GIVE_UP_DAYS  = 3   # ...and only once its game is this far in the past
+# statsapi (MLB) and commonallplayers (WNBA) issue requests with no timeout, so one
+# stalled connection freezes the whole resolve run indefinitely. A process-wide
+# socket timeout during resolve turns that hang into a caught exception the per-call
+# try/except already handles — the leg is skipped and retried next run.
+RESOLVE_HTTP_TIMEOUT  = 15  # seconds; ceiling on any single resolve network read
 
 
 def _leg_is_abandoned(leg: dict, now: datetime | None = None) -> bool:
@@ -606,6 +742,31 @@ def _resolve_mlb_legs() -> int:
         _save(data)
         return 0
 
+    # One schedule per date and one boxscore per game, cached for the whole run.
+    # The old code re-fetched both inside the per-player loop, so a slate of N
+    # players sharing M games issued N×M boxscore calls (each with a 0.4s sleep) —
+    # thousands of requests that made even a healthy run take 20+ minutes.
+    _sched_cache: dict = {}
+    _box_cache: dict = {}
+
+    def _get_schedule(date_str):
+        if date_str not in _sched_cache:
+            try:
+                _time.sleep(0.4)
+                _sched_cache[date_str] = statsapi.schedule(date=date_str, sportId=1)
+            except Exception:
+                _sched_cache[date_str] = []
+        return _sched_cache[date_str]
+
+    def _get_box(game_pk):
+        if game_pk not in _box_cache:
+            try:
+                _time.sleep(0.4)
+                _box_cache[game_pk] = statsapi.boxscore_data(game_pk)
+            except Exception:
+                _box_cache[game_pk] = None
+        return _box_cache[game_pk]
+
     resolved_count = 0
     for player_name, entries in player_legs.items():
         norm_name = _normalize_name(player_name)
@@ -613,14 +774,14 @@ def _resolve_mlb_legs() -> int:
         for parlay, leg in entries:
             d = _parse_game_date(leg, parlay["generated_at"])
             if d:
-                dates_needed.add(d.strftime("%m/%d/%Y"))
+                # ±1 day: a leg with no start_time dates off its parlay's generated_at,
+                # which can land a day before the real game (games also occasionally
+                # shift). The per-leg guard below keeps each leg pinned to the right game.
+                for _off in (-1, 0, 1):
+                    dates_needed.add((d + timedelta(days=_off)).strftime("%m/%d/%Y"))
 
         for date_str in dates_needed:
-            try:
-                _time.sleep(0.4)
-                schedule = statsapi.schedule(date=date_str, sportId=1)
-            except Exception:
-                continue
+            schedule = _get_schedule(date_str)
 
             for game_info in schedule:
                 game_pk = game_info.get("game_id")
@@ -629,60 +790,79 @@ def _resolve_mlb_legs() -> int:
                 game_status = (game_info.get("status") or "").lower()
                 # Void legs for postponed/suspended/cancelled games — parlay resolves on remaining legs
                 if "postponed" in game_status or "suspended" in game_status or "cancelled" in game_status:
-                    away_name = (game_info.get("away_name") or "").lower()
-                    home_name = (game_info.get("home_name") or "").lower()
+                    away_name = game_info.get("away_name") or ""
+                    home_name = game_info.get("home_name") or ""
                     for parlay, leg in entries:
                         if leg["outcome"] is not None:
                             continue
-                        gl = (leg.get("game_label") or "").lower()
-                        if any(t in gl for t in [away_name[:3], home_name[:3]]):
+                        # Match the postponed game to the leg by abbreviation, not by
+                        # full-name prefix — game_labels are abbreviated ("LAD @ NYY"),
+                        # so comparing "los"/"new" against them never matched and
+                        # postponed games silently never voided.
+                        if _mlb_game_matches_label(away_name, home_name, leg.get("game_label", "")):
                             leg["outcome"] = "void"
                             resolved_count += 1
                     continue
                 # Only resolve Final games — skip in-progress/scheduled
                 if game_status and "final" not in game_status and "completed" not in game_status and "over" not in game_status:
                     continue
-                try:
-                    _time.sleep(0.4)
-                    box = statsapi.boxscore_data(game_pk)
-                except Exception:
+                box = _get_box(game_pk)
+                if box is None:
                     continue
 
-                for side in ("home", "away"):
-                    team_data = box.get(side, {})
-                    for player_data in team_data.get("players", {}).values():
-                        full_name = player_data.get("person", {}).get("fullName", "")
-                        # Normalize both sides to handle accented characters (e.g. Vásquez)
-                        if norm_name not in _normalize_name(full_name):
+                try:
+                    game_date = datetime.strptime(date_str, "%m/%d/%Y").date()
+                except Exception:
+                    game_date = None
+                away_name = game_info.get("away_name") or ""
+                home_name = game_info.get("home_name") or ""
+
+                player_data = _mlb_match_player(box, norm_name)
+                if player_data is None:
+                    continue
+                stats = player_data.get("stats", {})
+                bstats = stats.get("batting", {})
+                pstats = stats.get("pitching", {})
+                for parlay, leg in entries:
+                    if leg["outcome"] is not None:
+                        continue
+                    # Pin this leg to the right game. A leg WITH a start_time has an
+                    # accurate date, so only the exact-date game is valid — this also
+                    # stops the ±1 window above from resolving it against an adjacent
+                    # day's game. A leg WITHOUT one dates off generated_at, so allow ±1
+                    # day but require the matchup to match, so a player's leg never
+                    # resolves against the wrong game in a series.
+                    leg_date = _parse_game_date(leg, parlay["generated_at"])
+                    if leg.get("start_time"):
+                        if game_date is not None and leg_date is not None and game_date != leg_date:
                             continue
-                        stats = player_data.get("stats", {})
-                        bstats = stats.get("batting", {})
-                        pstats = stats.get("pitching", {})
-                        for parlay, leg in entries:
-                            if leg["outcome"] is not None:
-                                continue
-                            stat_type = leg["stat_type"]
-                            is_pitching = stat_type in _MLB_PITCHER_TYPES
-                            if is_pitching:
-                                col = _MLB_PITCHING_RESOLVE.get(stat_type)
-                                source = pstats
-                                derived = None
-                            else:
-                                col = _MLB_BATTING_RESOLVE.get(stat_type)
-                                source = bstats
-                                # Composites (Total Bases, Singles, Hits+Runs+RBIs) have no
-                                # single boxscore key and must be computed from the raw stats.
-                                derived = _mlb_derived_batting(stat_type, bstats)
-                            if derived is None and (col is None or source is None):
-                                continue
-                            try:
-                                # Empty dict means player didn't appear; treat stat as 0
-                                actual = (derived if derived is not None
-                                          else float(source.get(col, 0) or 0))
-                                leg["outcome"] = bool(actual > leg["line_score"])
-                                resolved_count += 1
-                            except Exception:
-                                continue
+                    else:
+                        if game_date is None or leg_date is None or abs((game_date - leg_date).days) > 1:
+                            continue
+                        if not _mlb_game_matches_label(away_name, home_name, leg.get("game_label", "")):
+                            continue
+                    stat_type = leg["stat_type"]
+                    is_pitching = stat_type in _MLB_PITCHER_TYPES
+                    if is_pitching:
+                        col = _MLB_PITCHING_RESOLVE.get(stat_type)
+                        source = pstats
+                        derived = None
+                    else:
+                        col = _MLB_BATTING_RESOLVE.get(stat_type)
+                        source = bstats
+                        # Composites (Total Bases, Singles, Hits+Runs+RBIs) have no
+                        # single boxscore key and must be computed from the raw stats.
+                        derived = _mlb_derived_batting(stat_type, bstats)
+                    if derived is None and (col is None or source is None):
+                        continue
+                    try:
+                        # Empty dict means player didn't appear; treat stat as 0
+                        actual = (derived if derived is not None
+                                  else float(source.get(col, 0) or 0))
+                        leg["outcome"] = bool(actual > leg["line_score"])
+                        resolved_count += 1
+                    except Exception:
+                        continue
 
     marked = _mark_parlay_outcomes(data)
     if resolved_count or marked or attempted:
@@ -838,9 +1018,15 @@ def reset_outcomes(sport: str) -> int:
 
 def resolve_all_legs() -> dict:
     """Resolve NBA, MLB, and WNBA pending legs. Returns {nba: count, mlb: count, wnba: count}."""
-    nba  = resolve_nba_legs()
-    mlb  = _resolve_mlb_legs()
-    wnba = _resolve_wnba_legs()
+    import socket
+    _prev_timeout = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(RESOLVE_HTTP_TIMEOUT)
+    try:
+        nba  = resolve_nba_legs()
+        mlb  = _resolve_mlb_legs()
+        wnba = _resolve_wnba_legs()
+    finally:
+        socket.setdefaulttimeout(_prev_timeout)
     return {"nba": nba, "mlb": mlb, "wnba": wnba}
 
 
@@ -868,6 +1054,31 @@ def _prop_key(leg: dict) -> tuple:
     )
 
 
+def _cal_key(leg: dict) -> str:
+    """
+    Calibration bucket for a leg — usually just its stat_type, but a leg tagged
+    with a distinct model `source` gets its own bucket ("Home Runs::hr_power_picks").
+
+    HR Power Picks scores home-run probability with a six-factor model (recent
+    rate, BvP, pitcher HR/9, park, weather, platoon) that predicts nearly double
+    what the game-log HR scorer does — 40.5% vs 20.9% over resolved legs — so
+    pooling both into one "Home Runs" factor fits neither. Same rule the epoch
+    comment states: a number that measures two different sources is not a
+    calibration.
+    """
+    src = leg.get("source")
+    stat = str(leg.get("stat_type", ""))
+    return f"{stat}::{src}" if src else stat
+
+
+def _cal_key_label(key: str) -> str:
+    """Human-readable label for a calibration bucket key (for display tables)."""
+    if "::" in key:
+        stat, src = key.split("::", 1)
+        return f"{stat} ({src.replace('_', ' ')})"
+    return key
+
+
 def _week_ordinal(iso_week: str) -> int | None:
     """Convert '2026-W27' to a comparable weekly ordinal (Monday's date // 7)."""
     try:
@@ -876,6 +1087,34 @@ def _week_ordinal(iso_week: str) -> int | None:
         return monday.toordinal() // 7
     except Exception:
         return None
+
+
+def _latest_week_ordinal(data: dict) -> int | None:
+    ords = [_week_ordinal(p.get("iso_week", "")) for p in data["parlays"] if p.get("iso_week")]
+    ords = [o for o in ords if o is not None]
+    return max(ords) if ords else None
+
+
+def _recent_active_stats(data: dict, sport: str | None, weeks: int = CAL_RECENCY_WEEKS) -> set | None:
+    """
+    Cal-keys generated within `weeks` of the latest logged week — i.e. the markets still
+    live. A stat absent from this set is retired: its only remaining legs are stale, so it
+    should emit neither a calibration factor nor a drift warning. Returns None when recency
+    can't be determined, in which case callers treat every stat as live (no gating).
+    """
+    latest = _latest_week_ordinal(data)
+    if latest is None:
+        return None
+    live: set = set()
+    for p in data["parlays"]:
+        if sport and p.get("sport") != sport:
+            continue
+        wo = _week_ordinal(p.get("iso_week", ""))
+        if wo is None or (latest - wo) >= weeks:
+            continue
+        for leg in p["legs"]:
+            live.add(_cal_key(leg))
+    return live
 
 
 def get_calibration(sport: str | None = None) -> dict:
@@ -891,6 +1130,12 @@ def get_calibration(sport: str | None = None) -> dict:
     Only populated once a stat's weighted sample size reaches CAL_MIN_SAMPLES.
     """
     data = _load()
+    # NOT epoch-filtered (unlike parlay calibration). This factor corrects the
+    # base per-stat model — the game-log/Statcast (and six-factor HR) scorers —
+    # which the market blend did not touch; the blend is a separate correction
+    # layered on top afterward. Epoch-filtering here would throw away every
+    # hard-won per-stat factor the moment the epoch is bumped, leaving known-
+    # overconfident props (Home Runs, combo props) undeflated during the gap.
     parlays = [p for p in data["parlays"] if not sport or p.get("sport") == sport]
     if not parlays:
         return {}
@@ -918,13 +1163,16 @@ def get_calibration(sport: str | None = None) -> dict:
             if key in seen_props:
                 continue  # same prop, reused in another parlay — one observation
             seen_props.add(key)
-            stat = leg["stat_type"]
+            stat = _cal_key(leg)
             predicted[stat] += w * leg["predicted_hit_rate"]
             actual[stat] += w * (1.0 if leg["outcome"] is True else 0.0)
             weight_sum[stat] += w
 
+    live = _recent_active_stats(data, sport)
     factors = {}
     for stat, wsum in weight_sum.items():
+        if live is not None and stat not in live:
+            continue  # retired market — don't carry a factor derived from stale legs
         if wsum < CAL_MIN_SAMPLES:
             continue
         p_mean = predicted[stat] / wsum
@@ -1025,6 +1273,31 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
         if resolved_parlays else None
     )
 
+    # Closing-line value for the week: closing implied minus entry implied (probability
+    # points), deduped per prop and restricted to market-priced epochs. Positive CLV = the
+    # market moved toward the pick — the sharpness signal that converges per leg instead of
+    # waiting on win/loss variance, so it belongs next to ROI in every performance view.
+    clv_diffs = []
+    clv_seen: set = set()
+    for p in week_parlays:
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        for leg in p["legs"]:
+            close = leg.get("closing_implied")
+            entry = leg.get("implied_prob")
+            if close is None or not entry:
+                continue
+            key = _prop_key(leg)
+            if key in clv_seen:
+                continue
+            clv_seen.add(key)
+            clv_diffs.append(float(close) - float(entry))
+    clv = {
+        "n":            len(clv_diffs),
+        "avg_clv":      round(sum(clv_diffs) / len(clv_diffs), 4) if clv_diffs else None,
+        "pct_positive": round(sum(1 for x in clv_diffs if x > 0) / len(clv_diffs), 4) if clv_diffs else None,
+    }
+
     return {
         "week":              week,
         "total_parlays":     len(week_parlays),
@@ -1038,6 +1311,7 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
         "leg_hit_rate":      round(len(hit_legs) / len(resolved_legs), 3) if resolved_legs else None,
         "stat_breakdown":    stat_breakdown,
         "sportsbook_breakdown": {sb: d for sb, d in sb_data.items()},
+        "clv":               clv,
     }
 
 
@@ -1061,26 +1335,31 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             if key in seen_props:
                 continue
             seen_props.add(key)
-            stat = leg["stat_type"]
+            stat = _cal_key(leg)
             predicted[stat].append(leg["predicted_hit_rate"])
             actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
 
+    live = _recent_active_stats(data, sport)
     rows = []
     for stat in sorted(predicted):
         n = len(predicted[stat])
         p_mean = sum(predicted[stat]) / n if n else 0
         a_mean = sum(actual[stat]) / n if n else 0
+        # Retired markets keep their historical row (for transparency) but carry no factor:
+        # the number is stale and is not applied to any current scoring.
+        recent = live is None or stat in live
         factor = None
-        if n >= CAL_MIN_SAMPLES and p_mean > 0:
+        if recent and n >= CAL_MIN_SAMPLES and p_mean > 0:
             raw = a_mean / p_mean
             factor = round(max(CAL_MIN_FACTOR, min(CAL_MAX_FACTOR, raw)), 3)
         rows.append({
-            "stat_type":          stat,
+            "stat_type":          _cal_key_label(stat),
             "samples":            n,
             "predicted_hit_rate": round(p_mean, 3),
             "actual_hit_rate":    round(a_mean, 3),
             "calibration_factor": factor,
             "active":             factor is not None,
+            "recent":             recent,
         })
     return rows
 
@@ -1154,31 +1433,366 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
     return factors
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Market blend, same-game correlation, reliability, CLV
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Epochs whose legs carry an honest de-vigged implied_prob — the pool the blend
+# weight and correlation penalty are measured on. Pre-devig legs pinned implied
+# at 0.50 and would poison both fits.
+_MARKET_EPOCHS = ("devig", "blend")
+
+MB_PRIOR_WEIGHT   = 0.35   # prior blend weight (model share) before data speaks
+MB_PRIOR_STRENGTH = 150.0  # weighted legs the prior counts as — small samples move slowly
+MB_MAX_WEIGHT     = 0.70   # never trust the model more than this over the market
+
+
+def _market_legs(sport: str | None):
+    """Resolved, deduped legs from market-aware epochs with (model_prob, implied, hit, w)."""
+    data = _load()
+    parlays = [p for p in data["parlays"]
+               if p.get("model_epoch") in _MARKET_EPOCHS
+               and (not sport or p.get("sport") == sport)]
+    week_ords = [_week_ordinal(p["iso_week"]) for p in parlays if p.get("iso_week")]
+    week_ords = [w for w in week_ords if w is not None]
+    latest = max(week_ords) if week_ords else None
+    seen: set = set()
+    out = []
+    for p in parlays:
+        w = 1.0
+        if latest is not None:
+            wk = _week_ordinal(p.get("iso_week", ""))
+            if wk is not None:
+                w = 0.5 ** (max(0, latest - wk) / CAL_HALF_LIFE_WEEKS)
+        for leg in p["legs"]:
+            if leg.get("outcome") not in (True, False):
+                continue
+            implied = leg.get("implied_prob")
+            if not implied:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            model_p = leg.get("model_hit_rate")
+            if model_p is None:
+                model_p = leg.get("predicted_hit_rate")
+            out.append((float(model_p), float(implied),
+                        1.0 if leg["outcome"] is True else 0.0, w))
+    return out
+
+
+def get_market_blend(sport: str | None = None) -> float:
+    """
+    Weight on the model's probability when blending with the de-vigged market:
+    shipped_prob = w*model + (1-w)*implied.
+
+    Fit by grid-searching the weighted Brier score over resolved legs, then
+    shrunk toward MB_PRIOR_WEIGHT by MB_PRIOR_STRENGTH pseudo-legs so a thin
+    sample can't slam the weight to an extreme. First audit (2026-07-19,
+    n=243): WNBA fit 0.00 — the market alone beat every blend — MLB fit 0.25.
+    """
+    legs = _market_legs(sport)
+    wsum = sum(w for *_, w in legs)
+    if wsum <= 0:
+        return MB_PRIOR_WEIGHT
+    best_lam, best_brier = MB_PRIOR_WEIGHT, None
+    for i in range(21):
+        lam = i / 20.0
+        brier = sum(w * (lam * mp + (1 - lam) * ip - y) ** 2
+                    for mp, ip, y, w in legs) / wsum
+        if best_brier is None or brier < best_brier:
+            best_lam, best_brier = lam, brier
+    lam = (wsum * best_lam + MB_PRIOR_STRENGTH * MB_PRIOR_WEIGHT) / (wsum + MB_PRIOR_STRENGTH)
+    return round(min(MB_MAX_WEIGHT, max(0.0, lam)), 3)
+
+
+SG_MIN_PAIRS   = 150   # same-game pairs before the measured penalty is trusted
+SG_DEFAULT     = 0.85  # conservative fallback until the log can speak
+SG_FLOOR       = 0.55
+
+
+def get_same_game_penalty(sport: str | None = None) -> float:
+    """
+    DORMANT — measured but no longer applied to pricing (as of 2026-07-20). Kept
+    as a monitored metric and for a future per-prop-type correlation model; the
+    parlay builders default same_game_penalty to 1.0 and no call site passes this.
+
+    Multiplier that would deflate a parlay's probability once per same-game leg
+    pair, measured as the joint-hit ratio of same-game pairs normalized by the
+    cross-game ratio (the normalization strips leg overconfidence, leaving pure
+    correlation). Retired for two reasons the full-backlog resolution exposed:
+      1. Unstable: measured 0.716 on ~524 pairs, then 1.34 (MLB) once the sample
+         tripled — too high-variance to price against.
+      2. Wrong shape: it is deflate-only (min(1.0, ...)), but the fuller data
+         shows same-game legs hitting *more* than independence (positive
+         correlation, the intuitive pace/game-script effect), which a deflate-only
+         multiplier structurally cannot represent.
+    Doing this right needs a per-prop-type model (pace props correlate positively;
+    usage-competing props negatively), not one blended multiplier.
+
+    Falls back to the all-sport measurement, then SG_DEFAULT, when thin.
+    """
+    def _pairs(sp):
+        data = _load()
+        sg = [0.0, 0.0, 0.0]; xg = [0.0, 0.0, 0.0]   # [n, joint_hits, indep_pred]
+        for p in data["parlays"]:
+            if p.get("model_epoch") not in _MARKET_EPOCHS or p.get("parlay_hit") is None:
+                continue
+            if sp and p.get("sport") != sp:
+                continue
+            legs = p["legs"]
+            gids = [l.get("game_id") or l.get("game_label") for l in legs]
+            for i in range(len(legs)):
+                for j in range(i + 1, len(legs)):
+                    li, lj = legs[i], legs[j]
+                    if li.get("outcome") not in (True, False) or lj.get("outcome") not in (True, False):
+                        continue
+                    t = sg if gids[i] == gids[j] else xg
+                    t[0] += 1
+                    t[1] += 1 if (li["outcome"] is True and lj["outcome"] is True) else 0
+                    t[2] += float(li["predicted_hit_rate"]) * float(lj["predicted_hit_rate"])
+        return sg, xg
+
+    for scope in (sport, None):
+        sg, xg = _pairs(scope)
+        if sg[0] >= SG_MIN_PAIRS and xg[0] >= SG_MIN_PAIRS and sg[2] > 0 and xg[2] > 0:
+            sg_ratio = (sg[1] / sg[0]) / (sg[2] / sg[0])
+            xg_ratio = (xg[1] / xg[0]) / (xg[2] / xg[0])
+            if xg_ratio > 0:
+                return round(min(1.0, max(SG_FLOOR, sg_ratio / xg_ratio)), 3)
+        if scope is None:
+            break
+    return SG_DEFAULT
+
+
+def get_reliability_curve(sport: str | None = None) -> dict:
+    """
+    Decile reliability of shipped leg probabilities (market-aware epochs,
+    deduped, unweighted — the chart answers "how honest have the numbers
+    been", not "what factor should we apply").
+
+    Returns {"buckets": [{lo, hi, n, predicted, actual}], "brier": float,
+    "n": int, "base_rate": float}.
+    """
+    data = _load()
+    seen: set = set()
+    buckets = {i: [0.0, 0.0, 0] for i in range(10)}   # i -> [pred_sum, hits, n]
+    brier_sum, n_total, hits_total = 0.0, 0, 0.0
+    for p in data["parlays"]:
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        for leg in p["legs"]:
+            if leg.get("outcome") not in (True, False):
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            pr = float(leg["predicted_hit_rate"])
+            hit = 1.0 if leg["outcome"] is True else 0.0
+            b = min(int(pr * 10), 9)
+            buckets[b][0] += pr; buckets[b][1] += hit; buckets[b][2] += 1
+            brier_sum += (pr - hit) ** 2
+            n_total += 1; hits_total += hit
+    rows = []
+    for i in range(10):
+        s, h, n = buckets[i]
+        if n == 0:
+            continue
+        rows.append({"lo": i / 10, "hi": (i + 1) / 10, "n": n,
+                     "predicted": round(s / n, 4), "actual": round(h / n, 4)})
+    return {"buckets": rows,
+            "brier": round(brier_sum / n_total, 4) if n_total else None,
+            "n": n_total,
+            "base_rate": round(hits_total / n_total, 4) if n_total else None}
+
+
+def update_market_snapshots(props_df, sport: str) -> int:
+    """
+    Stamp pending legs with the latest market price for the same
+    player+stat+line. Called after every FanDuel fetch; games stop being
+    listed once they start, so the last snapshot to land approximates the
+    closing line. Returns the number of legs updated.
+    """
+    try:
+        if props_df is None or props_df.empty:
+            return 0
+    except Exception:
+        return 0
+    quotes = {}
+    for _, r in props_df.iterrows():
+        implied = r.get("implied_prob")
+        if implied is None:
+            continue
+        key = (str(r.get("player_name", "")).lower(), str(r.get("stat_type", "")),
+               float(r.get("line_score", 0)))
+        quotes[key] = (float(implied), r.get("american_odds"))
+    if not quotes:
+        return 0
+    data = _load()
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    updated = 0
+    for p in data["parlays"]:
+        if p.get("sport") != sport:
+            continue
+        for leg in p["legs"]:
+            if leg.get("outcome") is not None:
+                continue   # game resolved — entry vs close is already frozen
+            key = (str(leg.get("player_name", "")).lower(), str(leg.get("stat_type", "")),
+                   float(leg.get("line_score", 0)))
+            q = quotes.get(key)
+            if q is None:
+                continue
+            implied, odds = q
+            if leg.get("closing_implied") != implied or leg.get("closing_odds") != odds:
+                leg["closing_implied"] = implied
+                leg["closing_odds"] = odds
+                leg["closing_seen_at"] = now_iso
+                updated += 1
+    if updated:
+        _save(data)
+    return updated
+
+
+def get_clv_summary(sport: str | None = None) -> dict:
+    """
+    Closing-line value of logged picks: closing implied minus entry implied,
+    in probability points. Positive CLV = the market moved toward the pick,
+    the standard sharpness signal — it converges per leg instead of waiting
+    on months of win/loss variance.
+    """
+    data = _load()
+    seen: set = set()
+    diffs = []
+    for p in data["parlays"]:
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        for leg in p["legs"]:
+            close = leg.get("closing_implied")
+            entry = leg.get("implied_prob")
+            if close is None or not entry:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            diffs.append(float(close) - float(entry))
+    if not diffs:
+        return {"n": 0, "avg_clv": None, "pct_positive": None}
+    return {"n": len(diffs),
+            "avg_clv": round(sum(diffs) / len(diffs), 4),
+            "pct_positive": round(sum(1 for d in diffs if d > 0) / len(diffs), 4)}
+
+
+def get_lead_time_experiment(sport: str | None = None,
+                             threshold: float = EARLY_LEAD_HOURS) -> dict:
+    """
+    Prospective A/B of early vs late picks. Lead time is the single biggest CLV lever found:
+    early picks are ~break-even CLV and beat their implied hit rate, late picks bleed. Every
+    pick is logged and tagged (never filtered), so this compares the two cohorts on both CLV
+    (leading) and realized hit-vs-implied (lagging), deduped per prop.
+
+    Only legs carrying a stamped `lead_hours` are counted — i.e. those logged since the flag
+    shipped — so the comparison is a clean forward experiment, not contaminated by history.
+    """
+    data = _load()
+    b = {"early": {"clv": [], "res": []}, "late": {"clv": [], "res": []}}
+    seen: set = set()
+    for p in data["parlays"]:
+        if sport and p.get("sport") != sport:
+            continue
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        for leg in p["legs"]:
+            lh = leg.get("lead_hours")
+            if lh is None:
+                continue  # pre-experiment leg — excluded so the A/B stays forward-only
+            entry = leg.get("implied_prob")
+            if not entry:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            bucket = "early" if lh >= threshold else "late"
+            close = leg.get("closing_implied")
+            if close is not None:
+                b[bucket]["clv"].append(float(close) - float(entry))
+            if leg.get("outcome") in (True, False):
+                b[bucket]["res"].append((1.0 if leg["outcome"] is True else 0.0, float(entry)))
+
+    def _summ(v):
+        clv, res = v["clv"], v["res"]
+        return {
+            "n_clv":        len(clv),
+            "avg_clv":      round(sum(clv) / len(clv), 4) if clv else None,
+            "pct_positive": round(sum(1 for x in clv if x > 0) / len(clv), 4) if clv else None,
+            "n_resolved":   len(res),
+            "hit_rate":     round(sum(h for h, _ in res) / len(res), 4) if res else None,
+            "implied":      round(sum(i for _, i in res) / len(res), 4) if res else None,
+        }
+    return {"threshold_hours": threshold,
+            "early": _summ(b["early"]), "late": _summ(b["late"])}
+
+
 DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise
 DRIFT_BIAS_ALERT = 0.15  # actual vs predicted this far apart is real miscalibration
 
 
 def get_drift_warnings(sport: str | None = None,
                        min_props: int = DRIFT_MIN_PROPS,
-                       bias_alert: float = DRIFT_BIAS_ALERT) -> list:
+                       bias_alert: float = DRIFT_BIAS_ALERT,
+                       weeks: int = CAL_RECENCY_WEEKS) -> list:
     """
-    Stats whose actual hit rate has drifted materially from predicted, on a sample
-    large enough to trust. Calibration already corrects these quietly; surfacing
-    them is what makes a prop that is bleeding EV visible while it is happening
-    instead of a month later.
+    Stats whose actual hit rate has drifted materially from predicted *recently*, on a
+    sample large enough to trust. Measured over the last `weeks` weeks only: an all-time
+    window let a market that stopped being generated weeks ago (Runs Scored) keep screaming
+    a -30% drift from stale pre-epoch legs, and let a live market's old, since-corrected
+    history dilute or inflate its current bias. A retired market has no recent props and so
+    drops out naturally; a live market with too few recent props (< min_props) is treated as
+    unsettled rather than drifting.
     """
-    rows = get_all_time_calibration_table(sport=sport)
-    out = []
-    for r in rows:
-        if r["samples"] < min_props:
+    data = _load()
+    latest = _latest_week_ordinal(data)
+    predicted: dict[str, list] = defaultdict(list)
+    actual: dict[str, list] = defaultdict(list)
+    seen_props: set = set()
+    for parlay in data["parlays"]:
+        if sport and parlay.get("sport") != sport:
             continue
-        bias = round(r["actual_hit_rate"] - r["predicted_hit_rate"], 3)
+        wo = _week_ordinal(parlay.get("iso_week", ""))
+        if latest is not None and (wo is None or (latest - wo) >= weeks):
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is None or leg["outcome"] == "void":
+                continue
+            key = _prop_key(leg)
+            if key in seen_props:
+                continue
+            seen_props.add(key)
+            stat = _cal_key(leg)
+            predicted[stat].append(leg["predicted_hit_rate"])
+            actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
+
+    out = []
+    for stat, preds in predicted.items():
+        n = len(preds)
+        if n < min_props:
+            continue
+        p_mean = sum(preds) / n
+        a_mean = sum(actual[stat]) / n
+        bias = round(a_mean - p_mean, 3)
         if abs(bias) >= bias_alert:
             out.append({
-                "stat_type":          r["stat_type"],
-                "samples":            r["samples"],
-                "predicted_hit_rate": r["predicted_hit_rate"],
-                "actual_hit_rate":    r["actual_hit_rate"],
+                "stat_type":          _cal_key_label(stat),
+                "samples":            n,
+                "predicted_hit_rate": round(p_mean, 3),
+                "actual_hit_rate":    round(a_mean, 3),
                 "bias":               bias,
             })
     return sorted(out, key=lambda x: abs(x["bias"]), reverse=True)

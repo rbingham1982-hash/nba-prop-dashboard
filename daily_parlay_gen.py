@@ -251,13 +251,16 @@ def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
                              implied_override=implied, cal_factor=cal)
 
 def build_parlays(legs, min_legs=2, max_legs=5, top_n=50, pool_size=30, max_leg_uses=6,
-                  sportsbook="PrizePicks", parlay_cal=None):
+                  sportsbook="PrizePicks", parlay_cal=None,
+                  market_blend=None, same_game_penalty=1.0):
     # max_legs was 4, so the daily job could never emit a 5-leg parlay — the only size
     # that has actually been profitable (+100% ROI on MLB, vs -58% for the 4-leg it did
     # emit). The EV filter decides which sizes survive; the cap no longer prejudges it.
     return pm._build_parlays(legs, min_legs=min_legs, max_legs=max_legs,
                               top_n=top_n, pool_size=pool_size, max_leg_uses=max_leg_uses,
-                              sportsbook=sportsbook, parlay_cal=parlay_cal)
+                              sportsbook=sportsbook, parlay_cal=parlay_cal,
+                              market_blend=market_blend,
+                              same_game_penalty=same_game_penalty)
 
 # ── Leg scorer ─────────────────────────────────────────────────────────────
 
@@ -325,6 +328,16 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
     except Exception:
         pass
 
+    # Market blend, fit from the log. (Same-game correlation is still measured by
+    # parlay_tracker.get_same_game_penalty but no longer applied to pricing — the
+    # estimator was unstable and deflate-only; see that function's docstring.)
+    mkt_w = None
+    try:
+        mkt_w = parlay_tracker.get_market_blend(sport=sport_label)
+        print(f"  Market blend weight (model share): {mkt_w}")
+    except Exception:
+        pass
+
     total = 0
     # FanDuel leads: it is the only book here that quotes both sides of a prop, so it is
     # the only one the de-vig can fully use. Underdog and PrizePicks still run — a book
@@ -339,12 +352,23 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
             continue
         print(f"    {len(raw)} lines fetched.")
 
+        if sb == "FanDuel":
+            # CLV: stamp pending logged legs with the latest price. Games drop off
+            # the feed once they start, so the last stamp ≈ the closing line.
+            try:
+                n_clv = parlay_tracker.update_market_snapshots(raw, sport_label)
+                if n_clv:
+                    print(f"    CLV snapshots updated on {n_clv} pending legs.")
+            except Exception:
+                pass
+
         legs = score_legs(raw, cal, stat_types, rate_fn)
         print(f"    {len(legs)} legs scored.")
         if len(legs) < 2:
             continue
 
-        safe, value = build_parlays(legs, sportsbook=sb, parlay_cal=p_cal)
+        safe, value = build_parlays(legs, sportsbook=sb, parlay_cal=p_cal,
+                                    market_blend=mkt_w)
         if not safe and not value:
             continue
         s = parlay_tracker.log_parlays(safe,  sport_label, sb, kind="safe")
@@ -425,11 +449,30 @@ def warn_if_stale(now):
 
 # ── Entry point ────────────────────────────────────────────────────────────
 
+def already_ran_today(now) -> bool:
+    """True if a parlay was already logged today.
+
+    The scheduled task repeats hourly through the day so a 2 PM run missed while
+    the machine was hibernated/in modern-standby is caught the next time it's
+    awake. Only the first success each day should generate; every later firing
+    exits here instead of producing a duplicate slate.
+    """
+    try:
+        last = parlay_tracker.last_parlay_time()
+    except Exception:
+        return False
+    return last is not None and last.date() == now.date()
+
+
 def main():
     now   = datetime.now()
     month = now.month
     print(f"\nKonjure Analytics — Daily Parlay Generator")
     print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}")
+
+    if already_ran_today(now):
+        print("  Already generated today — nothing to do (hourly catch-up firing).")
+        return
 
     warn_if_stale(now)
     resolve_pending()

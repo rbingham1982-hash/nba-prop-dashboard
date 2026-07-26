@@ -6,6 +6,7 @@ Konjure Analytics — Multi-Sport Prop & Predictive Dashboard
 import os
 import re
 import time
+import html as _htmlmod
 import streamlit as st
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import streamlit.components.v1 as components
@@ -595,13 +596,21 @@ def _resolve_nba_abbr(espn_abbr: str) -> str:
     return _ESPN_TO_NBA_ABBR.get(espn_abbr.upper(), espn_abbr.upper())
 
 @st.cache_data(ttl=3600)
-def get_team_players(team_abbr):
+def _fetch_team_players(team_abbr):
+    # Raises on failure so st.cache_data never caches an error as an empty
+    # roster (a cached [] used to blank every player dropdown for an hour).
     team_id = get_team_id(team_abbr)
     if not team_id:
         return []
+    roster = commonteamroster.CommonTeamRoster(team_id=team_id, timeout=20).get_data_frames()[0]
+    players_list = roster["PLAYER"].tolist()
+    if not players_list:
+        raise ValueError(f"empty roster returned for {team_abbr}")
+    return players_list
+
+def get_team_players(team_abbr):
     try:
-        roster = commonteamroster.CommonTeamRoster(team_id=team_id).get_data_frames()[0]
-        return roster["PLAYER"].tolist()
+        return _fetch_team_players(team_abbr)
     except Exception:
         return []
 
@@ -2488,6 +2497,12 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
         if not df.empty:
             _toa_cache[_fd_key] = df
             _toa_cache_ts[_fd_key] = _fd_now
+            # CLV: stamp pending logged legs with the latest price. Games drop off
+            # the feed once they start, so the last stamp ≈ the closing line.
+            try:
+                parlay_tracker.update_market_snapshots(df, sport.upper())
+            except Exception:
+                pass
             return df
         # Metered fallbacks only if the free path yields nothing.
         if _get_sharp_api_key():
@@ -2798,7 +2813,7 @@ def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
     )
 
 
-def _grouped_tabs(groups: list):
+def _grouped_tabs(groups: list, key_prefix: str = "tabs"):
     """
     Build two-level tabs but hand back a flat iterator in declaration order.
 
@@ -2810,6 +2825,12 @@ def _grouped_tabs(groups: list):
     row rather than burying the landing page one click deep.
 
     groups: [(group_name, [child_name, ...]), ...]
+
+    key_prefix keys the inner tab widgets per sport. Without it Streamlit reuses
+    the tab widget by position when the sport switches, and because the child
+    label lists differ between sports (NBA's Bet has "First Basket", MLB's does
+    not) the frontend keeps a phantom stale tab — dimmed leftover content from
+    the previous sport that never clears. Distinct keys force a clean remount.
     """
     outer = st.tabs([name for name, _children in groups])
     flat = []
@@ -2818,7 +2839,7 @@ def _grouped_tabs(groups: list):
             flat.append(container)
             continue
         with container:
-            flat.extend(st.tabs(children))
+            flat.extend(st.tabs(children, key=f"{key_prefix}_{_name.lower()}_tabs"))
     return iter(flat)
 
 
@@ -3065,24 +3086,32 @@ def get_mlb_teams():
         return []
 
 @st.cache_data(ttl=3600)
+def _fetch_mlb_roster(team_id):
+    # Raises on failure so a transient API error isn't cached as an empty
+    # roster for an hour (see get_team_players for the same pattern).
+    url = f"{MLB_BASE}/teams/{team_id}/roster?season={MLB_SEASON}&rosterType=active"
+    resp = requests.get(url, timeout=10)
+    resp.raise_for_status()
+    roster = resp.json().get("roster", [])
+    hitters, pitchers = [], []
+    for p in roster:
+        pos = p.get("position", {})
+        pos_abbr = pos.get("abbreviation", "")
+        pos_type = pos.get("type", "")
+        name = p.get("person", {}).get("fullName", "")
+        pid = p.get("person", {}).get("id")
+        entry = {"name": name, "id": pid, "pos": pos_abbr}
+        if pos_abbr == "P" or pos_type == "Pitcher":
+            pitchers.append(entry)
+        else:
+            hitters.append(entry)
+    if not hitters and not pitchers:
+        raise ValueError(f"empty roster returned for team {team_id}")
+    return hitters, pitchers
+
 def get_mlb_roster(team_id):
     try:
-        url = f"{MLB_BASE}/teams/{team_id}/roster?season={MLB_SEASON}&rosterType=active"
-        resp = requests.get(url, timeout=10)
-        roster = resp.json().get("roster", [])
-        hitters, pitchers = [], []
-        for p in roster:
-            pos = p.get("position", {})
-            pos_abbr = pos.get("abbreviation", "")
-            pos_type = pos.get("type", "")
-            name = p.get("person", {}).get("fullName", "")
-            pid = p.get("person", {}).get("id")
-            entry = {"name": name, "id": pid, "pos": pos_abbr}
-            if pos_abbr == "P" or pos_type == "Pitcher":
-                pitchers.append(entry)
-            else:
-                hitters.append(entry)
-        return hitters, pitchers
+        return _fetch_mlb_roster(team_id)
     except Exception as e:
         st.warning(f"Could not load MLB roster: {e}")
         return [], []
@@ -3993,14 +4022,23 @@ def _pitcher_desc(stats):
             else "a bonafide ace" if era < 3.50
             else "a solid mid-rotation starter" if era < 4.25
             else "a back-end starter fighting for consistency")
-    k_str = (f" a strikeout machine ({k9:.1f} K/9)" if k9 > 10
-              else f" high strikeout upside ({k9:.1f} K/9)" if k9 > 8
-              else "")
-    ctrl_str = (" with elite control" if whip < 1.05
-                else " with sharp control" if whip < 1.20
-                else " who has battled command issues at times" if whip > 1.40
-                else "")
-    return f"{tier}{k_str}{ctrl_str} ({era:.2f} ERA / {whip:.2f} WHIP)"
+    # Build "with X and Y" so the traits read as one sentence instead of
+    # concatenated fragments ("a bonafide ace high strikeout upside...").
+    traits = []
+    if k9 > 10:
+        traits.append(f"strikeout-machine stuff ({k9:.1f} K/9)")
+    elif k9 > 8:
+        traits.append(f"high strikeout upside ({k9:.1f} K/9)")
+    if whip < 1.05:
+        traits.append("elite control")
+    elif whip < 1.20:
+        traits.append("sharp control")
+    desc = tier
+    if traits:
+        desc += " with " + " and ".join(traits)
+    if whip > 1.40:
+        desc += " who has battled command issues at times"
+    return f"{desc} ({era:.2f} ERA / {whip:.2f} WHIP)"
 
 def _nba_game_html(g):
     aw = g.get("away", "")
@@ -4072,14 +4110,23 @@ def _mlb_game_html(g):
             f"<div class='blog-game-body'>{body}</div>"
             f"</div>")
 
+def _safe_news_text(text):
+    """Escape external text for embedding in raw-HTML st.markdown blocks.
+
+    html.escape guards the markup; swapping $ for &#36; keeps literal dollar
+    signs (e.g. "$4.7M") from pairing up as KaTeX math delimiters, which
+    otherwise swallows the text between them and leaks raw HTML on screen.
+    """
+    return _htmlmod.escape(str(text)).replace("$", "&#36;")
+
 def _news_rows_html(news, n=5):
     if not news:
         return "<p class='blog-body'>No recent stories available.</p>"
     rows = ""
     for item in news[:n]:
-        link = item.get("link", "#")
-        title = item.get("title", "")
-        date = item.get("date", "")
+        link = _htmlmod.escape(item.get("link", "#"), quote=True)
+        title = _safe_news_text(item.get("title", ""))
+        date = _safe_news_text(item.get("date", ""))
         rows += (f"<a href='{link}' target='_blank' style='text-decoration:none;color:inherit;'>"
                  f"<div class='blog-news-row'>"
                  f"<div class='blog-news-dot'></div>"
@@ -4511,12 +4558,12 @@ def render_news_panel(news):
         return
     for item in news:
         st.markdown(
-            f"<a href='{item['link']}' target='_blank' style='text-decoration:none;'>"
+            f"<a href='{_htmlmod.escape(item['link'], quote=True)}' target='_blank' style='text-decoration:none;'>"
             f"<div class='news-card'>"
             f"<p class='news-source'>AP / ESPN</p>"
-            f"<p class='news-headline'>{item['title']}</p>"
-            f"<p class='news-desc'>{item['desc']}</p>"
-            f"<p class='news-meta'>{item['date']}</p>"
+            f"<p class='news-headline'>{_safe_news_text(item['title'])}</p>"
+            f"<p class='news-desc'>{_safe_news_text(item['desc'])}</p>"
+            f"<p class='news-meta'>{_safe_news_text(item['date'])}</p>"
             f"</div></a>",
             unsafe_allow_html=True)
 
@@ -4657,7 +4704,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
 
     # ── Weekly KPIs ───────────────────────────────────────────────────────────
     _wsum = parlay_tracker.get_weekly_summary(_sel_week, sport=sport_filter)
-    _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
+    _mc1, _mc2, _mc3, _mc4, _mc5, _mc6 = st.columns(6)
     _mc1.metric("Parlays Generated", _wsum["total_parlays"])
     _mc2.metric("Resolved", _wsum["resolved_parlays"])
     _phit  = f"{_wsum['parlay_hit_rate']*100:.1f}%" if _wsum["parlay_hit_rate"] is not None else "—"
@@ -4666,6 +4713,20 @@ def _render_accuracy_tab(sport_filter: str) -> None:
     _lhit  = f"{_wsum['leg_hit_rate']*100:.1f}%" if _wsum["leg_hit_rate"] is not None else "—"
     _mc4.metric("Leg Hit Rate", _lhit)
     _mc5.metric("Legs Resolved", f"{_wsum['resolved_legs']} / {_wsum['total_legs']}")
+    # CLV belongs in the headline row: it's the leading edge indicator and converges far
+    # faster than hit rate / ROI, which are mostly variance at a week's sample size. Negative
+    # CLV means the market moved against the picks — a red flag even when the ROI looks green.
+    _wclv = _wsum.get("clv") or {}
+    if _wclv.get("n"):
+        _clv_val = f"{_wclv['avg_clv']*100:+.1f} pts"
+        _mc6.metric("Avg CLV (wk)", _clv_val,
+                    delta=f"{_wclv['pct_positive']:.0%} beat close", delta_color="off",
+                    help="Closing-line value: closing implied minus entry implied, deduped per "
+                         "prop. Positive = the market moved toward the pick (sharp); negative = "
+                         "it moved away (the ROI is likely variance, not edge). Converges far "
+                         "faster than win/loss.")
+    else:
+        _mc6.metric("Avg CLV (wk)", "—", "collecting closing lines", delta_color="off")
 
     # ── Streak ticker ─────────────────────────────────────────────────────────
     _streak = parlay_tracker.get_streak_info(sport=sport_filter)
@@ -4851,6 +4912,121 @@ def _render_accuracy_tab(sport_filter: str) -> None:
             )
         else:
             st.caption("No negative-edge legs resolved yet.")
+    st.divider()
+
+    # ── Model reliability ─────────────────────────────────────────────────────
+    st.markdown("#### Model Reliability")
+    st.caption(
+        "How honest the shipped leg probabilities have been: each point is a "
+        "probability decile — on the dashed line means perfectly calibrated. "
+        "Below the line = overconfident."
+    )
+    _rel = parlay_tracker.get_reliability_curve(sport=sport_filter)
+    _rm1, _rm2, _rm3, _rm4 = st.columns(4)
+    if _rel["n"]:
+        _rm1.metric("Brier Score", f"{_rel['brier']:.4f}",
+                    help="Mean squared error of leg probabilities. Lower is better; "
+                         "predicting the base rate every time scores "
+                         f"{_rel['base_rate']*(1-_rel['base_rate']):.4f}.")
+        _rm2.metric("Resolved Legs", f"{_rel['n']}")
+        _rm3.metric("Base Hit Rate", f"{_rel['base_rate']:.1%}")
+    _clv = parlay_tracker.get_clv_summary(sport=sport_filter)
+    if _clv["n"]:
+        _rm4.metric("Avg CLV", f"{_clv['avg_clv']*100:+.1f} pts",
+                    f"{_clv['pct_positive']:.0%} positive · {_clv['n']} legs",
+                    delta_color="normal",
+                    help="Closing line value: closing implied minus entry implied. "
+                         "Positive = the market moved toward the pick — the standard "
+                         "sharpness signal, and it converges far faster than ROI.")
+    else:
+        _rm4.metric("Avg CLV", "—", "collecting closing lines",
+                    help="Closing-line snapshots are stamped on pending picks each "
+                         "time lines are fetched; data accrues from today forward.")
+    if _rel["buckets"]:
+        import plotly.graph_objects as _go
+        _rx = [b["predicted"] for b in _rel["buckets"]]
+        _ry = [b["actual"] for b in _rel["buckets"]]
+        _rn = [b["n"] for b in _rel["buckets"]]
+        _rfig = _go.Figure()
+        _rfig.add_trace(_go.Scatter(
+            x=[0, 1], y=[0, 1], mode="lines", hoverinfo="skip",
+            line=dict(color="#3a4050", width=1, dash="dash"), showlegend=False))
+        _rfig.add_trace(_go.Scatter(
+            x=_rx, y=_ry, mode="lines+markers", showlegend=False,
+            line=dict(color="#818cf8", width=2),
+            marker=dict(color="#818cf8", size=[max(8, min(22, 6 + n ** 0.5)) for n in _rn],
+                        line=dict(color="#11141a", width=2)),
+            customdata=[[f"{b['lo']:.0%}–{b['hi']:.0%}", n] for b, n in zip(_rel["buckets"], _rn)],
+            hovertemplate="bucket %{customdata[0]}<br>predicted %{x:.1%}<br>"
+                          "actual %{y:.1%}<br>n=%{customdata[1]}<extra></extra>"))
+        _rfig.update_layout(
+            height=340, margin=dict(l=10, r=10, t=10, b=10),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(title="Predicted probability", range=[0, 1], tickformat=".0%",
+                       gridcolor="#20242e", zeroline=False),
+            yaxis=dict(title="Actual hit rate", range=[0, 1], tickformat=".0%",
+                       gridcolor="#20242e", zeroline=False),
+            font=dict(color="#9294a8", size=12),
+        )
+        st.plotly_chart(_rfig, width="stretch", config={"displayModeBar": False})
+        with st.expander("Reliability data table"):
+            st.dataframe(pd.DataFrame([
+                {"Bucket": f"{b['lo']:.0%}–{b['hi']:.0%}", "Legs": b["n"],
+                 "Avg Predicted": f"{b['predicted']:.1%}", "Actual": f"{b['actual']:.1%}",
+                 "Gap": f"{b['actual']-b['predicted']:+.1%}"}
+                for b in _rel["buckets"]]), width="stretch", hide_index=True)
+    else:
+        st.caption("No resolved legs from market-aware model generations yet.")
+
+    # Applied model corrections, so the numbers on the parlay boards are explainable.
+    try:
+        _mb_w = parlay_tracker.get_market_blend(sport=sport_filter)
+        # Same-game correlation is measured but no longer applied to pricing — the
+        # estimator proved unstable (0.72x -> 1.34x as the sample grew) and its
+        # deflate-only design can't represent the positive correlation the fuller
+        # data shows. Shown here as a monitored metric, flagged as not applied.
+        _sg_p = parlay_tracker.get_same_game_penalty(sport=sport_filter)
+        st.caption(
+            f"Applied correction — market blend: **{_mb_w:.0%} model / "
+            f"{1-_mb_w:.0%} market**, fit from this log's resolved legs. "
+            f"Same-game correlation (monitored, not applied): ×{_sg_p:.3f}/pair."
+        )
+    except Exception:
+        pass
+    st.divider()
+
+    # ── Lead-time experiment (early vs late picks) ────────────────────────────
+    st.markdown("#### Lead-Time Experiment")
+    st.caption(
+        f"Every pick is tagged early/late by hours to first pitch (threshold "
+        f"{parlay_tracker.EARLY_LEAD_HOURS}h) — never filtered — to A/B the one signal that "
+        "looked real in-sample: early picks were ~break-even CLV and beat their implied hit "
+        "rate, late picks bled. CLV leads; hit-vs-implied is the realized check. Forward-only."
+    )
+    _lt = parlay_tracker.get_lead_time_experiment(sport=sport_filter)
+    _e, _l = _lt["early"], _lt["late"]
+    if not any(_e[k] or _l[k] for k in ("n_clv", "n_resolved")):
+        st.caption("⏳ Collecting — no tagged picks yet. Tagging begins with the next "
+                   "generation; early vs late fills in as those picks get closing lines and resolve.")
+    else:
+        def _lead_col(col, label, sub, s):
+            with col:
+                st.markdown(f"**{label}** · {sub}")
+                _a, _b = st.columns(2)
+                _clv_v = f"{s['avg_clv']*100:+.1f} pts" if s["avg_clv"] is not None else "—"
+                _clv_d = (f"{s['n_clv']} legs" +
+                          (f" · {s['pct_positive']:.0%} beat close" if s["pct_positive"] is not None else ""))
+                _a.metric("Avg CLV", _clv_v, _clv_d, delta_color="off")
+                if s["hit_rate"] is not None:
+                    _edge = (s["hit_rate"] - s["implied"]) * 100
+                    _b.metric("Hit vs Implied", f"{_edge:+.1f} pts",
+                              f"{s['hit_rate']:.0%} vs {s['implied']:.0%} · {s['n_resolved']} legs",
+                              delta_color="off")
+                else:
+                    _b.metric("Hit vs Implied", "—", f"{s['n_resolved']} resolved", delta_color="off")
+        _ec, _lc = st.columns(2)
+        _lead_col(_ec, "Early", f"≥ {parlay_tracker.EARLY_LEAD_HOURS}h lead", _e)
+        _lead_col(_lc, "Late",  f"< {parlay_tracker.EARLY_LEAD_HOURS}h lead", _l)
     st.divider()
 
     # ── Calibration drift alerts ──────────────────────────────────────────────
@@ -5066,23 +5242,29 @@ def _wnba_espn_slug(abbr: str) -> str:
     return _WNBA_ABBR_TO_ESPN_SLUG.get(abbr.upper(), abbr.lower())
 
 @st.cache_data(ttl=3600)
+def _fetch_wnba_team_roster_map(team_abbr: str) -> dict:
+    # Raises on failure so a transient API error isn't cached as an empty
+    # roster for an hour (see get_team_players for the same pattern).
+    slug = _wnba_espn_slug(team_abbr)
+    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{slug}/roster"
+    resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+    resp.raise_for_status()
+    result = {}
+    for a in resp.json().get("athletes", []):
+        name = a.get("displayName") or a.get("fullName", "")
+        espn_id = str(a.get("id", ""))
+        if name and espn_id:
+            result[name] = espn_id
+    if not result:
+        raise ValueError(f"empty WNBA roster returned for {team_abbr}")
+    return result
+
 def _get_wnba_team_roster_map(team_abbr: str) -> dict:
     """Returns {player_name: espn_id} for a team. Cached so both names and IDs are stored."""
-    slug = _wnba_espn_slug(team_abbr)
     try:
-        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{slug}/roster"
-        resp = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
-        if resp.status_code == 200:
-            result = {}
-            for a in resp.json().get("athletes", []):
-                name = a.get("displayName") or a.get("fullName", "")
-                espn_id = str(a.get("id", ""))
-                if name and espn_id:
-                    result[name] = espn_id
-            return result
+        return _fetch_wnba_team_roster_map(team_abbr)
     except Exception:
-        pass
-    return {}
+        return {}
 
 def get_wnba_team_players(team_abbr: str):
     """Return list of player names for a WNBA team."""
@@ -5258,7 +5440,7 @@ if sport == "🏀 NBA":
         ("Bet",     ["Bet Simulation", "First Basket", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
-    ])
+    ], key_prefix="nba")
     tab_home        = next(_nba_tabs_iter)
     tab_stats       = next(_nba_tabs_iter)
     tab_opp         = next(_nba_tabs_iter)
@@ -6258,6 +6440,10 @@ if sport == "🏀 NBA":
             section(f"{len(filtered)} Line(s) — {_sb_nba}")
             show_cols = ["player_name", "team", "stat_type", "line_score", "Odds", "Implied %", "game_label"]
             show_cols = [c for c in show_cols if c in filtered.columns]
+            # Books like FanDuel don't expose player teams — drop the column
+            # rather than render a blank one for every row.
+            if "team" in show_cols and filtered["team"].astype(str).str.strip().eq("").all():
+                show_cols.remove("team")
             st.dataframe(
                 filtered[show_cols].rename(columns={
                     "player_name": "Player", "team": "Team", "stat_type": "Stat",
@@ -6398,6 +6584,7 @@ if sport == "🏀 NBA":
                     _legs_nba_data, min_legs=_b_min, max_legs=_b_max,
                     sportsbook=_sb_choice_nba,
                     parlay_cal=parlay_tracker.get_parlay_calibration("NBA"),
+                    market_blend=parlay_tracker.get_market_blend("NBA"),
                 )
             else:
                 _pp_filt = _pp_filt.sort_values("implied_prob" if "implied_prob" in _pp_filt.columns else "line_score", ascending=False).head(50)
@@ -6457,6 +6644,7 @@ if sport == "🏀 NBA":
                     _legs_nba_data, min_legs=_b_min, max_legs=_b_max,
                     sportsbook=_sb_choice_nba,
                     parlay_cal=parlay_tracker.get_parlay_calibration("NBA"),
+                    market_blend=parlay_tracker.get_market_blend("NBA"),
                 )
 
             # Log generated parlays for accuracy tracking
@@ -6484,7 +6672,10 @@ if sport == "🏀 NBA":
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _sgp_results = _build_sgp(_legs_nba_data, min_legs=5, max_legs=5)
+            _sgp_results = _build_sgp(
+                _legs_nba_data, min_legs=5, max_legs=5,
+                market_blend=parlay_tracker.get_market_blend("NBA"),
+            )
             if _sgp_results:
                 for _sgp in _sgp_results:
                     st.markdown(
@@ -6551,7 +6742,7 @@ elif sport == "🏀 WNBA":
         ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
-    ])
+    ], key_prefix="wnba")
     tab_w_home     = next(_wnba_tabs_iter)
     tab_w_stats    = next(_wnba_tabs_iter)
     tab_w_opp      = next(_wnba_tabs_iter)
@@ -7031,6 +7222,10 @@ elif sport == "🏀 WNBA":
             if "implied_prob" in _wsb_df2.columns:
                 _wsb_display_cols.append("implied_prob")
             _wsb_display_cols = [c for c in _wsb_display_cols if c in _wsb_df2.columns]
+            # Books like FanDuel don't expose player teams — drop the column
+            # rather than render a blank one for every row.
+            if "team" in _wsb_display_cols and _wsb_df2["team"].astype(str).str.strip().eq("").all():
+                _wsb_display_cols.remove("team")
             st.dataframe(
                 _wsb_df2[_wsb_display_cols].sort_values("implied_prob", ascending=False) if "implied_prob" in _wsb_df2.columns else _wsb_df2[_wsb_display_cols],
                 width="stretch", hide_index=True
@@ -7138,6 +7333,7 @@ elif sport == "🏀 WNBA":
                     _wlegs_data, min_legs=_wb_min, max_legs=_wb_max,
                     sportsbook=_wb_sb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("WNBA"),
+                    market_blend=parlay_tracker.get_market_blend("WNBA"),
                 )
             else:
                 _wfilt = _wfilt.sort_values("implied_prob" if "implied_prob" in _wfilt.columns else "line_score", ascending=False).head(40)
@@ -7193,6 +7389,7 @@ elif sport == "🏀 WNBA":
                     _wlegs_data, min_legs=_wb_min, max_legs=_wb_max,
                     sportsbook=_wb_sb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("WNBA"),
+                    market_blend=parlay_tracker.get_market_blend("WNBA"),
                 )
 
             # Log to accuracy tracker
@@ -7222,7 +7419,10 @@ elif sport == "🏀 WNBA":
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _wsgp = _build_sgp(_wlegs_data, min_legs=3, max_legs=5)
+            _wsgp = _build_sgp(
+                _wlegs_data, min_legs=3, max_legs=5,
+                market_blend=parlay_tracker.get_market_blend("WNBA"),
+            )
             if _wsgp:
                 for _wg in _wsgp[:4]:
                     st.markdown(f"<p style='font-size:0.7rem;color:var(--text-muted);margin:0.6rem 0 0.2rem;'>"
@@ -7335,7 +7535,7 @@ elif sport == "⚾ MLB":
         ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
-    ])
+    ], key_prefix="mlb")
     tab_mlb_home    = next(_mlb_tabs_iter)
     tab_hitter      = next(_mlb_tabs_iter)
     tab_pitcher     = next(_mlb_tabs_iter)
@@ -8330,6 +8530,10 @@ elif sport == "⚾ MLB":
             mlb_section(f"{len(filt)} Line(s) — {_sb_mlb}")
             show_cols_mlb = ["player_name", "team", "stat_type", "line_score", "Odds", "Implied %", "game_label"]
             show_cols_mlb = [c for c in show_cols_mlb if c in filt.columns]
+            # Books like FanDuel don't expose player teams — drop the column
+            # rather than render a blank one for every row.
+            if "team" in show_cols_mlb and filt["team"].astype(str).str.strip().eq("").all():
+                show_cols_mlb.remove("team")
             st.dataframe(
                 filt[show_cols_mlb].rename(columns={
                     "player_name": "Player", "team": "Team", "stat_type": "Stat",
@@ -8491,6 +8695,7 @@ elif sport == "⚾ MLB":
                     _legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max,
                     sportsbook=_sb_choice_mlb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
+                    market_blend=parlay_tracker.get_market_blend("MLB"),
                 )
             else:
                 _mlb_filt = _mlb_filt.sort_values("implied_prob" if "implied_prob" in _mlb_filt.columns else "line_score", ascending=False).head(50)
@@ -8580,6 +8785,7 @@ elif sport == "⚾ MLB":
                     _legs_mlb_data, min_legs=_mb_min, max_legs=_mb_max,
                     sportsbook=_sb_choice_mlb,
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
+                    market_blend=parlay_tracker.get_market_blend("MLB"),
                 )
 
             # Log generated parlays for accuracy tracking
@@ -8607,7 +8813,10 @@ elif sport == "⚾ MLB":
                         unsafe_allow_html=True)
             st.markdown("<p class='pl-section-label'>Same-Game Parlays — Best Picks Per Game</p>",
                         unsafe_allow_html=True)
-            _mlb_sgp = _build_sgp(_legs_mlb_data, min_legs=3, max_legs=5)
+            _mlb_sgp = _build_sgp(
+                _legs_mlb_data, min_legs=3, max_legs=5,
+                market_blend=parlay_tracker.get_market_blend("MLB"),
+            )
             if _mlb_sgp:
                 for _sgpm in _mlb_sgp:
                     st.markdown(
@@ -8645,7 +8854,9 @@ elif sport == "⚾ MLB":
 
         if st.session_state.get("mlb_hr_picks_built"):
             with st.spinner("Scoring today's hitters for HR probability…"):
-                _hr_cal_factor = _load_calibration("MLB").get("Home Runs", 0.48)
+                # Read the power-picks-specific HR factor, not the game-log one —
+                # they measure different models (see parlay_tracker._cal_key).
+                _hr_cal_factor = _load_calibration("MLB").get("Home Runs::hr_power_picks", 0.48)
                 _hr_picks = _build_hr_power_picks(top_n=6, cal_factor=_hr_cal_factor)
 
             # Cache in session state so the blog tab can read the top pick instantly
@@ -8733,7 +8944,15 @@ elif sport == "⚾ MLB":
                         "game_label":  _pick.get("game_label", ""),
                         "hit_rate":    _pick["score"],
                         "sample_n":    _pick.get("games_played", 10),
+                        # Six-factor HR model — calibrates in its own bucket, apart
+                        # from the game-log HR scorer (see parlay_tracker._cal_key).
+                        "source":      "hr_power_picks",
                     })
+                # No market_blend here: these legs carry a placeholder implied
+                # (_PP_ODDS_IMPLIED["standard"] ≈ 0.50), not a real HR line, so
+                # blending toward it would inflate the true ~27% HR rate toward a
+                # coin flip — the exact overconfidence the blend exists to prevent.
+                # (same_game_penalty is left dormant — see get_same_game_penalty.)
                 _hr_safe, _hr_value = _build_parlays(
                     _hr_legs, min_legs=2, max_legs=4, sportsbook="PrizePicks",
                     parlay_cal=parlay_tracker.get_parlay_calibration("MLB"),
