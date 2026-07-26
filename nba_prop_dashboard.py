@@ -595,6 +595,16 @@ _ESPN_TO_NBA_ABBR = {
 def _resolve_nba_abbr(espn_abbr: str) -> str:
     return _ESPN_TO_NBA_ABBR.get(espn_abbr.upper(), espn_abbr.upper())
 
+def _current_nba_season() -> str:
+    """
+    Upcoming/current NBA season as 'YYYY-YY'. From ~July the rosters that matter are next
+    season's (free agency / trades have happened), so the start year rolls over mid-summer.
+    Auto-advances each year — no annual hardcode to update.
+    """
+    now = datetime.now()
+    start = now.year if now.month >= 7 else now.year - 1
+    return f"{start}-{str(start + 1)[-2:]}"
+
 @st.cache_data(ttl=3600)
 def _fetch_team_players(team_abbr):
     # Raises on failure so st.cache_data never caches an error as an empty
@@ -602,8 +612,16 @@ def _fetch_team_players(team_abbr):
     team_id = get_team_id(team_abbr)
     if not team_id:
         return []
-    roster = commonteamroster.CommonTeamRoster(team_id=team_id, timeout=20).get_data_frames()[0]
-    players_list = roster["PLAYER"].tolist()
+    # Current-season rosters so traded/signed players show under their new team, not the
+    # one they left. CommonTeamRoster with no season defaults to the just-completed season
+    # in the off-season, which is why the dropdowns were stale. Fall back to that default
+    # if the upcoming season isn't populated for a team yet.
+    def _roster(season=None):
+        kw = {"team_id": team_id, "timeout": 20}
+        if season:
+            kw["season"] = season
+        return commonteamroster.CommonTeamRoster(**kw).get_data_frames()[0]["PLAYER"].tolist()
+    players_list = _roster(_current_nba_season()) or _roster()
     if not players_list:
         raise ValueError(f"empty roster returned for {team_abbr}")
     return players_list
@@ -691,482 +709,6 @@ def get_prizepicks_lines(league_id=7):
 # ─── 2026 NBA Mock Draft ──────────────────────────────────────────────────────
 NBA_DRAFT_DATE = "June 23, 2026"
 NBA_DRAFT_VENUE = "Barclays Center, Brooklyn, NY"
-
-# ── 2026 NBA Free Agent Tracker ────────────────────────────────────────────
-# Last manually reviewed: 2026-06-29. Predictions update daily via timestamp.
-_NBA_FA_LAST_UPDATED = "July 1, 2026 — live updates"
-
-_NBA_FREE_AGENTS = [
-    # ── Tier 1: Franchise Cornerstones ────────────────────────────────────
-    {
-        "name": "Stephen Curry",
-        "pos": "PG", "age": 38, "from_team": "Golden State Warriors",
-        "tier": "Supermax",
-        "predicted_dest": "Golden State Warriors",
-        "confidence": 85,
-        "contract_projection": "2–3 yr / $120–140M",
-        "interest_teams": ["Warriors", "Suns", "Knicks"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 26.6, "rpg": 3.6, "apg": 4.7, "fg_pct": 46.2, "ts_pct": 63.1, "per": 22.6},
-        "blurb": (
-            "The greatest shooter in NBA history enters free agency for the first time in his career, "
-            "coming off a season that ranks among the best ever by a player 37+. Golden State will clear "
-            "every cap obstacle to retain him, and Curry has given no indication he wants to leave. The "
-            "real question is length — two years keeps options open, three locks in his jersey retirement. "
-            "His return is the prerequisite the Warriors need before chasing LeBron and restructuring "
-            "the roster around one final championship run."
-        ),
-    },
-    {
-        "name": "LeBron James",
-        "pos": "SF/PF", "age": 41, "from_team": "Los Angeles Lakers",
-        "tier": "Max",
-        "predicted_dest": "Golden State Warriors",
-        "confidence": 55,
-        "contract_projection": "1–2 yr / $50–90M",
-        "interest_teams": ["Warriors", "Heat", "Cavaliers"],
-        "status": "Unrestricted FA — leaving Lakers",
-        "stats": {"ppg": 20.9, "rpg": 6.1, "apg": 7.2, "fg_pct": 51.5, "ts_pct": 59.5, "per": 20.8},
-        "blurb": (
-            "LeBron has officially decided not to return to the Lakers, ending his eight-year run in Los "
-            "Angeles. The Warriors are the heavy favorite — Golden State cleared cap space by releasing "
-            "Draymond Green's $27.7M option specifically to create room and Kristaps Porzingis has already "
-            "signed (2yr/$40M) as a complementary piece. The Heat are also in the mix with a potential "
-            "Giannis/Bam/LeBron superteam scenario; Cleveland would be a sentimental homecoming. Expect "
-            "a decision within days — this is the defining move of the 2026 offseason."
-        ),
-    },
-    {
-        "name": "Kawhi Leonard",
-        "pos": "SF", "age": 35, "from_team": "Los Angeles Clippers",
-        "tier": "Near-Max",
-        "predicted_dest": "Toronto Raptors",
-        "confidence": 100,
-        "contract_projection": "3–4 yr / $120–160M",
-        "interest_teams": ["Raptors"],
-        "status": "Traded — Toronto Raptors",
-        "stats": {"ppg": 27.9, "rpg": 6.4, "apg": 3.6, "fg_pct": 52.1, "ts_pct": 61.8, "per": 24.2},
-        "blurb": (
-            "Kawhi is a Raptor again. The Clippers traded Leonard to Toronto for Brandon Ingram, Gradey Dick, "
-            "unprotected 2031 and 2033 first-round picks, second-round picks in 2030 and 2033, and a 2027 "
-            "first-round pick swap — a massive haul for a team that received next to nothing when Kawhi left "
-            "the first time. For Toronto, this is a bet-the-franchise move: Leonard returns to the city "
-            "where he won his 2019 title and reportedly made clear it was the only destination he'd accept. "
-            "Extension talks are expected to commence immediately."
-        ),
-    },
-    {
-        "name": "Jimmy Butler",
-        "pos": "SF", "age": 36, "from_team": "Golden State Warriors",
-        "tier": "Near-Max",
-        "predicted_dest": "Washington Wizards (sign-and-trade)",
-        "confidence": 40,
-        "contract_projection": "2 yr / $113M (remaining) or buyout",
-        "interest_teams": ["Wizards", "Warriors retain", "Heat"],
-        "status": "Unrestricted FA — recovering from torn ACL",
-        "stats": {"ppg": 20.0, "rpg": 5.6, "apg": 4.9, "fg_pct": 47.8, "ts_pct": 57.2, "per": 19.4},
-        "blurb": (
-            "Butler's 2025-26 Warriors tenure ended January 19 when he tore his right ACL in a win over "
-            "the Heat, after posting 20.0 PPG in 38 games. He has since said he wants to retire as a "
-            "Warrior, and his $56.8M salary is reportedly central to the Warriors' Anthony Davis trade "
-            "pursuit — Golden State would ship Butler to Washington with draft capital to absorb Davis's "
-            "$58.4M. Butler's ACL recovery timeline puts his availability near the 2026-27 season start "
-            "at best, dramatically depressing his standalone market value."
-        ),
-    },
-    # ── Tier 2: Quality Stars ──────────────────────────────────────────────
-    {
-        "name": "Draymond Green",
-        "pos": "PF", "age": 36, "from_team": "Golden State Warriors",
-        "tier": "Starter",
-        "predicted_dest": "Golden State Warriors",
-        "confidence": 60,
-        "contract_projection": "2 yr / $40–52M",
-        "interest_teams": ["Warriors", "Lakers", "Celtics"],
-        "status": "Opted out of $27.7M — Unrestricted FA",
-        "stats": {"ppg": 8.4, "rpg": 5.5, "apg": 5.5, "fg_pct": 41.8, "ts_pct": 54.0, "per": 14.2},
-        "blurb": (
-            "Draymond declined his $27.7M player option, creating the cap space the Warriors need to "
-            "chase LeBron and/or Anthony Davis. This is a calculated sacrifice — if the Warriors land "
-            "their targets, Draymond re-signs at a negotiated rate as part of the rebuilt core. If the "
-            "LeBron pursuit fails, he returns on a shorter deal regardless. His defensive IQ and "
-            "playmaking are still elite; the opt-out is roster architecture, not a departure signal. "
-            "Expect a resolution within days of Curry's own decision."
-        ),
-    },
-    {
-        "name": "OG Anunoby",
-        "pos": "SF", "age": 28, "from_team": "New York Knicks",
-        "tier": "Max",
-        "predicted_dest": "New York Knicks",
-        "confidence": 100,
-        "contract_projection": "4 yr / $180–200M",
-        "interest_teams": ["Knicks"],
-        "status": "Re-signed — New York Knicks",
-        "stats": {"ppg": 16.7, "rpg": 5.2, "apg": 2.2, "fg_pct": 48.4, "ts_pct": 62.0, "per": 15.8},
-        "blurb": (
-            "The cornerstone stays. Anunoby re-signed with New York as part of the core group — Brunson, "
-            "Towns, Anunoby, Bridges, Hart, and McBride — that won the 2025-26 NBA championship. At 28 and "
-            "entering his absolute prime, OG is now one of the five best two-way wings in the league: elite "
-            "perimeter defense, expanding shot creation (48.4 FG%, 62 TS%), and the championship IQ that "
-            "makes him the defensive anchor of a dynasty-track Knicks team. This one was never in doubt."
-        ),
-    },
-    {
-        "name": "Klay Thompson",
-        "pos": "SG", "age": 36, "from_team": "Dallas Mavericks",
-        "tier": "Starter",
-        "predicted_dest": "Los Angeles Lakers",
-        "confidence": 38,
-        "contract_projection": "1–2 yr / $14–22M",
-        "interest_teams": ["Lakers", "Warriors", "Heat", "Suns"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 11.7, "rpg": 2.1, "apg": 1.4, "fg_pct": 39.3, "ts_pct": 53.5, "per": 10.8},
-        "blurb": (
-            "Klay's Dallas stint was a career-worst season — 11.7 PPG on 39.3% shooting with career lows "
-            "in nearly every category and just 8 starts. The Mavericks experiment exposed real "
-            "decline from the two-way terror of his Warriors peak. However, his name still carries playoff "
-            "weight and a contender willing to carry his reputation on a short, incentive-laden deal could "
-            "unlock a bounce-back. A Lakers fit alongside LeBron (if LeBron stays) has narrative appeal. "
-            "Warriors reunion talk will surface but GSW won't overpay given his age trajectory."
-        ),
-    },
-    {
-        "name": "DeMar DeRozan",
-        "pos": "SG/SF", "age": 37, "from_team": "Sacramento Kings",
-        "tier": "Starter",
-        "predicted_dest": "Chicago Bulls",
-        "confidence": 46,
-        "contract_projection": "1–2 yr / $18–26M",
-        "interest_teams": ["Bulls", "Heat", "Knicks", "Clippers"],
-        "status": "Unrestricted FA — Kings may waive ($25M partial guarantee)",
-        "stats": {"ppg": 18.4, "rpg": 2.9, "apg": 4.1, "fg_pct": 47.1, "ts_pct": 56.8, "per": 16.3},
-        "blurb": (
-            "DeRozan's midrange artistry remains elite even at 37 — 18.4 PPG in Sacramento proves the "
-            "scoring touch is intact, though it was his first sub-20 PPG season since 2012-13. Sacramento "
-            "is reportedly exploring waiving him given the partially guaranteed $25M on his deal. If he "
-            "hits the market clean, Chicago is the sentimental choice — he's never emotionally left that "
-            "city. The Heat are also an intriguing fit: DeRozan's late-clock creation ability is exactly "
-            "what Miami needs in crunch time."
-        ),
-    },
-    {
-        "name": "Bradley Beal",
-        "pos": "SG", "age": 33, "from_team": "LA Clippers",
-        "tier": "MLE",
-        "predicted_dest": "Eastern Conference lottery team",
-        "confidence": 25,
-        "contract_projection": "Prove-it 1 yr / $8–12M",
-        "interest_teams": ["Pistons", "Wizards", "Spurs"],
-        "status": "Declining $5.6M option — Unrestricted FA (hip fracture)",
-        "stats": {"ppg": 8.2, "rpg": 0.8, "apg": 1.7, "fg_pct": 37.5, "ts_pct": 44.1, "per": 6.3},
-        "blurb": (
-            "Beal's Clippers tenure lasted exactly six games before a left hip fracture ended his season "
-            "in November. He's now declining his $5.6M player option and entering the open market coming "
-            "off major hip surgery. The durability concerns are severe — he's played a full season just "
-            "twice in the last six years. A playoff contender won't risk cap on Beal; his market is "
-            "lottery teams willing to gamble on upside. If fully healthy, the offensive toolkit is still "
-            "legitimate, but 'if fully healthy' has been the Beal caveat for four straight years."
-        ),
-    },
-    {
-        "name": "Norman Powell",
-        "pos": "SG/SF", "age": 33, "from_team": "Los Angeles Clippers",
-        "tier": "Starter",
-        "predicted_dest": "Chicago Bulls",
-        "confidence": 100,
-        "contract_projection": "3–4 yr / $90–105M",
-        "interest_teams": ["Bulls"],
-        "status": "Signed — Chicago Bulls",
-        "stats": {"ppg": 24.8, "rpg": 3.5, "apg": 2.8, "fg_pct": 51.5, "ts_pct": 62.1, "per": 17.2},
-        "blurb": (
-            "One of the most efficient volume scorers in the league — Powell averaged 24.8 PPG on 51.5% "
-            "shooting while serving as the Clippers' primary offensive option in a lost season. His ability "
-            "to score from all three levels without creating shot quality issues makes him a plug-and-play "
-            "starter on any contender. Chicago identified him as the scoring wing they've needed since "
-            "DeMar DeRozan's departure era, and the deal was reportedly agreed upon within hours of the "
-            "moratorium lifting. Powell gives the Bulls a genuine 25-point threat for the first time in years."
-        ),
-    },
-    {
-        "name": "Walker Kessler",
-        "pos": "C", "age": 23, "from_team": "Utah Jazz",
-        "tier": "Starter",
-        "predicted_dest": "Los Angeles Lakers",
-        "confidence": 100,
-        "contract_projection": "4 yr / $130M",
-        "interest_teams": ["Lakers"],
-        "status": "Signed — Los Angeles Lakers (sign-and-trade)",
-        "stats": {"ppg": 12.8, "rpg": 10.2, "apg": 1.4, "fg_pct": 62.1, "ts_pct": 66.5, "per": 18.3},
-        "blurb": (
-            "The Jazz cashed in their best remaining asset. Utah sign-and-traded Kessler to the Lakers "
-            "for a package including unprotected 2031 and 2033 first-round picks plus 2028 and 2030 "
-            "pick swaps — a significant haul for a rebuild. For LA, it's a bet on getting elite rim "
-            "protection (2.9 BPG, 66.5 TS%) around whoever the Lakers pair alongside him this summer. "
-            "At 23, Kessler is entering his prime years with a franchise that needs his defensive anchor "
-            "regardless of which star they land. A generational shot-blocker locked in for four years."
-        ),
-    },
-    # ── Tier 3: Quality Starters ───────────────────────────────────────────
-    {
-        "name": "Anfernee Simons",
-        "pos": "PG/SG", "age": 27, "from_team": "Portland Trail Blazers",
-        "tier": "Starter",
-        "predicted_dest": "Indiana Pacers",
-        "confidence": 44,
-        "contract_projection": "4 yr / $120–140M",
-        "interest_teams": ["Pacers", "Nets", "Knicks", "Heat"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 21.4, "rpg": 3.2, "apg": 5.5, "fg_pct": 46.3, "ts_pct": 59.7, "per": 15.6},
-        "blurb": (
-            "Simons has developed into a legitimate starting-caliber point guard — 21.4 PPG and 5.5 APG "
-            "on a rebuilding Portland team that gave him every opportunity to show his ceiling. His "
-            "elite pull-up three-point shooting (42.1% from deep on high volume) is the exact weapon "
-            "contenders covet off the bench or as a third option. Portland won't be able to offer a "
-            "max, clearing the path for an Eastern contender to acquire him. Indiana's pace-and-space "
-            "system around Tyrese Haliburton is a natural fit for a player of his skill set."
-        ),
-    },
-    {
-        "name": "Chris Paul",
-        "pos": "PG", "age": 41, "from_team": "San Antonio Spurs",
-        "tier": "Veteran Min",
-        "predicted_dest": "Retirement / Advisory Role",
-        "confidence": 62,
-        "contract_projection": "Veteran minimum or retirement",
-        "interest_teams": ["Spurs", "Warriors", "Celtics"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 6.8, "rpg": 3.2, "apg": 7.1, "fg_pct": 44.9, "ts_pct": 56.2, "per": 12.1},
-        "blurb": (
-            "The Point God's playing future hinges entirely on health and desire. His San Antonio "
-            "role as mentor to Wembanyama produced genuine chemistry and intangible value that "
-            "doesn't appear on a stat sheet. If he plays again, returning to the Spurs for one final "
-            "season as a veteran sage is the most graceful exit. A Warriors reunion with Curry would be "
-            "poetic. Retirement before training camp is a real outcome — his legacy is secure and his "
-            "business interests are thriving."
-        ),
-    },
-    {
-        "name": "Tobias Harris",
-        "pos": "PF", "age": 33, "from_team": "Detroit Pistons",
-        "tier": "MLE",
-        "predicted_dest": "Detroit Pistons",
-        "confidence": 55,
-        "contract_projection": "2–3 yr / $22–32M",
-        "interest_teams": ["Pistons", "Celtics", "Nuggets", "Lakers"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 13.3, "rpg": 5.1, "apg": 2.5, "fg_pct": 46.9, "ts_pct": 58.4, "per": 13.7},
-        "blurb": (
-            "Harris had a quietly strong season in Detroit — 13.3 PPG on 46.9% FG in 63 games as the "
-            "Pistons emerged as a legitimate playoff team. Reports say Detroit is 'determined' to re-sign "
-            "him, and the fit is genuinely good: he provides the veteran three-and-D presence that "
-            "complements Cade Cunningham's star development perfectly. Other contenders will call, but "
-            "Harris has built roots in Detroit and the market probably doesn't push to a max offer elsewhere."
-        ),
-    },
-    {
-        "name": "Kyle Lowry",
-        "pos": "PG", "age": 40, "from_team": "Philadelphia 76ers",
-        "tier": "Veteran Min",
-        "predicted_dest": "Toronto Raptors",
-        "confidence": 55,
-        "contract_projection": "1 yr veteran minimum",
-        "interest_teams": ["Raptors", "Heat", "Warriors"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 5.1, "rpg": 2.8, "apg": 4.9, "fg_pct": 40.2, "ts_pct": 51.3, "per": 9.4},
-        "blurb": (
-            "Lowry's career has come full circle and Toronto remains the only destination that "
-            "makes emotional sense for a final chapter. The Raptors are rebuilding around Scottie Barnes "
-            "and Lowry's mentorship value is legitimate — he's been here before and knows what winning "
-            "culture looks like. His on-court contribution is limited to spot minutes and voice, "
-            "but that's enough at the minimum. A Heat return for one more South Beach chapter "
-            "is the main alternative."
-        ),
-    },
-    # ── Tier 4: Impactful Role Players ────────────────────────────────────
-    {
-        "name": "Caris LeVert",
-        "pos": "SG/SF", "age": 31, "from_team": "Indiana Pacers",
-        "tier": "MLE",
-        "predicted_dest": "Miami Heat",
-        "confidence": 35,
-        "contract_projection": "2 yr / $22–28M",
-        "interest_teams": ["Heat", "Clippers", "Knicks", "Warriors"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 14.2, "rpg": 3.8, "apg": 4.3, "fg_pct": 44.6, "ts_pct": 55.9, "per": 13.4},
-        "blurb": (
-            "LeVert quietly evolved into one of the better backup scorers in the Eastern Conference — "
-            "a player who can initiate offense, create for others, and knock down open threes without "
-            "demanding heavy usage. Miami's system of turning multi-skilled guards into contributors is "
-            "tailor-made for his skill set. He's the type of player that looks average on paper and "
-            "plays above his contract in the right environment. Expect Pat Riley to make a call."
-        ),
-    },
-    {
-        "name": "Gary Trent Jr.",
-        "pos": "SG", "age": 27, "from_team": "Milwaukee Bucks",
-        "tier": "MLE",
-        "predicted_dest": "Boston Celtics",
-        "confidence": 40,
-        "contract_projection": "2–3 yr / $24–36M",
-        "interest_teams": ["Celtics", "Thunder", "Clippers", "Suns"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 17.2, "rpg": 2.9, "apg": 2.1, "fg_pct": 44.6, "ts_pct": 58.3, "per": 12.8},
-        "blurb": (
-            "GTJ is the archetype contenders hunt in free agency: a clean-catch shooter who can defend "
-            "one through three and doesn't need the ball to make an impact. He shot 40.2% from three "
-            "on nearly seven attempts per game in Milwaukee's motion offense. Boston's need for wing "
-            "shooting depth after last year's championship run is well-documented, and Trent fits the "
-            "Celtics' system perfectly — catch-and-shoot threes, switchable defense, no wasted possessions. "
-            "He'll attract multiple offers, but landing with a contender is his stated priority."
-        ),
-    },
-    {
-        "name": "Marcus Smart",
-        "pos": "PG", "age": 32, "from_team": "Memphis Grizzlies",
-        "tier": "MLE",
-        "predicted_dest": "Houston Rockets",
-        "confidence": 100,
-        "contract_projection": "2 yr / $13M",
-        "interest_teams": ["Rockets"],
-        "status": "Signed — Houston Rockets",
-        "stats": {"ppg": 9.4, "rpg": 4.5, "apg": 7.2, "fg_pct": 38.1, "ts_pct": 50.8, "per": 11.9},
-        "blurb": (
-            "A reunion with Ime Udoka. Smart reunites with his former Boston coach in Houston on a "
-            "2yr/$13M deal — a low-risk, high-upside signing for a Rockets team that needs defensive "
-            "identity and veteran leadership to complement their young core. Smart's 7.2 APG, elite "
-            "on-ball defense, and playoff experience are exactly what a contender-track Houston team "
-            "needs as they make their next push. The Celtic homecoming narrative was always media "
-            "storyline; the Udoka connection was always the real draw."
-        ),
-    },
-    {
-        "name": "Dorian Finney-Smith",
-        "pos": "SF/PF", "age": 32, "from_team": "Brooklyn Nets",
-        "tier": "MLE",
-        "predicted_dest": "Golden State Warriors",
-        "confidence": 42,
-        "contract_projection": "2–3 yr / $18–28M",
-        "interest_teams": ["Warriors", "Celtics", "Nuggets", "Clippers"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 9.4, "rpg": 4.2, "apg": 2.1, "fg_pct": 43.6, "ts_pct": 55.2, "per": 10.6},
-        "blurb": (
-            "DFS is the consummate '3-and-D' wing that every contender wants but few acknowledge "
-            "they covet until they lose him. His value is systemic: elite off-ball movement, "
-            "switchable defense that holds up on both guards and stretch fours, and the shooting "
-            "gravity to open driving lanes for stars. Golden State's pursuit of star acquisitions "
-            "this summer means they'll need cost-effective depth pieces — Finney-Smith at the MLE "
-            "is exactly the kind of mid-tier signing that quietly becomes essential by April."
-        ),
-    },
-    # ── Tier 5: Veterans ──────────────────────────────────────────────────
-    {
-        "name": "Jonas Valanciunas",
-        "pos": "C", "age": 34, "from_team": "New Orleans Pelicans",
-        "tier": "Veteran Min",
-        "predicted_dest": "Milwaukee Bucks",
-        "confidence": 36,
-        "contract_projection": "1–2 yr / $7–12M",
-        "interest_teams": ["Bucks", "Cavaliers", "Nuggets", "Knicks"],
-        "status": "Unrestricted FA",
-        "stats": {"ppg": 13.6, "rpg": 10.8, "apg": 2.2, "fg_pct": 55.9, "ts_pct": 59.7, "per": 16.4},
-        "blurb": (
-            "Valanciunas remains one of the most reliable traditional bigs in the league at 34 — "
-            "a double-double machine (13.6/10.8) who can score efficiently in the post and stretch "
-            "to the mid-range without asking for a star's salary. New Orleans' rebuild cost him a "
-            "playoff push, and at this stage of his career JV wants a legitimate championship run. "
-            "Milwaukee's frontcourt void after the Giannis trade makes this a logical fit — "
-            "Valanciunas as a veteran anchor who frees Damian Lillard to run pick-and-roll is "
-            "underrated upside at the minimum."
-        ),
-    },
-]
-
-# ── NBA API: live advanced analytics for FA tracker ───────────────────────────
-# Maps display name → nba_api PLAYER_NAME (handles suffixes like "III")
-_FA_NAME_MAP = {
-    "Jimmy Butler": "Jimmy Butler III",
-    "OG Anunoby":   "OG Anunoby",
-    "DeMar DeRozan": "DeMar DeRozan",
-    "LeBron James": "LeBron James",
-}
-
-# 2025-26 season-end advanced stats — fallback when nba_api is unavailable (off-season)
-# Values: pie/usg_pct/ast_pct/efg_pct in percentage points; ratings in points-per-100
-_NBA_FA_ADVANCED_STATS: dict = {
-    "Stephen Curry":        {"pie": 15.2, "usg_pct": 30.1, "net_rating":  5.4, "off_rating": 121.8, "def_rating": 116.4, "ast_pct": 18.6, "efg_pct": 57.9},
-    "LeBron James":         {"pie": 14.6, "usg_pct": 27.3, "net_rating":  3.8, "off_rating": 118.2, "def_rating": 114.4, "ast_pct": 32.4, "efg_pct": 55.2},
-    "Kawhi Leonard":        {"pie": 17.2, "usg_pct": 29.5, "net_rating":  6.1, "off_rating": 122.4, "def_rating": 116.3, "ast_pct": 13.8, "efg_pct": 57.6},
-    "Jimmy Butler":         {"pie": 14.2, "usg_pct": 26.8, "net_rating":  2.9, "off_rating": 117.6, "def_rating": 114.7, "ast_pct": 21.5, "efg_pct": 52.2},
-    "Draymond Green":       {"pie": 10.2, "usg_pct": 14.2, "net_rating":  4.8, "off_rating": 119.6, "def_rating": 114.8, "ast_pct": 30.4, "efg_pct": 46.9},
-    "OG Anunoby":           {"pie": 12.8, "usg_pct": 20.6, "net_rating":  7.4, "off_rating": 122.1, "def_rating": 114.7, "ast_pct":  9.2, "efg_pct": 56.6},
-    "Klay Thompson":        {"pie":  8.9, "usg_pct": 18.4, "net_rating": -1.2, "off_rating": 114.3, "def_rating": 115.5, "ast_pct":  5.8, "efg_pct": 47.2},
-    "DeMar DeRozan":        {"pie": 12.6, "usg_pct": 24.8, "net_rating": -2.1, "off_rating": 113.9, "def_rating": 116.0, "ast_pct": 18.6, "efg_pct": 50.3},
-    "Bradley Beal":         {"pie":  5.9, "usg_pct": 22.1, "net_rating": -4.8, "off_rating": 110.2, "def_rating": 115.0, "ast_pct":  8.3, "efg_pct": 41.8},
-    "Norman Powell":        {"pie": 13.8, "usg_pct": 27.9, "net_rating": -3.6, "off_rating": 114.2, "def_rating": 117.8, "ast_pct": 10.1, "efg_pct": 59.2},
-    "Walker Kessler":       {"pie": 11.8, "usg_pct": 13.4, "net_rating": -5.2, "off_rating": 109.3, "def_rating": 114.5, "ast_pct":  5.6, "efg_pct": 71.8},
-    "Anfernee Simons":      {"pie": 11.9, "usg_pct": 28.1, "net_rating": -6.4, "off_rating": 111.4, "def_rating": 117.8, "ast_pct": 20.8, "efg_pct": 53.8},
-    "Chris Paul":           {"pie":  9.4, "usg_pct": 14.6, "net_rating":  1.2, "off_rating": 115.2, "def_rating": 114.0, "ast_pct": 39.8, "efg_pct": 48.4},
-    "Tobias Harris":        {"pie": 11.1, "usg_pct": 18.9, "net_rating":  4.2, "off_rating": 118.6, "def_rating": 114.4, "ast_pct": 11.4, "efg_pct": 53.8},
-    "Kyle Lowry":           {"pie":  7.2, "usg_pct": 10.8, "net_rating": -0.8, "off_rating": 113.4, "def_rating": 114.2, "ast_pct": 28.6, "efg_pct": 44.6},
-    "Caris LeVert":         {"pie": 10.4, "usg_pct": 20.3, "net_rating":  3.1, "off_rating": 116.8, "def_rating": 113.7, "ast_pct": 19.8, "efg_pct": 50.8},
-    "Gary Trent Jr.":       {"pie": 10.6, "usg_pct": 22.4, "net_rating":  2.6, "off_rating": 117.2, "def_rating": 114.6, "ast_pct":  7.8, "efg_pct": 53.4},
-    "Marcus Smart":         {"pie":  9.1, "usg_pct": 16.2, "net_rating": -3.8, "off_rating": 111.8, "def_rating": 115.6, "ast_pct": 34.2, "efg_pct": 43.8},
-    "Dorian Finney-Smith":  {"pie":  8.2, "usg_pct": 12.8, "net_rating": -4.1, "off_rating": 110.6, "def_rating": 114.7, "ast_pct":  9.4, "efg_pct": 49.8},
-    "Jonas Valanciunas":    {"pie": 12.2, "usg_pct": 20.6, "net_rating": -5.9, "off_rating": 109.8, "def_rating": 115.7, "ast_pct": 11.2, "efg_pct": 62.1},
-}
-
-@st.cache_data(ttl=86400, show_spinner=False)
-def _fetch_nba_fa_analytics(season: str = "2025-26") -> dict:
-    """
-    Returns {player_name: {pie, usg_pct, net_rating, off_rating, def_rating, ast_pct, ts_pct, efg_pct}}
-    using nba_api LeagueDashPlayerStats (Advanced measure) + PlayerEstimatedMetrics.
-    Keyed by the FA display names in _NBA_FREE_AGENTS.
-    """
-    import time
-    result: dict = {}
-    try:
-        from nba_api.stats.endpoints import LeagueDashPlayerStats, PlayerEstimatedMetrics
-        time.sleep(0.6)
-        adv_df = LeagueDashPlayerStats(
-            season=season,
-            measure_type_detailed_defense="Advanced",
-            per_mode_detailed="PerGame",
-        ).get_data_frames()[0]
-        time.sleep(0.6)
-        est_df = PlayerEstimatedMetrics(season=season).get_data_frames()[0]
-
-        # Build lookups keyed by lowercase name
-        adv_lu = {r["PLAYER_NAME"].lower(): r for _, r in adv_df.iterrows()}
-        est_lu = {r["PLAYER_NAME"].lower(): r for _, r in est_df.iterrows()}
-
-        target_names = [fa["name"] for fa in _NBA_FREE_AGENTS]
-        for name in target_names:
-            api_name = _FA_NAME_MAP.get(name, name)
-            key = api_name.lower()
-            adv = adv_lu.get(key)   # None if not found (avoid Series bool ambiguity)
-            est = est_lu.get(key)
-            if adv is None and est is None:
-                continue
-            def _s(series, field, scale=1):
-                if series is None:
-                    return 0.0
-                v = series.get(field, 0)
-                return round(float(v or 0) * scale, 1)
-            result[name] = {
-                "pie":        _s(adv, "PIE", 100),
-                "usg_pct":    _s(adv, "USG_PCT", 100),
-                "net_rating": _s(adv, "NET_RATING"),
-                "off_rating": _s(adv, "OFF_RATING"),
-                "def_rating": _s(adv, "DEF_RATING"),
-                "ast_pct":    _s(adv, "AST_PCT", 100),
-                "ts_pct":     _s(adv, "TS_PCT", 100),
-                "efg_pct":    _s(adv, "EFG_PCT", 100),
-                "e_net":      _s(est, "E_NET_RATING"),
-            }
-    except Exception:
-        pass
-    return result
 
 _NBA_MOCK_DRAFT = [
     {"pick": 1,  "team": "Washington Wizards",    "player": "AJ Dybantsa",        "pos": "SF",    "school": "BYU",                    "country": "USA"},
@@ -5471,217 +5013,117 @@ if sport == "🏀 NBA":
                 "},300);</script>",
                 height=0,
             )
-        # ── 2026 NBA Free Agent Tracker ───────────────────────────────────────
-        _fa_today = datetime.now().strftime("%B %d, %Y")
+        # ── 2026-27 Fantasy Draft Board (9-category value) ────────────────────
+        _mode = st.radio("Board mode", ["2026-27 Projection", "2025-26 Actuals"],
+                         horizontal=True, label_visibility="collapsed")
+        _is_proj = _mode.startswith("2026-27")
+        _sub = ("Projected 2026-27 value — 2025-26 + 2024-25 blend · aging curve · current "
+                "rosters · rookies from draft slot" if _is_proj
+                else "2025-26 actual per-game production")
         st.markdown(
-            f"<div class='draft-header'>"
-            f"<div class='draft-kicker'>2026 NBA Free Agency &nbsp;·&nbsp; Konjure Projections</div>"
-            f"<div class='draft-countdown'>Moratorium opens July 1 &nbsp;·&nbsp; Signings official July 6 &nbsp;·&nbsp; "
-            f"<strong style='color:var(--text-primary);'>Updated {_fa_today}</strong></div>"
-            f"</div>",
+            "<div class='draft-header'>"
+            "<div class='draft-kicker'>2026-27 Fantasy Draft Board &nbsp;·&nbsp; 9-Category Value</div>"
+            f"<div class='draft-countdown'>Ranked by per-category z-score &nbsp;·&nbsp; "
+            f"<strong style='color:var(--text-primary);'>{_sub}</strong></div>"
+            "</div>",
             unsafe_allow_html=True,
         )
 
-        # ── Tier colour + confidence bar helpers ──────────────────────────────
-        def _tier_color(t):
-            return {
-                "Supermax": "#f59e0b", "Max": "#818cf8",
-                "Near-Max": "#60a5fa", "Starter": "#34d399",
-                "MLE": "#94a3b8", "Starter / MLE": "#34d399",
-                "MLE / Veteran": "#94a3b8", "Veteran Min": "#6b7280",
-                "Veteran minimum": "#6b7280",
-            }.get(t, "#6b7280")
+        @st.cache_data(ttl=86400, show_spinner=False)
+        def _load_9cat_board(is_proj):
+            import fantasy_rankings
+            return (fantasy_rankings.get_9cat_projections() if is_proj
+                    else fantasy_rankings.get_9cat_rankings())
 
-        def _conf_color(c):
-            if c >= 65:  return "#22c55e"
-            if c >= 45:  return "#f59e0b"
-            return "#f87171"
+        try:
+            with st.spinner("Building 9-category rankings…"):
+                _board = _load_9cat_board(_is_proj)
+        except Exception as _e:
+            _board = {"players": [], "n_pool": 0}
+            st.error(f"Couldn't load rankings: {_e}")
 
-        def _conf_bar(c):
-            color = _conf_color(c)
-            return (
-                f"<div style='background:rgba(255,255,255,0.07);border-radius:4px;"
-                f"height:5px;margin:0.4rem 0 0.6rem;'>"
-                f"<div style='width:{c}%;height:5px;border-radius:4px;"
-                f"background:{color};'></div></div>"
+        _players = _board.get("players", [])
+        if not _players:
+            st.info("Rankings unavailable right now — the NBA stats source didn't return data. Try again shortly.")
+        else:
+            _c1, _c2, _c3 = st.columns([1.6, 1, 1.4])
+            with _c1:
+                _pos_filter = st.radio("Position", ["All", "Guards", "Forwards", "Centers"],
+                                       horizontal=True, label_visibility="collapsed")
+            with _c2:
+                _cap_label = st.selectbox("Show", ["Top 50", "Top 100", "Top 150", "All"], index=1,
+                                          label_visibility="collapsed")
+            with _c3:
+                _search = st.text_input("Search", "", placeholder="Search player…",
+                                        label_visibility="collapsed")
+
+            def _pos_ok(pos):
+                if _pos_filter == "All":
+                    return True
+                return {"Guards": "G", "Forwards": "F", "Centers": "C"}[_pos_filter] in (pos or "").upper()
+
+            _cap = {"Top 50": 50, "Top 100": 100, "Top 150": 150, "All": 10 ** 9}[_cap_label]
+            _rows = [p for p in _players
+                     if _pos_ok(p["pos"]) and p["rank"] <= _cap
+                     and (not _search or _search.lower() in p["name"].lower())]
+
+            import pandas as _pd
+            _df = _pd.DataFrame([{
+                "Rank": p["rank"], "Tier": p["tier"], "Player": p["name"], "Pos": p["pos"],
+                "Tm": p["team"], "Note": p.get("note", ""), "Value": p["total"],
+                "PTS": p["pts"], "REB": p["reb"], "AST": p["ast"], "STL": p["stl"],
+                "BLK": p["blk"], "3PM": p["fg3m"], "FG%": p["fg_pct"], "FT%": p["ft_pct"],
+                "TO": p["tov"], "GP": p["gp"], "MPG": p["mpg"],
+            } for p in _rows])
+
+            if _df.empty:
+                st.caption("No players match the current filters.")
+            else:
+                # Hand-rolled RdYlGn heatmap (avoids a matplotlib dependency for
+                # Styler.background_gradient). TO is reversed — more turnovers = worse.
+                def _heat_css(col):
+                    v = col.astype(float)
+                    lo, hi = v.min(), v.max()
+                    rng = (hi - lo) or 1.0
+                    rev = col.name == "TO"
+                    out = []
+                    for x in v:
+                        t = (float(x) - lo) / rng
+                        if rev:
+                            t = 1 - t
+                        if t < 0.5:
+                            f = t / 0.5
+                            r, g, b = 215 + (255-215)*f, 48 + (255-48)*f, 39 + (191-39)*f
+                        else:
+                            f = (t - 0.5) / 0.5
+                            r, g, b = 255 + (26-255)*f, 255 + (152-255)*f, 191 + (80-191)*f
+                        out.append(f"background-color: rgba({int(r)},{int(g)},{int(b)},0.60); color:#0b0e14;")
+                    return out
+                _heat = ["Value", "PTS", "REB", "AST", "STL", "BLK", "3PM", "FG%", "FT%", "TO"]
+                _sty = (_df.style
+                        .apply(_heat_css, subset=_heat, axis=0)
+                        .format({"Value": "{:.2f}", "FG%": "{:.3f}", "FT%": "{:.3f}",
+                                 "PTS": "{:.1f}", "REB": "{:.1f}", "AST": "{:.1f}", "STL": "{:.1f}",
+                                 "BLK": "{:.1f}", "3PM": "{:.1f}", "TO": "{:.1f}", "MPG": "{:.1f}"}))
+                st.dataframe(_sty, use_container_width=True, hide_index=True,
+                             height=min(720, 46 + 35 * len(_df)))
+            if _is_proj:
+                _method = (f"Projected 2026-27: {_board.get('blend', '2-season blend, aged, current rosters')}. "
+                           f"Rookies (note = 'rookie') projected from draft-slot tier averages — rough. "
+                           f"Minutes carried from recent production (no depth-chart model) is the main limit.")
+            else:
+                _method = "2025-26 actual per-game production."
+            st.caption(
+                f"9-cat value = sum of per-category z-scores (turnovers negative; FG%/FT% "
+                f"volume-weighted) over a {_board.get('n_pool', 0)}-player pool. Cells heat-mapped by "
+                f"strength; Note flags age/new team (→)/rookie. {_method}"
             )
-
-        # ── Interest teams chips ───────────────────────────────────────────────
-        def _interest_chips(teams_list):
-            chips = " ".join(
-                f"<span style='display:inline-block;background:rgba(255,255,255,0.07);"
-                f"border:1px solid rgba(255,255,255,0.1);border-radius:99px;"
-                f"font-size:0.6rem;padding:0.15rem 0.5rem;margin:0.1rem 0.15rem 0 0;"
-                f"color:var(--text-muted);'>{t}</span>"
-                for t in teams_list
-            )
-            return f"<div style='margin-bottom:0.5rem;'>{chips}</div>"
-
-        # ── Stats pill row helper ─────────────────────────────────────────────
-        def _stats_row(stats: dict) -> str:
-            if not stats:
-                return ""
-            items = [
-                ("PPG", stats.get("ppg", "—")),
-                ("RPG", stats.get("rpg", "—")),
-                ("APG", stats.get("apg", "—")),
-                ("FG%", f"{stats['fg_pct']:.1f}" if "fg_pct" in stats else "—"),
-                ("TS%", f"{stats['ts_pct']:.1f}" if "ts_pct" in stats else "—"),
-                ("PER", stats.get("per", "—")),
-            ]
-            pills = "".join(
-                f"<span style='display:inline-flex;flex-direction:column;align-items:center;"
-                f"background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);"
-                f"border-radius:6px;padding:0.2rem 0.45rem;margin:0 0.2rem 0 0;'>"
-                f"<span style='font-size:0.72rem;font-weight:700;color:var(--text-primary);'>{v}</span>"
-                f"<span style='font-size:0.55rem;color:var(--text-muted);letter-spacing:0.06em;'>{k}</span>"
-                f"</span>"
-                for k, v in items
-            )
-            return (
-                f"<div style='display:flex;flex-wrap:wrap;gap:0;margin:0.5rem 0 0.55rem;"
-                f"padding:0.4rem 0;border-top:1px solid rgba(255,255,255,0.05);"
-                f"border-bottom:1px solid rgba(255,255,255,0.05);'>{pills}</div>"
-                f"<div style='font-size:0.58rem;color:var(--text-muted);margin-bottom:0.3rem;'>"
-                f"2025–26 regular season</div>"
-            )
-
-        # ── Live analytics row (from nba_api) ─────────────────────────────────
-        def _analytics_row(anl: dict) -> str:
-            if not anl:
-                return ""
-            net = anl.get("net_rating", 0)
-            net_color = "#22c55e" if net > 2 else ("#f59e0b" if net > -2 else "#f87171")
-            items = [
-                ("USG%",    f"{anl.get('usg_pct', 0):.1f}"),
-                ("NET RTG", f"{'+' if net >= 0 else ''}{net:.1f}"),
-                ("PIE",     f"{anl.get('pie', 0):.1f}"),
-                ("OFF RTG", f"{anl.get('off_rating', 0):.1f}"),
-                ("DEF RTG", f"{anl.get('def_rating', 0):.1f}"),
-                ("AST%",    f"{anl.get('ast_pct', 0):.1f}"),
-                ("eFG%",    f"{anl.get('efg_pct', 0):.1f}"),
-            ]
-            pills = "".join(
-                f"<span style='display:inline-flex;flex-direction:column;align-items:center;"
-                f"background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.18);"
-                f"border-radius:6px;padding:0.2rem 0.4rem;margin:0 0.18rem 0 0;'>"
-                f"<span style='font-size:0.7rem;font-weight:700;"
-                f"color:{'var(--text-primary)' if k != 'NET RTG' else net_color};'>{v}</span>"
-                f"<span style='font-size:0.52rem;color:var(--text-muted);letter-spacing:0.05em;'>{k}</span>"
-                f"</span>"
-                for k, v in items
-            )
-            return (
-                f"<div style='display:flex;flex-wrap:wrap;gap:0;margin:0.45rem 0 0.2rem;"
-                f"padding:0.35rem 0;border-top:1px solid rgba(99,102,241,0.12);'>{pills}</div>"
-                f"<div style='font-size:0.57rem;color:rgba(99,102,241,0.6);margin-bottom:0.4rem;'>"
-                f"2025–26 season advanced stats</div>"
-            )
-
-        # ── FA card renderer ───────────────────────────────────────────────────
-        def _render_fa_card(fa, analytics: dict | None = None):
-            tc  = _tier_color(fa["tier"])
-            cc  = _conf_color(fa["confidence"])
-            bar = _conf_bar(fa["confidence"])
-            interest_html = _interest_chips(fa.get("interest_teams", []))
-            stats_html = _stats_row(fa.get("stats", {}))
-            anl_html = _analytics_row(analytics or {})
-            _st_lower = fa["status"].lower()
-            status_color = ("#22c55e" if "signed" in _st_lower
-                            else "#f59e0b" if "opt" in _st_lower
-                            else "#60a5fa")
-            return (
-                f"<div style='background:var(--card-bg);border:1px solid var(--border);"
-                f"border-top:3px solid {tc};border-radius:12px;"
-                f"padding:1.1rem 1.25rem;margin-bottom:1rem;'>"
-                # Header row
-                f"<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.4rem;'>"
-                f"<div>"
-                f"<span style='font-size:1.0rem;font-weight:700;color:var(--text-primary);'>{fa['name']}</span>"
-                f"<span style='font-size:0.72rem;color:var(--text-muted);margin-left:0.5rem;'>"
-                f"{fa['pos']} &nbsp;·&nbsp; Age {fa['age']}</span>"
-                f"</div>"
-                f"<span style='font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;"
-                f"color:{tc};white-space:nowrap;margin-left:0.5rem;'>{fa['tier']}</span>"
-                f"</div>"
-                # From team + status
-                f"<div style='font-size:0.7rem;color:var(--text-muted);margin-bottom:0.55rem;'>"
-                f"<span style='color:var(--text-primary);font-weight:600;'>{fa['from_team']}</span>"
-                f" &nbsp;·&nbsp; "
-                f"<span style='color:{status_color};'>{fa['status']}</span>"
-                f"</div>"
-                # Basic stats row (manual / reference)
-                f"{stats_html}"
-                # Live advanced analytics row (nba_api)
-                f"{anl_html}"
-                # Predicted destination
-                f"<div style='display:flex;align-items:center;gap:0.6rem;margin-bottom:0.2rem;'>"
-                f"<span style='font-size:0.6rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;"
-                f"color:var(--text-muted);'>Predicted destination</span>"
-                f"</div>"
-                f"<div style='font-size:0.95rem;font-weight:700;color:{cc};margin-bottom:0rem;'>"
-                f"{fa['predicted_dest']}</div>"
-                f"{bar}"
-                f"<div style='display:flex;justify-content:space-between;font-size:0.67rem;"
-                f"color:var(--text-muted);margin-bottom:0.55rem;'>"
-                f"<span>Confidence: <strong style='color:{cc};'>{fa['confidence']}%</strong></span>"
-                f"<span>{fa['contract_projection']}</span>"
-                f"</div>"
-                # Interest chips
-                f"<div style='font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;"
-                f"color:var(--text-muted);margin-bottom:0.2rem;'>Also watching</div>"
-                f"{interest_html}"
-                # Blurb
-                f"<div style='font-size:0.76rem;color:var(--text-muted);line-height:1.65;"
-                f"margin-top:0.6rem;border-top:1px solid rgba(255,255,255,0.05);padding-top:0.6rem;'>"
-                f"{fa['blurb']}</div>"
-                f"</div>"
-            )
-
-        # ── Load live advanced analytics (nba_api, cached 24h) ───────────────
-        with st.spinner("Loading live NBA advanced analytics…"):
-            _fa_analytics = _fetch_nba_fa_analytics("2025-26")
-
-        # ── Tier grouping ──────────────────────────────────────────────────────
-        _tier_order = ["Supermax", "Max", "Near-Max", "Starter", "Starter / MLE",
-                       "MLE", "MLE / Veteran", "Veteran Min", "Veteran minimum"]
-        _tier_groups: dict = {}
-        for _fa in _NBA_FREE_AGENTS:
-            _tier_groups.setdefault(_fa["tier"], []).append(_fa)
-
-        _fa_col1, _fa_col2 = st.columns(2)
-        _fa_col_idx = 0
-        for _tier_name in _tier_order:
-            _group = _tier_groups.get(_tier_name, [])
-            if not _group:
-                continue
-            _tc = _tier_color(_tier_name)
-            _tier_header = (
-                f"<div style='font-size:0.58rem;font-weight:700;letter-spacing:0.18em;"
-                f"text-transform:uppercase;color:{_tc};margin:1.1rem 0 0.5rem;"
-                f"padding-bottom:0.3rem;border-bottom:1px solid rgba(255,255,255,0.06);'>"
-                f"{_tier_name} Free Agents</div>"
-            )
-            # Alternate header between columns
-            if _fa_col_idx % 2 == 0:
-                _fa_col1.markdown(_tier_header, unsafe_allow_html=True)
-                _fa_col2.markdown(_tier_header, unsafe_allow_html=True)
-            for _fi, _fa in enumerate(_group):
-                _target_col = _fa_col1 if _fi % 2 == 0 else _fa_col2
-                _target_col.markdown(
-                    _render_fa_card(
-                        _fa,
-                        _fa_analytics.get(_fa["name"]) or _NBA_FA_ADVANCED_STATS.get(_fa["name"], {}),
-                    ),
-                    unsafe_allow_html=True,
-                )
-            _fa_col_idx += 1
 
         # ── News panel below cards ─────────────────────────────────────────────
         st.markdown("<hr style='margin:1.5rem 0;border-color:rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
         _fa_news_col, _fa_feat_col = st.columns([1.2, 1])
         with _fa_news_col:
-            section("NBA Free Agency News")
+            section("NBA News")
             with st.spinner("Loading news..."):
                 _nba_news = get_sport_news("nba")
             render_news_panel(_nba_news)
