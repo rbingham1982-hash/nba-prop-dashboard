@@ -243,6 +243,26 @@ def _parlay_id(parlay: dict, sport: str, sportsbook: str) -> str:
 # Public: log parlays
 # ─────────────────────────────────────────────────────────────────────────────
 
+EARLY_LEAD_HOURS = 8   # experiment threshold. A pick placed this many+ hours before first
+                       # pitch is tagged "early". Lead time is the single biggest CLV lever
+                       # found so far — early picks are ~break-even CLV and beat their implied
+                       # hit rate, late picks bleed — so every pick is TAGGED, not filtered, to
+                       # A/B the two cohorts prospectively (see get_lead_time_experiment).
+
+
+def _lead_hours(start_time: str, ref_utc: datetime) -> float | None:
+    """Hours from ref (UTC, taken at log time) to the game's start. None if unparseable."""
+    if not start_time:
+        return None
+    try:
+        s = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+        if s.tzinfo is None:
+            s = s.replace(tzinfo=timezone.utc)
+        return round((s - ref_utc).total_seconds() / 3600, 1)
+    except Exception:
+        return None
+
+
 def log_parlays(
     parlays: list,
     sport: str,
@@ -255,6 +275,7 @@ def log_parlays(
     data = _load()
     existing_ids = {p["id"] for p in data["parlays"]}
     now = datetime.now()
+    now_utc = datetime.now(timezone.utc)   # for tz-correct lead-time stamping
     week = now.strftime("%G-W%V")
     added = 0
 
@@ -282,7 +303,10 @@ def log_parlays(
             "parlay_hit":       None,
             "legs":             [],
         }
+        _leads = []
         for leg in parlay["legs"]:
+            _lh = _lead_hours(str(leg.get("start_time", "")), now_utc)
+            _leads.append(_lh)
             entry["legs"].append({
                 "player_name":       leg["player_name"],
                 "stat_type":         leg["stat_type"],
@@ -305,8 +329,18 @@ def log_parlays(
                 "game_id":           str(leg.get("game_id", "")),
                 "game_label":        str(leg.get("game_label", "")),
                 "start_time":        str(leg.get("start_time", "")),
+                # Hours from log time to first pitch. Stamped, not filtered — the lead-time
+                # experiment flag (see EARLY_LEAD_HOURS / get_lead_time_experiment).
+                "lead_hours":        _lh,
                 "outcome":           None,
             })
+        # A parlay is only as "early" as its soonest game — that leg's line is already the
+        # most shaped — so bucket the whole parlay on the minimum leg lead.
+        _known = [x for x in _leads if x is not None]
+        _min_lead = min(_known) if _known else None
+        entry["min_lead_hours"] = _min_lead
+        entry["experiment"] = ("early" if _min_lead is not None and _min_lead >= EARLY_LEAD_HOURS
+                               else "late" if _min_lead is not None else "unknown")
         data["parlays"].append(entry)
         existing_ids.add(pid)
         added += 1
@@ -1653,6 +1687,57 @@ def get_clv_summary(sport: str | None = None) -> dict:
     return {"n": len(diffs),
             "avg_clv": round(sum(diffs) / len(diffs), 4),
             "pct_positive": round(sum(1 for d in diffs if d > 0) / len(diffs), 4)}
+
+
+def get_lead_time_experiment(sport: str | None = None,
+                             threshold: float = EARLY_LEAD_HOURS) -> dict:
+    """
+    Prospective A/B of early vs late picks. Lead time is the single biggest CLV lever found:
+    early picks are ~break-even CLV and beat their implied hit rate, late picks bleed. Every
+    pick is logged and tagged (never filtered), so this compares the two cohorts on both CLV
+    (leading) and realized hit-vs-implied (lagging), deduped per prop.
+
+    Only legs carrying a stamped `lead_hours` are counted — i.e. those logged since the flag
+    shipped — so the comparison is a clean forward experiment, not contaminated by history.
+    """
+    data = _load()
+    b = {"early": {"clv": [], "res": []}, "late": {"clv": [], "res": []}}
+    seen: set = set()
+    for p in data["parlays"]:
+        if sport and p.get("sport") != sport:
+            continue
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        for leg in p["legs"]:
+            lh = leg.get("lead_hours")
+            if lh is None:
+                continue  # pre-experiment leg — excluded so the A/B stays forward-only
+            entry = leg.get("implied_prob")
+            if not entry:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            bucket = "early" if lh >= threshold else "late"
+            close = leg.get("closing_implied")
+            if close is not None:
+                b[bucket]["clv"].append(float(close) - float(entry))
+            if leg.get("outcome") in (True, False):
+                b[bucket]["res"].append((1.0 if leg["outcome"] is True else 0.0, float(entry)))
+
+    def _summ(v):
+        clv, res = v["clv"], v["res"]
+        return {
+            "n_clv":        len(clv),
+            "avg_clv":      round(sum(clv) / len(clv), 4) if clv else None,
+            "pct_positive": round(sum(1 for x in clv if x > 0) / len(clv), 4) if clv else None,
+            "n_resolved":   len(res),
+            "hit_rate":     round(sum(h for h, _ in res) / len(res), 4) if res else None,
+            "implied":      round(sum(i for _, i in res) / len(res), 4) if res else None,
+        }
+    return {"threshold_hours": threshold,
+            "early": _summ(b["early"]), "late": _summ(b["late"])}
 
 
 DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise

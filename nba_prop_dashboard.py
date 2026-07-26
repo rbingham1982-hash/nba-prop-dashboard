@@ -4978,6 +4978,40 @@ def _render_accuracy_tab(sport_filter: str) -> None:
         pass
     st.divider()
 
+    # ── Lead-time experiment (early vs late picks) ────────────────────────────
+    st.markdown("#### Lead-Time Experiment")
+    st.caption(
+        f"Every pick is tagged early/late by hours to first pitch (threshold "
+        f"{parlay_tracker.EARLY_LEAD_HOURS}h) — never filtered — to A/B the one signal that "
+        "looked real in-sample: early picks were ~break-even CLV and beat their implied hit "
+        "rate, late picks bled. CLV leads; hit-vs-implied is the realized check. Forward-only."
+    )
+    _lt = parlay_tracker.get_lead_time_experiment(sport=sport_filter)
+    _e, _l = _lt["early"], _lt["late"]
+    if not any(_e[k] or _l[k] for k in ("n_clv", "n_resolved")):
+        st.caption("⏳ Collecting — no tagged picks yet. Tagging begins with the next "
+                   "generation; early vs late fills in as those picks get closing lines and resolve.")
+    else:
+        def _lead_col(col, label, sub, s):
+            with col:
+                st.markdown(f"**{label}** · {sub}")
+                _a, _b = st.columns(2)
+                _clv_v = f"{s['avg_clv']*100:+.1f} pts" if s["avg_clv"] is not None else "—"
+                _clv_d = (f"{s['n_clv']} legs" +
+                          (f" · {s['pct_positive']:.0%} beat close" if s["pct_positive"] is not None else ""))
+                _a.metric("Avg CLV", _clv_v, _clv_d, delta_color="off")
+                if s["hit_rate"] is not None:
+                    _edge = (s["hit_rate"] - s["implied"]) * 100
+                    _b.metric("Hit vs Implied", f"{_edge:+.1f} pts",
+                              f"{s['hit_rate']:.0%} vs {s['implied']:.0%} · {s['n_resolved']} legs",
+                              delta_color="off")
+                else:
+                    _b.metric("Hit vs Implied", "—", f"{s['n_resolved']} resolved", delta_color="off")
+        _ec, _lc = st.columns(2)
+        _lead_col(_ec, "Early", f"≥ {parlay_tracker.EARLY_LEAD_HOURS}h lead", _e)
+        _lead_col(_lc, "Late",  f"< {parlay_tracker.EARLY_LEAD_HOURS}h lead", _l)
+    st.divider()
+
     # ── Calibration drift alerts ──────────────────────────────────────────────
     st.markdown("#### Calibration Drift Alerts")
     st.caption("Flags stat types where the rolling 30-day actual hit rate has shifted ≥15 ppts from the all-time baseline.")
