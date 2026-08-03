@@ -378,6 +378,19 @@ RESOLVE_GIVE_UP_DAYS  = 3   # ...and only once its game is this far in the past
 # socket timeout during resolve turns that hang into a caught exception the per-call
 # try/except already handles — the leg is skipped and retried next run.
 RESOLVE_HTTP_TIMEOUT  = 15  # seconds; ceiling on any single resolve network read
+# Wall-clock budget for a whole resolve pass. The daily job resolves BEFORE it generates
+# today's slate, and the scheduled task has a hard execution-time limit — so a slow resolve
+# (hundreds of pending legs, or the machine sleeping mid-run and the wall clock still
+# counting) used to eat the entire window and the slate never got generated. Bounding
+# resolve means the important work — generation — always runs; unresolved legs just retry
+# next pass (attempt counters persist), so nothing is lost, only deferred.
+RESOLVE_BUDGET_SECONDS = 600
+
+_resolve_deadline: float | None = None   # monotonic clock deadline for the current pass
+
+
+def _resolve_over_budget() -> bool:
+    return _resolve_deadline is not None and _time.monotonic() >= _resolve_deadline
 
 
 def _leg_is_abandoned(leg: dict, now: datetime | None = None) -> bool:
@@ -673,6 +686,8 @@ def resolve_nba_legs() -> int:
 
     resolved_count = 0
     for player_name, entries in player_legs.items():
+        if _resolve_over_budget():
+            break   # out of wall-clock budget — remaining legs retry next pass
         pid = _get_nba_player_id(player_name)
         if not pid:
             continue
@@ -769,6 +784,8 @@ def _resolve_mlb_legs() -> int:
 
     resolved_count = 0
     for player_name, entries in player_legs.items():
+        if _resolve_over_budget():
+            break   # out of wall-clock budget — remaining legs retry next pass
         norm_name = _normalize_name(player_name)
         dates_needed: set[str] = set()
         for parlay, leg in entries:
@@ -911,6 +928,8 @@ def _resolve_wnba_legs() -> int:
 
     resolved_count = 0
     for player_name, entries in player_legs.items():
+        if _resolve_over_budget():
+            break   # out of wall-clock budget — remaining legs retry next pass
         pid = wnba_id_map.get(player_name.strip().lower())
         if not pid:
             # Try normalized name match
@@ -1016,17 +1035,27 @@ def reset_outcomes(sport: str) -> int:
     return cleared
 
 
-def resolve_all_legs() -> dict:
-    """Resolve NBA, MLB, and WNBA pending legs. Returns {nba: count, mlb: count, wnba: count}."""
+def resolve_all_legs(budget_seconds: float = RESOLVE_BUDGET_SECONDS) -> dict:
+    """
+    Resolve NBA, MLB, and WNBA pending legs. Returns {nba: count, mlb: count, wnba: count}.
+
+    The three sports share one wall-clock budget: whichever runs first (NBA, then MLB, then
+    WNBA) can use the whole window, and once it's spent the remaining resolvers no-op on their
+    first loop check. Bounding the pass is what keeps a slow resolve from starving the daily
+    slate generation that runs after it.
+    """
+    global _resolve_deadline
     import socket
     _prev_timeout = socket.getdefaulttimeout()
     socket.setdefaulttimeout(RESOLVE_HTTP_TIMEOUT)
+    _resolve_deadline = _time.monotonic() + budget_seconds if budget_seconds else None
     try:
         nba  = resolve_nba_legs()
         mlb  = _resolve_mlb_legs()
         wnba = _resolve_wnba_legs()
     finally:
         socket.setdefaulttimeout(_prev_timeout)
+        _resolve_deadline = None
     return {"nba": nba, "mlb": mlb, "wnba": wnba}
 
 
