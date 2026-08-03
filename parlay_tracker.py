@@ -1769,6 +1769,74 @@ def get_lead_time_experiment(sport: str | None = None,
             "early": _summ(b["early"]), "late": _summ(b["late"])}
 
 
+# Markets where the model has shown a realized/CLV edge over the book, isolated from the
+# markets where it bleeds. The (sport, stat_type) pairs here are the "pocket strategy":
+# MLB Pitcher Strikeouts is the only positive-CLV market and is break-even to the line, and
+# WNBA rebounding/assist props beat their implied hit rate — while MLB Hits/Home Runs and
+# WNBA scoring lose. Unlike lead time, pocket membership is static (no log-time stamp needed),
+# so the readout works on history AND accrues forward.
+POCKET_MARKETS = frozenset({
+    ("MLB", "Pitcher Strikeouts"),
+    ("WNBA", "Rebounds"),
+    ("WNBA", "Assists"),
+    ("WNBA", "Rebs+Asts"),
+})
+
+
+def _is_pocket(sport: str, stat_type: str) -> bool:
+    return (sport, stat_type) in POCKET_MARKETS
+
+
+def get_pocket_experiment(sport: str | None = None, forward_only: bool = False) -> dict:
+    """
+    A/B the "pocket strategy" (POCKET_MARKETS) against everything else on CLV (leading) and
+    realized hit-vs-implied (lagging), deduped per prop. The pocket is the one segment that
+    isn't losing to the line; this tracks whether that holds as data grows.
+
+    forward_only=True counts only legs logged since the experiment infrastructure shipped
+    (identified by a stamped `lead_hours`), for a clean prospective cut uncontaminated by the
+    in-sample history the pocket was chosen on. Default False includes all market-epoch legs.
+    """
+    data = _load()
+    b = {"pocket": {"clv": [], "res": []}, "rest": {"clv": [], "res": []}}
+    seen: set = set()
+    for p in data["parlays"]:
+        if sport and p.get("sport") != sport:
+            continue
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        for leg in p["legs"]:
+            if forward_only and leg.get("lead_hours") is None:
+                continue
+            entry = leg.get("implied_prob")
+            if not entry:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            bucket = "pocket" if _is_pocket(p["sport"], leg.get("stat_type", "")) else "rest"
+            close = leg.get("closing_implied")
+            if close is not None:
+                b[bucket]["clv"].append(float(close) - float(entry))
+            if leg.get("outcome") in (True, False):
+                b[bucket]["res"].append((1.0 if leg["outcome"] is True else 0.0, float(entry)))
+
+    def _summ(v):
+        clv, res = v["clv"], v["res"]
+        return {
+            "n_clv":        len(clv),
+            "avg_clv":      round(sum(clv) / len(clv), 4) if clv else None,
+            "pct_positive": round(sum(1 for x in clv if x > 0) / len(clv), 4) if clv else None,
+            "n_resolved":   len(res),
+            "hit_rate":     round(sum(h for h, _ in res) / len(res), 4) if res else None,
+            "implied":      round(sum(i for _, i in res) / len(res), 4) if res else None,
+        }
+    return {"markets": sorted(f"{s}:{m}" for s, m in POCKET_MARKETS),
+            "forward_only": forward_only,
+            "pocket": _summ(b["pocket"]), "rest": _summ(b["rest"])}
+
+
 DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise
 DRIFT_BIAS_ALERT = 0.15  # actual vs predicted this far apart is real miscalibration
 

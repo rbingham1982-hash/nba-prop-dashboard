@@ -4604,6 +4604,26 @@ def _render_accuracy_tab(sport_filter: str) -> None:
         _lead_col(_lc, "Late",  f"< {parlay_tracker.EARLY_LEAD_HOURS}h lead", _l)
     st.divider()
 
+    # ── Pocket-market experiment (positive-edge markets vs the rest) ──────────
+    st.markdown("#### Pocket-Market Experiment")
+    _pk_mkts = ", ".join(m.replace(":", " ") for m in
+                         sorted(f"{s}:{m}" for s, m in parlay_tracker.POCKET_MARKETS))
+    st.caption(
+        f"The one market segment that isn't losing to the line — **{_pk_mkts}** — vs. everything "
+        "else. In-sample the pocket ran ~break-even (realized +1.3 pts vs implied) while the rest "
+        "bled (−4.7 pts). This tracks whether that separation holds as data accrues. CLV leads; "
+        "hit-vs-implied is the realized check."
+    )
+    _pk = parlay_tracker.get_pocket_experiment(sport=sport_filter)
+    _po, _re = _pk["pocket"], _pk["rest"]
+    if not any(_po[k] or _re[k] for k in ("n_clv", "n_resolved")):
+        st.caption("⏳ Collecting — no priced/resolved legs in these markets yet for this sport.")
+    else:
+        _pc, _rc = st.columns(2)
+        _lead_col(_pc, "Pocket", "K's · WNBA reb/ast", _po)
+        _lead_col(_rc, "Rest",   "all other markets", _re)
+    st.divider()
+
     # ── Calibration drift alerts ──────────────────────────────────────────────
     st.markdown("#### Calibration Drift Alerts")
     st.caption("Flags stat types where the rolling 30-day actual hit rate has shifted ≥15 ppts from the all-time baseline.")
