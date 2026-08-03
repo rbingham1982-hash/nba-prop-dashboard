@@ -4570,6 +4570,63 @@ def _render_accuracy_tab(sport_filter: str) -> None:
         pass
     st.divider()
 
+    # ── Paper trading — the betting verdict ───────────────────────────────────
+    st.markdown("#### 📋 Paper Trading — Betting Verdict")
+    st.caption(
+        "Hypothetical flat 1-unit **straight** bets (never parlays) on each strategy, graded "
+        "on CLV (leads) and realized P&L (lags) with 95% confidence bands. The **live** window "
+        f"(picks generated on/after {parlay_tracker.PAPER_TRACK_START.isoformat()}) is the "
+        "out-of-sample record that gates real money — the strategies were chosen on the history "
+        "before it. Bet real units only when a strategy earns an **EDGE** verdict live."
+    )
+    _VERDICT_UI = {
+        "EDGE":              ("✅ EDGE",        "#22c55e", "rgba(34,197,94,.12)"),
+        "UNCONFIRMED_WIN":   ("🟡 UNCONFIRMED", "#f59e0b", "rgba(245,158,11,.12)"),
+        "INCONCLUSIVE":      ("◽ INCONCLUSIVE","#9aa0b4", "rgba(154,160,180,.10)"),
+        "NO_EDGE":           ("❌ NO EDGE",     "#f87171", "rgba(248,113,113,.12)"),
+        "INSUFFICIENT_DATA": ("⏳ COLLECTING",  "#818cf8", "rgba(129,140,248,.12)"),
+    }
+    def _verdict_badge(v):
+        lab, col, bg = _VERDICT_UI.get(v, _VERDICT_UI["INCONCLUSIVE"])
+        return (f"<span style='display:inline-block;font-weight:700;font-size:0.8rem;"
+                f"padding:0.18rem 0.6rem;border-radius:6px;color:{col};background:{bg};"
+                f"border:1px solid {col}55;'>{lab}</span>")
+
+    # Headline: the pocket strategy, live (the window that counts).
+    _plive = parlay_tracker.get_paper_portfolio("pocket", sport=sport_filter, live_only=True)
+    _lab, _col, _bg = _VERDICT_UI.get(_plive["verdict"], _VERDICT_UI["INCONCLUSIVE"])
+    st.markdown(
+        f"<div style='border:1px solid {_col}55;background:{_bg};border-radius:12px;"
+        f"padding:0.9rem 1.1rem;margin:0.3rem 0 0.9rem;'>"
+        f"<div style='display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;'>"
+        f"{_verdict_badge(_plive['verdict'])}"
+        f"<span style='font-weight:700;color:var(--text-primary);'>Pocket strategy · live</span>"
+        f"<span style='color:var(--text-muted);font-size:0.82rem;'>{_plive['n_bets']} resolved "
+        f"bets since {_plive['track_start']}</span></div>"
+        f"<div style='color:var(--text-muted);font-size:0.83rem;margin-top:0.4rem;'>"
+        f"{_plive['verdict_reason']}</div></div>",
+        unsafe_allow_html=True,
+    )
+
+    # Strategy comparison (backtest = in-sample reference; verdicts shown for honesty).
+    st.caption("Backtest (in-sample reference — the hypothesis, not the proof):")
+    _rows = []
+    for _sk in ("pocket", "all_edge", "all"):
+        _s = parlay_tracker.get_paper_portfolio(_sk, sport=sport_filter, live_only=False)
+        _clv = f"{_s['avg_clv']:+.2f}" if _s["avg_clv"] is not None else "—"
+        _roi = f"{_s['roi']:+.1f}%" if _s["roi"] is not None else "—"
+        _rows.append({
+            "Strategy": _s["label"], "Bets": _s["n_bets"],
+            "Hit %": f"{_s['hit_rate']*100:.1f}%" if _s["hit_rate"] is not None else "—",
+            "ROI": _roi, "Net (u)": _s["net_units"],
+            "Avg CLV (pt)": _clv, "Verdict": _VERDICT_UI.get(_s["verdict"], ("?",))[0],
+        })
+    st.dataframe(pd.DataFrame(_rows), use_container_width=True, hide_index=True)
+    st.caption("Straight bets, deduped per prop. A negative-CLV / negative-ROI backtest is the "
+               "honest read: no strategy has beaten the closing line yet. The live window above "
+               "is what decides whether to ever bet real units.")
+    st.divider()
+
     # ── Lead-time experiment (early vs late picks) ────────────────────────────
     st.markdown("#### Lead-Time Experiment")
     st.caption(

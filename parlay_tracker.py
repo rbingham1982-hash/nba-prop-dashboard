@@ -1837,6 +1837,135 @@ def get_pocket_experiment(sport: str | None = None, forward_only: bool = False) 
             "pocket": _summ(b["pocket"]), "rest": _summ(b["rest"])}
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Paper trading — the gate that turns "should I bet" into evidence
+# ─────────────────────────────────────────────────────────────────────────────
+# The goal is a real edge, and the only honest way to know is to bet on paper first:
+# log each strategy's picks as hypothetical flat 1-unit STRAIGHT bets (never parlays — that
+# was the variance trap), then track CLV (leads) and realized P&L (lags) with confidence
+# bands until a verdict is earned. Picks generated on/after PAPER_TRACK_START are the live,
+# out-of-sample record — the only window that counts, since the strategies were chosen on the
+# history before it. Everything before is a backtest for reference only.
+PAPER_TRACK_START = date(2026, 8, 2)
+PAPER_MIN_BETS    = 100   # resolved bets before a realized verdict is trusted
+PAPER_MIN_CLV     = 50    # priced bets before a CLV verdict is trusted
+
+
+def _strat_pocket(sport, leg):
+    return _is_pocket(sport, leg.get("stat_type", "")) and \
+        float(leg.get("predicted_hit_rate") or 0) > float(leg.get("implied_prob") or 0)
+
+def _strat_all_edge(sport, leg):
+    return float(leg.get("predicted_hit_rate") or 0) > float(leg.get("implied_prob") or 0)
+
+def _strat_all(sport, leg):
+    return True
+
+# key -> (label, leg predicate). Straight-bet strategies, compared side by side.
+PAPER_STRATEGIES = {
+    "pocket":   ("Pocket · K's + WNBA reb/ast, +edge", _strat_pocket),
+    "all_edge": ("All markets, +model edge",           _strat_all_edge),
+    "all":      ("Everything (baseline)",              _strat_all),
+}
+
+
+def _dec_from_odds(american) -> float:
+    a = float(american)
+    return 1 + (a / 100 if a > 0 else 100 / abs(a))
+
+
+def _mean_ci(vals: list):
+    """(mean, lo95, hi95, n) via normal approx; lo/hi None when n<2."""
+    n = len(vals)
+    if n == 0:
+        return (None, None, None, 0)
+    m = sum(vals) / n
+    if n < 2:
+        return (m, None, None, n)
+    var = sum((x - m) ** 2 for x in vals) / (n - 1)
+    se = (var / n) ** 0.5
+    return (m, m - 1.96 * se, m + 1.96 * se, n)
+
+
+def _paper_verdict(n_bets, n_clv, clv_lo, clv_hi, roi_lo):
+    """
+    CLV-first verdict — CLV is the leading indicator, so the market confirming or denying the
+    edge outranks a realized P&L that at small n is mostly variance.
+    """
+    if n_bets < PAPER_MIN_BETS or n_clv < PAPER_MIN_CLV:
+        return ("INSUFFICIENT_DATA",
+                f"need ≥{PAPER_MIN_BETS} resolved bets and ≥{PAPER_MIN_CLV} priced bets — keep tracking")
+    if clv_lo is not None and clv_lo > 0:
+        return ("EDGE", "CLV positive with 95% confidence — the market confirms the edge")
+    if clv_hi is not None and clv_hi < 0:
+        return ("NO_EDGE", "CLV negative with 95% confidence — betting into the closing line")
+    if roi_lo is not None and roi_lo > 0:
+        return ("UNCONFIRMED_WIN", "profitable so far but CLV isn't positive — likely variance, keep tracking")
+    return ("INCONCLUSIVE", "no significant CLV or ROI signal yet — keep tracking")
+
+
+def get_paper_portfolio(strategy: str = "pocket", sport: str | None = None,
+                        live_only: bool = False) -> dict:
+    """
+    Hypothetical flat 1-unit straight bets for a strategy, deduped per prop. live_only=True
+    counts only picks generated on/after PAPER_TRACK_START (the out-of-sample record that
+    actually gates real money); False is the full-history backtest for reference.
+    """
+    label, pred = PAPER_STRATEGIES.get(strategy, PAPER_STRATEGIES["pocket"])
+    data = _load()
+    seen: set = set()
+    pnl: list = []
+    clv: list = []
+    hits = 0
+    for p in data["parlays"]:
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        if live_only:
+            try:
+                if datetime.fromisoformat(p["generated_at"]).date() < PAPER_TRACK_START:
+                    continue
+            except Exception:
+                continue
+        for leg in p["legs"]:
+            if not pred(p["sport"], leg):
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            entry = leg.get("implied_prob")
+            close = leg.get("closing_implied")
+            if entry and close is not None:
+                clv.append(float(close) - float(entry))
+            oc = leg.get("outcome")
+            if oc in (True, False):
+                a = leg.get("american_odds")
+                dec = _dec_from_odds(a) if a else (1 / float(entry) if entry else 2.0)
+                pnl.append((dec - 1) if oc is True else -1.0)
+                if oc is True:
+                    hits += 1
+
+    roi_m, roi_lo, roi_hi, n_bets = _mean_ci(pnl)
+    clv_m, clv_lo, clv_hi, n_clv = _mean_ci(clv)
+    verdict, reason = _paper_verdict(n_bets, n_clv, clv_lo, clv_hi, roi_lo)
+    return {
+        "strategy": strategy, "label": label, "live_only": live_only,
+        "track_start": PAPER_TRACK_START.isoformat(),
+        "n_bets": n_bets, "hits": hits,
+        "hit_rate": round(hits / n_bets, 4) if n_bets else None,
+        "roi": round(roi_m * 100, 2) if roi_m is not None else None,
+        "roi_ci": [round(roi_lo * 100, 1), round(roi_hi * 100, 1)] if roi_lo is not None else None,
+        "net_units": round(sum(pnl), 1),
+        "n_clv": n_clv,
+        "avg_clv": round(clv_m * 100, 2) if clv_m is not None else None,
+        "clv_ci": [round(clv_lo * 100, 2), round(clv_hi * 100, 2)] if clv_lo is not None else None,
+        "clv_pct_pos": round(sum(1 for x in clv if x > 0) / n_clv, 4) if n_clv else None,
+        "verdict": verdict, "verdict_reason": reason,
+    }
+
+
 DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise
 DRIFT_BIAS_ALERT = 0.15  # actual vs predicted this far apart is real miscalibration
 
