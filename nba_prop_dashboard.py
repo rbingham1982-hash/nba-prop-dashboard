@@ -4203,6 +4203,38 @@ st.markdown(_SHARED_CSS, unsafe_allow_html=True)
 
 def _render_accuracy_tab(sport_filter: str) -> None:
     """Render the Accuracy tab content, filtered to a single sport."""
+    # ── Today's pocket-day alert — bet the good days, skip the dry ones ──────
+    try:
+        _alert = parlay_tracker.get_pocket_alert(sport=sport_filter)
+    except Exception:
+        _alert = {"qualifies": False, "n_pocket": 0, "plays": [], "min_edge": 0.03, "min_odds": -140}
+    if _alert["qualifies"]:
+        _rows = "".join(
+            f"<div style='display:flex;justify-content:space-between;gap:1rem;font-size:0.82rem;"
+            f"padding:0.25rem 0;border-top:1px solid rgba(34,197,94,.18);'>"
+            f"<span style='color:var(--text-primary);'><b>{_p['player']}</b> · {_p['stat']} "
+            f"o{_p['line']}</span>"
+            f"<span style='color:var(--text-muted);'>{_p['edge']*100:+.1f}% edge · "
+            f"{'+' if _p['odds']>0 else ''}{_p['odds']} · {_p['book']}</span></div>"
+            for _p in _alert["plays"][:6])
+        st.markdown(
+            f"<div style='border:1px solid rgba(34,197,94,.45);background:rgba(34,197,94,.10);"
+            f"border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1rem;'>"
+            f"<div style='font-weight:700;color:#22c55e;font-size:0.95rem;'>🔔 Strong-edge pocket day "
+            f"— {len(_alert['plays'])} play(s) clear the bar</div>"
+            f"<div style='font-size:0.76rem;color:var(--text-muted);margin:0.2rem 0 0.4rem;'>"
+            f"Pocket-market straight bets with ≥{_alert['min_edge']*100:.0f}% model edge at "
+            f"≥{_alert['min_odds']:+d} odds. Still not real edge until the paper-trade verdict says so — "
+            f"but these are the only days worth a look.</div>{_rows}</div>",
+            unsafe_allow_html=True,
+        )
+    else:
+        st.caption(
+            f"🔕 No strong-edge pocket day ({_alert['n_pocket']} pocket props scanned; none clear "
+            f"≥{_alert['min_edge']*100:.0f}% edge at ≥{_alert['min_odds']:+d}). Dry board — the "
+            "disciplined move is to skip. This flags the good days automatically."
+        )
+
     _cur_week = datetime.now().strftime("%G-W%V")
     _c1, _c2 = st.columns([3, 1])
     with _c2:

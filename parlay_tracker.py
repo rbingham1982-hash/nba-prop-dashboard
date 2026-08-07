@@ -1966,6 +1966,53 @@ def get_paper_portfolio(strategy: str = "pocket", sport: str | None = None,
     }
 
 
+# ── Strong-edge pocket day alert ──────────────────────────────────────────────
+# Most days the pocket board is thin (edges inside the ~1% noise floor at short odds), and
+# forcing a bet on a dry day is how edges get given back. This flags the rare day that has a
+# pocket play with a genuinely strong edge AND a worthwhile return — the only days worth acting
+# on. Bet threshold, not vibes.
+POCKET_ALERT_MIN_EDGE = 0.03    # model prob over the line — meaningfully above the noise floor
+POCKET_ALERT_MIN_ODDS = -140    # odds floor so a strong-edge play also pays a worthwhile return
+
+
+def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
+                     min_edge: float = POCKET_ALERT_MIN_EDGE,
+                     min_odds: int = POCKET_ALERT_MIN_ODDS) -> dict:
+    """
+    Scan a day's logged pocket-market props and return the ones that clear BOTH a strong-edge
+    bar and an odds floor — the plays worth a straight bet. on_date defaults to today (local,
+    matching generated_at). qualifies=True means it's a day worth acting on.
+    """
+    data = _load()
+    day = on_date or datetime.now().strftime("%Y-%m-%d")
+    seen: dict = {}
+    for p in data["parlays"]:
+        if not str(p.get("generated_at", "")).startswith(day):
+            continue
+        if sport and p.get("sport") != sport:
+            continue
+        for leg in p["legs"]:
+            if not _is_pocket(p["sport"], leg.get("stat_type", "")):
+                continue
+            pred, impl, odds = leg.get("predicted_hit_rate"), leg.get("implied_prob"), leg.get("american_odds")
+            if pred is None or not impl or odds is None:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen[key] = {
+                "sport": p["sport"], "player": leg.get("player_name", ""),
+                "stat": leg.get("stat_type", ""), "line": leg.get("line_score"),
+                "odds": int(odds), "pred": round(float(pred), 4),
+                "edge": round(float(pred) - float(impl), 4),
+                "book": p.get("sportsbook", ""), "game": leg.get("game_label", ""),
+            }
+    plays = sorted((v for v in seen.values() if v["edge"] >= min_edge and v["odds"] >= min_odds),
+                   key=lambda r: r["edge"], reverse=True)
+    return {"date": day, "min_edge": min_edge, "min_odds": min_odds,
+            "n_pocket": len(seen), "qualifies": bool(plays), "plays": plays}
+
+
 DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise
 DRIFT_BIAS_ALERT = 0.15  # actual vs predicted this far apart is real miscalibration
 
