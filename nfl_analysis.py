@@ -107,6 +107,50 @@ def project(log: list, stat: str, recent_n: int = 5) -> float | None:
     return round(num / (w_recent + w_all), 1)
 
 
+def _norm_cdf(x: float, mu: float, sigma: float) -> float:
+    import math
+    if sigma <= 0:
+        return 1.0 if x < mu else 0.0
+    return 0.5 * (1 + math.erf((x - mu) / (sigma * math.sqrt(2))))
+
+
+def _implied_from_odds(american) -> float:
+    a = float(american)
+    return (100 / (a + 100)) if a > 0 else (abs(a) / (abs(a) + 100))
+
+
+def score_prop(df, player: str, stat: str, line: float, american_odds=None,
+               market_blend: float = 0.35, recent_n: int = 5) -> dict:
+    """
+    Model probability that `player` goes OVER `line` on `stat`, from a normal(projection,
+    historical σ) — the projection is forward-looking (recency-weighted), σ carries the
+    player's game-to-game variance. When market odds are given, blend toward the book's
+    implied prob (market_blend = model's share) and report the edge — mirroring how the
+    MLB/WNBA scorer trusts the market as the primary signal and the model as an edge nudge.
+
+    Returns {} if the player has too little history to score.
+    """
+    import statistics as _st
+    log = game_log(df, player)
+    vals = [g[stat] for g in log]
+    if len(vals) < 3:
+        return {}
+    mu = project(log, stat, recent_n=recent_n)
+    sigma = _st.pstdev(vals) if len(vals) > 1 else max(mu * 0.5, 1.0)
+    model_over = round(1 - _norm_cdf(line, mu, sigma), 4)
+
+    out = {"player": player, "stat": stat, "line": float(line), "n": len(vals),
+           "projection": mu, "sigma": round(sigma, 1),
+           "model_over": model_over, "hit_rate_hist": round(sum(1 for v in vals if v > line) / len(vals), 3)}
+    if american_odds is not None:
+        implied = _implied_from_odds(american_odds)
+        blended = round(market_blend * model_over + (1 - market_blend) * implied, 4)
+        out.update({"american_odds": int(american_odds), "implied": round(implied, 4),
+                    "blended_over": blended, "edge": round(blended - implied, 4),
+                    "model_edge": round(model_over - implied, 4)})
+    return out
+
+
 def opponent_splits(df, player: str, stat: str) -> list:
     """Player's per-game average of a stat, grouped by opponent (min 1 game)."""
     col = PROP_STATS[stat][0]
