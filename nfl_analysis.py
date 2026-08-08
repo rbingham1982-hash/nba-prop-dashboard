@@ -107,6 +107,31 @@ def project(log: list, stat: str, recent_n: int = 5) -> float | None:
     return round(num / (w_recent + w_all), 1)
 
 
+def season_for_date(d) -> int:
+    """NFL season for a date. The season spans Sep→Feb, so Jan/Feb games belong to the prior year."""
+    return d.year - 1 if d.month <= 2 else d.year
+
+
+def stat_for_game(df, player: str, stat_label: str, opponents=None, week=None):
+    """
+    A player's actual value of a stat for one game — the resolution lookup. Identify the game
+    by week when known, else by opponent (the leg's matchup); returns None if not found.
+    """
+    col = PROP_STATS.get(stat_label, (None,))[0]
+    if not col or col not in df.columns:
+        return None
+    sub = df[df["player_display_name"] == player]
+    if sub.empty:
+        return None
+    if week is not None:
+        sub = sub[sub["week"] == int(week)]
+    elif opponents:
+        sub = sub[sub["opponent_team"].isin(list(opponents))]
+    if sub.empty:
+        return None
+    return float(sub.iloc[0].get(col, 0) or 0)
+
+
 def _norm_cdf(x: float, mu: float, sigma: float) -> float:
     import math
     if sigma <= 0:
