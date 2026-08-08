@@ -8566,7 +8566,8 @@ elif sport == "⚾ MLB":
             MLB data is sourced from the official MLB Stats API.
         </p>""", unsafe_allow_html=True)
 elif sport == "🏈 NFL":
-    _nfl_tab_board, _nfl_tab_analyze = st.tabs(["📊 Draft Board", "🔬 Player Analysis"])
+    _nfl_tab_board, _nfl_tab_analyze, _nfl_tab_bet = st.tabs(
+        ["📊 Draft Board", "🔬 Player Analysis", "💰 Edge Finder"])
 
     with _nfl_tab_board:
         # ══ NFL — Draft Board (Phase 1) + Player Analysis (Phase 2). Bet/Track are later phases. ══
@@ -8749,6 +8750,119 @@ elif sport == "🏈 NFL":
                         st.dataframe(_sd, use_container_width=True, hide_index=True)
                     st.caption("Per-game average of the selected stat by opponent (this season's sample).")
                 st.caption("Projection is a recency-weighted mean (last 5 games ×2). A matchup/pace-adjusted "
-                           "model and live prop lines are the next NFL phases (BET pipeline).")
+                           "model model is a later refinement; live prop scoring is in the Edge Finder tab.")
+
+    with _nfl_tab_bet:
+        st.markdown(
+            "<div style='margin:0.2rem 0 0.9rem;'>"
+            "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
+            "NFL Edge Finder &nbsp;·&nbsp; Model vs Market</div>"
+            "<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>"
+            "Model probability (projection + game-to-game variance) vs the book's implied, blended and "
+            "ranked by edge. Live props populate near kickoff; the manual check works now.</div></div>",
+            unsafe_allow_html=True,
+        )
+        import nfl_analysis as _nflb
+        import parlay_model as _pmnfl
+
+        @st.cache_data(ttl=86400, show_spinner=False)
+        def _nfl_bet_weekly():
+            return _nflb.get_season()
+
+        try:
+            _bseason, _bwk = _nfl_bet_weekly()
+        except Exception as _e:
+            _bseason, _bwk = None, None
+            st.error(f"Couldn't load NFL data: {_e}")
+
+        # ── Live FanDuel props, scored & ranked by edge ──────────────────────
+        st.markdown("**Live FanDuel props**")
+        _fd_nfl = None
+        try:
+            with st.spinner("Checking FanDuel for posted NFL props…"):
+                _fd_nfl = _pmnfl.fetch_fanduel("nfl")
+        except Exception:
+            _fd_nfl = None
+        if _bwk is not None and _fd_nfl is not None and not _fd_nfl.empty:
+            _scored = []
+            for _, _pr in _fd_nfl.iterrows():
+                _stat_lbl = _pr.get("stat_type")
+                if _stat_lbl not in _nflb.PROP_STATS:
+                    continue
+                _sc = _nflb.score_prop(_bwk, _pr.get("player_name", ""), _stat_lbl,
+                                       float(_pr.get("line_score", 0)), _pr.get("american_odds"))
+                if _sc and "edge" in _sc:
+                    _sc["book_line"] = _pr.get("line_score")
+                    _scored.append(_sc)
+            _scored.sort(key=lambda r: r["edge"], reverse=True)
+            if _scored:
+                import pandas as _pd
+                _edf = _pd.DataFrame([{
+                    "Player": r["player"], "Stat": r["stat"], "Line": r["line"],
+                    "Odds": r["american_odds"], "Proj": r["projection"],
+                    "Model %": round(r["model_over"]*100), "Impl %": round(r["implied"]*100),
+                    "Edge %": round(r["edge"]*100, 1),
+                } for r in _scored[:30]])
+                st.dataframe(_edf, use_container_width=True, hide_index=True)
+                st.caption(f"{len(_scored)} scored props · top 30 by edge. Positive edge = model likes the "
+                           "OVER vs the book; still gated by the same honest-CLV discipline as the other sports.")
+            else:
+                st.info("Props posted but none scored (no game-log history yet, or unmapped markets).")
+        else:
+            st.info("No NFL props posted yet — FanDuel puts player props up close to kickoff. "
+                    "The fetch is wired and will populate automatically. Use the manual check below meanwhile.")
+
+        st.divider()
+
+        # ── Manual edge check (works now) ────────────────────────────────────
+        st.markdown("**Manual edge check**")
+        if _bwk is None or _bwk.empty:
+            st.caption("NFL data unavailable right now.")
+        else:
+            _e1, _e2, _e3 = st.columns([1, 1.5, 1.3])
+            with _e1:
+                _bteam = st.selectbox("Team", _nflb.teams_in(_bwk), key="nfl_bet_team")
+            _bplist = _nflb.players_on_team(_bwk, _bteam)
+            with _e2:
+                _bpnames = [f"{n}  ·  {p}" for n, p in _bplist]
+                _bpsel = st.selectbox("Player", _bpnames, key="nfl_bet_player") if _bpnames else None
+            _bi = _bpnames.index(_bpsel) if _bpsel else None
+            _bplayer = _bplist[_bi][0] if _bi is not None else None
+            _bppos = _bplist[_bi][1] if _bi is not None else None
+            with _e3:
+                _bstat = st.selectbox("Stat", _nflb.POS_STATS.get(_bppos, list(_nflb.PROP_STATS.keys())),
+                                      key="nfl_bet_stat")
+            _o1, _o2 = st.columns(2)
+            with _o1:
+                _bline = st.number_input("Book line", value=50.0, step=0.5, key="nfl_bet_line")
+            with _o2:
+                _bodds = st.number_input("Odds (American)", value=-110, step=5, key="nfl_bet_odds")
+            if _bplayer and _bstat:
+                _r = _nflb.score_prop(_bwk, _bplayer, _bstat, _bline, _bodds)
+                if not _r or "edge" not in _r:
+                    st.caption("Not enough game history to score this player.")
+                else:
+                    _mm1, _mm2, _mm3, _mm4 = st.columns(4)
+                    _mm1.metric("Projection", _r["projection"])
+                    _mm2.metric("Model Over %", f"{_r['model_over']*100:.0f}%")
+                    _mm3.metric("Implied %", f"{_r['implied']*100:.0f}%")
+                    _mm4.metric("Edge", f"{_r['edge']*100:+.1f} pts", delta_color="off")
+                    _ev = _r["edge"] * 100
+                    if _ev >= 3:
+                        _vc, _vt = "#22c55e", f"✅ VALUE on the OVER (+{_ev:.1f} pts edge)"
+                    elif _ev <= -3:
+                        _vc, _vt = "#f59e0b", f"↩️ Value on the UNDER — model fades the over ({_ev:.1f} pts)"
+                    else:
+                        _vc, _vt = "#9aa0b4", f"◽ No edge either way ({_ev:+.1f} pts)"
+                    st.markdown(
+                        f"<div style='border:1px solid {_vc}55;background:{_vc}18;border-radius:10px;"
+                        f"padding:0.6rem 0.9rem;margin-top:0.6rem;font-weight:600;color:{_vc};'>{_vt}</div>"
+                        f"<div style='font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem;'>"
+                        f"Projection {_r['projection']} ± {_r['sigma']} over {_r['n']} games · "
+                        f"historical over-rate at this line {_r['hit_rate_hist']*100:.0f}%. Blend = "
+                        f"35% model / 65% market. Not a proven edge until it clears the paper-trade gate.</div>",
+                        unsafe_allow_html=True,
+                    )
+
 
 # END OF FILE — orphaned block removed

@@ -358,7 +358,7 @@ def devig_two_way(implied_over: float, implied_under: float | None) -> float:
 # the newer host answers 403, so DK is reachable only through a metered API.
 FD_BASE     = "https://sbapi.va.sportsbook.fanduel.com/api"
 FD_AK       = "FhMFpcPWXMeyZxOx"
-FD_PAGE_ID  = {"mlb": "mlb", "wnba": "wnba", "nba": "nba"}
+FD_PAGE_ID  = {"mlb": "mlb", "wnba": "wnba", "nba": "nba", "nfl": "nfl"}
 FD_HEADERS  = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/136.0 Safari/537.36",
     "Accept": "application/json",
@@ -374,7 +374,7 @@ FD_HEADERS  = {
 # So the role is an alternation, the suffix is optional, and <core> is non-greedy so
 # the optional suffix is stripped rather than swallowed into the core.
 _FD_MARKET_RE = re.compile(
-    r"^(?:PLAYER|PITCHER|BATTER)_[A-Z]+_TOTAL_(?P<core>.+?)(?:_(?:WNBA|NBA|MLB))?$"
+    r"^(?:PLAYER|PITCHER|BATTER)_[A-Z]+_TOTAL_(?P<core>.+?)(?:_(?:WNBA|NBA|MLB|NFL))?$"
 )
 
 _FD_HOOPS_CORE = {
@@ -409,7 +409,41 @@ _FD_MLB_CORE = {
     "HITS_ALLOWED":      "Hits Allowed",
     "WALKS":             "Walks",
 }
-_FD_CORE_MAP = {"wnba": _FD_HOOPS_CORE, "nba": _FD_HOOPS_CORE, "mlb": _FD_MLB_CORE}
+# NFL is pre-season as this ships, so — like MLB during the All-Star break above — these cores
+# are inferred from FanDuel's naming scheme, not observed. _fd_parse_event prints any core it
+# can't map, so the first in-season run names whatever is missing instead of fetching nothing.
+# Labels match nfl_analysis.PROP_STATS so the scorer lines up.
+_FD_NFL_CORE = {
+    "PASSING_YARDS":         "Passing Yards",
+    "PASSING_TOUCHDOWNS":    "Passing TDs",
+    "PASS_COMPLETIONS":      "Completions",
+    "COMPLETIONS":           "Completions",
+    "RUSHING_YARDS":         "Rushing Yards",
+    "RUSHING_TOUCHDOWNS":    "Rushing TDs",
+    "RUSH_ATTEMPTS":         "Carries",
+    "CARRIES":               "Carries",
+    "RECEIVING_YARDS":       "Receiving Yards",
+    "RECEIVING_TOUCHDOWNS":  "Receiving TDs",
+    "RECEPTIONS":            "Receptions",
+}
+_FD_CORE_MAP = {"wnba": _FD_HOOPS_CORE, "nba": _FD_HOOPS_CORE, "mlb": _FD_MLB_CORE,
+                "nfl": _FD_NFL_CORE}
+
+# FanDuel full team name -> abbreviation, matching nflverse team codes so the scorer/resolver
+# line up. 32 teams; used by _fd_team_abbr for sport == "nfl".
+_FD_NFL_ABBR = {
+    "arizona cardinals": "ARI", "atlanta falcons": "ATL", "baltimore ravens": "BAL",
+    "buffalo bills": "BUF", "carolina panthers": "CAR", "chicago bears": "CHI",
+    "cincinnati bengals": "CIN", "cleveland browns": "CLE", "dallas cowboys": "DAL",
+    "denver broncos": "DEN", "detroit lions": "DET", "green bay packers": "GB",
+    "houston texans": "HOU", "indianapolis colts": "IND", "jacksonville jaguars": "JAX",
+    "kansas city chiefs": "KC", "las vegas raiders": "LV", "los angeles chargers": "LAC",
+    "los angeles rams": "LA", "miami dolphins": "MIA", "minnesota vikings": "MIN",
+    "new england patriots": "NE", "new orleans saints": "NO", "new york giants": "NYG",
+    "new york jets": "NYJ", "philadelphia eagles": "PHI", "pittsburgh steelers": "PIT",
+    "san francisco 49ers": "SF", "seattle seahawks": "SEA", "tampa bay buccaneers": "TB",
+    "tennessee titans": "TEN", "washington commanders": "WAS",
+}
 
 # MLB batter props aren't <ROLE>_TOTAL_<core> over/under lines like the hoops
 # leagues turned out to be — FanDuel ships them as milestone yes/no markets, one
@@ -483,6 +517,8 @@ def _fd_team_abbr(sport: str, full_name: str) -> str:
         return _FD_WNBA_ABBR.get(key, full_name.strip().upper()[:3])
     if sport == "mlb":
         return _FD_MLB_ABBR.get(key, full_name.strip().upper()[:3])
+    if sport == "nfl":
+        return _FD_NFL_ABBR.get(key, full_name.strip().upper()[:3])
     if sport == "nba":
         try:
             from nba_api.stats.static import teams as _t  # type: ignore
@@ -566,7 +602,8 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
 
     prop_tabs = [t["title"] for t in tabs.values()
                  if any(w in (t.get("title") or "").lower()
-                        for w in ("player", "batter", "pitcher", "hitter"))]
+                        for w in ("player", "batter", "pitcher", "hitter",
+                                  "passing", "rushing", "receiving"))]
 
     rows = []
     # MLB milestone markets offer the same player at several thresholds (2+/3+/4+
