@@ -1035,14 +1035,88 @@ def reset_outcomes(sport: str) -> int:
     return cleared
 
 
+def _resolve_nfl_legs() -> int:
+    """
+    Auto-resolve pending NFL legs against nflverse weekly outcomes. Grades a prop by looking up
+    the player's actual stat that week (matched by the leg's opponent), so it mirrors the
+    WNBA/NBA game_label matching. Returns resolved count.
+
+    NFL games are weekly and the season won't start until ~September, so in practice this no-ops
+    until real NFL legs are logged and their games played — but it grades correctly against
+    historical data today (see the module test).
+    """
+    data = _load()
+    player_legs: dict[str, list] = defaultdict(list)
+    attempted = 0
+    for parlay in data["parlays"]:
+        if parlay.get("sport") != "NFL":
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is not None:
+                continue
+            if _is_historical_leg(leg):
+                continue
+            if not _leg_is_resolvable(leg, parlay["generated_at"]):
+                continue
+            leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
+            attempted += 1
+            player_legs[leg["player_name"]].append((parlay, leg))
+
+    if not player_legs:
+        _mark_parlay_outcomes(data)
+        _save(data)
+        return 0
+
+    import nfl_analysis as _nfl
+    _season_cache: dict = {}
+
+    def _season_df(season):
+        if season not in _season_cache:
+            try:
+                _, _season_cache[season] = _nfl.get_season(season)
+            except Exception:
+                _season_cache[season] = None
+        return _season_cache[season]
+
+    resolved_count = 0
+    for player_name, entries in player_legs.items():
+        if _resolve_over_budget():
+            break
+        for parlay, leg in entries:
+            if leg["outcome"] is not None:
+                continue
+            d = _parse_game_date(leg, parlay["generated_at"])
+            if d is None:
+                continue
+            df = _season_df(_nfl.season_for_date(d))
+            if df is None or df.empty:
+                continue
+            # Opponents = the two teams in the leg's game_label ("AWAY @ HOME"); only the one
+            # the player actually faced matches their weekly row.
+            gl = (leg.get("game_label") or "").upper()
+            opps = [t.strip() for t in gl.replace("@", " @ ").split("@") if t.strip()]
+            try:
+                actual = _nfl.stat_for_game(df, player_name, leg["stat_type"], opponents=opps)
+            except Exception:
+                actual = None
+            if actual is None:
+                continue
+            leg["outcome"] = bool(actual > leg["line_score"])
+            resolved_count += 1
+
+    marked = _mark_parlay_outcomes(data)
+    if resolved_count or marked or attempted:
+        _save(data)
+    return resolved_count
+
+
 def resolve_all_legs(budget_seconds: float = RESOLVE_BUDGET_SECONDS) -> dict:
     """
-    Resolve NBA, MLB, and WNBA pending legs. Returns {nba: count, mlb: count, wnba: count}.
+    Resolve NBA, MLB, WNBA, and NFL pending legs. Returns {nba, mlb, wnba, nfl} counts.
 
-    The three sports share one wall-clock budget: whichever runs first (NBA, then MLB, then
-    WNBA) can use the whole window, and once it's spent the remaining resolvers no-op on their
-    first loop check. Bounding the pass is what keeps a slow resolve from starving the daily
-    slate generation that runs after it.
+    The sports share one wall-clock budget: whichever runs first can use the whole window, and
+    once it's spent the remaining resolvers no-op on their first loop check. Bounding the pass is
+    what keeps a slow resolve from starving the daily slate generation that runs after it.
     """
     global _resolve_deadline
     import socket
@@ -1053,10 +1127,11 @@ def resolve_all_legs(budget_seconds: float = RESOLVE_BUDGET_SECONDS) -> dict:
         nba  = resolve_nba_legs()
         mlb  = _resolve_mlb_legs()
         wnba = _resolve_wnba_legs()
+        nfl  = _resolve_nfl_legs()
     finally:
         socket.setdefaulttimeout(_prev_timeout)
         _resolve_deadline = None
-    return {"nba": nba, "mlb": mlb, "wnba": wnba}
+    return {"nba": nba, "mlb": mlb, "wnba": wnba, "nfl": nfl}
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -412,7 +412,8 @@ def resolve_pending():
     print(f"\n{'='*62}\n  Resolving pending legs\n{'='*62}")
     try:
         counts = parlay_tracker.resolve_all_legs()
-        print(f"  Resolved — MLB {counts['mlb']}, WNBA {counts['wnba']}, NBA {counts['nba']}")
+        print(f"  Resolved — MLB {counts['mlb']}, WNBA {counts['wnba']}, "
+              f"NBA {counts['nba']}, NFL {counts.get('nfl', 0)}")
     except Exception as e:
         # A resolver outage must not block generation; today's factors just stay put.
         print(f"  Resolution failed ({e}) — continuing with existing calibration.")

@@ -4250,6 +4250,9 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                     elif sport_filter == "WNBA":
                         _cnt = parlay_tracker._resolve_wnba_legs()
                         st.success(f"Resolved {_cnt} WNBA leg(s).")
+                    elif sport_filter == "NFL":
+                        _cnt = parlay_tracker._resolve_nfl_legs()
+                        st.success(f"Resolved {_cnt} NFL leg(s).")
                     _load_calibration.clear()
                 except Exception as _e:
                     st.error(f"Resolution error: {_e}")
@@ -8566,8 +8569,8 @@ elif sport == "⚾ MLB":
             MLB data is sourced from the official MLB Stats API.
         </p>""", unsafe_allow_html=True)
 elif sport == "🏈 NFL":
-    _nfl_tab_board, _nfl_tab_analyze, _nfl_tab_bet = st.tabs(
-        ["📊 Draft Board", "🔬 Player Analysis", "💰 Edge Finder"])
+    _nfl_tab_board, _nfl_tab_analyze, _nfl_tab_bet, _nfl_tab_track = st.tabs(
+        ["📊 Draft Board", "🔬 Player Analysis", "💰 Edge Finder", "📈 Track"])
 
     with _nfl_tab_board:
         # ══ NFL — Draft Board (Phase 1) + Player Analysis (Phase 2). Bet/Track are later phases. ══
@@ -8864,5 +8867,13 @@ elif sport == "🏈 NFL":
                         unsafe_allow_html=True,
                     )
 
+    with _nfl_tab_track:
+        # Full measurement apparatus (accuracy · CLV · paper-trade gate · pocket alert · drift),
+        # sport-filtered to NFL. Empty until NFL legs are logged + games played (~Sept), then it
+        # auto-populates like the other sports. NFL leg resolution is wired via _resolve_nfl_legs.
+        if _IS_LOCAL:
+            _render_accuracy_tab("NFL")
+        else:
+            st.caption("Tracking is available in the local app.")
 
 # END OF FILE — orphaned block removed
