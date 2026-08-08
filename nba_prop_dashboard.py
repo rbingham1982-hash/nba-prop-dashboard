@@ -8566,87 +8566,189 @@ elif sport == "⚾ MLB":
             MLB data is sourced from the official MLB Stats API.
         </p>""", unsafe_allow_html=True)
 elif sport == "🏈 NFL":
-    # ══ NFL — Phase 1: Fantasy Draft Board (PPR · VOR). Analyze/Bet/Track mirror MLB in later phases. ══
-    _nfl_mode = st.radio("Board mode", ["2026 Projection", "2025 Actuals"],
-                         horizontal=True, label_visibility="collapsed", key="nfl_mode")
-    _nfl_proj = _nfl_mode.startswith("2026")
-    _nfl_sub = ("Projected 2026 PPR — 2025 + 2024 blend · position aging · current rosters · rookies from draft slot"
-                if _nfl_proj else "2025 actual PPR production")
-    st.markdown(
-        "<div style='margin:0.2rem 0 0.9rem;'>"
-        "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
-        "2026 NFL Fantasy Draft Board &nbsp;·&nbsp; PPR · Value Over Replacement</div>"
-        f"<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>{_nfl_sub}</div></div>",
-        unsafe_allow_html=True,
-    )
+    _nfl_tab_board, _nfl_tab_analyze = st.tabs(["📊 Draft Board", "🔬 Player Analysis"])
 
-    @st.cache_data(ttl=86400, show_spinner=False)
-    def _load_nfl_board(is_proj):
-        import nfl_fantasy_rankings as _nflf
-        return _nflf.get_ppr_projections() if is_proj else _nflf.get_ppr_rankings()
-
-    try:
-        with st.spinner("Building NFL PPR rankings from nflverse…"):
-            _nfl = _load_nfl_board(_nfl_proj)
-    except Exception as _e:
-        _nfl = {"players": [], "n_pool": 0}
-        st.error(f"Couldn't load NFL rankings: {_e}")
-
-    _np = _nfl.get("players", [])
-    if not _np:
-        st.info("NFL rankings unavailable right now — the nflverse data source didn't return data. Try again shortly.")
-    else:
-        _q1, _q2, _q3 = st.columns([2.2, 1, 1.4])
-        with _q1:
-            _pos_f = st.radio("Pos", ["All", "QB", "RB", "WR", "TE", "FLEX"], horizontal=True,
-                              label_visibility="collapsed", key="nfl_pos")
-        with _q2:
-            _cap_l = st.selectbox("Show", ["Top 50", "Top 100", "Top 200", "All"], index=1,
-                                  label_visibility="collapsed", key="nfl_cap")
-        with _q3:
-            _qtxt = st.text_input("Search", "", placeholder="Search player…",
-                                  label_visibility="collapsed", key="nfl_search")
-        _posmap = {"QB": ["QB"], "RB": ["RB"], "WR": ["WR"], "TE": ["TE"], "FLEX": ["RB", "WR", "TE"]}
-        _cap = {"Top 50": 50, "Top 100": 100, "Top 200": 200, "All": 10 ** 9}[_cap_l]
-        _rows = [p for p in _np
-                 if (_pos_f == "All" or p["pos"] in _posmap.get(_pos_f, []))
-                 and p["rank"] <= _cap and (not _qtxt or _qtxt.lower() in p["name"].lower())]
-        import pandas as _pd
-        _dfn = _pd.DataFrame([{
-            "Rank": p["rank"], "Tier": p["tier"], "Pos": p["pos_rank"], "Player": p["name"],
-            "Tm": p["team"], "Note": p.get("note", ""), "VOR": p["vor"], "Pts": p["proj_total"],
-            "PPG": p["ppg"], "G": p["games"], "PaYd": p["pass_yd"], "PaTD": p["pass_td"],
-            "RuYd": p["rush_yd"], "RuTD": p["rush_td"], "Rec": p["rec"], "ReYd": p["rec_yd"], "ReTD": p["rec_td"],
-        } for p in _rows])
-        if _dfn.empty:
-            st.caption("No players match the current filters.")
-        else:
-            def _nfl_heat(col):
-                v = col.astype(float); lo, hi = v.min(), v.max(); rng = (hi - lo) or 1.0; out = []
-                for x in v:
-                    t = (float(x) - lo) / rng
-                    if t < 0.5:
-                        f = t / 0.5; r, g, b = 215 + (255-215)*f, 48 + (255-48)*f, 39 + (191-39)*f
-                    else:
-                        f = (t - 0.5) / 0.5; r, g, b = 255 + (26-255)*f, 255 + (152-255)*f, 191 + (80-191)*f
-                    out.append(f"background-color: rgba({int(r)},{int(g)},{int(b)},0.60); color:#0b0e14;")
-                return out
-            _hc = ["VOR", "Pts", "PPG", "PaYd", "PaTD", "RuYd", "RuTD", "Rec", "ReYd", "ReTD"]
-            _sn = (_dfn.style.apply(_nfl_heat, subset=_hc, axis=0)
-                   .format({"VOR": "{:.0f}", "Pts": "{:.0f}", "PPG": "{:.1f}", "PaYd": "{:.0f}",
-                            "PaTD": "{:.1f}", "RuYd": "{:.0f}", "RuTD": "{:.1f}", "Rec": "{:.0f}",
-                            "ReYd": "{:.0f}", "ReTD": "{:.1f}"}))
-            st.dataframe(_sn, use_container_width=True, hide_index=True, height=min(760, 46 + 35 * len(_dfn)))
-        if _nfl_proj:
-            _nfl_m = (f"Projected 2026: {_nfl.get('blend', '')}. Rookies (Note='rookie') from draft-slot "
-                      f"tier averages — rough. Availability & depth-chart usage not modeled.")
-        else:
-            _nfl_m = "2025 actual PPR production."
-        st.caption(
-            f"VOR (value over replacement) = projected PPR minus the replacement-level player at the "
-            f"position — the cross-position draft metric. Pool {_nfl.get('n_pool', 0)}. Columns heat-mapped "
-            f"by strength; Note flags age / new team / rookie. {_nfl_m}"
+    with _nfl_tab_board:
+        # ══ NFL — Draft Board (Phase 1) + Player Analysis (Phase 2). Bet/Track are later phases. ══
+        _nfl_mode = st.radio("Board mode", ["2026 Projection", "2025 Actuals"],
+                             horizontal=True, label_visibility="collapsed", key="nfl_mode")
+        _nfl_proj = _nfl_mode.startswith("2026")
+        _nfl_sub = ("Projected 2026 PPR — 2025 + 2024 blend · position aging · current rosters · rookies from draft slot"
+                    if _nfl_proj else "2025 actual PPR production")
+        st.markdown(
+            "<div style='margin:0.2rem 0 0.9rem;'>"
+            "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
+            "2026 NFL Fantasy Draft Board &nbsp;·&nbsp; PPR · Value Over Replacement</div>"
+            f"<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>{_nfl_sub}</div></div>",
+            unsafe_allow_html=True,
         )
-        st.caption("Analyze · Bet · Track tabs (mirroring MLB depth) are the next NFL phases.")
+
+        @st.cache_data(ttl=86400, show_spinner=False)
+        def _load_nfl_board(is_proj):
+            import nfl_fantasy_rankings as _nflf
+            return _nflf.get_ppr_projections() if is_proj else _nflf.get_ppr_rankings()
+
+        try:
+            with st.spinner("Building NFL PPR rankings from nflverse…"):
+                _nfl = _load_nfl_board(_nfl_proj)
+        except Exception as _e:
+            _nfl = {"players": [], "n_pool": 0}
+            st.error(f"Couldn't load NFL rankings: {_e}")
+
+        _np = _nfl.get("players", [])
+        if not _np:
+            st.info("NFL rankings unavailable right now — the nflverse data source didn't return data. Try again shortly.")
+        else:
+            _q1, _q2, _q3 = st.columns([2.2, 1, 1.4])
+            with _q1:
+                _pos_f = st.radio("Pos", ["All", "QB", "RB", "WR", "TE", "FLEX"], horizontal=True,
+                                  label_visibility="collapsed", key="nfl_pos")
+            with _q2:
+                _cap_l = st.selectbox("Show", ["Top 50", "Top 100", "Top 200", "All"], index=1,
+                                      label_visibility="collapsed", key="nfl_cap")
+            with _q3:
+                _qtxt = st.text_input("Search", "", placeholder="Search player…",
+                                      label_visibility="collapsed", key="nfl_search")
+            _posmap = {"QB": ["QB"], "RB": ["RB"], "WR": ["WR"], "TE": ["TE"], "FLEX": ["RB", "WR", "TE"]}
+            _cap = {"Top 50": 50, "Top 100": 100, "Top 200": 200, "All": 10 ** 9}[_cap_l]
+            _rows = [p for p in _np
+                     if (_pos_f == "All" or p["pos"] in _posmap.get(_pos_f, []))
+                     and p["rank"] <= _cap and (not _qtxt or _qtxt.lower() in p["name"].lower())]
+            import pandas as _pd
+            _dfn = _pd.DataFrame([{
+                "Rank": p["rank"], "Tier": p["tier"], "Pos": p["pos_rank"], "Player": p["name"],
+                "Tm": p["team"], "Note": p.get("note", ""), "VOR": p["vor"], "Pts": p["proj_total"],
+                "PPG": p["ppg"], "G": p["games"], "PaYd": p["pass_yd"], "PaTD": p["pass_td"],
+                "RuYd": p["rush_yd"], "RuTD": p["rush_td"], "Rec": p["rec"], "ReYd": p["rec_yd"], "ReTD": p["rec_td"],
+            } for p in _rows])
+            if _dfn.empty:
+                st.caption("No players match the current filters.")
+            else:
+                def _nfl_heat(col):
+                    v = col.astype(float); lo, hi = v.min(), v.max(); rng = (hi - lo) or 1.0; out = []
+                    for x in v:
+                        t = (float(x) - lo) / rng
+                        if t < 0.5:
+                            f = t / 0.5; r, g, b = 215 + (255-215)*f, 48 + (255-48)*f, 39 + (191-39)*f
+                        else:
+                            f = (t - 0.5) / 0.5; r, g, b = 255 + (26-255)*f, 255 + (152-255)*f, 191 + (80-191)*f
+                        out.append(f"background-color: rgba({int(r)},{int(g)},{int(b)},0.60); color:#0b0e14;")
+                    return out
+                _hc = ["VOR", "Pts", "PPG", "PaYd", "PaTD", "RuYd", "RuTD", "Rec", "ReYd", "ReTD"]
+                _sn = (_dfn.style.apply(_nfl_heat, subset=_hc, axis=0)
+                       .format({"VOR": "{:.0f}", "Pts": "{:.0f}", "PPG": "{:.1f}", "PaYd": "{:.0f}",
+                                "PaTD": "{:.1f}", "RuYd": "{:.0f}", "RuTD": "{:.1f}", "Rec": "{:.0f}",
+                                "ReYd": "{:.0f}", "ReTD": "{:.1f}"}))
+                st.dataframe(_sn, use_container_width=True, hide_index=True, height=min(760, 46 + 35 * len(_dfn)))
+            if _nfl_proj:
+                _nfl_m = (f"Projected 2026: {_nfl.get('blend', '')}. Rookies (Note='rookie') from draft-slot "
+                          f"tier averages — rough. Availability & depth-chart usage not modeled.")
+            else:
+                _nfl_m = "2025 actual PPR production."
+            st.caption(
+                f"VOR (value over replacement) = projected PPR minus the replacement-level player at the "
+                f"position — the cross-position draft metric. Pool {_nfl.get('n_pool', 0)}. Columns heat-mapped "
+                f"by strength; Note flags age / new team / rookie. {_nfl_m}"
+            )
+
+    with _nfl_tab_analyze:
+        st.markdown(
+            "<div style='margin:0.2rem 0 0.9rem;'>"
+            "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
+            "NFL Player Analysis &nbsp;·&nbsp; Game Logs · Prop Hit-Rates · Projections</div>"
+            "<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>"
+            "Week-by-week production, over/under hit rates at any line, and a recency-weighted next-game projection."
+            "</div></div>",
+            unsafe_allow_html=True,
+        )
+        import nfl_analysis as _nfla
+
+        @st.cache_data(ttl=86400, show_spinner=False)
+        def _nfl_weekly(season=None):
+            return _nfla.get_season(season)
+
+        try:
+            with st.spinner("Loading NFL weekly data from nflverse…"):
+                _season, _wk = _nfl_weekly()
+        except Exception as _e:
+            _season, _wk = None, None
+            st.error(f"Couldn't load NFL weekly data: {_e}")
+
+        if _wk is None or _wk.empty:
+            st.info("NFL weekly data unavailable right now — the nflverse source didn't return data.")
+        else:
+            st.caption(f"Season {_season} · {len(_wk)} regular-season player-weeks. "
+                       "(Falls back to the latest completed season until 2026 Week 1 is played.)")
+            _q1, _q2, _q3 = st.columns([1, 1.5, 1.4])
+            with _q1:
+                _team = st.selectbox("Team", _nfla.teams_in(_wk), key="nfl_an_team")
+            _plist = _nfla.players_on_team(_wk, _team)
+            with _q2:
+                _pnames = [f"{n}  ·  {pos}" for n, pos in _plist]
+                _psel = st.selectbox("Player", _pnames, key="nfl_an_player") if _pnames else None
+            _idx = _pnames.index(_psel) if _psel else None
+            _player = _plist[_idx][0] if _idx is not None else None
+            _ppos = _plist[_idx][1] if _idx is not None else None
+            with _q3:
+                _stat_opts = _nfla.POS_STATS.get(_ppos, list(_nfla.PROP_STATS.keys()))
+                _stat = st.selectbox("Stat", _stat_opts, key="nfl_an_stat")
+
+            if _player and _stat:
+                _log = _nfla.game_log(_wk, _player)
+                _proj = _nfla.project(_log, _stat)
+                _default_line = (round((_proj or 1) * 2) / 2 - 0.5) if _proj else 0.5
+                _line = st.number_input(f"{_stat} line (over/under)", value=float(max(_default_line, 0.5)),
+                                        step=0.5, key="nfl_an_line")
+                _hr = _nfla.hit_rate(_log, _stat, _line)
+
+                _m1, _m2, _m3, _m4 = st.columns(4)
+                _m1.metric("Games", _hr["n"])
+                _m2.metric("Season Avg", _hr["avg"] if _hr["avg"] is not None else "—")
+                _m3.metric("Next-Game Proj", _proj if _proj is not None else "—")
+                _m4.metric(f"Over {_line}",
+                           f"{_hr['hit_rate']*100:.0f}%" if _hr["hit_rate"] is not None else "—",
+                           f"{_hr['over']}/{_hr['n']} games" if _hr["n"] else None, delta_color="off")
+
+                # Weekly bar with the line drawn — instantly see the over/under pattern.
+                if _log:
+                    import plotly.graph_objects as _go
+                    _wks = [g["week"] for g in _log]
+                    _vals = [g[_stat] for g in _log]
+                    _cols = ["#22c55e" if v > _line else "#f87171" for v in _vals]
+                    _cust = [g["opp"] for g in _log]
+                    _fig = _go.Figure()
+                    _fig.add_trace(_go.Bar(x=_wks, y=_vals, marker_color=_cols, customdata=_cust,
+                        hovertemplate="Wk %{x} vs %{customdata}<br>" + _stat + ": %{y}<extra></extra>"))
+                    _fig.add_hline(y=_line, line_dash="dash", line_color="#818cf8",
+                                   annotation_text=f"line {_line}", annotation_position="top left")
+                    _fig.update_layout(height=300, margin=dict(l=10, r=10, t=10, b=10),
+                        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                        xaxis=dict(title="Week", gridcolor="#20242e", dtick=1),
+                        yaxis=dict(title=_stat, gridcolor="#20242e"),
+                        font=dict(color="#9294a8", size=12), showlegend=False)
+                    st.plotly_chart(_fig, width="stretch", config={"displayModeBar": False})
+
+                _lc, _rc = st.columns([1.5, 1])
+                with _lc:
+                    st.markdown("**Game log**")
+                    import pandas as _pd
+                    _cols_show = [_stat] + [s for s in _stat_opts if s != _stat][:3]
+                    _gl = _pd.DataFrame([{"Wk": g["week"], "Opp": g["opp"],
+                                          **{s: g[s] for s in _cols_show}} for g in _log])
+                    st.dataframe(_gl, use_container_width=True, hide_index=True,
+                                 height=min(430, 40 + 34 * len(_gl)))
+                with _rc:
+                    st.markdown("**Best / worst matchups**")
+                    _spl = _nfla.opponent_splits(_wk, _player, _stat)
+                    if _spl:
+                        _top = _spl[:4]; _bot = _spl[-3:] if len(_spl) > 4 else []
+                        _sd = _pd.DataFrame(
+                            [{"Opp": r["opp"], "Avg": r["avg"], "G": r["games"]} for r in _top]
+                            + ([{"Opp": "…", "Avg": "", "G": ""}] if _bot else [])
+                            + [{"Opp": r["opp"], "Avg": r["avg"], "G": r["games"]} for r in _bot])
+                        st.dataframe(_sd, use_container_width=True, hide_index=True)
+                    st.caption("Per-game average of the selected stat by opponent (this season's sample).")
+                st.caption("Projection is a recency-weighted mean (last 5 games ×2). A matchup/pace-adjusted "
+                           "model and live prop lines are the next NFL phases (BET pipeline).")
 
 # END OF FILE — orphaned block removed
