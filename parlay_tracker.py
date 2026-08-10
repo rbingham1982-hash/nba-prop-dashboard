@@ -350,6 +350,83 @@ def log_parlays(
     return added
 
 
+TRACKING_MAX_PER_MARKET = 20   # props per market per book per run — ample for calibration
+TRACKING_RETAIN_WEEKS   = 12   # prune resolved tracking entries older than this (4× the
+                               # calibration half-life) so the log stays bounded
+
+
+def log_tracking_legs(legs: list, sport: str, sportsbook: str,
+                      max_per_market: int = TRACKING_MAX_PER_MARKET) -> int:
+    """
+    Log scored props as single-leg, non-bet TRACKING entries so EVERY market accumulates
+    resolved outcomes — not just the ones the parlay builder selects. The builder optimizes
+    for EV, so it overwhelmingly picks the high-probability market (MLB Hits), and the rest
+    (Home Runs, Total Bases, Runs Scored, Pitcher Strikeouts) were scored and thrown away —
+    so they never resolved and never calibrated. You can't calibrate a market you don't track.
+
+    These entries are recommended=False (never bet) but flow through resolution, CLV, and
+    calibration exactly like any leg. The id is GAME-aware (unlike _parlay_id, which hashes
+    player|stat|line only) so each prop accumulates one observation PER GAME, not once ever.
+    Bounded: capped per market and old resolved tracking entries are pruned, so the log
+    doesn't balloon — tracking a diverse sample is what calibration needs, not every player.
+    """
+    if not legs:
+        return 0
+    data = _load()
+
+    # Prune stale tracking entries (only tracking; betting history is never touched here).
+    cutoff = (datetime.now() - timedelta(weeks=TRACKING_RETAIN_WEEKS)).isoformat()
+    before = len(data["parlays"])
+    data["parlays"] = [p for p in data["parlays"]
+                       if not (p.get("kind") == "tracking" and p.get("generated_at", "") < cutoff)]
+    pruned = before - len(data["parlays"])
+
+    existing_ids = {p["id"] for p in data["parlays"]}
+    now = datetime.now()
+    now_utc = datetime.now(timezone.utc)
+    week = now.strftime("%G-W%V")
+    added = 0
+    per_market: dict = {}
+    for leg in legs:
+        stat = leg.get("stat_type", "")
+        if per_market.get(stat, 0) >= max_per_market:
+            continue
+        game = str(leg.get("game_id") or leg.get("game_label") or "")
+        raw = f"track|{sport}|{sportsbook}|{leg['player_name']}|{leg['stat_type']}|{leg['line_score']}|{game}"
+        pid = "t" + hashlib.md5(raw.encode()).hexdigest()[:15]
+        if pid in existing_ids:
+            continue
+        a = leg.get("american_odds")
+        dec = (1 + (a / 100 if a > 0 else 100 / abs(a))) if a else 2.0
+        hr = round(float(leg["hit_rate"]), 4)
+        lh = _lead_hours(str(leg.get("start_time", "")), now_utc)
+        data["parlays"].append({
+            "id": pid, "sport": sport, "sportsbook": sportsbook, "kind": "tracking",
+            "generated_at": now.isoformat(timespec="seconds"), "iso_week": week,
+            "predicted_prob": hr, "payout": round(dec, 3), "model_epoch": _MODEL_EPOCH,
+            "ev": round(hr * dec - 1, 4), "recommended": False, "parlay_hit": None,
+            "min_lead_hours": lh, "experiment": ("early" if lh is not None and lh >= EARLY_LEAD_HOURS
+                                                 else "late" if lh is not None else "unknown"),
+            "legs": [{
+                "player_name": leg["player_name"], "stat_type": leg["stat_type"],
+                "line_score": float(leg["line_score"]),
+                "predicted_hit_rate": hr,
+                **({"source": leg["source"]} if leg.get("source") else {}),
+                "model_hit_rate": round(float(leg["model_hit_rate"]), 4)
+                                  if leg.get("model_hit_rate") is not None else None,
+                "american_odds": leg.get("american_odds"), "implied_prob": leg.get("implied_prob"),
+                "game_id": str(leg.get("game_id", "")), "game_label": str(leg.get("game_label", "")),
+                "start_time": str(leg.get("start_time", "")), "lead_hours": lh, "outcome": None,
+            }],
+        })
+        existing_ids.add(pid)
+        per_market[stat] = per_market.get(stat, 0) + 1
+        added += 1
+    if added or pruned:
+        _save(data)
+    return added
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers: date parsing
 # ─────────────────────────────────────────────────────────────────────────────
@@ -532,6 +609,11 @@ def _mark_parlay_outcomes(data: dict) -> int:
     marked = 0
     for parlay in data["parlays"]:
         if parlay["parlay_hit"] is not None:
+            continue
+        # Tracking entries are single props logged only to feed calibration/CLV — their LEGS
+        # still resolve (the resolvers set leg["outcome"] directly), but leaving parlay_hit
+        # None keeps them out of every parlay-level betting stat (ROI, hit rate, streaks).
+        if parlay.get("kind") == "tracking":
             continue
         real_legs = [l for l in parlay["legs"] if not _is_historical_leg(l)]
         if real_legs:
