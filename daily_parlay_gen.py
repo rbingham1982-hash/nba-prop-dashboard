@@ -364,6 +364,21 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
 
         legs = score_legs(raw, cal, stat_types, rate_fn)
         print(f"    {len(legs)} legs scored.")
+
+        # Track EVERY scored prop, not just the ones the builder bets. The builder optimizes
+        # for EV and overwhelmingly picks the high-probability market (MLB Hits), so Home Runs,
+        # Total Bases, Runs Scored and Pitcher Strikeouts were scored and discarded — never
+        # resolved, never calibrated. These single-leg tracking records (recommended=False)
+        # fix that: a market can only calibrate on data it accumulates.
+        try:
+            t = parlay_tracker.log_tracking_legs(legs, sport_label, sb)
+            if t:
+                import collections as _c
+                _mk = _c.Counter(l["stat_type"] for l in legs)
+                print(f"    Tracked {t} props for calibration ({dict(_mk)}).")
+        except Exception as _e:
+            print(f"    (tracking-log skipped: {_e})")
+
         if len(legs) < 2:
             continue
 
