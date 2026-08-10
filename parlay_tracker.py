@@ -890,6 +890,39 @@ def _resolve_mlb_legs() -> int:
 def _resolve_wnba_legs() -> int:
     """Auto-resolve pending WNBA legs via nba_api PlayerGameLog (league 10). Returns resolved count."""
     data = _load()
+
+    # Is there anything to do? (peek WITHOUT incrementing attempts)
+    has_pending = any(
+        parlay.get("sport") == "WNBA"
+        and leg["outcome"] is None and not _is_historical_leg(leg)
+        and _leg_is_resolvable(leg, parlay["generated_at"])
+        for parlay in data["parlays"] for leg in parlay["legs"]
+    )
+    if not has_pending:
+        _mark_parlay_outcomes(data)
+        _save(data)
+        return 0
+
+    from nba_api.stats.endpoints import commonallplayers, playergamelog as _pgl  # type: ignore
+
+    # Build the WNBA name→id map FIRST, before touching attempt counters. This one heavy
+    # CommonAllPlayers call gates all WNBA resolution — when it timed out, every pending WNBA
+    # leg found no id, resolved nothing, yet still burned an attempt. A few such outages
+    # abandoned legs the matcher handles fine (e.g. an expansion-team game). If the map comes
+    # back empty, bail now and retry next run with attempt counters intact.
+    try:
+        _time.sleep(0.5)
+        wnba_df = commonallplayers.CommonAllPlayers(
+            is_only_current_season=0, league_id="10"
+        ).get_data_frames()[0]
+        wnba_id_map = {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
+                       for _, row in wnba_df.iterrows()}
+    except Exception:
+        wnba_id_map = {}
+    if not wnba_id_map:
+        return 0   # infra hiccup, not a dead leg — don't advance the give-up counter
+
+    # Now it's safe to count attempts (the API is reachable).
     player_legs: dict[str, list] = defaultdict(list)
     attempted = 0
     for parlay in data["parlays"]:
@@ -902,29 +935,9 @@ def _resolve_wnba_legs() -> int:
                 continue
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
-            # Count the try up front. A leg the API never returns is only ever seen
-            # here, so this is the one place the give-up counter can advance.
             leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
             attempted += 1
             player_legs[leg["player_name"]].append((parlay, leg))
-
-    if not player_legs:
-        _mark_parlay_outcomes(data)
-        _save(data)
-        return 0
-
-    from nba_api.stats.endpoints import commonallplayers, playergamelog as _pgl  # type: ignore
-
-    # Build WNBA name→id map
-    try:
-        _time.sleep(0.5)
-        wnba_df = commonallplayers.CommonAllPlayers(
-            is_only_current_season=0, league_id="10"
-        ).get_data_frames()[0]
-        wnba_id_map = {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
-                       for _, row in wnba_df.iterrows()}
-    except Exception:
-        wnba_id_map = {}
 
     resolved_count = 0
     for player_name, entries in player_legs.items():
