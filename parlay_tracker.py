@@ -518,6 +518,32 @@ def _is_historical_leg(leg: dict) -> bool:
     return leg.get("game_label", "").strip().lower() == "historical"
 
 
+def _is_historical_parlay(parlay: dict) -> bool:
+    """
+    True if any leg came from historical fallback — i.e. this parlay was never bettable.
+
+    _mark_parlay_outcomes deliberately resolves all-historical parlays so the backtest
+    period has outcomes, and that is fine. What is not fine is letting them into a
+    money number. Their "lines" are historical averages rather than prices, so the legs
+    hit around a coin flip by construction, and a 5-leg of them at a 20x ladder payout
+    posts a return no real slate could.
+
+    They wrecked exactly the two numbers that decide whether to bet. On 2026-08-12:
+
+      NBA ROI          +73.0% shown  vs  -41.7% on the 580 real parlays
+                       (90 synthetic parlays, +812% ROI at a 66.7% hit rate)
+      NBA 3-leg parlay  0.6254 shown  vs   0.0519 real   -> priced 12x too likely
+      NBA 5-leg parlay  1.0    shown  vs   0.0374 real   -> priced 27x too likely
+
+    The ROI figure is the "is this sport making money" verdict on the Track tab, and the
+    parlay calibration is fed straight back into _build_parlays as the deflation factor,
+    so the second one manufactures positive EV. MLB moves by <0.01 (147 of 11,506) and
+    WNBA has none, so this is an NBA-shaped hole — dormant only because NBA is out of
+    season, and live again in October.
+    """
+    return any(_is_historical_leg(l) for l in parlay.get("legs", []))
+
+
 def _normalize_name(name: str) -> str:
     """Strip Unicode accents so 'Vásquez' matches 'Vasquez'."""
     return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii").lower()
@@ -1475,7 +1501,8 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
     if sport:
         week_parlays = [p for p in week_parlays if p.get("sport") == sport]
 
-    resolved_parlays  = [p for p in week_parlays if p["parlay_hit"] is not None]
+    resolved_parlays  = [p for p in week_parlays
+                         if p["parlay_hit"] is not None and not _is_historical_parlay(p)]
     hit_parlays       = [p for p in resolved_parlays if p["parlay_hit"]]
 
     all_legs      = [l for p in week_parlays for l in p["legs"]]
@@ -1642,6 +1669,7 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
     data = _load()
     parlays = [p for p in data["parlays"]
                if p["parlay_hit"] is not None
+               and not _is_historical_parlay(p)
                and (not sport or p.get("sport") == sport)
                # Only grade predictions this model actually made. Every parlay resolved
                # before the de-vig fix was predicted by a model that never saw the
@@ -1790,6 +1818,8 @@ def get_same_game_penalty(sport: str | None = None) -> float:
         sg = [0.0, 0.0, 0.0]; xg = [0.0, 0.0, 0.0]   # [n, joint_hits, indep_pred]
         for p in data["parlays"]:
             if p.get("model_epoch") not in _MARKET_EPOCHS or p.get("parlay_hit") is None:
+                continue
+            if _is_historical_parlay(p):
                 continue
             if sp and p.get("sport") != sp:
                 continue
@@ -2428,6 +2458,7 @@ def get_roi_simulation(sport: str | None = None, flat_bet: float = 10.0,
     data = _load()
     resolved = [p for p in data["parlays"]
                 if p["parlay_hit"] is not None
+                and not _is_historical_parlay(p)
                 and (not sport or p.get("sport") == sport)]
     resolved.sort(key=lambda p: p["generated_at"])
 
@@ -2500,7 +2531,7 @@ def get_leg_count_breakdown(sport: str | None = None) -> list[dict]:
     data = _load()
     buckets: dict = defaultdict(lambda: {"total": 0, "hits": 0, "bet": 0.0, "returns": 0.0, "ev": 0.0})
     for p in data["parlays"]:
-        if p["parlay_hit"] is None:
+        if p["parlay_hit"] is None or _is_historical_parlay(p):
             continue
         if sport and p.get("sport") != sport:
             continue
@@ -2538,6 +2569,7 @@ def get_kind_comparison(sport: str | None = None) -> dict:
     for kind in ("safe", "value"):
         parlays = [p for p in data["parlays"]
                    if p["parlay_hit"] is not None
+                   and not _is_historical_parlay(p)
                    and p.get("kind") == kind
                    and (not sport or p.get("sport") == sport)]
         if not parlays:
@@ -2561,7 +2593,7 @@ def get_sportsbook_comparison(sport: str | None = None) -> dict:
     data = _load()
     books: dict = defaultdict(lambda: {"total": 0, "hits": 0, "bet": 0.0, "returns": 0.0})
     for p in data["parlays"]:
-        if p["parlay_hit"] is None:
+        if p["parlay_hit"] is None or _is_historical_parlay(p):
             continue
         if sport and p.get("sport") != sport:
             continue
@@ -2596,7 +2628,7 @@ def get_monthly_trends(sport: str | None = None) -> list[dict]:
     # by how often the builder happened to reuse it.
     seen_props: set = set()
     for p in data["parlays"]:
-        if p["parlay_hit"] is None:
+        if p["parlay_hit"] is None or _is_historical_parlay(p):
             continue
         if sport and p.get("sport") != sport:
             continue
@@ -2636,6 +2668,7 @@ def get_streak_info(sport: str | None = None) -> dict:
     data = _load()
     resolved = [p for p in data["parlays"]
                 if p["parlay_hit"] is not None
+                and not _is_historical_parlay(p)
                 and (not sport or p.get("sport") == sport)]
     resolved.sort(key=lambda p: p["generated_at"])
     if not resolved:
@@ -2672,6 +2705,7 @@ def get_best_worst_week(week: str, sport: str | None = None) -> dict:
     wk = [p for p in data["parlays"]
           if p.get("iso_week") == week
           and p["parlay_hit"] is not None
+          and not _is_historical_parlay(p)
           and (not sport or p.get("sport") == sport)]
     hits   = [p for p in wk if p["parlay_hit"]]
     misses = [p for p in wk if not p["parlay_hit"]]
