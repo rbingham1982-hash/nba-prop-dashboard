@@ -1263,6 +1263,53 @@ def _same_game_pairs(combo) -> int:
     return sum(c * (c - 1) // 2 for c in counts.values())
 
 
+def _market_diverse_pool(legs: list, pool_size: int) -> list:
+    """
+    Cut the scored slate down to pool_size, giving each market an even quota first.
+
+    A plain `sorted(legs, key=hit_rate)[:pool_size]` ranks every prop by probability,
+    and since _apply_market_blend leans the probability toward the de-vigged price,
+    that is really "keep the 30 shortest-priced props on the board". In MLB one market
+    wins that sort outright — over 0.5 Hits is a genuine ~65-70% proposition and a full
+    slate has well past 30 of them, so the pool came back 29/30 Hits (2026-08-12) and
+    Home Runs, Total Bases, Runs Scored and Pitcher Strikeouts were never poolable.
+    They weren't rejected on merit; they just never cleared a cutoff meant only to stop
+    C(800,4) from hanging the app. WNBA escaped this by accident — no WNBA market has
+    30 props above the pool floor, so its top 30 had to mix.
+
+    Each market gets pool_size // n_markets slots, taken best-first. Markets with fewer
+    legs than their quota leave slack, and any unfilled slots go to the global hit_rate
+    ranking — so a thin slate still fills the pool and the strongest legs still get in.
+    max_leg_uses caps how often one *leg* is reused across output parlays; this caps how
+    much of the pool one *market* can own.
+    """
+    if len(legs) <= pool_size:
+        return sorted(legs, key=lambda x: x["hit_rate"], reverse=True)
+
+    by_market: dict = defaultdict(list)
+    for leg in legs:
+        by_market[leg.get("stat_type", "")].append(leg)
+    for group in by_market.values():
+        group.sort(key=lambda x: x["hit_rate"], reverse=True)
+
+    quota = max(1, pool_size // len(by_market))
+    pool, taken = [], set()
+    for market in sorted(by_market):            # sorted() so the cut is deterministic
+        for leg in by_market[market][:quota]:
+            pool.append(leg)
+            taken.add(id(leg))
+
+    for leg in sorted(legs, key=lambda x: x["hit_rate"], reverse=True):
+        if len(pool) >= pool_size:
+            break
+        if id(leg) not in taken:
+            pool.append(leg)
+            taken.add(id(leg))
+
+    pool.sort(key=lambda x: x["hit_rate"], reverse=True)
+    return pool[:pool_size]
+
+
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int = 50,
                     pool_size: int = 30, max_leg_uses: int = 6,
                     sportsbook: str = "PrizePicks", parlay_cal: dict | None = None,
@@ -1291,9 +1338,10 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     data by ~85% and starved the very calibration the filter depends on. Bet only the
     recommended ones; keep learning from all of them.
 
-    pool_size caps the input to the top-N legs by hit_rate before generating
-    combinations — Underdog/fallback data can return hundreds of legs, and
-    C(800,4) = 17B combinations will hang the app.
+    pool_size caps the input legs before generating combinations — Underdog/fallback
+    data can return hundreds of legs, and C(800,4) = 17B combinations will hang the
+    app. The cut is per-market quota'd (see _market_diverse_pool), so one market
+    cannot own the whole pool and lock every other market out of the board.
 
     max_leg_uses caps how many output parlays any single player+stat leg can
     appear in, so top_n isn't just recombinations of the same handful of
@@ -1310,7 +1358,7 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     """
     if market_blend is not None:
         legs = _apply_market_blend(legs, market_blend)
-    legs = sorted(legs, key=lambda x: x["hit_rate"], reverse=True)[:pool_size]
+    legs = _market_diverse_pool(legs, pool_size)
     parlay_cal = parlay_cal or {}
 
     results = []
