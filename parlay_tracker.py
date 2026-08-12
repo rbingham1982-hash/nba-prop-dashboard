@@ -617,19 +617,27 @@ def _mark_parlay_outcomes(data: dict) -> int:
             continue
         real_legs = [l for l in parlay["legs"] if not _is_historical_leg(l)]
         if real_legs:
-            # Normal path: resolve based on live legs only
+            # Normal path: resolve based on live legs only.
+            #
+            # This used to read `all(outcomes)` on the raw values, which is only correct
+            # while every outcome is a bool. The legacy string "miss" is TRUTHY, so a
+            # parlay carrying one scored as a WIN — the same trap the "void" filter was
+            # added for, one value further along. _leg_hit returns real booleans.
             active_legs = [l for l in real_legs if l["outcome"] != "void"]
             if not active_legs:
                 continue
-            outcomes = [l["outcome"] for l in active_legs]
+            outcomes = [_leg_hit(l) if l["outcome"] is not None else None
+                        for l in active_legs]
             if all(o is not None for o in outcomes):
                 parlay["parlay_hit"] = bool(all(outcomes))
                 marked += 1
         else:
             # All-historical parlay: resolve on legs that have outcome data; ignore None legs
-            scored_legs = [l for l in parlay["legs"] if l["outcome"] is not None and l["outcome"] != "void"]
-            if scored_legs:
-                parlay["parlay_hit"] = bool(all(l["outcome"] is True for l in scored_legs))
+            scored = [_leg_hit(l) for l in parlay["legs"]
+                      if l["outcome"] is not None and l["outcome"] != "void"]
+            scored = [h for h in scored if h is not None]
+            if scored:
+                parlay["parlay_hit"] = bool(all(scored))
                 marked += 1
     return marked
 
@@ -1253,6 +1261,37 @@ def _prop_key(leg: dict) -> tuple:
     )
 
 
+def _leg_hit(leg: dict):
+    """
+    A leg's resolved result as True/False, or None when it cannot be scored.
+
+    Two failure modes this exists to close, both of which read as an ordinary miss:
+
+    1. `outcome` is not always a bool. 167 MLB legs from 2026-06 store the legacy
+       strings "hit"/"miss". The common guard — `outcome is None or == "void"` then
+       `1.0 if outcome is True else 0.0` — lets "hit" through the guard and then scores
+       it 0.0, so a leg that WON is counted as a loss and drags its market's factor
+       down. Several call sites already used the correct `not in (True, False)` test;
+       this makes every site agree.
+
+    2. `line_score` is not always a real line. 931 MLB "Hits" legs sit at 0.6/0.7/0.8/0.9
+       and there are NBA "Points" legs at 25.4 — a retired code path wrote something
+       that was not a betting line into the field (all May-Jul 2026, none since). The
+       outcome was graded against that number, so the result is meaningless whichever
+       way it went. Books post whole or half numbers only, so anything else is rejected.
+    """
+    outcome = leg.get("outcome")
+    if outcome not in (True, False, "hit", "miss"):
+        return None                       # None, "void", or anything unrecognised
+    line = leg.get("line_score")
+    try:
+        if abs(float(line) * 2 - round(float(line) * 2)) > 1e-9:
+            return None
+    except (TypeError, ValueError):
+        return None
+    return outcome is True or outcome == "hit"
+
+
 def _cal_key(leg: dict) -> str:
     """
     Calibration bucket for a leg — usually just its stat_type, but a leg tagged
@@ -1356,7 +1395,8 @@ def get_calibration(sport: str | None = None) -> dict:
                 weeks_ago = max(0, latest_ord - wk_ord)
                 w = 0.5 ** (weeks_ago / CAL_HALF_LIFE_WEEKS)
         for leg in parlay["legs"]:
-            if leg["outcome"] is None or leg["outcome"] == "void":
+            hit = _leg_hit(leg)
+            if hit is None:
                 continue
             key = _prop_key(leg)
             if key in seen_props:
@@ -1364,7 +1404,7 @@ def get_calibration(sport: str | None = None) -> dict:
             seen_props.add(key)
             stat = _cal_key(leg)
             predicted[stat] += w * leg["predicted_hit_rate"]
-            actual[stat] += w * (1.0 if leg["outcome"] is True else 0.0)
+            actual[stat] += w * (1.0 if hit else 0.0)
             weight_sum[stat] += w
 
     live = _recent_active_stats(data, sport)
@@ -1429,8 +1469,8 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
     hit_parlays       = [p for p in resolved_parlays if p["parlay_hit"]]
 
     all_legs      = [l for p in week_parlays for l in p["legs"]]
-    resolved_legs = [l for l in all_legs if l["outcome"] is not None and l["outcome"] != "void"]
-    hit_legs      = [l for l in resolved_legs if l["outcome"] is True]
+    resolved_legs = [l for l in all_legs if _leg_hit(l) is not None]
+    hit_legs      = [l for l in resolved_legs if _leg_hit(l)]
 
     # Per-stat accuracy is measured on unique props, not leg rows: the same prop is
     # reused across many parlays, which would otherwise multiply one right-or-wrong
@@ -1444,7 +1484,7 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
         seen_props.add(key)
         s = leg["stat_type"]
         stat_data[s]["predicted"].append(leg["predicted_hit_rate"])
-        stat_data[s]["actual"].append(1.0 if leg["outcome"] is True else 0.0)
+        stat_data[s]["actual"].append(1.0 if _leg_hit(leg) else 0.0)
 
     stat_breakdown = {}
     for stat, d in stat_data.items():
@@ -1527,8 +1567,10 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             continue
         for leg in parlay["legs"]:
             # "void" is a truthy string, so it has to be screened out explicitly or
-            # a postponed game scores as a hit.
-            if leg["outcome"] is None or leg["outcome"] == "void":
+            # a postponed game scores as a hit. _leg_hit handles that and the legacy
+            # "hit"/"miss" strings and unusable line_scores.
+            hit = _leg_hit(leg)
+            if hit is None:
                 continue
             key = _prop_key(leg)
             if key in seen_props:
@@ -1536,7 +1578,7 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
             seen_props.add(key)
             stat = _cal_key(leg)
             predicted[stat].append(leg["predicted_hit_rate"])
-            actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
+            actual[stat].append(1.0 if hit else 0.0)
 
     live = _recent_active_stats(data, sport)
     rows = []
@@ -1664,7 +1706,8 @@ def _market_legs(sport: str | None):
             if wk is not None:
                 w = 0.5 ** (max(0, latest - wk) / CAL_HALF_LIFE_WEEKS)
         for leg in p["legs"]:
-            if leg.get("outcome") not in (True, False):
+            hit = _leg_hit(leg)
+            if hit is None:
                 continue
             implied = leg.get("implied_prob")
             if not implied:
@@ -1677,7 +1720,7 @@ def _market_legs(sport: str | None):
             if model_p is None:
                 model_p = leg.get("predicted_hit_rate")
             out.append((float(model_p), float(implied),
-                        1.0 if leg["outcome"] is True else 0.0, w))
+                        1.0 if hit else 0.0, w))
     return out
 
 
@@ -1745,11 +1788,12 @@ def get_same_game_penalty(sport: str | None = None) -> float:
             for i in range(len(legs)):
                 for j in range(i + 1, len(legs)):
                     li, lj = legs[i], legs[j]
-                    if li.get("outcome") not in (True, False) or lj.get("outcome") not in (True, False):
+                    hi, hj = _leg_hit(li), _leg_hit(lj)
+                    if hi is None or hj is None:
                         continue
                     t = sg if gids[i] == gids[j] else xg
                     t[0] += 1
-                    t[1] += 1 if (li["outcome"] is True and lj["outcome"] is True) else 0
+                    t[1] += 1 if (hi and hj) else 0
                     t[2] += float(li["predicted_hit_rate"]) * float(lj["predicted_hit_rate"])
         return sg, xg
 
@@ -1784,14 +1828,15 @@ def get_reliability_curve(sport: str | None = None) -> dict:
         if sport and p.get("sport") != sport:
             continue
         for leg in p["legs"]:
-            if leg.get("outcome") not in (True, False):
+            leg_hit = _leg_hit(leg)
+            if leg_hit is None:
                 continue
             key = _prop_key(leg)
             if key in seen:
                 continue
             seen.add(key)
             pr = float(leg["predicted_hit_rate"])
-            hit = 1.0 if leg["outcome"] is True else 0.0
+            hit = 1.0 if leg_hit else 0.0
             b = min(int(pr * 10), 9)
             buckets[b][0] += pr; buckets[b][1] += hit; buckets[b][2] += 1
             brier_sum += (pr - hit) ** 2
@@ -1922,8 +1967,9 @@ def get_lead_time_experiment(sport: str | None = None,
             close = leg.get("closing_implied")
             if close is not None:
                 b[bucket]["clv"].append(float(close) - float(entry))
-            if leg.get("outcome") in (True, False):
-                b[bucket]["res"].append((1.0 if leg["outcome"] is True else 0.0, float(entry)))
+            leg_hit = _leg_hit(leg)
+            if leg_hit is not None:
+                b[bucket]["res"].append((1.0 if leg_hit else 0.0, float(entry)))
 
     def _summ(v):
         clv, res = v["clv"], v["res"]
@@ -1989,8 +2035,9 @@ def get_pocket_experiment(sport: str | None = None, forward_only: bool = False) 
             close = leg.get("closing_implied")
             if close is not None:
                 b[bucket]["clv"].append(float(close) - float(entry))
-            if leg.get("outcome") in (True, False):
-                b[bucket]["res"].append((1.0 if leg["outcome"] is True else 0.0, float(entry)))
+            leg_hit = _leg_hit(leg)
+            if leg_hit is not None:
+                b[bucket]["res"].append((1.0 if leg_hit else 0.0, float(entry)))
 
     def _summ(v):
         clv, res = v["clv"], v["res"]
@@ -2212,7 +2259,8 @@ def get_drift_warnings(sport: str | None = None,
         if latest is not None and (wo is None or (latest - wo) >= weeks):
             continue
         for leg in parlay["legs"]:
-            if leg["outcome"] is None or leg["outcome"] == "void":
+            hit = _leg_hit(leg)
+            if hit is None:
                 continue
             key = _prop_key(leg)
             if key in seen_props:
@@ -2220,7 +2268,7 @@ def get_drift_warnings(sport: str | None = None,
             seen_props.add(key)
             stat = _cal_key(leg)
             predicted[stat].append(leg["predicted_hit_rate"])
-            actual[stat].append(1.0 if leg["outcome"] is True else 0.0)
+            actual[stat].append(1.0 if hit else 0.0)
 
     out = []
     for stat, preds in predicted.items():
@@ -2315,7 +2363,8 @@ def get_player_accuracy(sport: str | None = None) -> list[dict]:
         if sport and parlay.get("sport") != sport:
             continue
         for leg in parlay["legs"]:
-            if leg["outcome"] is None or leg["outcome"] == "void":
+            hit = _leg_hit(leg)
+            if hit is None:
                 continue
             prop = _prop_key(leg)
             if prop in seen_props:
@@ -2323,7 +2372,7 @@ def get_player_accuracy(sport: str | None = None) -> list[dict]:
             seen_props.add(prop)
             key = (leg["player_name"], leg["stat_type"])
             buckets[key]["predicted"].append(leg["predicted_hit_rate"])
-            buckets[key]["actual"].append(1.0 if leg["outcome"] is True else 0.0)
+            buckets[key]["actual"].append(1.0 if hit else 0.0)
             buckets[key]["implied"].append(_leg_implied(leg))
     rows = []
     for (player, stat), d in buckets.items():
@@ -2547,14 +2596,15 @@ def get_monthly_trends(sport: str | None = None) -> list[dict]:
         if p["parlay_hit"]:
             months[month]["hits"] += 1
         for leg in p["legs"]:
-            if leg["outcome"] is None or leg["outcome"] == "void":
+            hit = _leg_hit(leg)
+            if hit is None:
                 continue
             prop = _prop_key(leg)
             if prop in seen_props:
                 continue
             seen_props.add(prop)
             months[month]["leg_total"] += 1
-            if leg["outcome"] is True:
+            if hit:
                 months[month]["leg_hits"] += 1
     rows = []
     for month in sorted(months):
@@ -2636,13 +2686,14 @@ def get_calibration_drift(sport: str | None = None, days: int = 30,
             continue
         is_recent = parlay["generated_at"] >= cutoff
         for leg in parlay["legs"]:
-            if leg["outcome"] is None or leg["outcome"] == "void":
+            hit = _leg_hit(leg)
+            if hit is None:
                 continue
             prop = _prop_key(leg)
             if prop in seen_props:
                 continue
             seen_props.add(prop)
-            a = 1.0 if leg["outcome"] is True else 0.0
+            a = 1.0 if hit else 0.0
             alltime[leg["stat_type"]]["actual"].append(a)
             if is_recent:
                 recent[leg["stat_type"]]["actual"].append(a)
@@ -2683,7 +2734,8 @@ def get_line_value_analysis(sport: str | None = None) -> dict:
         if sport and parlay.get("sport") != sport:
             continue
         for leg in parlay["legs"]:
-            if leg["outcome"] is None or leg["outcome"] == "void":
+            hit = _leg_hit(leg)
+            if hit is None:
                 continue
             prop = _prop_key(leg)
             if prop in seen_props:
@@ -2692,7 +2744,7 @@ def get_line_value_analysis(sport: str | None = None) -> dict:
             implied = _leg_implied(leg)
             pred    = leg["predicted_hit_rate"]
             edge    = pred - implied
-            entry   = {"edge": edge, "hit": leg["outcome"] is True,
+            entry   = {"edge": edge, "hit": hit,
                        "stat": leg["stat_type"], "implied": implied, "predicted": pred}
             (pos if edge > 0 else neg).append(entry)
 

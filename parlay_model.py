@@ -332,6 +332,38 @@ def american_to_implied(odds) -> float:
     return 100.0 / (o + 100.0) if o > 0 else -o / (-o + 100.0)
 
 
+# FanDuel's MLB batter props are one-sided milestone markets ("To Record A Hit"), one
+# runner per player with a Yes price and no No side, so devig_two_way has nothing to
+# normalise against and the raw, vig-inflated number used to stand. That covers Hits,
+# Home Runs, Total Bases and Runs Scored — every MLB market except Pitcher Strikeouts,
+# which is a true over/under and does get de-vigged.
+#
+# The overround was measured against the de-vigged book: 247 props priced by both
+# FanDuel and Underdog on the same day, same player, stat and line, gave a mean
+# FD/UD ratio of 1.0485. The control holds — FanDuel's two-way Pitcher Strikeouts
+# market, which IS de-vigged, came in at 0.9851 against the same book, i.e. no gap.
+#
+# It is a flat estimate and honest about being one: 226 of those 247 pairs sit between
+# 0.50 and 0.70 implied, so that is where it is fitted. The >=0.70 bucket measured 1.086
+# (n=26) and books normally hold MORE on long shots, so this likely UNDER-corrects the
+# tails — Home Runs especially, where the overlap sample was 3 props. It is still
+# strictly better than shipping the raw number. Re-fit it when the tails have data.
+FD_ONE_SIDED_OVERROUND = 1.0485
+
+
+def devig_one_sided(implied: float) -> float:
+    """
+    Strip an estimated margin from a market that quotes only one side.
+
+    Same multiplicative form as devig_two_way — that function divides by the observed
+    overround (p_over + p_under); this divides by a measured one (FD_ONE_SIDED_OVERROUND)
+    because the second side does not exist to observe.
+    """
+    if implied <= 0:
+        return implied
+    return min(0.99, implied / FD_ONE_SIDED_OVERROUND)
+
+
 def devig_two_way(implied_over: float, implied_under: float | None) -> float:
     """
     Strip the book's margin from a two-way market.
@@ -640,8 +672,13 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
                             player = (run.get("runnerName") or "").strip()
                             if not player:
                                 continue
-                            # One-sided market — no under to de-vig, raw implied stands.
-                            implied = round(american_to_implied(american), 4)
+                            # One-sided market — no under price exists, so the margin
+                            # comes off with a measured overround instead of an observed
+                            # one (see FD_ONE_SIDED_OVERROUND). Leaving it raw overstated
+                            # every MLB batter prop by ~4.9% and, because MLB's blend
+                            # weight is 0.258, that inflated number was ~74% of the
+                            # shipped hit_rate.
+                            implied = round(devig_one_sided(american_to_implied(american)), 4)
                             bk = (player, mstat)
                             prev = milestone_best.get(bk)
                             if prev is None or abs(implied - 0.5) < abs(prev["implied_prob"] - 0.5):
@@ -1312,6 +1349,7 @@ def _market_diverse_pool(legs: list, pool_size: int) -> list:
 
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int = 50,
                     pool_size: int = 30, max_leg_uses: int = 6,
+                    max_player_uses: int | None = None,
                     sportsbook: str = "PrizePicks", parlay_cal: dict | None = None,
                     min_ev: float = 0.0, market_blend: float | None = None,
                     same_game_penalty: float = 1.0):
@@ -1347,6 +1385,26 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     appear in, so top_n isn't just recombinations of the same handful of
     highest-confidence legs (e.g. all "Hits" props flooding the safe list).
 
+    max_player_uses caps the same thing per PLAYER, across every market they appear
+    in. max_leg_uses alone does not bound player exposure: once the pool became
+    market-diverse, one player could sit in it under several markets and collect
+    max_leg_uses parlays in each. On the 2026-08-12 MLB slate that put a single
+    player in 36 of 100 parlays where the pre-quota board had him in 12 — those
+    parlays all lose together on his bad night, which is exactly the concentration
+    the per-leg cap was meant to prevent.
+
+    It defaults to max_leg_uses: there is no reason a player should get a larger budget
+    than any one of their legs, and that value lands top-player exposure back on the 12
+    the pre-quota board had. It costs board size — a market-diverse pool holds ~22
+    distinct players where the old single-market pool held 30, so the same top_n cannot
+    be filled without concentrating. 100 parlays/book/day becomes ~61-75. That is a
+    cheap trade now: calibration dedupes repeated legs on _prop_key anyway, and the
+    single-leg tracking records (log_tracking_legs) are what actually feed it.
+
+    Both budgets are per list (safe and value each get their own), so a player's real
+    exposure across the board is up to twice max_player_uses. They are not shared on
+    purpose: safe is built first and would spend the whole budget, leaving value empty.
+
     market_blend (parlay_tracker.get_market_blend) shrinks leg probabilities
     toward the de-vigged market before combining.
 
@@ -1360,6 +1418,8 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
         legs = _apply_market_blend(legs, market_blend)
     legs = _market_diverse_pool(legs, pool_size)
     parlay_cal = parlay_cal or {}
+    if max_player_uses is None:
+        max_player_uses = max_leg_uses
 
     results = []
     for n in range(min_legs, max_legs + 1):
@@ -1374,33 +1434,57 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
                 raw *= leg["hit_rate"]
             sg_pairs = _same_game_pairs(combo) if same_game_penalty < 1.0 else 0
             corr = same_game_penalty ** sg_pairs if sg_pairs else 1.0
-            prob = min(0.99, max(0.001, raw * corr * factor))
+            # The floor here used to be 0.001, which SILENTLY INFLATED long shots. DFS
+            # ladders cap the payout at 20x so a floored parlay still prices at -0.98 and
+            # the inflation never showed. FanDuel pays the product of decimal odds, which
+            # has no cap: a 5-leg of +500 home runs is a 7776x payout, and floating a
+            # 7.6e-05 probability up to 0.001 booked it at EV +6.78 against a true -0.41.
+            # On the real 2026-08-12 FanDuel slate this marked two all-Home-Runs 5-legs
+            # "recommended" at EV +0.61 whose honest EV is -0.62. Any floor that RAISES a
+            # probability manufactures EV, so the floor is now numerical-only — it exists
+            # to keep a zeroed leg from producing a degenerate 0, not to prop up a price.
+            prob = min(0.99, max(1e-12, raw * corr * factor))
             payout = parlay_payout(sportsbook, combo)
             # Payouts are gross (a 2-pick returns 3x the entry), so a win nets
             # payout-1 and EV = prob*(payout-1) - (1-prob) = prob*payout - 1.
             ev = round(prob * payout - 1.0, 4)
             results.append({
+                # 6dp, not 4: a long shot is now allowed to be genuinely small, and
+                # rounding it to 0.0 would hide the number the EV was computed from.
                 "legs": list(combo), "n": n,
-                "prob": round(prob, 4), "raw_prob": round(raw, 4),
+                "prob": round(prob, 6), "raw_prob": round(raw, 6),
                 "payout": payout, "ev": ev,
                 "recommended": bool(ev > min_ev),
             })
 
     def _lk(p):
-        return [f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]]
+        # line_score is part of the identity: without it two alt lines on the same
+        # player+stat ("2+ Total Bases" and "3+ Total Bases") collapse to one key, so
+        # the use cap counts them as one leg and the dedupe treats two different
+        # parlays as identical. Nothing feeds alt lines in today (score_legs dedupes on
+        # player+stat and milestone_best keeps one line per player+stat), which is
+        # exactly why this would have failed silently the day something did.
+        return [f"{l['player_name']}|{l['stat_type']}|{l.get('line_score')}"
+                for l in p["legs"]]
 
-    def _top(pool, key_fn, exclude_keys=None, max_uses=None):
+    def _top(pool, key_fn, exclude_keys=None, max_uses=None, max_player=None):
         # Guarantee every requested pick count is represented instead of letting the
         # global sort fill the board with small parlays. Larger parlays are selected
         # FIRST so they get fresh legs — otherwise 2- and 3-leg combos exhaust the
         # per-leg use budget and 5-leg parlays never make the cut (a 5-leg was
         # effectively ungeneratable). Each count gets an even share of the slots, then
         # any remaining slots are filled by the global ranking.
+        #
+        # Budgets are per call, so a leg may be used up to max_uses times in safe AND
+        # again in value. That is deliberate — the two lists are alternative views of
+        # the same slate, and sharing one budget would let safe spend it all and leave
+        # value empty — but it does mean real exposure is twice the per-list cap.
         counts = sorted({p["n"] for p in pool}, reverse=True)
         per = max(1, top_n // max(1, len(counts)))
         seen: set = set()
         excl = exclude_keys or set()
         leg_uses = defaultdict(int)
+        player_uses = defaultdict(int)
         out = []
 
         def _try_add(p):
@@ -1410,10 +1494,15 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
                 return False
             if max_uses is not None and any(leg_uses[lk] >= max_uses for lk in leg_keys):
                 return False
+            players = {l["player_name"] for l in p["legs"]}
+            if max_player is not None and any(player_uses[pl] >= max_player for pl in players):
+                return False
             seen.add(k)
             out.append(p)
             for lk in leg_keys:
                 leg_uses[lk] += 1
+            for pl in players:
+                player_uses[pl] += 1
             return True
 
         for n in counts:                       # large parlays first, even share each
@@ -1434,10 +1523,12 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     # Recommended (positive-EV) combos sort ahead of the rest in both lists, so the bets
     # worth making lead. The losers are still returned and logged — they are the training
     # data — they just never sit at the top of the board.
-    safe_out = _top(results, lambda x: (x["recommended"], x["prob"]), max_uses=max_leg_uses)
+    safe_out = _top(results, lambda x: (x["recommended"], x["prob"]),
+                    max_uses=max_leg_uses, max_player=max_player_uses)
     safe_keys = {frozenset(_lk(p)) for p in safe_out}
     value_out = _top(results, lambda x: (x["recommended"], x["ev"]),
-                     exclude_keys=safe_keys, max_uses=max_leg_uses)
+                     exclude_keys=safe_keys, max_uses=max_leg_uses,
+                     max_player=max_player_uses)
 
     return safe_out, value_out
 
