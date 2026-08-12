@@ -8746,10 +8746,20 @@ elif sport == "🏈 NFL":
                     _spl = _nfla.opponent_splits(_wk, _player, _stat)
                     if _spl:
                         _top = _spl[:4]; _bot = _spl[-3:] if len(_spl) > 4 else []
+                        # The "…" divider between best and worst blanks its numeric cells
+                        # with None, not "". An empty string makes Avg/G object columns,
+                        # pyarrow then can't convert '' to double, and st.dataframe threw
+                        # ArrowInvalid on every render — Streamlit fell back far enough to
+                        # still draw the table, so it only showed up as numbers rendering
+                        # left-aligned as text (and losing numeric sort) plus a traceback
+                        # in the log. Nullable dtypes keep the columns numeric through the
+                        # gap; plain None would work for Arrow but promote G to float and
+                        # print game counts as "1.0".
                         _sd = _pd.DataFrame(
                             [{"Opp": r["opp"], "Avg": r["avg"], "G": r["games"]} for r in _top]
-                            + ([{"Opp": "…", "Avg": "", "G": ""}] if _bot else [])
-                            + [{"Opp": r["opp"], "Avg": r["avg"], "G": r["games"]} for r in _bot])
+                            + ([{"Opp": "…", "Avg": None, "G": None}] if _bot else [])
+                            + [{"Opp": r["opp"], "Avg": r["avg"], "G": r["games"]} for r in _bot]
+                        ).astype({"Avg": "Float64", "G": "Int64"})
                         st.dataframe(_sd, use_container_width=True, hide_index=True)
                     st.caption("Per-game average of the selected stat by opponent (this season's sample).")
                 st.caption("Projection is a recency-weighted mean (last 5 games ×2). A matchup/pace-adjusted "
