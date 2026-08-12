@@ -2260,21 +2260,38 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
     """
     data = _load()
     day = on_date or datetime.now().strftime("%Y-%m-%d")
+    todays = [p for p in data["parlays"]
+              if str(p.get("generated_at", "")).startswith(day)
+              and (not sport or p.get("sport") == sport)]
+
+    # A label is not always one fixture: a doubleheader plays "MIA @ NYM" twice in a day,
+    # and merging on the label alone would collapse two real bets into one and hide the
+    # other. Detect it the only way the log allows — one book quoting two game_ids under
+    # one label — and fall back to the book-specific id for those labels. start_time cannot
+    # do this job: where two books both carry one they agree just 24% of the time.
+    # The trade is deliberate and narrow: on a doubleheader label the same prop may list
+    # once per book, which is the safer error, and 16 labels in the log are affected.
+    _ids: dict = defaultdict(set)
+    for p in todays:
+        for leg in p["legs"]:
+            label = leg.get("game_label") or ""
+            if label and leg.get("game_id"):
+                _ids[(p.get("sportsbook", ""), label)].add(str(leg["game_id"]))
+    split_labels = {lbl for (_bk, lbl), ids in _ids.items() if len(ids) > 1}
+
     seen: dict = {}
-    for p in data["parlays"]:
-        if not str(p.get("generated_at", "")).startswith(day):
-            continue
-        if sport and p.get("sport") != sport:
-            continue
+    for p in todays:
         for leg in p["legs"]:
             if not _is_pocket(p["sport"], leg.get("stat_type", "")):
                 continue
             pred, impl, odds = leg.get("predicted_hit_rate"), leg.get("implied_prob"), leg.get("american_odds")
             if pred is None or not impl or odds is None:
                 continue
+            label = leg.get("game_label") or ""
+            game = (str(leg.get("game_id", "")) if (not label or label in split_labels)
+                    else label)
             key = (p["sport"], _normalize_name(str(leg.get("player_name", ""))),
-                   str(leg.get("stat_type", "")), leg.get("line_score"),
-                   leg.get("game_label") or str(leg.get("game_id", "")))
+                   str(leg.get("stat_type", "")), leg.get("line_score"), game)
             book = p.get("sportsbook", "")
             row = {
                 "sport": p["sport"], "player": leg.get("player_name", ""),
