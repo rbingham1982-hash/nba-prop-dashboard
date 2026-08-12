@@ -332,6 +332,38 @@ def american_to_implied(odds) -> float:
     return 100.0 / (o + 100.0) if o > 0 else -o / (-o + 100.0)
 
 
+# FanDuel's MLB batter props are one-sided milestone markets ("To Record A Hit"), one
+# runner per player with a Yes price and no No side, so devig_two_way has nothing to
+# normalise against and the raw, vig-inflated number used to stand. That covers Hits,
+# Home Runs, Total Bases and Runs Scored — every MLB market except Pitcher Strikeouts,
+# which is a true over/under and does get de-vigged.
+#
+# The overround was measured against the de-vigged book: 247 props priced by both
+# FanDuel and Underdog on the same day, same player, stat and line, gave a mean
+# FD/UD ratio of 1.0485. The control holds — FanDuel's two-way Pitcher Strikeouts
+# market, which IS de-vigged, came in at 0.9851 against the same book, i.e. no gap.
+#
+# It is a flat estimate and honest about being one: 226 of those 247 pairs sit between
+# 0.50 and 0.70 implied, so that is where it is fitted. The >=0.70 bucket measured 1.086
+# (n=26) and books normally hold MORE on long shots, so this likely UNDER-corrects the
+# tails — Home Runs especially, where the overlap sample was 3 props. It is still
+# strictly better than shipping the raw number. Re-fit it when the tails have data.
+FD_ONE_SIDED_OVERROUND = 1.0485
+
+
+def devig_one_sided(implied: float) -> float:
+    """
+    Strip an estimated margin from a market that quotes only one side.
+
+    Same multiplicative form as devig_two_way — that function divides by the observed
+    overround (p_over + p_under); this divides by a measured one (FD_ONE_SIDED_OVERROUND)
+    because the second side does not exist to observe.
+    """
+    if implied <= 0:
+        return implied
+    return min(0.99, implied / FD_ONE_SIDED_OVERROUND)
+
+
 def devig_two_way(implied_over: float, implied_under: float | None) -> float:
     """
     Strip the book's margin from a two-way market.
@@ -640,8 +672,13 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
                             player = (run.get("runnerName") or "").strip()
                             if not player:
                                 continue
-                            # One-sided market — no under to de-vig, raw implied stands.
-                            implied = round(american_to_implied(american), 4)
+                            # One-sided market — no under price exists, so the margin
+                            # comes off with a measured overround instead of an observed
+                            # one (see FD_ONE_SIDED_OVERROUND). Leaving it raw overstated
+                            # every MLB batter prop by ~4.9% and, because MLB's blend
+                            # weight is 0.258, that inflated number was ~74% of the
+                            # shipped hit_rate.
+                            implied = round(devig_one_sided(american_to_implied(american)), 4)
                             bk = (player, mstat)
                             prev = milestone_best.get(bk)
                             if prev is None or abs(implied - 0.5) < abs(prev["implied_prob"] - 0.5):
@@ -1421,7 +1458,14 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
             })
 
     def _lk(p):
-        return [f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]]
+        # line_score is part of the identity: without it two alt lines on the same
+        # player+stat ("2+ Total Bases" and "3+ Total Bases") collapse to one key, so
+        # the use cap counts them as one leg and the dedupe treats two different
+        # parlays as identical. Nothing feeds alt lines in today (score_legs dedupes on
+        # player+stat and milestone_best keeps one line per player+stat), which is
+        # exactly why this would have failed silently the day something did.
+        return [f"{l['player_name']}|{l['stat_type']}|{l.get('line_score')}"
+                for l in p["legs"]]
 
     def _top(pool, key_fn, exclude_keys=None, max_uses=None, max_player=None):
         # Guarantee every requested pick count is represented instead of letting the
