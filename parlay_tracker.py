@@ -1274,15 +1274,25 @@ def _leg_hit(leg: dict):
        down. Several call sites already used the correct `not in (True, False)` test;
        this makes every site agree.
 
-    2. `line_score` is not always a real line. 931 MLB "Hits" legs sit at 0.6/0.7/0.8/0.9
-       and there are NBA "Points" legs at 25.4 — a retired code path wrote something
-       that was not a betting line into the field (all May-Jul 2026, none since). The
-       outcome was graded against that number, so the result is meaningless whichever
-       way it went. Books post whole or half numbers only, so anything else is rejected.
+    2. Historical-fallback legs are not market props. When live lines were unavailable
+       the generator synthesised legs from historical averages, tagged game_label
+       "Historical" with no game_id — which is why their line_scores are averages
+       (LeBron Points 18.4, MLB Hits 0.8) rather than numbers a book would post. 2607
+       of them, all May-Jul 2026. A prop graded against a synthetic threshold measures
+       the generator, not the model against a market, so it does not belong in a
+       calibration factor that prices real bets.
+
+       Screening these on line shape alone is what an earlier pass did, and it was
+       arbitrary: it caught the 2331 with average-looking lines and let through the 276
+       whose average happened to land on a whole or half number. _is_historical_leg is
+       the actual marker, so use it. (The line-shape check stays as a backstop for any
+       future path that writes a non-line into the field.)
     """
     outcome = leg.get("outcome")
     if outcome not in (True, False, "hit", "miss"):
         return None                       # None, "void", or anything unrecognised
+    if _is_historical_leg(leg):
+        return None
     line = leg.get("line_score")
     try:
         if abs(float(line) * 2 - round(float(line) * 2)) > 1e-9:
