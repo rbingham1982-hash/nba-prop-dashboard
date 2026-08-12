@@ -2239,31 +2239,76 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
     Scan a day's logged pocket-market props and return the ones that clear BOTH a strong-edge
     bar and an odds floor — the plays worth a straight bet. on_date defaults to today (local,
     matching generated_at). qualifies=True means it's a day worth acting on.
+
+    One prop is one play, no matter how many books quote it. Deduping on _prop_key does not
+    achieve that: _prop_key prefers game_id, which is book-specific (FanDuel's event id vs
+    Underdog's match id vs PrizePicks' game id all differ for the same fixture), so the same
+    prop arrived under two keys and was listed twice. On 2026-08-12 that made Ranger Suarez
+    Pitcher Strikeouts o4.5 two of the five plays "clearing the bar" — one bet, quoted at
+    +102 on Underdog and +104 on FanDuel, counted as two. 447 of 5,568 logged props are
+    quoted by more than one book on the same day, so it is not a one-off.
+
+    The key here is therefore book-agnostic (game_label, "BOS @ TOR", which every fetcher
+    builds the same way), falling back to game_id only when there is no label — without that
+    fallback two different games with no label would collide, which is the worse error.
+
+    Of the duplicates, the surviving row is the one at the best PRICE, because that is the
+    bet you would actually place. Note that the best price is not always the best edge: at
+    +104 FanDuel paid more than Underdog's +102 while showing the smaller edge, since edge
+    is measured against each book's own de-vigged implied. Ranking by edge would recommend
+    the worse of two prices for the same wager. `books` carries where else it is on offer.
     """
     data = _load()
     day = on_date or datetime.now().strftime("%Y-%m-%d")
+    todays = [p for p in data["parlays"]
+              if str(p.get("generated_at", "")).startswith(day)
+              and (not sport or p.get("sport") == sport)]
+
+    # A label is not always one fixture: a doubleheader plays "MIA @ NYM" twice in a day,
+    # and merging on the label alone would collapse two real bets into one and hide the
+    # other. Detect it the only way the log allows — one book quoting two game_ids under
+    # one label — and fall back to the book-specific id for those labels. start_time cannot
+    # do this job: where two books both carry one they agree just 24% of the time.
+    # The trade is deliberate and narrow: on a doubleheader label the same prop may list
+    # once per book, which is the safer error, and 16 labels in the log are affected.
+    _ids: dict = defaultdict(set)
+    for p in todays:
+        for leg in p["legs"]:
+            label = leg.get("game_label") or ""
+            if label and leg.get("game_id"):
+                _ids[(p.get("sportsbook", ""), label)].add(str(leg["game_id"]))
+    split_labels = {lbl for (_bk, lbl), ids in _ids.items() if len(ids) > 1}
+
     seen: dict = {}
-    for p in data["parlays"]:
-        if not str(p.get("generated_at", "")).startswith(day):
-            continue
-        if sport and p.get("sport") != sport:
-            continue
+    for p in todays:
         for leg in p["legs"]:
             if not _is_pocket(p["sport"], leg.get("stat_type", "")):
                 continue
             pred, impl, odds = leg.get("predicted_hit_rate"), leg.get("implied_prob"), leg.get("american_odds")
             if pred is None or not impl or odds is None:
                 continue
-            key = _prop_key(leg)
-            if key in seen:
-                continue
-            seen[key] = {
+            label = leg.get("game_label") or ""
+            game = (str(leg.get("game_id", "")) if (not label or label in split_labels)
+                    else label)
+            key = (p["sport"], _normalize_name(str(leg.get("player_name", ""))),
+                   str(leg.get("stat_type", "")), leg.get("line_score"), game)
+            book = p.get("sportsbook", "")
+            row = {
                 "sport": p["sport"], "player": leg.get("player_name", ""),
                 "stat": leg.get("stat_type", ""), "line": leg.get("line_score"),
                 "odds": int(odds), "pred": round(float(pred), 4),
                 "edge": round(float(pred) - float(impl), 4),
-                "book": p.get("sportsbook", ""), "game": leg.get("game_label", ""),
+                "book": book, "game": leg.get("game_label", ""),
             }
+            prev = seen.get(key)
+            if prev is None:
+                row["books"] = {book: int(odds)} if book else {}
+                seen[key] = row
+                continue
+            prev["books"][book] = max(int(odds), prev["books"].get(book, int(odds)))
+            if int(odds) > prev["odds"]:
+                row["books"] = prev["books"]
+                seen[key] = row
     plays = sorted((v for v in seen.values() if v["edge"] >= min_edge and v["odds"] >= min_odds),
                    key=lambda r: r["edge"], reverse=True)
     return {"date": day, "min_edge": min_edge, "min_odds": min_odds,

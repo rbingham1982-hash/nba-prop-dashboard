@@ -4209,13 +4209,22 @@ def _render_accuracy_tab(sport_filter: str) -> None:
     except Exception:
         _alert = {"qualifies": False, "n_pocket": 0, "plays": [], "min_edge": 0.03, "min_odds": -140}
     if _alert["qualifies"]:
+        # get_pocket_alert returns one row per prop at its best price, with `books`
+        # carrying every quote. Show the runners-up so collapsing the duplicates does
+        # not hide that the same bet is on the board elsewhere at a worse number.
+        def _alt_books(_p):
+            _alt = {b: o for b, o in (_p.get("books") or {}).items() if b != _p["book"]}
+            if not _alt:
+                return ""
+            return " · also " + ", ".join(f"{b} {o:+d}" for b, o in sorted(_alt.items()))
+
         _rows = "".join(
             f"<div style='display:flex;justify-content:space-between;gap:1rem;font-size:0.82rem;"
             f"padding:0.25rem 0;border-top:1px solid rgba(34,197,94,.18);'>"
             f"<span style='color:var(--text-primary);'><b>{_p['player']}</b> · {_p['stat']} "
             f"o{_p['line']}</span>"
             f"<span style='color:var(--text-muted);'>{_p['edge']*100:+.1f}% edge · "
-            f"{'+' if _p['odds']>0 else ''}{_p['odds']} · {_p['book']}</span></div>"
+            f"{'+' if _p['odds']>0 else ''}{_p['odds']} · {_p['book']}{_alt_books(_p)}</span></div>"
             for _p in _alert["plays"][:6])
         st.markdown(
             f"<div style='border:1px solid rgba(34,197,94,.45);background:rgba(34,197,94,.10);"
