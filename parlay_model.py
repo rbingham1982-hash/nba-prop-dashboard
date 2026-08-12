@@ -1312,6 +1312,7 @@ def _market_diverse_pool(legs: list, pool_size: int) -> list:
 
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int = 50,
                     pool_size: int = 30, max_leg_uses: int = 6,
+                    max_player_uses: int | None = None,
                     sportsbook: str = "PrizePicks", parlay_cal: dict | None = None,
                     min_ev: float = 0.0, market_blend: float | None = None,
                     same_game_penalty: float = 1.0):
@@ -1347,6 +1348,26 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     appear in, so top_n isn't just recombinations of the same handful of
     highest-confidence legs (e.g. all "Hits" props flooding the safe list).
 
+    max_player_uses caps the same thing per PLAYER, across every market they appear
+    in. max_leg_uses alone does not bound player exposure: once the pool became
+    market-diverse, one player could sit in it under several markets and collect
+    max_leg_uses parlays in each. On the 2026-08-12 MLB slate that put a single
+    player in 36 of 100 parlays where the pre-quota board had him in 12 — those
+    parlays all lose together on his bad night, which is exactly the concentration
+    the per-leg cap was meant to prevent.
+
+    It defaults to max_leg_uses: there is no reason a player should get a larger budget
+    than any one of their legs, and that value lands top-player exposure back on the 12
+    the pre-quota board had. It costs board size — a market-diverse pool holds ~22
+    distinct players where the old single-market pool held 30, so the same top_n cannot
+    be filled without concentrating. 100 parlays/book/day becomes ~61-75. That is a
+    cheap trade now: calibration dedupes repeated legs on _prop_key anyway, and the
+    single-leg tracking records (log_tracking_legs) are what actually feed it.
+
+    Both budgets are per list (safe and value each get their own), so a player's real
+    exposure across the board is up to twice max_player_uses. They are not shared on
+    purpose: safe is built first and would spend the whole budget, leaving value empty.
+
     market_blend (parlay_tracker.get_market_blend) shrinks leg probabilities
     toward the de-vigged market before combining.
 
@@ -1360,6 +1381,8 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
         legs = _apply_market_blend(legs, market_blend)
     legs = _market_diverse_pool(legs, pool_size)
     parlay_cal = parlay_cal or {}
+    if max_player_uses is None:
+        max_player_uses = max_leg_uses
 
     results = []
     for n in range(min_legs, max_legs + 1):
@@ -1374,14 +1397,25 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
                 raw *= leg["hit_rate"]
             sg_pairs = _same_game_pairs(combo) if same_game_penalty < 1.0 else 0
             corr = same_game_penalty ** sg_pairs if sg_pairs else 1.0
-            prob = min(0.99, max(0.001, raw * corr * factor))
+            # The floor here used to be 0.001, which SILENTLY INFLATED long shots. DFS
+            # ladders cap the payout at 20x so a floored parlay still prices at -0.98 and
+            # the inflation never showed. FanDuel pays the product of decimal odds, which
+            # has no cap: a 5-leg of +500 home runs is a 7776x payout, and floating a
+            # 7.6e-05 probability up to 0.001 booked it at EV +6.78 against a true -0.41.
+            # On the real 2026-08-12 FanDuel slate this marked two all-Home-Runs 5-legs
+            # "recommended" at EV +0.61 whose honest EV is -0.62. Any floor that RAISES a
+            # probability manufactures EV, so the floor is now numerical-only — it exists
+            # to keep a zeroed leg from producing a degenerate 0, not to prop up a price.
+            prob = min(0.99, max(1e-12, raw * corr * factor))
             payout = parlay_payout(sportsbook, combo)
             # Payouts are gross (a 2-pick returns 3x the entry), so a win nets
             # payout-1 and EV = prob*(payout-1) - (1-prob) = prob*payout - 1.
             ev = round(prob * payout - 1.0, 4)
             results.append({
+                # 6dp, not 4: a long shot is now allowed to be genuinely small, and
+                # rounding it to 0.0 would hide the number the EV was computed from.
                 "legs": list(combo), "n": n,
-                "prob": round(prob, 4), "raw_prob": round(raw, 4),
+                "prob": round(prob, 6), "raw_prob": round(raw, 6),
                 "payout": payout, "ev": ev,
                 "recommended": bool(ev > min_ev),
             })
@@ -1389,18 +1423,24 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     def _lk(p):
         return [f"{l['player_name']}|{l['stat_type']}" for l in p["legs"]]
 
-    def _top(pool, key_fn, exclude_keys=None, max_uses=None):
+    def _top(pool, key_fn, exclude_keys=None, max_uses=None, max_player=None):
         # Guarantee every requested pick count is represented instead of letting the
         # global sort fill the board with small parlays. Larger parlays are selected
         # FIRST so they get fresh legs — otherwise 2- and 3-leg combos exhaust the
         # per-leg use budget and 5-leg parlays never make the cut (a 5-leg was
         # effectively ungeneratable). Each count gets an even share of the slots, then
         # any remaining slots are filled by the global ranking.
+        #
+        # Budgets are per call, so a leg may be used up to max_uses times in safe AND
+        # again in value. That is deliberate — the two lists are alternative views of
+        # the same slate, and sharing one budget would let safe spend it all and leave
+        # value empty — but it does mean real exposure is twice the per-list cap.
         counts = sorted({p["n"] for p in pool}, reverse=True)
         per = max(1, top_n // max(1, len(counts)))
         seen: set = set()
         excl = exclude_keys or set()
         leg_uses = defaultdict(int)
+        player_uses = defaultdict(int)
         out = []
 
         def _try_add(p):
@@ -1410,10 +1450,15 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
                 return False
             if max_uses is not None and any(leg_uses[lk] >= max_uses for lk in leg_keys):
                 return False
+            players = {l["player_name"] for l in p["legs"]}
+            if max_player is not None and any(player_uses[pl] >= max_player for pl in players):
+                return False
             seen.add(k)
             out.append(p)
             for lk in leg_keys:
                 leg_uses[lk] += 1
+            for pl in players:
+                player_uses[pl] += 1
             return True
 
         for n in counts:                       # large parlays first, even share each
@@ -1434,10 +1479,12 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     # Recommended (positive-EV) combos sort ahead of the rest in both lists, so the bets
     # worth making lead. The losers are still returned and logged — they are the training
     # data — they just never sit at the top of the board.
-    safe_out = _top(results, lambda x: (x["recommended"], x["prob"]), max_uses=max_leg_uses)
+    safe_out = _top(results, lambda x: (x["recommended"], x["prob"]),
+                    max_uses=max_leg_uses, max_player=max_player_uses)
     safe_keys = {frozenset(_lk(p)) for p in safe_out}
     value_out = _top(results, lambda x: (x["recommended"], x["ev"]),
-                     exclude_keys=safe_keys, max_uses=max_leg_uses)
+                     exclude_keys=safe_keys, max_uses=max_leg_uses,
+                     max_player=max_player_uses)
 
     return safe_out, value_out
 
