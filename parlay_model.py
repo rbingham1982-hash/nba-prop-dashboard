@@ -237,9 +237,29 @@ def statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id=None):
 # multiplier by pick count. Traditional sportsbooks have no ladder — a parlay there
 # pays the product of its legs' decimal odds — so they are deliberately absent, and
 # parlay_payout() derives their payout from the odds instead.
+#
+# Underdog USED to sit here on a {2: 3.0, 3: 6.0, 4: 10.0, 5: 20.0} ladder, and it was
+# the DraftKings mistake below repeated on a book that hides it better. The flat ladder
+# is real, but it prices Underdog's standard pick'em lines, which sit near even money.
+# The legs this model actually selects do not: their quoted american_price runs a median
+# of -239 across 20,634 logged MLB legs, deciles -271 to -137. Underdog does not pay 20x
+# on a 5-pick of -239 favourites, so the ladder was crediting a payout never on offer:
+#
+#     leg count   true product of quoted odds   ladder credited   overstated by
+#     2                   2.01x                      3.0x             1.49x
+#     3                   2.85x                      6.0x             2.10x
+#     5                   5.74x                     20.0x             3.48x
+#
+# It made 9,178 resolved Underdog parlays read +27.1% ROI against -29.6% on the real
+# prices, and marked 111 of 194 of one day's Underdog parlays "recommended" where the
+# honest payout recommends 0. FanDuel, already on the product, was unaffected at 6.
+#
+# PrizePicks genuinely belongs here: its ladder IS the product on offer, and the
+# american_odds carried on its legs are synthetic constants this repo assigns by
+# odds_type (see PP_ODDS_IMPLIED), not quotes. Underdog quotes real, varying prices,
+# so it is priced like any other book that does.
 PAYOUT_TABLES = {
     "PrizePicks": {2: 3.0, 3: 5.0, 4: 10.0, 5: 20.0},
-    "Underdog":   {2: 3.0, 3: 6.0, 4: 10.0, 5: 20.0},   # UD's 3-pick pays 6x, not PP's 5x
 }
 PP_PAYOUTS = PAYOUT_TABLES["PrizePicks"]
 
@@ -261,8 +281,14 @@ def parlay_payout(sportsbook: str, legs: list) -> float:
 
     PrizePicks' ladder used to be applied to every book. A DraftKings 3-leg parlay was
     therefore booked at 5x when it actually pays the product of its legs' odds — a
-    payout that was never on offer, which made its EV and ROI fiction. DFS books get
-    their own ladder; traditional books get the product of decimal odds.
+    payout that was never on offer, which made its EV and ROI fiction. A book gets a
+    ladder only if the ladder is what it actually pays on the legs being selected;
+    everything else gets the product of decimal odds. Underdog failed that test and was
+    moved to the product — see the note above PAYOUT_TABLES.
+
+    A leg with no usable american_odds falls back to 2.0 via american_to_decimal, so a
+    book that stops quoting prices degrades to even money per leg rather than silently
+    inheriting somebody else's ladder.
     """
     n = len(legs)
     table = PAYOUT_TABLES.get(sportsbook)
