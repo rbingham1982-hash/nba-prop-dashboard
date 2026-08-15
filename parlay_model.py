@@ -639,6 +639,114 @@ def fetch_fanduel(sport: str) -> pd.DataFrame:
     return pd.DataFrame(rows) if rows else pd.DataFrame()
 
 
+def fetch_moneylines(sport: str) -> pd.DataFrame:
+    """
+    Game-level moneylines from the same FanDuel page the prop fetcher already walks.
+
+    Both sides are quoted, so unlike the MLB batter props (one-sided milestone markets
+    needing the estimated FD_ONE_SIDED_OVERROUND) this de-vigs honestly against a real
+    opposite price. That matters more here than anywhere else in the repo: a de-vigged
+    moneyline is the benchmark a winner model has to beat. Without it "accuracy" is
+    meaningless — home teams win 52.4% and favourites ~57%, so a model can look strong
+    and carry no edge at all. Grading props against nothing is how four separate defects
+    inflated EV for months; this exists so the same thing cannot happen to game picks.
+
+    Returns one row per game: both teams, both prices, and the vig-free home win
+    probability. Empty frame when the page has no games.
+    """
+    page_id = FD_PAGE_ID.get(sport)
+    if not page_id:
+        return pd.DataFrame()
+    try:
+        r = requests.get(f"{FD_BASE}/content-managed-page",
+                         params={"page": "CUSTOM", "customPageId": page_id,
+                                 "_ak": FD_AK, "timezone": "America/New_York"},
+                         headers=FD_HEADERS, timeout=20)
+        if r.status_code != 200:
+            print(f"    FanDuel moneyline page failed: HTTP {r.status_code}")
+            return pd.DataFrame()
+        events = r.json().get("attachments", {}).get("events", {})
+    except Exception as e:
+        print(f"    FanDuel moneyline fetch failed: {e}")
+        return pd.DataFrame()
+
+    games = {i: e for i, e in events.items() if " @ " in (e.get("name") or "")}
+    rows = []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        for fut in [ex.submit(_fd_parse_moneyline, sport, i, e) for i, e in games.items()]:
+            try:
+                row = fut.result()
+            except Exception:
+                continue
+            if row:
+                rows.append(row)
+    return pd.DataFrame(rows) if rows else pd.DataFrame()
+
+
+def _fd_parse_moneyline(sport, ev_id, ev):
+    """One event's MONEY_LINE market. Returns a row dict, or None if not quoted yet."""
+    name = ev.get("name") or ""
+    try:
+        away_full, home_full = [s.strip() for s in name.split(" @ ", 1)]
+    except ValueError:
+        return None
+    # MLB event names carry the probable starter: "Kansas City Royals (R Dobnak)".
+    def _strip(t):
+        return re.sub(r"\s*\([^)]*\)\s*$", "", t).strip()
+    away_full, home_full = _strip(away_full), _strip(home_full)
+
+    try:
+        rt = requests.get(f"{FD_BASE}/event-page", params={"eventId": ev_id, "_ak": FD_AK},
+                          headers=FD_HEADERS, timeout=25)
+        if rt.status_code != 200:
+            return None
+        markets = rt.json().get("attachments", {}).get("markets", {})
+    except Exception:
+        return None
+
+    for m in markets.values():
+        if m.get("marketType") != "MONEY_LINE":
+            continue
+        prices = {}
+        for run in m.get("runners", []):
+            odds = _fd_american(run)
+            if odds is None:
+                continue
+            prices[_strip(run.get("runnerName") or "")] = odds
+        home_odds, away_odds = prices.get(home_full), prices.get(away_full)
+        if home_odds is None or away_odds is None:
+            continue
+        # Out of season the page still lists futures, specials and simulated matchups,
+        # and their names contain " @ " so they survive the event filter. The prop
+        # fetcher never noticed because they carry no player markets; this one finds a
+        # MONEY_LINE on them and would log 21 fictional NBA games in August, priced at
+        # -100000. A real two-way game price is neither locked nor wildly overround.
+        if max(abs(home_odds), abs(away_odds)) >= 10000:
+            continue
+        overround = american_to_implied(home_odds) + american_to_implied(away_odds)
+        if not (1.0 <= overround <= 1.20):
+            continue
+        p_home = devig_two_way(american_to_implied(home_odds), american_to_implied(away_odds))
+        return {
+            "game_id": str(ev_id),
+            "sport": sport.upper(),
+            "away_team": _fd_team_abbr(sport, away_full),
+            "home_team": _fd_team_abbr(sport, home_full),
+            "away_name": away_full,
+            "home_name": home_full,
+            "game_label": f"{_fd_team_abbr(sport, away_full)} @ {_fd_team_abbr(sport, home_full)}",
+            "start_time": ev.get("openDate", ""),
+            "home_odds": int(home_odds),
+            "away_odds": int(away_odds),
+            "home_implied_raw": round(american_to_implied(home_odds), 4),
+            "away_implied_raw": round(american_to_implied(away_odds), 4),
+            "market_home_prob": round(p_home, 4),
+            "overround": round(overround, 4),
+            "sportsbook": "FanDuel",
+        }
+    return None
+
+
 def _fd_parse_event(sport, core_map, ev_id, ev):
     """Fetch and parse one FanDuel event's player-prop tabs. Returns a list of leg
     rows (over/under + MLB milestone). Runs in a worker thread, so it owns all its
