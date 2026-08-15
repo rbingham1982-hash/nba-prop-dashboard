@@ -18,6 +18,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, os.path.dirname(__file__))
 import parlay_tracker
 import parlay_model as pm
+import game_tracker
 
 LOG_PATH = Path(__file__).parent / "logs" / "daily_parlay_gen.log"
 
@@ -465,6 +466,47 @@ def warn_if_stale(now):
 
 # ── Entry point ────────────────────────────────────────────────────────────
 
+def log_game_markets():
+    """
+    Snapshot the game-level moneyline and settle finished games.
+
+    Runs every time the generator does, including forced second runs, because the extra
+    snapshots ARE the point — repeated observations through the day are what turn the
+    log into a record of line movement rather than a single opening price. It is the
+    benchmark any future winner model gets graded against, so it starts accumulating
+    now, before that model exists; there is no way to backfill a closing line.
+
+    Wrapped so a failure here can never take down parlay generation — this is
+    measurement, not something the daily board depends on.
+    """
+    print(f"\n{'='*62}\n  Game markets\n{'='*62}")
+    month = datetime.now().month
+    # Same season gates the parlay side uses. Belt and braces with the price sanity
+    # check in fetch_moneylines: out of season the page is all futures and specials.
+    in_season = {"mlb": 3 <= month <= 11,
+                 "wnba": 5 <= month <= 9,
+                 "nba": month >= 10 or month <= 6}
+    for sport_key, label in (("mlb", "MLB"), ("wnba", "WNBA"), ("nba", "NBA")):
+        if not in_season[sport_key]:
+            print(f"  {label}: off-season — skipping.")
+            continue
+        try:
+            df = pm.fetch_moneylines(sport_key)
+            if df is None or df.empty:
+                print(f"  {label}: no moneylines posted.")
+                continue
+            r = game_tracker.log_market(df, label)
+            print(f"  {label}: {len(df)} games — {r['new']} new, {r['snapshots']} snapshot(s) "
+                  f"(mean vig {100*(df['overround'].mean()-1):.1f}%).")
+        except Exception as e:
+            print(f"  {label}: market logging skipped — {e}")
+    try:
+        counts = game_tracker.resolve_all()
+        print(f"  Resolved — {', '.join(f'{k} {v}' for k, v in counts.items())}")
+    except Exception as e:
+        print(f"  Game resolution skipped — {e}")
+
+
 def already_ran_today(now) -> bool:
     """True if a parlay was already logged today.
 
@@ -483,15 +525,27 @@ def already_ran_today(now) -> bool:
 def main():
     now   = datetime.now()
     month = now.month
+    # --force runs even when today already has a board. The guard exists to stop the
+    # hourly catch-up firing from duplicating a slate, which is right for the default
+    # once-a-day job — but a split slate is a real case it blocks. On 2026-08-15 five
+    # MLB games started 12:10-15:10 and ten more from 17:10: one board cannot price
+    # both clusters at a sane lead, because whatever time you pick is hours late for
+    # the early games or hours early for the late ones. A forced second run near the
+    # late first pitch prices those off current lines instead. Books drop props once a
+    # game is under way, so the split is self-enforcing: the later run only ever sees
+    # games that have not started. Identical leg sets dedupe on _parlay_id, so a prop
+    # unchanged between runs is not logged twice.
+    force = "--force" in sys.argv
     print(f"\nKonjure Analytics — Daily Parlay Generator")
-    print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}")
+    print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}{'  (forced)' if force else ''}")
 
-    if already_ran_today(now):
+    if already_ran_today(now) and not force:
         print("  Already generated today — nothing to do (hourly catch-up firing).")
         return
 
     warn_if_stale(now)
     resolve_pending()
+    log_game_markets()
 
     total = 0
     total += run_sport("mlb",  "MLB",  2, MLB_STAT_TYPES,  mlb_hit_rate)

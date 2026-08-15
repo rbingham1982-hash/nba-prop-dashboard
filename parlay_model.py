@@ -716,6 +716,16 @@ def _fd_parse_moneyline(sport, ev_id, ev):
         home_odds, away_odds = prices.get(home_full), prices.get(away_full)
         if home_odds is None or away_odds is None:
             continue
+        # Out of season the page still lists futures, specials and simulated matchups,
+        # and their names contain " @ " so they survive the event filter. The prop
+        # fetcher never noticed because they carry no player markets; this one finds a
+        # MONEY_LINE on them and would log 21 fictional NBA games in August, priced at
+        # -100000. A real two-way game price is neither locked nor wildly overround.
+        if max(abs(home_odds), abs(away_odds)) >= 10000:
+            continue
+        overround = american_to_implied(home_odds) + american_to_implied(away_odds)
+        if not (1.0 <= overround <= 1.20):
+            continue
         p_home = devig_two_way(american_to_implied(home_odds), american_to_implied(away_odds))
         return {
             "game_id": str(ev_id),
@@ -731,7 +741,7 @@ def _fd_parse_moneyline(sport, ev_id, ev):
             "home_implied_raw": round(american_to_implied(home_odds), 4),
             "away_implied_raw": round(american_to_implied(away_odds), 4),
             "market_home_prob": round(p_home, 4),
-            "overround": round(american_to_implied(home_odds) + american_to_implied(away_odds), 4),
+            "overround": round(overround, 4),
             "sportsbook": "FanDuel",
         }
     return None
