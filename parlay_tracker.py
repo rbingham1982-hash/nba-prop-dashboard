@@ -1328,6 +1328,43 @@ def _leg_hit(leg: dict):
     return outcome is True or outcome == "hit"
 
 
+def _leg_model_prob(leg: dict) -> float | None:
+    """
+    The RAW scorer probability for a leg — what the per-stat calibration factor corrects.
+
+    predicted_hit_rate is the shipped price: w*model + (1-w)*implied. The factor derived
+    from it is applied INSIDE the scorer, before the blend, so fitting on the shipped
+    value measures error in one quantity and corrects a different one — and because
+    shipped is mostly market at a low weight, and the market is well calibrated, the
+    factor stops seeing the scorer at all.
+
+    Simulated against a scorer biased 30% high, where the correction that fixes it is
+    1/1.30 = 0.769:
+
+        blend w      fit on raw     fit on shipped
+        0.90            0.767            0.785
+        0.50            0.778            0.879
+        0.208 (MLB)     0.769            0.941
+        0.074 (WNBA)    0.771            0.980
+
+    Fitting on raw recovers 0.769 at every weight. Fitting on shipped reports "no
+    correction needed" for a scorer that is 30% wrong, and gets blinder the LESS the
+    model is trusted — exactly backwards. Both agree at ~1.000 when the scorer is
+    unbiased, so this is not a noise difference.
+
+    model_hit_rate is written by _apply_market_blend. Legs that predate blending have no
+    such field and their predicted_hit_rate IS raw, so falling back to it is correct
+    rather than approximate.
+    """
+    v = leg.get("model_hit_rate")
+    if v is None:
+        v = leg.get("predicted_hit_rate")
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
 def _cal_key(leg: dict) -> str:
     """
     Calibration bucket for a leg — usually just its stat_type, but a leg tagged
@@ -1439,7 +1476,10 @@ def get_calibration(sport: str | None = None) -> dict:
                 continue  # same prop, reused in another parlay — one observation
             seen_props.add(key)
             stat = _cal_key(leg)
-            predicted[stat] += w * leg["predicted_hit_rate"]
+            mp = _leg_model_prob(leg)          # raw scorer output, not the shipped price
+            if mp is None:
+                continue
+            predicted[stat] += w * mp
             actual[stat] += w * (1.0 if hit else 0.0)
             weight_sum[stat] += w
 
@@ -1520,7 +1560,7 @@ def get_weekly_summary(week: str | None = None, sport: str | None = None) -> dic
             continue
         seen_props.add(key)
         s = leg["stat_type"]
-        stat_data[s]["predicted"].append(leg["predicted_hit_rate"])
+        stat_data[s]["predicted"].append(_leg_model_prob(leg) or 0.0)
         stat_data[s]["actual"].append(1.0 if _leg_hit(leg) else 0.0)
 
     stat_breakdown = {}
@@ -1614,7 +1654,10 @@ def get_all_time_calibration_table(sport: str | None = None) -> list:
                 continue
             seen_props.add(key)
             stat = _cal_key(leg)
-            predicted[stat].append(leg["predicted_hit_rate"])
+            mp = _leg_model_prob(leg)          # raw scorer output, not the shipped price
+            if mp is None:
+                continue
+            predicted[stat].append(mp)
             actual[stat].append(1.0 if hit else 0.0)
 
     live = _recent_active_stats(data, sport)
@@ -2364,7 +2407,10 @@ def get_drift_warnings(sport: str | None = None,
                 continue
             seen_props.add(key)
             stat = _cal_key(leg)
-            predicted[stat].append(leg["predicted_hit_rate"])
+            mp = _leg_model_prob(leg)          # raw scorer output, not the shipped price
+            if mp is None:
+                continue
+            predicted[stat].append(mp)
             actual[stat].append(1.0 if hit else 0.0)
 
     out = []
@@ -2468,7 +2514,7 @@ def get_player_accuracy(sport: str | None = None) -> list[dict]:
                 continue  # one prop, reused across parlays — a single observation
             seen_props.add(prop)
             key = (leg["player_name"], leg["stat_type"])
-            buckets[key]["predicted"].append(leg["predicted_hit_rate"])
+            buckets[key]["predicted"].append(_leg_model_prob(leg) or 0.0)
             buckets[key]["actual"].append(1.0 if hit else 0.0)
             buckets[key]["implied"].append(_leg_implied(leg))
     rows = []
