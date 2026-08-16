@@ -576,9 +576,18 @@ _FD_UNMAPPED: set = set()   # cores seen but not mapped — reported once per ru
 # Canonical forms are taken from parlay_tracker._MLB_ABBR_ALIASES so labels agree with
 # the resolver rather than introducing a third spelling. ATH/OAK is deliberately left
 # alone: every book writes ATH today, and the resolver's alias map already matches it.
+#
+# ESPN is a third vocabulary again, and it is the one the game resolver reads: it writes
+# NY/LA/WSH/LV/GS where the books write NYL/LAS/WAS/LVA/GSV. Every WNBA game in the
+# ledger failed to settle because of it — resolve_espn matched book abbreviations against
+# ESPN's and never found a single one. Books are canonical here since they are what gets
+# logged; ESPN's spellings fold into them.
 _ABBR_CANONICAL = {
     "mlb":  {"AZ": "ARI", "CHW": "CWS", "WAS": "WSH", "WSN": "WSH"},
-    "wnba": {"PDX": "POR"},
+    "wnba": {"PDX": "POR", "NY": "NYL", "LA": "LAS", "WSH": "WAS",
+             "LV": "LVA", "GS": "GSV"},
+    "nba":  {"GS": "GSW", "NY": "NYK", "SA": "SAS", "NO": "NOP",
+             "UTAH": "UTA", "WSH": "WAS"},
 }
 _ABBR_UNMAPPED: set = set()
 

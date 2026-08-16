@@ -30,6 +30,8 @@ from pathlib import Path
 
 import requests
 
+from parlay_model import canonical_abbr
+
 LOG_PATH = Path(__file__).with_name("game_log.json")
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/{path}/scoreboard"
 ESPN_PATHS = {"WNBA": "basketball/wnba", "NBA": "basketball/nba"}
@@ -251,8 +253,11 @@ def resolve_espn(sport: str) -> int:
                 sides = {c["homeAway"]: c for c in comp["competitors"]}
                 if "home" not in sides or "away" not in sides:
                     continue
-                board[(sides["away"]["team"]["abbreviation"].upper(),
-                       sides["home"]["team"]["abbreviation"].upper(),
+                # Fold ESPN's spellings into the book vocabulary the ledger is written
+                # in — it says NY/LA/WSH/LV/GS for NYL/LAS/WAS/LVA/GSV, which matched
+                # nothing at all until this was added.
+                board[(canonical_abbr(sport, sides["away"]["team"]["abbreviation"]),
+                       canonical_abbr(sport, sides["home"]["team"]["abbreviation"]),
                        str(e.get("date", ""))[:10])] = (
                     int(sides["home"].get("score") or 0), int(sides["away"].get("score") or 0))
         except Exception:
@@ -264,7 +269,10 @@ def resolve_espn(sport: str) -> int:
         if st is None:
             continue
         for off in (0, -1):
-            key = (str(g["away_team"]).upper(), str(g["home_team"]).upper(),
+            # Normalise the stored side as well: rows logged before the abbreviation
+            # fix carry the old spelling (PDX) and would otherwise never match.
+            key = (canonical_abbr(g.get("sport", ""), g["away_team"]),
+                   canonical_abbr(g.get("sport", ""), g["home_team"]),
                    (st + timedelta(days=off)).strftime("%Y-%m-%d"))
             if key in board:
                 hs, as_ = board[key]
