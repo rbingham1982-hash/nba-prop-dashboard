@@ -410,6 +410,26 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
         legs = score_legs(raw, cal, stat_types, rate_fn)
         print(f"    {len(legs)} legs scored.")
 
+        # Price the legs BEFORE anything logs them. _build_parlays used to apply the
+        # market blend to its own copy, so safe/value legs were logged at the shipped
+        # (blended) probability while the tracking legs written just below kept the raw
+        # scorer output — one field, predicted_hit_rate, meaning two different things
+        # depending on which kind of row you read.
+        #
+        # That fed straight into the pocket alert, whose edge is predicted minus implied:
+        # on unblended rows it measured the raw model's disagreement with the market with
+        # none of the shrinkage that exists precisely because that disagreement measured
+        # anti-predictive. Today it produced a +26.6% "edge" on a -112 pitcher strikeout
+        # line, against a best of +7.0% three days earlier. It also left calibration
+        # grading a mixture: 482 props appear both ways, median gap 0.051, and the
+        # deduper keeps whichever it happens to see first.
+        #
+        # Blending here means every logged leg carries model_hit_rate (raw) and
+        # predicted_hit_rate (shipped) alike. Re-blending inside _build_parlays is a
+        # documented no-op, so passing the same list on is safe.
+        if mkt_w is not None:
+            legs = pm._apply_market_blend(legs, mkt_w)
+
         # Track EVERY scored prop, not just the ones the builder bets. The builder optimizes
         # for EV and overwhelmingly picks the high-probability market (MLB Hits), so Home Runs,
         # Total Bases, Runs Scored and Pitcher Strikeouts were scored and discarded — never

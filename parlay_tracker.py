@@ -2287,6 +2287,18 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
             pred, impl, odds = leg.get("predicted_hit_rate"), leg.get("implied_prob"), leg.get("american_odds")
             if pred is None or not impl or odds is None:
                 continue
+            # An edge is only meaningful against a price the model was actually shipped
+            # at. model_hit_rate is written by _apply_market_blend, so its absence means
+            # this leg was never blended and predicted_hit_rate is raw scorer output —
+            # comparing that to implied measures the model's unshrunk disagreement with
+            # the market, which is the thing the blend exists to discount. 3,191 legs
+            # logged before the generator blended tracking rows look like that, and they
+            # produced every one of the alert's largest "edges" (+26.6% on a -112 line,
+            # against +7.0% as the best three days earlier). Skip rather than shrink:
+            # the blend weight in force when they were written was not recorded, so any
+            # reconstruction would be a guess dressed as a price.
+            if leg.get("model_hit_rate") is None:
+                continue
             label = leg.get("game_label") or ""
             game = (str(leg.get("game_id", "")) if (not label or label in split_labels)
                     else label)
