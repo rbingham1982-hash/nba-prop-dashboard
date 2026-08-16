@@ -91,6 +91,11 @@ def load_cal(sport):
 
 # ── PrizePicks API ─────────────────────────────────────────────────────────
 
+# run_sport passes the PrizePicks league id, not the sport, and canonical_abbr needs the
+# sport to know which alias table applies.
+_PP_LEAGUE_SPORT = {2: "mlb", 6: "wnba", 7: "nba"}
+
+
 def fetch_prizepicks(league_id: int) -> pd.DataFrame:
     dk_odds = {"goblin": -162, "standard": -100, "demon": 162}
     for attempt in range(3):
@@ -110,8 +115,11 @@ def fetch_prizepicks(league_id: int) -> pd.DataFrame:
                 elif item.get("type") == "game":
                     a = item["attributes"]
                     gteams = a.get("metadata", {}).get("game_info", {}).get("teams", {})
-                    away = gteams.get("away", {}).get("abbreviation", "")
-                    home = gteams.get("home", {}).get("abbreviation", "")
+                    # Normalised for the same reason as the Underdog branch: PrizePicks
+                    # writes AZ/CWS where FanDuel writes ARI/CHW.
+                    sport_key = _PP_LEAGUE_SPORT.get(league_id, "")
+                    away = pm.canonical_abbr(sport_key, gteams.get("away", {}).get("abbreviation", ""))
+                    home = pm.canonical_abbr(sport_key, gteams.get("home", {}).get("abbreviation", ""))
                     game_map[item["id"]] = {
                         "label": f"{away} @ {home}" if away and home else "",
                         "start_time": a.get("start_time", ""),
@@ -184,10 +192,14 @@ def fetch_underdog(sport: str) -> pd.DataFrame:
             name  = f"{player.get('first_name','')} {player.get('last_name','')}".strip()
             if not name:
                 continue
+            # Normalise both halves so the label matches what the other books write —
+            # Underdog says AZ/CWS/POR where FanDuel says ARI/CHW/PDX, and marks
+            # doubleheader halves inside the abbreviation ("CLE (Game 1)").
             title = game.get("abbreviated_title", "")
             team  = ""
             if " @ " in title:
-                away, home = title.split(" @ ", 1)
+                away, home = [pm.canonical_abbr(sport, x) for x in title.split(" @ ", 1)]
+                title = f"{away} @ {home}"
                 team = away if app.get("team_id") == game.get("away_team_id") else home
             opts = line.get("options", [])
             over_opt  = next((o for o in opts if o.get("choice") == "higher"), None)
@@ -265,14 +277,44 @@ def build_parlays(legs, min_legs=2, max_legs=5, top_n=50, pool_size=30, max_leg_
 
 # ── Leg scorer ─────────────────────────────────────────────────────────────
 
+def _has_started(start_time) -> bool:
+    """
+    True if first pitch/tip is already in the past.
+
+    Unparseable or missing start times return False — books drop props once a game is
+    live, so an absent timestamp is far more likely to be a feed quirk than a started
+    game, and refusing to score those would silently empty the board.
+    """
+    s = str(start_time or "").strip()
+    if not s:
+        return False
+    try:
+        from datetime import timezone
+        st = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        if st.tzinfo is None:
+            st = st.replace(tzinfo=timezone.utc)
+        return datetime.now(timezone.utc) >= st
+    except Exception:
+        return False
+
+
 def score_legs(df, cal, stat_types, rate_fn):
     df   = df[df["stat_type"].isin(stat_types)].copy()
     legs, seen = [], set()
+    started = 0
     for _, row in df.iterrows():
         key = (row["player_name"], row["stat_type"])
         if key in seen:
             continue
         seen.add(key)
+        # A prop on a game already under way is not a prediction. The 2026-08-15 late
+        # run fired at 17:12 against a 17:10 first pitch and logged 9 parlays / 38 legs
+        # at negative lead; those resolve and enter calibration as if they had been
+        # forecast, when the price by then reflects what has already happened on the
+        # field. Cheap to drop, and impossible to distinguish after the fact.
+        if _has_started(row.get("start_time", "")):
+            started += 1
+            continue
         try:
             line = float(row["line_score"])
         except Exception:
@@ -302,6 +344,8 @@ def score_legs(df, cal, stat_types, rate_fn):
             "sample_n":      n,
         })
         time.sleep(0.03)
+    if started:
+        print(f"    {started} prop(s) skipped — game already under way.")
     return legs
 
 # ── Per-sport runner ───────────────────────────────────────────────────────

@@ -565,27 +565,61 @@ _FD_UNMAPPED: set = set()   # cores seen but not mapped — reported once per ru
 
 # ── FanDuel API ────────────────────────────────────────────────────────────
 
+# Books spell the same club differently, so a game_label is not a portable key until it
+# is normalised: on 2026-08-15 FanDuel wrote "ARI @ ATL" and "CHW @ DET" for fixtures
+# Underdog and PrizePicks wrote as "AZ @ ATL" and "CWS @ DET", and WNBA Portland is PDX
+# on FanDuel and POR on Underdog. Anything joining across books on the label silently
+# treats those as different games — which is exactly what the pocket alert's cross-book
+# dedupe does, and what game_tracker's sport|label|start_time identity would do the
+# moment a second book is added.
+#
+# Canonical forms are taken from parlay_tracker._MLB_ABBR_ALIASES so labels agree with
+# the resolver rather than introducing a third spelling. ATH/OAK is deliberately left
+# alone: every book writes ATH today, and the resolver's alias map already matches it.
+_ABBR_CANONICAL = {
+    "mlb":  {"AZ": "ARI", "CHW": "CWS", "WAS": "WSH", "WSN": "WSH"},
+    "wnba": {"PDX": "POR"},
+}
+_ABBR_UNMAPPED: set = set()
+
+
+def canonical_abbr(sport: str, abbr: str) -> str:
+    """One spelling per club, whatever the book called it."""
+    a = str(abbr or "").strip().upper()
+    # Underdog marks doubleheader halves in the abbreviation itself ("CLE (Game 1)").
+    # The half is already carried by game_id and start_time; keeping it here would fork
+    # the label and defeat the normalisation.
+    a = re.sub(r"\s*\(GAME\s*\d+\)\s*$", "", a).strip()
+    return _ABBR_CANONICAL.get(str(sport).lower(), {}).get(a, a)
+
+
 def _fd_team_abbr(sport: str, full_name: str) -> str:
     """FanDuel's full team name -> the abbreviation the resolver matches games on."""
     # MLB event names embed the probable pitcher — "Los Angeles Dodgers (W Klein)" —
     # so strip any trailing parenthetical before the lookup.
     full_name = re.sub(r"\s*\([^)]*\)\s*$", "", full_name.strip())
     key = full_name.lower()
-    if sport == "wnba":
-        return _FD_WNBA_ABBR.get(key, full_name.strip().upper()[:3])
-    if sport == "mlb":
-        return _FD_MLB_ABBR.get(key, full_name.strip().upper()[:3])
-    if sport == "nfl":
-        return _FD_NFL_ABBR.get(key, full_name.strip().upper()[:3])
-    if sport == "nba":
+    table = {"wnba": _FD_WNBA_ABBR, "mlb": _FD_MLB_ABBR, "nfl": _FD_NFL_ABBR}.get(sport)
+    if table is not None:
+        hit = table.get(key)
+        if hit:
+            return canonical_abbr(sport, hit)
+    elif sport == "nba":
         try:
             from nba_api.stats.static import teams as _t  # type: ignore
             for t in _t.get_teams():
                 if t["full_name"].lower() == key:
-                    return t["abbreviation"]
+                    return canonical_abbr(sport, t["abbreviation"])
         except Exception:
             pass
-    return full_name.strip().upper()[:3]
+    # The old fallback was full_name[:3], which does not fail — it quietly invents an
+    # abbreviation, and for MLB it invented AMBIGUOUS ones: "LOS" for both Los Angeles
+    # clubs, "NEW" for both New York, "SAN" for San Diego and San Francisco, plus "ST.",
+    # "KAN", "TAM". 2,925 legs carry those from 2026-07, and any two teams sharing a
+    # prefix were merged into one label. Record the miss so it surfaces the way an
+    # unmapped market already does, rather than being absorbed silently.
+    _ABBR_UNMAPPED.add(f"{sport}:{full_name}")
+    return canonical_abbr(sport, full_name.strip().upper()[:3])
 
 
 def _fd_american(runner: dict):
