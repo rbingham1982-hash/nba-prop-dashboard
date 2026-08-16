@@ -374,20 +374,63 @@ def american_to_implied(odds) -> float:
 # (n=26) and books normally hold MORE on long shots, so this likely UNDER-corrects the
 # tails — Home Runs especially, where the overlap sample was 3 props. It is still
 # strictly better than shipping the raw number. Re-fit it when the tails have data.
-FD_ONE_SIDED_OVERROUND = 1.0485
+FD_ONE_SIDED_OVERROUND = 1.0586
+
+# Re-fit 2026-08-16 on 345 props priced by both books the same day, comparing FanDuel's
+# RAW price against Underdog's de-vigged one. Selection cancels in that comparison —
+# whatever the model chose to log, both books quoted the same prop.
+#
+# The headline is a negative result. One-sided milestone markets hold 1.0586 against a
+# two-way control (Pitcher Strikeouts, n=97) at 1.0511 — a difference of 0.0075, about
+# 1.8 standard errors. The worry that prompted this, that a market quoting no second side
+# hides a much fatter margin, is not supported: FanDuel charges roughly the same either
+# way, and the original flat 1.0485 was already close.
+#
+# Price dependence is real but small and NOT the monotonic shape reported earlier in the
+# week. Measured band means run 0.976 / 0.993 / 1.079 / 1.099 / 1.055 across ascending
+# price — an inverted U, not a favourite-longshot ramp. Two bands sit 4+ standard errors
+# off pooled, so it is not all noise, but the tails carry n=8 and n=21 and the shape
+# contradicts how books usually price, so the curve below is shrunk hard toward pooled
+# (a band needs ~30 pairs to move halfway). That keeps the fit from chasing eight props.
+#
+# An earlier attempt estimated the hold from resolved outcomes instead — raw implied
+# against the actual hit rate. It produced ratios of 1.14 to 1.60 and failed its own
+# control: the two-way market, which should read ~1.00, came out at 1.135. The estimator
+# was measuring the model's own anti-predictive selection, not the book's margin. It is
+# recorded here because it looks like the more obvious approach and is worse.
+_FD_OVERROUND_CURVE = [
+    (0.100, 1.0411),
+    (0.275, 1.0316),
+    (0.425, 1.0667),
+    (0.575, 1.0852),
+    (0.725, 1.0557),
+]
 
 
 def devig_one_sided(implied: float) -> float:
     """
     Strip an estimated margin from a market that quotes only one side.
 
-    Same multiplicative form as devig_two_way — that function divides by the observed
-    overround (p_over + p_under); this divides by a measured one (FD_ONE_SIDED_OVERROUND)
-    because the second side does not exist to observe.
+    Same multiplicative form as devig_two_way — that divides by the observed overround
+    (p_over + p_under); this divides by a fitted one, because the second side does not
+    exist to observe. The divisor varies with price, interpolated between the fitted
+    band midpoints and held flat outside them rather than extrapolated, since the
+    outermost bands are the thinnest.
     """
     if implied <= 0:
         return implied
-    return min(0.99, implied / FD_ONE_SIDED_OVERROUND)
+    pts = _FD_OVERROUND_CURVE
+    if implied <= pts[0][0]:
+        div = pts[0][1]
+    elif implied >= pts[-1][0]:
+        div = pts[-1][1]
+    else:
+        div = pts[-1][1]
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            if x0 <= implied <= x1:
+                div = y0 + (y1 - y0) * (implied - x0) / (x1 - x0)
+                break
+    return min(0.99, implied / div)
 
 
 def devig_two_way(implied_over: float, implied_under: float | None) -> float:
