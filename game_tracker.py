@@ -143,6 +143,78 @@ def log_market(df, sport: str) -> dict:
     return {"new": new, "snapshots": snaps}
 
 
+def log_predictions(preds: list, sport: str) -> int:
+    """
+    Attach model win probabilities to games already in the ledger.
+
+    Written next to the market rather than instead of it, and only onto games that were
+    logged BEFORE the prediction was made, so the eventual comparison is model-vs-close
+    on the same fixture. `model_first_seen` freezes the first prediction: later runs
+    refresh `model_home_prob` as ratings move, but the original stays readable so a
+    prediction cannot quietly drift toward the market it is meant to be tested against.
+    """
+    if not preds:
+        return 0
+    data = _load()
+    by_label = {(g["sport"], g["game_label"]): g for g in data["games"]}
+    now = datetime.now().isoformat(timespec="seconds")
+    n = 0
+    for p in preds:
+        g = by_label.get((sport, p.get("game_label", "")))
+        if g is None:
+            continue
+        if g.get("model_first_seen") is None:
+            g["model_first_seen"] = now
+            g["model_opening_prob"] = float(p["model_home_prob"])
+        g["model_home_prob"] = float(p["model_home_prob"])
+        g["model_seen_at"] = now
+        n += 1
+    if n:
+        _save(data)
+    return n
+
+
+def model_vs_market(sport: str | None = None) -> dict:
+    """
+    The verdict that matters, once there is enough of it: model against the de-vigged
+    closing line on resolved games.
+
+    Reports both log losses and the count of disagreements the model got right. A model
+    that agrees with the market everywhere has no edge to measure; one that disagrees and
+    is wrong has negative edge. Only disagreeing AND being right counts.
+    """
+    import math
+    data = _load()
+    rows = [g for g in data["games"]
+            if g.get("home_won") is not None
+            and g.get("model_home_prob") is not None
+            and g.get("closing_home_prob") is not None
+            and (not sport or g.get("sport") == sport)]
+    if not rows:
+        return {"n": 0, "sport": sport or "ALL"}
+    eps = 1e-12
+
+    def ll(key):
+        return -sum(math.log(max(g[key] if g["home_won"] else 1 - g[key], eps))
+                    for g in rows) / len(rows)
+
+    dis = [g for g in rows
+           if (g["model_home_prob"] >= 0.5) != (g["closing_home_prob"] >= 0.5)]
+    return {
+        "n": len(rows), "sport": sport or "ALL",
+        "model_log_loss": round(ll("model_home_prob"), 4),
+        "market_log_loss": round(ll("closing_home_prob"), 4),
+        "edge": round(ll("closing_home_prob") - ll("model_home_prob"), 4),  # +ve = model better
+        "model_accuracy": round(sum(1 for g in rows
+                                    if (g["model_home_prob"] >= 0.5) == g["home_won"]) / len(rows), 4),
+        "market_accuracy": round(sum(1 for g in rows
+                                     if (g["closing_home_prob"] >= 0.5) == g["home_won"]) / len(rows), 4),
+        "disagreements": len(dis),
+        "disagreements_model_right": sum(1 for g in dis
+                                         if (g["model_home_prob"] >= 0.5) == g["home_won"]),
+    }
+
+
 def _pending(data: dict, sport: str) -> list:
     """Unresolved games whose start is far enough in the past to have finished."""
     cutoff = datetime.now(timezone.utc) - timedelta(hours=RESOLVE_AFTER_HOURS)

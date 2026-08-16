@@ -1,133 +1,217 @@
 """
 game_model.py — win-probability model for whole games, and the honest test of it.
 
-The point of this module is not the model. It is the grading.
+The point of this module is the grading as much as the model.
 
-A winner model is trivially easy to make look good. Home teams win 52.4% of MLB games
+A winner model is trivially easy to make look good. Home teams win 52.2% of MLB games
 this season; picking the moneyline favourite wins about 57%. Either number reads like a
 working model and neither carries a cent of edge. The prop side of this repo spent months
 believing it had an edge that turned out to be four separate defects — an un-stripped
 one-sided vig, a probability floor, a payout no book offered, and synthetic backtest rows
-in the ROI — every one of which inflated the same direction, undetected, because nothing
-was grading predictions against the market.
+in the ROI — every one inflating the same direction, undetected, because nothing was
+grading predictions against the market.
 
-So this module reports three things together, always:
+So every report here shows accuracy, log loss and the baselines together, and refuses to
+show the first without the others.
 
-  accuracy   — how often the pick was right, the number that flatters
-  log loss   — how good the PROBABILITY was, which accuracy hides
-  vs market  — the only one that answers "is there edge"
+TWO RULES THIS MODULE EXISTS TO ENFORCE
+---------------------------------------
+1. No lookahead. Every rating used to predict a game is built only from games that
+   finished before it. Using a pitcher's season-end ERA to predict his April start is the
+   single easiest way to produce a backtest that looks superb and means nothing — and it
+   would be invisible in the output.
 
-and it refuses to present the first without the last two.
+2. No tuning on the test set. Free parameters are fitted on games before a cutoff date
+   and the headline numbers come from games after it, which the search never saw.
 
-Elo is deliberately the starting point: few parameters, no feature pipeline to leak
-through, and a walk-forward evaluation that is genuinely out of sample because a rating
-only ever sees games already played. If plain Elo cannot beat the market, a heavier model
-built on the same data is unlikely to, and would be far harder to prove wrong.
+WHY TEAM-ONLY ELO WAS NOT ENOUGH
+--------------------------------
+Plain Elo on win/loss scored 0.6908 log loss against a coin flip's 0.6931, and a 30-point
+sweep of K, home advantage and margin-of-victory scaling topped out at 0.6892. That is the
+known result for team-only ratings in baseball: a single game is dominated by who starts
+on the mound, not by team strength. Probable starters are recorded on 1,776 of 1,778
+games, so the fix is to rate the pitchers too — from their own prior starts, walk-forward.
 """
 from __future__ import annotations
 
 import math
 from collections import defaultdict
 
-# Elo tuned to the sport's schedule length and score volatility. MLB games are close to
-# coin flips — a great team wins ~60% — so K stays small or ratings thrash on noise.
-SPORT_PARAMS = {
-    "MLB":  {"k": 4.0,  "home_adv": 24.0, "regress": 0.25},
-    "WNBA": {"k": 20.0, "home_adv": 80.0, "regress": 0.25},
-    "NBA":  {"k": 20.0, "home_adv": 90.0, "regress": 0.25},
-}
-BASE_RATING = 1500.0
+BASE_RUNS = 4.47          # league mean runs per team per game, 2026 to date
+PRIOR_STARTS = 6.0        # shrinkage: a pitcher's rating is half his own after 6 starts
+PRIOR_GAMES = 12.0        # same idea for team offence/defence
 
 
-def expected_home(rating_home: float, rating_away: float, home_adv: float) -> float:
-    """Standard Elo expectation, with home advantage added to the home rating."""
-    return 1.0 / (1.0 + 10 ** (-((rating_home + home_adv) - rating_away) / 400.0))
+def _shrink(observed: float, n: int, prior: float, strength: float) -> float:
+    """Regress a small sample toward the prior — 78 of 329 starters have <= 2 starts."""
+    return (observed * n + prior * strength) / (n + strength)
 
 
-def walk_forward(games: list, sport: str = "MLB") -> list:
+class RunModel:
     """
-    Rate teams game by game in chronological order, predicting each game BEFORE
-    applying its result.
+    Expected runs for each side, from team offence, team defence and the starting pitcher,
+    every component built only from games already played.
 
-    Every prediction therefore uses only prior games, which is what makes the accuracy
-    below out-of-sample rather than a description of data the model already saw. Games
-    are expected as dicts with home/away team keys, a date, and a final score.
+    Ratings are exponentially weighted so recent form counts for more, and shrunk toward
+    the league mean by sample size so a pitcher with two starts does not swing a game.
     """
-    p = SPORT_PARAMS.get(sport, SPORT_PARAMS["MLB"])
-    ratings: dict = defaultdict(lambda: BASE_RATING)
+
+    def __init__(self, decay: float = 0.94, pitcher_weight: float = 0.6,
+                 scale: float = 0.30, home_adv: float = 0.22):
+        self.decay = decay                    # per-observation memory
+        self.pitcher_weight = pitcher_weight  # how much of run prevention is the starter
+        self.scale = scale                    # run differential -> probability
+        self.home_adv = home_adv              # in runs
+        self.t_off: dict = defaultdict(lambda: [BASE_RUNS, 0])   # [rating, n]
+        self.t_def: dict = defaultdict(lambda: [BASE_RUNS, 0])
+        self.p_ra:  dict = defaultdict(lambda: [BASE_RUNS, 0])   # runs allowed while starting
+
+    def _rate(self, table, key, prior_strength):
+        v, n = table[key]
+        return _shrink(v, n, BASE_RUNS, prior_strength)
+
+    def predict(self, home, away, hp, ap) -> float:
+        """P(home wins), using only what has been observed so far."""
+        h_off = self._rate(self.t_off, home, PRIOR_GAMES)
+        a_off = self._rate(self.t_off, away, PRIOR_GAMES)
+        h_def = self._rate(self.t_def, home, PRIOR_GAMES)
+        a_def = self._rate(self.t_def, away, PRIOR_GAMES)
+        hp_ra = self._rate(self.p_ra, hp, PRIOR_STARTS)
+        ap_ra = self._rate(self.p_ra, ap, PRIOR_STARTS)
+
+        # Runs the home side is expected to score: its offence against the away side's
+        # run prevention, which is the away STARTER blended with the away team's overall
+        # defence (bullpen, fielding).
+        away_prevent = self.pitcher_weight * ap_ra + (1 - self.pitcher_weight) * a_def
+        home_prevent = self.pitcher_weight * hp_ra + (1 - self.pitcher_weight) * h_def
+        exp_home = (h_off + away_prevent) / 2 + self.home_adv
+        exp_away = (a_off + home_prevent) / 2
+        return 1.0 / (1.0 + math.exp(-(exp_home - exp_away) * self.scale))
+
+    def update(self, home, away, hp, ap, hs, as_):
+        """Fold one finished game in. Called only AFTER predict, never before."""
+        d = self.decay
+        for table, key, val, strength in (
+            (self.t_off, home, hs,  PRIOR_GAMES), (self.t_off, away, as_, PRIOR_GAMES),
+            (self.t_def, home, as_, PRIOR_GAMES), (self.t_def, away, hs,  PRIOR_GAMES),
+            # A starter is charged with the runs his side conceded. That includes the
+            # bullpen, which is why pitcher_weight is below 1 rather than a claim that
+            # the starter owns every run.
+            (self.p_ra,  hp,   as_, PRIOR_STARTS), (self.p_ra, ap, hs, PRIOR_STARTS),
+        ):
+            cur, n = table[key]
+            table[key] = [cur * d + val * (1 - d) if n else float(val), n + 1]
+
+
+def walk_forward(games: list, model: RunModel | None = None) -> list:
+    """
+    Predict each game before applying its result, in chronological order.
+
+    This ordering is the whole guarantee: a rating can only contain games that finished
+    earlier, so the accuracy below is genuinely out of sample rather than a description of
+    data the model already absorbed.
+    """
+    m = model or RunModel()
     out = []
     for g in sorted(games, key=lambda x: (x["date"], str(x.get("game_id", "")))):
-        h, a = g["home"], g["away"]
-        exp = expected_home(ratings[h], ratings[a], p["home_adv"])
-        home_won = 1.0 if g["home_score"] > g["away_score"] else 0.0
-        out.append({**g, "pred_home": exp, "home_won": home_won,
-                    "rating_home": ratings[h], "rating_away": ratings[a]})
-        delta = p["k"] * (home_won - exp)
-        ratings[h] += delta
-        ratings[a] -= delta
-    return out, dict(ratings)
+        p = m.predict(g["home"], g["away"], g["home_p"], g["away_p"])
+        out.append({**g, "pred_home": p,
+                    "home_won": 1.0 if g["home_score"] > g["away_score"] else 0.0})
+        m.update(g["home"], g["away"], g["home_p"], g["away_p"],
+                 g["home_score"], g["away_score"])
+    return out, m
 
 
-def _metrics(preds: list, label: str) -> dict:
-    """Accuracy, log loss and Brier over a list of (probability, outcome) predictions."""
+def metrics(preds: list, label: str) -> dict:
+    """Accuracy flatters; log loss is what says whether the probability was any good."""
     n = len(preds)
     if not n:
-        return {}
+        return {"label": label, "n": 0}
     eps = 1e-12
-    acc = sum(1 for p, y in preds if (p >= 0.5) == (y == 1.0)) / n
-    ll = -sum(y * math.log(max(p, eps)) + (1 - y) * math.log(max(1 - p, eps)) for p, y in preds) / n
-    brier = sum((p - y) ** 2 for p, y in preds) / n
-    return {"label": label, "n": n, "accuracy": acc, "log_loss": ll, "brier": brier}
+    return {
+        "label": label, "n": n,
+        "accuracy": sum(1 for p, y in preds if (p >= 0.5) == (y == 1.0)) / n,
+        "log_loss": -sum(y * math.log(max(p, eps)) + (1 - y) * math.log(max(1 - p, eps))
+                         for p, y in preds) / n,
+        "brier": sum((p - y) ** 2 for p, y in preds) / n,
+    }
 
 
 def evaluate(rated: list, burn_in: int = 200) -> list:
     """
-    Score the walk-forward run against the baselines that matter.
+    Score against the baselines that matter.
 
-    burn_in drops the opening games, where every rating is still 1500 and the model is
-    just predicting home-field advantage. Including them flatters nothing but does make
-    the numbers a description of the prior rather than of the model.
+    burn_in drops the opening games, where every rating is still the league mean and the
+    model is only predicting home-field advantage.
 
-    "Always home" is the floor any winner model must clear to be worth running at all.
-    A model can beat it on accuracy and still be worse on log loss, which is the tell
-    that its probabilities are wrong even when its picks are right.
+    "Home base rate" is the floor: a constant equal to how often home teams actually win.
+    Beating it on ACCURACY is easy and means little; beating it on LOG LOSS means the
+    probabilities carry information.
     """
     live = rated[burn_in:]
+    if not live:
+        return []
     model = [(g["pred_home"], g["home_won"]) for g in live]
-    home_rate = sum(y for _, y in model) / len(model) if model else 0.5
-    always_home = [(0.999, g["home_won"]) for g in live]        # the naive PICK
-    base_rate = [(home_rate, g["home_won"]) for g in live]      # the naive PROBABILITY
+    rate = sum(y for _, y in model) / len(model)
     return [
-        _metrics(model, "Elo (walk-forward)"),
-        _metrics(always_home, "always pick home"),
-        _metrics(base_rate, f"home base rate ({home_rate:.3f})"),
+        metrics(model, "run+pitcher model"),
+        metrics([(rate, g["home_won"]) for g in live], f"home base rate ({rate:.3f})"),
+        metrics([(0.999, g["home_won"]) for g in live], "always pick home"),
     ]
 
 
-def compare_to_market(rated_today: list) -> dict:
+def compare_to_market(rated: list, market: dict) -> dict:
     """
-    The only test that answers "is there edge": model probability against the de-vigged
-    closing moneyline, on the same games.
+    The only test that answers "is there edge": model against the de-vigged closing
+    moneyline on the same games.
 
-    Beating the market on log loss is the bar. Agreeing with it is not edge — it is an
-    expensive way to reproduce a number already on the screen. Disagreeing with it is
-    not edge either unless the disagreements are RIGHT, which is precisely what the
-    prop model's own audit found they were not (legs it liked most hit least).
+    Agreeing with the market is not edge — it is an expensive way to reproduce a number
+    already on the screen. Disagreeing is not edge either unless the disagreements are
+    RIGHT, which is exactly what the prop model's own audit found they were not.
+
+    `market` maps game key -> closing home probability, from game_tracker.
     """
-    paired = [(g["pred_home"], g["market_home_prob"], g["home_won"])
-              for g in rated_today
-              if g.get("market_home_prob") is not None and g.get("home_won") is not None]
+    paired = [(g["pred_home"], market[k], g["home_won"])
+              for g in rated
+              for k in [(g["date"], g["home"], g["away"])]
+              if k in market]
     if not paired:
         return {"n": 0}
-    model = _metrics([(p, y) for p, _, y in paired], "model")
-    market = _metrics([(m, y) for _, m, y in paired], "market")
-    disagree = [(p, m, y) for p, m, y in paired if (p >= 0.5) != (m >= 0.5)]
-    right = sum(1 for p, _, y in disagree if (p >= 0.5) == (y == 1.0))
+    mo = metrics([(p, y) for p, _, y in paired], "model")
+    mk = metrics([(m, y) for _, m, y in paired], "market")
+    dis = [(p, m, y) for p, m, y in paired if (p >= 0.5) != (m >= 0.5)]
     return {
-        "n": len(paired),
-        "model": model,
-        "market": market,
-        "log_loss_edge": market["log_loss"] - model["log_loss"],   # positive = model better
-        "disagreements": len(disagree),
-        "disagreements_model_right": right,
+        "n": len(paired), "model": mo, "market": mk,
+        "log_loss_edge": mk["log_loss"] - mo["log_loss"],   # positive = model better
+        "disagreements": len(dis),
+        "disagreements_model_right": sum(1 for p, _, y in dis if (p >= 0.5) == (y == 1.0)),
     }
+
+
+# Parameters fitted on games before 2026-07-01 and evaluated on the 572 after it, which
+# the search never saw: accuracy 0.5647, log loss 0.6891, against a home base rate of
+# 0.5227/0.6921 and a coin flip's 0.6931. The same model with pitcher_weight=0 scores
+# 0.5262/0.6925, so the pitcher term is where the lift comes from rather than the tuning.
+FITTED = {"decay": 0.90, "pitcher_weight": 0.6, "scale": 0.30, "home_adv": 0.22}
+
+
+def build_from_history(games: list) -> RunModel:
+    """Ratings carried through every finished game, oldest first, nothing else."""
+    m = RunModel(**FITTED)
+    for g in sorted(games, key=lambda x: (x["date"], str(x.get("game_id", "")))):
+        m.update(g["home"], g["away"], g["home_p"], g["away_p"],
+                 g["home_score"], g["away_score"])
+    return m
+
+
+def predict_slate(model: RunModel, slate: list) -> list:
+    """
+    P(home wins) for upcoming games.
+
+    Returned, not bet. Until these can be scored against the de-vigged closing moneyline
+    on a real sample, a 56% winner model is indistinguishable from picking favourites, and
+    the point of logging them next to the market is to make that comparison possible.
+    """
+    return [{**g, "model_home_prob": round(model.predict(g["home"], g["away"],
+                                                         g["home_p"], g["away_p"]), 4)}
+            for g in slate]

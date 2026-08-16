@@ -570,6 +570,47 @@ def log_game_markets():
     except Exception as e:
         print(f"  Game resolution skipped — {e}")
 
+    # Predictions are LOGGED, not bet. A 56% winner model is indistinguishable from
+    # picking favourites until it can be scored against the de-vigged closing line, and
+    # the only way to get that comparison is to record a prediction before the close and
+    # wait. Nothing here reaches the dashboard or the board.
+    if in_season["mlb"]:
+        try:
+            log_mlb_predictions()
+        except Exception as e:
+            print(f"  Game predictions skipped — {e}")
+
+
+def log_mlb_predictions():
+    """Rate every finished game this season, then predict the ones not yet played."""
+    import statsapi
+    import game_model as gmod
+    season = f"{datetime.now().year}"
+    raw = statsapi.schedule(start_date=f"03/01/{season}", end_date=datetime.now().strftime("%m/%d/%Y"),
+                            sportId=1)
+    hist = [{"game_id": g["game_id"], "date": g["game_date"], "home": g["home_name"],
+             "away": g["away_name"], "home_p": g.get("home_probable_pitcher") or "?",
+             "away_p": g.get("away_probable_pitcher") or "?",
+             "home_score": g["home_score"], "away_score": g["away_score"]}
+            for g in raw if g.get("status") == "Final"
+            and g.get("home_probable_pitcher") and g.get("away_probable_pitcher")]
+    if len(hist) < 200:
+        print(f"  Game predictions: only {len(hist)} finished games — too early to rate.")
+        return
+    model = gmod.build_from_history(hist)
+
+    upcoming = [g for g in raw if g.get("status") != "Final"
+                and g.get("home_probable_pitcher") and g.get("away_probable_pitcher")]
+    slate = [{"game_label": f"{pm.canonical_abbr('mlb', pm._fd_team_abbr('mlb', g['away_name']))}"
+                            f" @ {pm.canonical_abbr('mlb', pm._fd_team_abbr('mlb', g['home_name']))}",
+              "home": g["home_name"], "away": g["away_name"],
+              "home_p": g["home_probable_pitcher"], "away_p": g["away_probable_pitcher"]}
+             for g in upcoming]
+    preds = gmod.predict_slate(model, slate)
+    n = game_tracker.log_predictions(preds, "MLB")
+    print(f"  Game predictions: rated {len(hist)} finished games, "
+          f"predicted {len(preds)}, matched {n} to logged markets.")
+
 
 def already_ran_today(now) -> bool:
     """True if a parlay was already logged today.
