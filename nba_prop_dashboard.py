@@ -4665,7 +4665,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
             "ROI": _roi, "Net (u)": _s["net_units"],
             "Avg CLV (pt)": _clv, "Verdict": _VERDICT_UI.get(_s["verdict"], ("?",))[0],
         })
-    st.dataframe(pd.DataFrame(_rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(_rows), width="stretch", hide_index=True)
     st.caption("Straight bets, deduped per prop. A negative-CLV / negative-ROI backtest is the "
                "honest read: no strategy has beaten the closing line yet. The live window above "
                "is what decides whether to ever bet real units.")
@@ -5266,7 +5266,7 @@ if sport == "🏀 NBA":
                         .format({"Value": "{:.2f}", "FG%": "{:.3f}", "FT%": "{:.3f}",
                                  "PTS": "{:.1f}", "REB": "{:.1f}", "AST": "{:.1f}", "STL": "{:.1f}",
                                  "BLK": "{:.1f}", "3PM": "{:.1f}", "TO": "{:.1f}", "MPG": "{:.1f}"}))
-                st.dataframe(_sty, use_container_width=True, hide_index=True,
+                st.dataframe(_sty, width="stretch", hide_index=True,
                              height=min(720, 46 + 35 * len(_df)))
             if _is_proj:
                 _method = (f"Projected 2026-27: {_board.get('blend', '2-season blend, aged, current rosters')}. "
@@ -8652,7 +8652,7 @@ elif sport == "🏈 NFL":
                        .format({"VOR": "{:.0f}", "Pts": "{:.0f}", "PPG": "{:.1f}", "PaYd": "{:.0f}",
                                 "PaTD": "{:.1f}", "RuYd": "{:.0f}", "RuTD": "{:.1f}", "Rec": "{:.0f}",
                                 "ReYd": "{:.0f}", "ReTD": "{:.1f}"}))
-                st.dataframe(_sn, use_container_width=True, hide_index=True, height=min(760, 46 + 35 * len(_dfn)))
+                st.dataframe(_sn, width="stretch", hide_index=True, height=min(760, 46 + 35 * len(_dfn)))
             if _nfl_proj:
                 _nfl_m = (f"Projected 2026: {_nfl.get('blend', '')}. Rookies (Note='rookie') from draft-slot "
                           f"tier averages — rough. Availability & depth-chart usage not modeled.")
@@ -8748,7 +8748,7 @@ elif sport == "🏈 NFL":
                     _cols_show = [_stat] + [s for s in _stat_opts if s != _stat][:3]
                     _gl = _pd.DataFrame([{"Wk": g["week"], "Opp": g["opp"],
                                           **{s: g[s] for s in _cols_show}} for g in _log])
-                    st.dataframe(_gl, use_container_width=True, hide_index=True,
+                    st.dataframe(_gl, width="stretch", hide_index=True,
                                  height=min(430, 40 + 34 * len(_gl)))
                 with _rc:
                     st.markdown("**Best / worst matchups**")
@@ -8769,7 +8769,7 @@ elif sport == "🏈 NFL":
                             + ([{"Opp": "…", "Avg": None, "G": None}] if _bot else [])
                             + [{"Opp": r["opp"], "Avg": r["avg"], "G": r["games"]} for r in _bot]
                         ).astype({"Avg": "Float64", "G": "Int64"})
-                        st.dataframe(_sd, use_container_width=True, hide_index=True)
+                        st.dataframe(_sd, width="stretch", hide_index=True)
                     st.caption("Per-game average of the selected stat by opponent (this season's sample).")
                 st.caption("Projection is a recency-weighted mean (last 5 games ×2). A matchup/pace-adjusted "
                            "model model is a later refinement; live prop scoring is in the Edge Finder tab.")
@@ -8825,7 +8825,7 @@ elif sport == "🏈 NFL":
                     "Model %": round(r["model_over"]*100), "Impl %": round(r["implied"]*100),
                     "Edge %": round(r["edge"]*100, 1),
                 } for r in _scored[:30]])
-                st.dataframe(_edf, use_container_width=True, hide_index=True)
+                st.dataframe(_edf, width="stretch", hide_index=True)
                 st.caption(f"{len(_scored)} scored props · top 30 by edge. Positive edge = model likes the "
                            "OVER vs the book; still gated by the same honest-CLV discipline as the other sports.")
             else:
