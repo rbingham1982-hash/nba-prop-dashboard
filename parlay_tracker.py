@@ -8,6 +8,7 @@ Calibration factors are derived from resolved legs once CAL_MIN_SAMPLES is reach
 
 import json
 import hashlib
+import re
 import time as _time
 import unicodedata
 from collections import defaultdict
@@ -497,6 +498,53 @@ def _leg_is_abandoned(leg: dict, now: datetime | None = None) -> bool:
     return now >= game_start + timedelta(days=RESOLVE_GIVE_UP_DAYS)
 
 
+def _count_attempts(entries: list) -> int:
+    """
+    Advance the give-up counter for legs the resolver is about to look up. Returns how
+    many were counted.
+
+    Every resolver used to do this in bulk while *collecting* pending legs, on the
+    reasoning that collection is the one place a leg is always seen. It isn't the one
+    place it is always TRIED: the per-player loop that follows breaks on the shared
+    wall-clock budget, and the sports share one window in a fixed order (NBA, MLB, WNBA,
+    NFL). When MLB spent the budget — 2026-08-14 logged "Resolved — MLB 303, WNBA 0" —
+    WNBA still walked its pending legs, counted a try against every one, then broke on
+    its first budget check having looked nothing up. Five such passes and the leg is
+    abandoned for good, because _leg_is_resolvable then refuses to reconsider it.
+
+    That is how ~430 WNBA legs died with their box scores sitting right there in the API:
+    Rhyne Howard's 08-13 ATL @ CON row (29/5/4) grades 43 abandoned legs on request.
+    Counting here instead means the counter measures failed lookups, which is what
+    RESOLVE_MAX_ATTEMPTS was always meant to bound, and a starved pass costs nothing.
+    """
+    for _parlay, leg in entries:
+        leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
+    return len(entries)
+
+
+def _did_not_play(leg: dict, now: datetime | None = None) -> bool:
+    """
+    True when a leg's game is far enough past that a player-log miss can only mean the
+    player never appeared — a scratch, an injury, a rest day.
+
+    Caller must already have a non-empty season log for the player and have failed to
+    find the game in it, so the lookup itself is known to have worked. Those props are a
+    refund at the book, so they belong in the same "void" bucket as a postponed game
+    rather than sitting pending until they abandon. Azzi Fudd has not logged a game since
+    08-05 and carried 74 pending legs across four later dates; grading them as misses
+    would be wrong and abandoning them reports a resolver bug that isn't one.
+    """
+    start = leg.get("start_time", "")
+    if not start:
+        return False   # no game date to be confident about — leave it pending
+    try:
+        game_start = datetime.fromisoformat(start.replace("Z", "+00:00")).astimezone()
+    except Exception:
+        return False
+    now = now or datetime.now(timezone.utc).astimezone()
+    return now >= game_start + timedelta(days=RESOLVE_GIVE_UP_DAYS)
+
+
 def _leg_is_resolvable(leg: dict, generated_at: str) -> bool:
     """True if enough time has passed that the game should be finished."""
     if _leg_is_abandoned(leg):
@@ -574,6 +622,34 @@ def _team_label_to_abbrev(token: str) -> str:
     return token.upper()[:3]
 
 
+# nba_api's WNBA MATCHUP strings carry one spelling per club and the books carry another:
+# Portland is PDX in nba_api and on FanDuel but POR on Underdog, and the ESPN-flavoured
+# short forms (NY/LA/LV/GS/WSH) turn up in older labels. A leg whose label spelling misses
+# used to fall through to date-only matching, which is how an 08-13 leg could be graded
+# against the player's 08-14 game — see _find_game_in_log.
+_WNBA_ABBR_ALIASES = {
+    "POR": {"POR", "PDX"}, "PDX": {"POR", "PDX"},
+    "NYL": {"NYL", "NY"},  "NY":  {"NYL", "NY"},
+    "LAS": {"LAS", "LA"},  "LA":  {"LAS", "LA"},
+    "LVA": {"LVA", "LV"},  "LV":  {"LVA", "LV"},
+    "GSV": {"GSV", "GS"},  "GS":  {"GSV", "GS"},
+    "WAS": {"WAS", "WSH"}, "WSH": {"WAS", "WSH"},
+}
+
+
+def _matchup_has_team(matchup: str, abbrev: str) -> bool:
+    """
+    True if a PlayerGameLog MATCHUP ('ATL @ CON', 'ATL vs. CON') names this club.
+
+    Matches whole tokens rather than substrings — a bare `abbrev in matchup` test lets a
+    two-letter alias like LA hit inside an unrelated abbreviation — and accepts the
+    league's alternate spellings via _WNBA_ABBR_ALIASES.
+    """
+    tokens = {t for t in re.split(r"[^A-Za-z0-9]+", str(matchup).upper()) if t}
+    want = abbrev.upper()
+    return bool(_WNBA_ABBR_ALIASES.get(want, {want}) & tokens)
+
+
 def _parse_log_date(raw: str) -> date | None:
     """Parse a PlayerGameLog GAME_DATE ('MMM DD, YYYY', or ISO) into a date."""
     try:
@@ -608,8 +684,8 @@ def _find_game_by_label(df: pd.DataFrame, game_label: str, generated_at: str) ->
     best_row = None
     best_delta = timedelta(days=9999)
     for _, row in df.iterrows():
-        matchup = str(row.get("MATCHUP", "")).upper()
-        if abbrev_a not in matchup or abbrev_b not in matchup:
+        matchup = str(row.get("MATCHUP", ""))
+        if not (_matchup_has_team(matchup, abbrev_a) and _matchup_has_team(matchup, abbrev_b)):
             continue
         gd = _parse_log_date(str(row.get("GAME_DATE", "")))
         if gd is None:
@@ -719,6 +795,16 @@ def _find_game_in_log(df: pd.DataFrame, target_date: date,
     both teams, only rows whose MATCHUP contains them are eligible, which settles
     adjacent-day games outright; if that finds nothing (unmappable abbreviation),
     fall back to date-only matching rather than dropping the leg.
+
+    That fallback is restricted to an EXACT date match. It exists for the case where
+    the label cannot be mapped, but it cannot tell that apart from the case where the
+    player simply did not appear in the labelled game — and in the second case a ±1 day
+    window grades the prop against a different game. Carla Leite's 08-13 MIN @ POR legs
+    are the live example: she did not play, her nearest logged game is 08-14 @ SEA, and
+    the old fallback would have scored 08-13 rebounds off the 08-14 box. On an exact
+    date a player has only one game, so however the label was spelled it is the right
+    row; one day out with no team agreement is a different game, and dropping the leg
+    (it stays pending, then abandons) is the safe error.
     """
     if df.empty or "GAME_DATE" not in df.columns:
         return None
@@ -729,18 +815,18 @@ def _find_game_in_log(df: pd.DataFrame, target_date: date,
         if len(parts) >= 2:
             abbrevs = [_team_label_to_abbrev(parts[0]), _team_label_to_abbrev(parts[1])]
 
-    def _scan(require_teams: bool) -> pd.Series | None:
+    def _scan(require_teams: bool, max_delta: int) -> pd.Series | None:
         best_row, best_delta = None, None
         for _, row in df.iterrows():
             if require_teams:
-                matchup = str(row.get("MATCHUP", "")).upper()
-                if any(a not in matchup for a in abbrevs):
+                matchup = str(row.get("MATCHUP", ""))
+                if any(not _matchup_has_team(matchup, a) for a in abbrevs):
                     continue
             gd = _parse_log_date(str(row.get("GAME_DATE", "")))
             if gd is None:
                 continue
             delta = abs((gd - target_date).days)
-            if delta > 1:
+            if delta > max_delta:
                 continue
             if best_delta is None or delta < best_delta:
                 best_row, best_delta = row, delta
@@ -749,10 +835,10 @@ def _find_game_in_log(df: pd.DataFrame, target_date: date,
         return best_row
 
     if abbrevs:
-        row = _scan(True)
+        row = _scan(True, 1)
         if row is not None:
             return row
-    return _scan(False)
+    return _scan(False, 0 if abbrevs else 1)
 
 
 def _fetch_player_gamelog(player_id: int) -> pd.DataFrame:
@@ -789,10 +875,6 @@ def resolve_nba_legs() -> int:
                 continue  # fallback legs have no real game — skip permanently
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
-            # Count the try up front. A leg the API never returns is only ever seen
-            # here, so this is the one place the give-up counter can advance.
-            leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
-            attempted += 1
             player_legs[leg["player_name"]].append((parlay, leg))
 
     if not player_legs:
@@ -803,7 +885,8 @@ def resolve_nba_legs() -> int:
     resolved_count = 0
     for player_name, entries in player_legs.items():
         if _resolve_over_budget():
-            break   # out of wall-clock budget — remaining legs retry next pass
+            break   # out of wall-clock budget — remaining legs retry next pass, uncounted
+        attempted += _count_attempts(entries)
         pid = _get_nba_player_id(player_name)
         if not pid:
             continue
@@ -862,10 +945,6 @@ def _resolve_mlb_legs() -> int:
                 continue
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
-            # Count the try up front. A leg the API never returns is only ever seen
-            # here, so this is the one place the give-up counter can advance.
-            leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
-            attempted += 1
             player_legs[leg["player_name"]].append((parlay, leg))
 
     if not player_legs:
@@ -901,7 +980,8 @@ def _resolve_mlb_legs() -> int:
     resolved_count = 0
     for player_name, entries in player_legs.items():
         if _resolve_over_budget():
-            break   # out of wall-clock budget — remaining legs retry next pass
+            break   # out of wall-clock budget — remaining legs retry next pass, uncounted
+        attempted += _count_attempts(entries)
         norm_name = _normalize_name(player_name)
         dates_needed: set[str] = set()
         for parlay, leg in entries:
@@ -950,8 +1030,31 @@ def _resolve_mlb_legs() -> int:
                 away_name = game_info.get("away_name") or ""
                 home_name = game_info.get("home_name") or ""
 
+                # Pin a leg to the right game. A leg WITH a start_time has an accurate
+                # date, so only the exact-date game is valid — this also stops the ±1
+                # window above from resolving it against an adjacent day's game. A leg
+                # WITHOUT one dates off generated_at, so allow ±1 day but require the
+                # matchup to match, so a player's leg never resolves against the wrong
+                # game in a series.
+                def _is_this_game(parlay, leg) -> bool:
+                    leg_date = _parse_game_date(leg, parlay["generated_at"])
+                    if leg.get("start_time"):
+                        return not (game_date is not None and leg_date is not None
+                                    and game_date != leg_date)
+                    if game_date is None or leg_date is None or abs((game_date - leg_date).days) > 1:
+                        return False
+                    return _mlb_game_matches_label(away_name, home_name, leg.get("game_label", ""))
+
                 player_data = _mlb_match_player(box, norm_name)
                 if player_data is None:
+                    # This game is Final, its box score loaded, and the player is not in
+                    # it — so for any leg pinned to this game he did not appear. That is
+                    # a refund at the book, same as a postponement; Kyle Karros carried
+                    # 21 legs on COL @ ARI 08-12 and is simply absent from that box.
+                    for parlay, leg in entries:
+                        if leg["outcome"] is None and _is_this_game(parlay, leg) and _did_not_play(leg):
+                            leg["outcome"] = "void"
+                            resolved_count += 1
                     continue
                 stats = player_data.get("stats", {})
                 bstats = stats.get("batting", {})
@@ -959,21 +1062,8 @@ def _resolve_mlb_legs() -> int:
                 for parlay, leg in entries:
                     if leg["outcome"] is not None:
                         continue
-                    # Pin this leg to the right game. A leg WITH a start_time has an
-                    # accurate date, so only the exact-date game is valid — this also
-                    # stops the ±1 window above from resolving it against an adjacent
-                    # day's game. A leg WITHOUT one dates off generated_at, so allow ±1
-                    # day but require the matchup to match, so a player's leg never
-                    # resolves against the wrong game in a series.
-                    leg_date = _parse_game_date(leg, parlay["generated_at"])
-                    if leg.get("start_time"):
-                        if game_date is not None and leg_date is not None and game_date != leg_date:
-                            continue
-                    else:
-                        if game_date is None or leg_date is None or abs((game_date - leg_date).days) > 1:
-                            continue
-                        if not _mlb_game_matches_label(away_name, home_name, leg.get("game_label", "")):
-                            continue
+                    if not _is_this_game(parlay, leg):
+                        continue
                     stat_type = leg["stat_type"]
                     is_pitching = stat_type in _MLB_PITCHER_TYPES
                     if is_pitching:
@@ -1021,11 +1111,11 @@ def _resolve_wnba_legs() -> int:
 
     from nba_api.stats.endpoints import commonallplayers, playergamelog as _pgl  # type: ignore
 
-    # Build the WNBA name→id map FIRST, before touching attempt counters. This one heavy
-    # CommonAllPlayers call gates all WNBA resolution — when it timed out, every pending WNBA
-    # leg found no id, resolved nothing, yet still burned an attempt. A few such outages
-    # abandoned legs the matcher handles fine (e.g. an expansion-team game). If the map comes
-    # back empty, bail now and retry next run with attempt counters intact.
+    # Build the WNBA name→id map FIRST, before any lookups. This one heavy CommonAllPlayers
+    # call gates all WNBA resolution — when it timed out, every pending WNBA leg found no id
+    # and resolved nothing. A few such outages abandoned legs the matcher handles fine (e.g.
+    # an expansion-team game). If the map comes back empty, bail now; _count_attempts has not
+    # run yet, so the give-up counters are untouched either way.
     try:
         _time.sleep(0.5)
         wnba_df = commonallplayers.CommonAllPlayers(
@@ -1038,7 +1128,7 @@ def _resolve_wnba_legs() -> int:
     if not wnba_id_map:
         return 0   # infra hiccup, not a dead leg — don't advance the give-up counter
 
-    # Now it's safe to count attempts (the API is reachable).
+    # Now it's safe to look legs up (the API is reachable).
     player_legs: dict[str, list] = defaultdict(list)
     attempted = 0
     for parlay in data["parlays"]:
@@ -1051,14 +1141,13 @@ def _resolve_wnba_legs() -> int:
                 continue
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
-            leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
-            attempted += 1
             player_legs[leg["player_name"]].append((parlay, leg))
 
     resolved_count = 0
     for player_name, entries in player_legs.items():
         if _resolve_over_budget():
-            break   # out of wall-clock budget — remaining legs retry next pass
+            break   # out of wall-clock budget — remaining legs retry next pass, uncounted
+        attempted += _count_attempts(entries)
         pid = wnba_id_map.get(player_name.strip().lower())
         if not pid:
             # Try normalized name match
@@ -1099,6 +1188,11 @@ def _resolve_wnba_legs() -> int:
                     continue
                 row = _find_game_in_log(df, target, leg.get("game_label", ""))
             if row is None:
+                # The season log loaded and this game isn't in it. Once the game is old
+                # enough that can only be a DNP, which is a void, not a pending leg.
+                if _did_not_play(leg):
+                    leg["outcome"] = "void"
+                    resolved_count += 1
                 continue
             try:
                 actual = _stat_from_row(row, spec)
@@ -1135,6 +1229,30 @@ def get_abandoned_legs(sport: str | None = None) -> list:
          for (s, st), d in counts.items()),
         key=lambda x: -x["legs"],
     )
+
+
+def retry_abandoned_legs(sport: str | None = None) -> int:
+    """
+    Clear the give-up counter on legs that are abandoned but still unresolved, so the next
+    resolve pass reconsiders them. Returns the number reopened.
+
+    reset_outcomes() is the existing way back in, but it is the wrong tool after a
+    resolver fix that only affects legs which never resolved: it also discards every
+    correct outcome for the sport (11k+ of them) and makes the next pass re-fetch all of
+    it. This touches only the dead ones and leaves graded legs alone.
+    """
+    data = _load()
+    reopened = 0
+    for parlay in data["parlays"]:
+        if sport and parlay.get("sport") != sport:
+            continue
+        for leg in parlay["legs"]:
+            if leg["outcome"] is None and _leg_is_abandoned(leg):
+                leg.pop("resolve_attempts", None)
+                reopened += 1
+    if reopened:
+        _save(data)
+    return reopened
 
 
 def reset_outcomes(sport: str) -> int:
@@ -1187,8 +1305,6 @@ def _resolve_nfl_legs() -> int:
                 continue
             if not _leg_is_resolvable(leg, parlay["generated_at"]):
                 continue
-            leg["resolve_attempts"] = int(leg.get("resolve_attempts", 0)) + 1
-            attempted += 1
             player_legs[leg["player_name"]].append((parlay, leg))
 
     if not player_legs:
@@ -1210,7 +1326,8 @@ def _resolve_nfl_legs() -> int:
     resolved_count = 0
     for player_name, entries in player_legs.items():
         if _resolve_over_budget():
-            break
+            break   # out of wall-clock budget — remaining legs retry next pass, uncounted
+        attempted += _count_attempts(entries)
         for parlay, leg in entries:
             if leg["outcome"] is not None:
                 continue

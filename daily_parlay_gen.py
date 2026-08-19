@@ -508,8 +508,10 @@ def resolve_pending():
             for a in abandoned[:6]:
                 print(f"    {a['sport']:5s} {a['stat_type']:22s} {a['legs']:4d} legs, "
                       f"{a['players']} player(s)")
-            print("    (a whole stat type here means the resolver can't name it — "
-                  "fix the mapping, then reset_outcomes() to re-try)")
+            print("    (a whole stat type here means the resolver can't name it — fix the "
+                  "mapping. Legs spread across many stat types for the same few players "
+                  "usually means those players did not play. Either way "
+                  "retry_abandoned_legs() reopens them without discarding graded legs.)")
     except Exception:
         pass
 
