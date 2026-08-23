@@ -1383,6 +1383,126 @@ def _wnba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str
     return round(min(0.97, max(0.03, rate)), 3), n
 
 
+# ── Plate-appearance model for batter props ─────────────────────────────────
+#
+# The frequency estimator below computes P(over) as the share of a batter's last 20 games
+# in which he cleared the line. That silently conditions on a normal workload, because the
+# only games in the log are ones he played — and the bet does not get that guarantee.
+# Measured over 2,718 resolved batter legs matched to their box scores:
+#
+#   AB >= 4   59.9% of legs   over hits 55.9%
+#   AB 1-3    35.1% of legs   over hits 38.3%
+#   AB 0       5.0% of legs   over hits  2.2%   (now voided in the resolver)
+#
+# 40% of legs resolve on a short day. If every leg had a full workload the rate would be
+# 55.9%; it is actually 47.1%, and that 8.8-point gap matches the market error measured
+# independently per market (-7.4 Hits, -8.1 Runs Scored, -7.0 Total Bases). Pitcher
+# Strikeouts, the one market where workload is announced in advance, is off by 1.1.
+#
+# So decompose it the way the NFL scorer decomposes usage from volume:
+#
+#   P(over) = SUM_k  P(PA = k) * P(stat > line | k plate appearances)
+#
+# Both halves come from the player's own game log, which means the PA distribution
+# already encodes his lineup slot, his rest pattern and his platoon usage without needing
+# a lineup fetch — lineups are not posted when the 2 PM board is built.
+#
+# Conditioned on PA >= 1, because a zero-PA game is a void rather than a loss.
+
+_MLB_PA_LOOKBACK = 30      # games behind the PA distribution and the per-PA rates
+_MLB_PA_MIN_GAMES = 12     # below this the distribution is too lumpy to marginalise over
+
+
+def _binom_sf(line: float, n: int, p: float) -> float:
+    """P(X > line) for X ~ Binomial(n, p)."""
+    import math
+    k = int(math.floor(line))
+    if k < 0:
+        return 1.0
+    if k >= n:
+        return 0.0
+    p = min(max(p, 0.0), 1.0)
+    cdf = 0.0
+    for i in range(0, k + 1):
+        cdf += math.comb(n, i) * (p ** i) * ((1 - p) ** (n - i))
+    return max(0.0, min(1.0, 1.0 - cdf))
+
+
+def _tb_sf(line: float, n: int, probs: dict) -> float:
+    """
+    P(total bases > line) over n plate appearances.
+
+    Total bases is not binomial — one PA yields 0, 1, 2, 3 or 4 — so convolve the per-PA
+    distribution n times. The line is 1.5 or 2.5 in practice, so only the low tail of the
+    convolution is needed and this stays cheap.
+    """
+    import math
+    cap = int(math.floor(line)) + 1
+    dist = {0: 1.0}
+    for _ in range(n):
+        nxt: dict = {}
+        for total, w in dist.items():
+            if total > cap:
+                nxt[cap + 1] = nxt.get(cap + 1, 0.0) + w
+                continue
+            for bases, pb in probs.items():
+                t = min(total + bases, cap + 1)
+                nxt[t] = nxt.get(t, 0.0) + w * pb
+        dist = nxt
+    return max(0.0, min(1.0, sum(w for t, w in dist.items() if t > line)))
+
+
+def _mlb_pa_over_prob(df, stat_type: str, line: float):
+    """
+    P(stat > line) marginalised over the batter's own plate-appearance distribution.
+    Returns None when the market or the sample cannot support it.
+    """
+    need = {"AB", "BB"}
+    if df is None or df.empty or not need.issubset(df.columns):
+        return None
+    sub = df.tail(_MLB_PA_LOOKBACK)
+    pa_series = [int(a or 0) + int(b or 0) for a, b in zip(sub["AB"], sub["BB"])]
+    pa_series = [k for k in pa_series if k >= 1]      # 0 PA is a void, not a data point
+    if len(pa_series) < _MLB_PA_MIN_GAMES:
+        return None
+    pa_total = float(sum(pa_series))
+    if pa_total <= 0:
+        return None
+    weights: dict = {}
+    for k in pa_series:
+        weights[k] = weights.get(k, 0.0) + 1.0 / len(pa_series)
+
+    def _rate(col):
+        return float(sub[col].sum()) / pa_total if col in sub.columns else None
+
+    if stat_type in ("Hits", "Singles"):
+        p = _rate("H")
+        f = lambda k: _binom_sf(line, k, p)
+    elif stat_type == "Home Runs":
+        p = _rate("HR")
+        f = lambda k: _binom_sf(line, k, p)
+    elif stat_type in ("Runs Scored", "Runs"):
+        p = _rate("R")
+        f = lambda k: _binom_sf(line, k, p)
+    elif stat_type == "Walks":
+        p = _rate("BB")
+        f = lambda k: _binom_sf(line, k, p)
+    elif stat_type == "Total Bases":
+        h, hr = _rate("H"), _rate("HR")
+        d2, d3 = _rate("2B"), _rate("3B")
+        if None in (h, hr, d2, d3):
+            return None
+        singles = max(0.0, h - d2 - d3 - hr)
+        probs = {1: singles, 2: d2, 3: d3, 4: hr}
+        probs[0] = max(0.0, 1.0 - sum(probs.values()))
+        f = lambda k: _tb_sf(line, k, probs)
+    else:
+        return None
+    if stat_type != "Total Bases" and (p is None or p <= 0):
+        return None
+    return round(sum(w * f(k) for k, w in weights.items()), 4)
+
+
 def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
                    odds_type: str = "standard", implied_override: float = -1.0,
                    cal_factor: float = 1.0, opp_pitcher_id: int | None = None,
@@ -1461,6 +1581,20 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
         r_prev = float((prev10 > line).sum()) / len(prev10)
         r10_cur = float((last10 > line).sum()) / len(last10)
         hist = min(0.97, max(0.03, hist + (r10_cur - r_prev) * 0.1))
+
+    # Fold in the plate-appearance model for batters. It is the principled version of the
+    # same signal — same games, but P(PA) and the per-PA rate kept apart instead of fused
+    # into one threshold frequency — so it carries the larger share. The frequency term is
+    # retained at 0.35 as a hedge: the PA model adds its own assumptions (binomial hits,
+    # a convolved per-PA distribution for total bases) that have not been measured against
+    # this log yet, and the calibration loop needs a few weeks to grade them.
+    if not is_pitcher:
+        try:
+            pa_p = _mlb_pa_over_prob(df, stat_type, line)
+        except Exception:
+            pa_p = None
+        if pa_p is not None:
+            hist = min(0.97, max(0.03, 0.65 * pa_p + 0.35 * hist))
 
     implied = implied_override if implied_override >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
     # Statcast expected-stat model, when the prop has one (xBA→hits, xSLG→total
