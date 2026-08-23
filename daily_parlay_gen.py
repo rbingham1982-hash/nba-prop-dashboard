@@ -131,6 +131,9 @@ MAX_SAME_FAMILY = {"NFL": 2, "MLB": 2}
 # Games of history a leg needs before it is scored, per sport. See score_legs.
 MIN_SAMPLE = {"NFL": 0}
 
+# Cap on the line-drift adjustment (see parlay_tracker.get_market_drift).
+DRIFT_CAP = parlay_tracker.DRIFT_MAX_SHIFT
+
 UD_MLB_STAT_MAP = {
     "Hits": "Hits", "Strikeouts": "Pitcher Strikeouts",
     "Pitcher Strikeouts": "Pitcher Strikeouts", "Runs": "Runs Scored",
@@ -532,6 +535,15 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
     except Exception:
         pass
 
+    drift = {}
+    try:
+        drift = parlay_tracker.get_market_drift(sport=sport_label)
+        if drift:
+            print(f"  Expected line drift by market: "
+                  f"{ {k[1]: round(v, 4) for k, v in sorted(drift.items())} }")
+    except Exception:
+        pass
+
     total = 0
     # FanDuel leads: it is the only book here that quotes both sides of a prop, so it is
     # the only one the de-vig can fully use. Underdog and PrizePicks still run — a book
@@ -579,6 +591,24 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
         # documented no-op, so passing the same list on is safe.
         if mkt_w is not None:
             legs = pm._apply_market_blend(legs, mkt_w)
+
+        # Price toward where the line is going to CLOSE, not where it opened. Applied
+        # after the market blend because it corrects the market anchor itself, and capped
+        # so a noisy market cannot swing a price on drift alone. An under's price moves
+        # opposite its over, so the shift is negated for it.
+        if drift:
+            shifted = 0
+            for lg in legs:
+                d = drift.get((sport_label, lg.get("stat_type")))
+                if not d:
+                    continue
+                d = max(-DRIFT_CAP, min(DRIFT_CAP, float(d)))
+                if str(lg.get("side", "over")).lower() == "under":
+                    d = -d
+                lg["hit_rate"] = round(min(0.97, max(0.03, float(lg["hit_rate"]) + d)), 4)
+                shifted += 1
+            if shifted:
+                print(f"    Drift-adjusted {shifted} leg(s) toward the expected close.")
 
         # Track EVERY scored prop, not just the ones the builder bets. The builder optimizes
         # for EV and overwhelmingly picks the high-probability market (MLB Hits), so Home Runs,

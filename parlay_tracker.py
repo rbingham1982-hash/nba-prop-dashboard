@@ -2304,6 +2304,62 @@ def update_market_snapshots(props_df, sport: str) -> int:
     return updated
 
 
+DRIFT_MIN_LEGS   = 60     # priced snapshots before a market's drift is worth applying
+DRIFT_MAX_SHIFT  = 0.03   # cap: never move a price more than 3 points on drift alone
+
+
+def get_market_drift(sport: str | None = None, min_legs: int = DRIFT_MIN_LEGS) -> dict:
+    """
+    (sport, stat_type) -> mean probability points the market moves between a leg being
+    priced and its closing snapshot. Negative means the price we took gets worse.
+
+    This is the market telling us where it is going to close, and it is remarkably market
+    specific rather than a general drift:
+
+      MLB Hits               -1.29      MLB Pitcher Strikeouts  +0.13
+      MLB Runs Scored        -1.37      WNBA Rebs+Asts          +0.38
+      MLB Total Bases        -1.28      WNBA Rebounds           -0.02
+
+    Every MLB batter market bleeds and the one market with an announced workload does not,
+    which is the lineup effect showing up from the market's side (see apply_lineup_check).
+
+    Applying it does not manufacture edge — it makes EV honest. A leg whose price is about
+    to fall 1.3 points is worth 1.3 points less than the board thinks, and pricing it at
+    the open is how a board fills up with bets the market is in the middle of walking away
+    from. Only snapshots taken BEFORE the leg's own game are counted; a quote captured
+    afterwards belongs to a different fixture.
+    """
+    data = _load()
+    seen: set = set()
+    acc: dict = defaultdict(list)
+    for p in data["parlays"]:
+        if sport and p.get("sport") != sport:
+            continue
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        for leg in p["legs"]:
+            close, entry = leg.get("closing_implied"), leg.get("implied_prob")
+            st, cs = leg.get("start_time"), leg.get("closing_seen_at")
+            if close is None or not entry or not st or not cs:
+                continue
+            key = _prop_key(leg)
+            if key in seen:
+                continue
+            seen.add(key)
+            try:
+                gs = datetime.fromisoformat(st.replace("Z", "+00:00")).astimezone().replace(tzinfo=None)
+                if datetime.fromisoformat(cs) > gs:
+                    continue
+            except Exception:
+                continue
+            acc[(p.get("sport"), leg.get("stat_type"))].append(float(close) - float(entry))
+    out = {}
+    for k, v in acc.items():
+        if len(v) >= min_legs:
+            out[k] = round(sum(v) / len(v), 4)
+    return out
+
+
 LINEUP_CHECK_WINDOW_H = 6.0   # only look at legs whose game starts inside this window
 
 
