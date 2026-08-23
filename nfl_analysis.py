@@ -139,6 +139,41 @@ def _norm_cdf(x: float, mu: float, sigma: float) -> float:
     return 0.5 * (1 + math.erf((x - mu) / (sigma * math.sqrt(2))))
 
 
+# Markets that are a count of a rare event rather than an accumulation. A normal fitted
+# to these is badly wrong at the low lines books actually post: Matthew Stafford at ~1.5
+# passing TDs a game priced o0.5 at 0.98, where the book had it near -400 (0.80). The
+# error is structural, not a tuning problem — a continuous symmetric distribution has no
+# business describing "how many times did a discrete rare thing happen", and it is worst
+# exactly where the line sits closest to zero.
+_COUNT_STATS = {"Passing TDs", "Rushing TDs", "Receiving TDs"}
+
+
+def _poisson_sf(line: float, mu: float) -> float:
+    """
+    P(X > line) for a Poisson count. Lines are posted on the half point, so this is
+    P(X >= ceil(line)) = 1 - CDF(floor(line)), summed directly — mu is small enough here
+    (0 to ~3) that the terms are cheap and exact.
+    """
+    import math
+    if mu <= 0:
+        return 0.0
+    k = int(math.floor(line))
+    if k < 0:
+        return 1.0
+    term, cdf = math.exp(-mu), math.exp(-mu)
+    for i in range(1, k + 1):
+        term *= mu / i
+        cdf += term
+    return max(0.0, min(1.0, 1.0 - cdf))
+
+
+def _over_prob(stat: str, line: float, mu: float, sigma: float) -> float:
+    """Probability of going over, from whichever distribution actually fits the market."""
+    if stat in _COUNT_STATS:
+        return _poisson_sf(line, mu)
+    return 1 - _norm_cdf(line, mu, sigma)
+
+
 def _implied_from_odds(american) -> float:
     a = float(american)
     return (100 / (a + 100)) if a > 0 else (abs(a) / (abs(a) + 100))
@@ -162,7 +197,7 @@ def score_prop(df, player: str, stat: str, line: float, american_odds=None,
         return {}
     mu = project(log, stat, recent_n=recent_n)
     sigma = _st.pstdev(vals) if len(vals) > 1 else max(mu * 0.5, 1.0)
-    model_over = round(1 - _norm_cdf(line, mu, sigma), 4)
+    model_over = round(_over_prob(stat, line, mu, sigma), 4)
 
     out = {"player": player, "stat": stat, "line": float(line), "n": len(vals),
            "projection": mu, "sigma": round(sigma, 1),
@@ -446,7 +481,7 @@ def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None
     sigma = (raw_sigma * (mu / raw_mu)) if raw_mu > 0 else raw_sigma
     sigma = max(sigma, 0.35 * max(mu, 0.5))
 
-    model_over = round(1 - _norm_cdf(line, mu, sigma), 4)
+    model_over = round(_over_prob(stat, line, mu, sigma), 4)
     out = dict(proj)
     out.update({"line": float(line), "sigma": round(sigma, 2), "model_over": model_over,
                 "hit_rate_hist": round(sum(1 for v in vals if v > line) / len(vals), 3),
@@ -588,7 +623,7 @@ def score_prop_board(df, player: str, stat: str, line: float, american_odds=None
         return {}
 
     sigma = max(mu * stat_cv(df, pos, stat, cache=cvcache), 0.35 * max(mu, 0.5))
-    model_over = round(1 - _norm_cdf(line, mu, sigma), 4)
+    model_over = round(_over_prob(stat, line, mu, sigma), 4)
     out = {"player": player, "stat": stat, "line": float(line), "position": pos,
            "team_now": row.get("_team", ""), "source": "board",
            "rookie": bool(row.get("_rookie")), "projection": round(mu, 2),
