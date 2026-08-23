@@ -2365,20 +2365,6 @@ def _is_pocket(sport: str, stat_type: str) -> bool:
     return (sport, stat_type) in POCKET_MARKETS
 
 
-def _lead_hours(start_time: str):
-    """Hours from now until first pitch/kickoff. Negative once under way, None if unknown."""
-    s = str(start_time or "").strip()
-    if not s:
-        return None
-    try:
-        st = datetime.fromisoformat(s.replace("Z", "+00:00"))
-        if st.tzinfo is None:
-            st = st.replace(tzinfo=timezone.utc)
-        return round((st - datetime.now(timezone.utc)).total_seconds() / 3600, 1)
-    except Exception:
-        return None
-
-
 def get_pocket_experiment(sport: str | None = None, forward_only: bool = False) -> dict:
     """
     A/B the "pocket strategy" (POCKET_MARKETS) against everything else on CLV (leading) and
@@ -2603,6 +2589,9 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
     """
     data = _load()
     day = on_date or datetime.now().strftime("%Y-%m-%d")
+    # One reference instant for every lead-time calculation in this scan, so two plays
+    # cannot be measured against clocks a second apart.
+    _now_utc = datetime.now(timezone.utc)
     todays = [p for p in data["parlays"]
               if str(p.get("generated_at", "")).startswith(day)
               and (not sport or p.get("sport") == sport)]
@@ -2655,7 +2644,7 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
                 "edge": round(float(pred) - float(impl), 4),
                 "book": book, "game": leg.get("game_label", ""),
                 "start_time": leg.get("start_time", ""),
-                "lead_hours": _lead_hours(leg.get("start_time", "")),
+                "lead_hours": _lead_hours(str(leg.get("start_time", "")), _now_utc),
             }
             prev = seen.get(key)
             if prev is None:
