@@ -2304,6 +2304,93 @@ def update_market_snapshots(props_df, sport: str) -> int:
     return updated
 
 
+LINEUP_CHECK_WINDOW_H = 6.0   # only look at legs whose game starts inside this window
+
+
+def apply_lineup_check(max_hours: float = LINEUP_CHECK_WINDOW_H) -> dict:
+    """
+    Annotate pending MLB batter legs with the posted batting-order slot and a re-priced
+    probability. Returns counts by what was found.
+
+    This is the one place the system collects information it does not already have, rather
+    than forming a better opinion about information it shares with the book. Measured over
+    1,897 timed snapshots, batter props drift -1.28 to -1.37 probability points between the
+    board being built and first pitch, concentrated in the 0-2h window when lineups post;
+    Pitcher Strikeouts, where the workload is announced days ahead, drifts +0.13. The
+    market is pricing the lineup card and the 2 PM board never looks.
+
+    Deliberately does NOT overwrite predicted_hit_rate. That field has to keep meaning "the
+    number this leg was shipped at", or calibration grades a model that never priced
+    anything — the same discipline that keeps model_hit_rate separate from the blended
+    value. The revision lands in its own fields for alerting and for measuring how much the
+    lineup was worth after the fact.
+
+    `lineup_status` is "out" when the player is not in a posted lineup at all. That is a
+    genuine signal rather than missing data, but only once lineups are actually up, so a
+    game with no posted lineup yet annotates nothing.
+    """
+    import parlay_model as _pm
+    data = _load()
+    now = datetime.now(timezone.utc)
+    horizon = now + timedelta(hours=max_hours)
+
+    todo = []
+    for p in data["parlays"]:
+        if p.get("sport") != "MLB":
+            continue
+        for leg in p["legs"]:
+            if leg.get("outcome") is not None:
+                continue
+            if leg.get("stat_type") in _MLB_PITCHER_TYPES:
+                continue
+            st = leg.get("start_time")
+            if not st:
+                continue
+            try:
+                gs = datetime.fromisoformat(st.replace("Z", "+00:00"))
+            except Exception:
+                continue
+            if not (now <= gs <= horizon):
+                continue
+            todo.append((gs, leg, p))
+
+    counts = {"scanned": len(todo), "in": 0, "out": 0, "repriced": 0, "no_lineup": 0}
+    if not todo:
+        return counts
+
+    lineups: dict = {}
+    for gs, leg, p in todo:
+        ds = gs.astimezone().strftime("%m/%d/%Y")
+        if ds not in lineups:
+            lineups[ds] = _pm.mlb_posted_lineups(ds)
+        board = lineups[ds]
+        if not board:
+            counts["no_lineup"] += 1
+            continue
+        slot = board.get(_pm._norm_mlb_name(leg.get("player_name", "")))
+        if slot is None:
+            leg["lineup_status"] = "out"
+            counts["out"] += 1
+            continue
+        leg["lineup_status"] = "in"
+        leg["lineup_slot"] = int(slot)
+        counts["in"] += 1
+        try:
+            rate, n = _pm._mlb_hit_rate(
+                leg["player_name"], leg["stat_type"], float(leg["line_score"]),
+                implied_override=float(leg.get("implied_prob") or -1.0),
+                cal_factor=1.0, slot=int(slot))
+            if n:
+                if str(leg.get("side", "over")).lower() == "under":
+                    rate = 1.0 - rate
+                leg["lineup_hit_rate"] = round(float(rate), 4)
+                counts["repriced"] += 1
+        except Exception:
+            pass
+    _save(data)
+    return counts
+
+
 def purge_bad_snapshots() -> dict:
     """
     Drop closing prices that the old snapshot key wrote onto the wrong bet. Returns

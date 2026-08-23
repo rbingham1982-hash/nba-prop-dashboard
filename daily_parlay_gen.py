@@ -820,6 +820,17 @@ def snapshot_only_pass(month: int) -> int:
             print(f"    {sport_label}: snapshot failed ({e}).")
     if not total:
         print("    No pending legs still on the board.")
+
+    # Lineups post ~3-4h before first pitch, so the hourly firing is the only thing in the
+    # system positioned to see them. This is where the batter-prop drift comes from.
+    try:
+        lc = parlay_tracker.apply_lineup_check()
+        if lc.get("scanned"):
+            print(f"    Lineups: {lc['in']} in ({lc['repriced']} re-priced), "
+                  f"{lc['out']} not in a posted lineup, {lc['no_lineup']} awaiting cards "
+                  f"(of {lc['scanned']} legs starting soon).")
+    except Exception as e:
+        print(f"    Lineup check failed ({e}).")
     return total
 
 

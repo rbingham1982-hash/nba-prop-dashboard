@@ -1539,10 +1539,17 @@ def _tb_sf(line: float, n: int, probs: dict) -> float:
     return max(0.0, min(1.0, sum(w for t, w in dist.items() if t > line)))
 
 
-def _mlb_pa_over_prob(df, stat_type: str, line: float):
+def _mlb_pa_over_prob(df, stat_type: str, line: float, slot: int | None = None):
     """
     P(stat > line) marginalised over the batter's own plate-appearance distribution.
     Returns None when the market or the sample cannot support it.
+
+    `slot` is his posted batting-order position when the lineup is out. His own PA history
+    is a proxy for workload that averages over every slot he has hit in and every day he
+    was rested; once the card is posted, the slot is the fact. The distribution is RESCALED
+    to the slot's expected PA rather than replaced by it, which keeps his own shape — a
+    catcher and a leadoff man batting second do not have the same spread — and moves only
+    the location, the same treatment sigma gets in the NFL scorer.
     """
     need = {"AB", "BB"}
     if df is None or df.empty or not need.issubset(df.columns):
@@ -1556,8 +1563,27 @@ def _mlb_pa_over_prob(df, stat_type: str, line: float):
     if pa_total <= 0:
         return None
     weights: dict = {}
+    scale = 1.0
+    if slot and slot in _MLB_SLOT_PA:
+        own = sum(pa_series) / len(pa_series)
+        if own > 0:
+            scale = _MLB_SLOT_PA[slot] / own
     for k in pa_series:
-        weights[k] = weights.get(k, 0.0) + 1.0 / len(pa_series)
+        # Plate appearances are integers, so a scaled count lands between two of them.
+        # Rounding to the nearest throws away most of the slot signal — the whole spread
+        # from leadoff to ninth is 1.16 PA, and rounding collapsed slots 1, 3 and 5 onto
+        # an identical answer. Splitting the weight between the neighbours keeps the
+        # distribution continuous in the slot.
+        import math
+        v = max(1.0, k * scale)
+        lo, hi = int(math.floor(v)), int(math.ceil(v))
+        frac = v - lo
+        w = 1.0 / len(pa_series)
+        if lo == hi:
+            weights[lo] = weights.get(lo, 0.0) + w
+        else:
+            weights[lo] = weights.get(lo, 0.0) + w * (1 - frac)
+            weights[hi] = weights.get(hi, 0.0) + w * frac
 
     def _rate(col):
         return float(sub[col].sum()) / pa_total if col in sub.columns else None
@@ -1624,6 +1650,62 @@ _MLB_BF_RATE_COL = {
     "Walks Allowed":      "BB",
     "Hits Allowed":       "H",
 }
+
+
+# Expected plate appearances by batting-order slot, measured over 216 games (2026-08-01 to
+# 08-16, starters only — battingOrder ending in 00; 101/102 are substitutes):
+#
+#   slot 1  4.43 PA   P(PA>=4) 0.92        slot 6  3.84 PA   P(PA>=4) 0.74
+#   slot 2  4.32       0.91                slot 7  3.63       0.62
+#   slot 3  4.24       0.89                slot 8  3.50       0.53
+#   slot 4  4.06       0.86                slot 9  3.27       0.42
+#   slot 5  4.00       0.82
+#
+# A 1.16 PA spread top to bottom, and P(PA>=4) more than halves. This is the information
+# the market has at lineup posting and the 2 PM board does not — measured at 1.3 CLV points
+# on batter props, against +0.13 for pitcher strikeouts where the workload is announced.
+_MLB_SLOT_PA = {1: 4.43, 2: 4.32, 3: 4.24, 4: 4.06, 5: 4.00,
+                6: 3.84, 7: 3.63, 8: 3.50, 9: 3.27}
+
+
+def mlb_posted_lineups(date_str: str) -> dict:
+    """
+    Normalised player name -> batting-order slot for every lineup posted on a date.
+
+    Empty until lineups go up (roughly 3-4 hours before first pitch), which is the whole
+    point: this is late information and calling it early gets you nothing.
+    """
+    out = {}
+    try:
+        import statsapi
+    except ImportError:
+        return out
+    try:
+        games = statsapi.schedule(date=date_str, sportId=1)
+    except Exception:
+        return out
+    for g in games:
+        try:
+            box = statsapi.boxscore_data(g["game_id"])
+        except Exception:
+            continue
+        for side in ("home", "away"):
+            for pdd in box.get(side, {}).get("players", {}).values():
+                bo = str(pdd.get("battingOrder") or "")
+                # Only starters. 101/102 are substitutes who inherit a slot mid-game and
+                # never see that slot's full plate-appearance count.
+                if not bo.isdigit() or int(bo) % 100 != 0:
+                    continue
+                name = (pdd.get("person") or {}).get("fullName", "")
+                if name:
+                    out[_norm_mlb_name(name)] = int(bo) // 100
+    return out
+
+
+def _norm_mlb_name(s: str) -> str:
+    import unicodedata
+    t = unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii").lower()
+    return re.sub(r"[^a-z0-9 ]", "", t).strip()
 
 
 def _mlb_mean_opportunity(df, is_pitcher: bool):
@@ -1698,7 +1780,7 @@ def _mlb_bf_over_prob(df, stat_type: str, line: float):
 def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
                    odds_type: str = "standard", implied_override: float = -1.0,
                    cal_factor: float = 1.0, opp_pitcher_id: int | None = None,
-                   team: str | None = None):
+                   team: str | None = None, slot: int | None = None):
     """
     Weighted hit rate for MLB props.
 
@@ -1782,7 +1864,7 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
     # this log yet, and the calibration loop needs a few weeks to grade them.
     try:
         opp_p = (_mlb_bf_over_prob(df, stat_type, line) if is_pitcher
-                 else _mlb_pa_over_prob(df, stat_type, line))
+                 else _mlb_pa_over_prob(df, stat_type, line, slot=slot))
     except Exception:
         opp_p = None
     if opp_p is not None:
