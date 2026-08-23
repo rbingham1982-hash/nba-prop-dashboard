@@ -66,6 +66,37 @@ WNBA_STAT_TYPES = ["Points", "Rebounds", "Assists", "3-PT Made",
                    "Pts+Rebs+Asts", "Pts+Rebs", "Pts+Asts", "Rebs+Asts"]
 NBA_STAT_TYPES  = ["Points", "Rebounds", "Assists", "3-PT Made",
                    "Pts+Rebs+Asts", "Pts+Rebs", "Pts+Asts", "Rebs+Asts"]
+# Every market _FD_NFL_CORE maps and nfl_analysis._USAGE_MODEL can project. Deliberately
+# spread across passing, rushing and receiving: _build_parlays quotas the pool per market
+# (_market_diverse_pool), so the breadth of this list is what decides whether a board can
+# hold a genuinely mixed parlay or just five receiving-yards legs.
+NFL_STAT_TYPES  = ["Passing Yards", "Passing TDs", "Completions",
+                   "Rushing Yards", "Rushing TDs", "Carries",
+                   "Receptions", "Receiving Yards", "Receiving TDs"]
+
+# Legs of one market allowed in a single parlay, per sport. Only NFL is constrained:
+# without it the first NFL slate returned 5-leg parlays that were five Passing TDs, one
+# market at 0.20 distinct-markets-per-leg — one bet wearing five names, and the same shape
+# as the MLB home-run stacks that went 0-for-48 in 2026-W34. A cap of 2 forces a 5-leg to
+# span at least three of passing/rushing/receiving.
+#
+# MLB and WNBA are left unconstrained on purpose: this changes which parlays a board emits,
+# and retuning a live board is a separate decision from standing up a new one. MLB is the
+# obvious next candidate.
+MAX_SAME_MARKET = {"NFL": 2}
+
+# The coarser cut: what KIND of outcome a market resolves on. The market cap alone still
+# produced a 5-leg of Passing TDs / Rushing TDs / Receiving TDs — three markets by name,
+# one event repeated, and every leg drawn from the most heavily regressed corner of the
+# model. Volume props resolve on usage, yardage on usage x efficiency, touchdowns on a
+# rare event; capping per family is what makes a parlay span genuinely different outcomes.
+NFL_STAT_FAMILY = {
+    "Completions": "volume", "Carries": "volume", "Receptions": "volume",
+    "Passing Yards": "yards", "Rushing Yards": "yards", "Receiving Yards": "yards",
+    "Passing TDs": "td", "Rushing TDs": "td", "Receiving TDs": "td",
+}
+STAT_FAMILY = {"NFL": NFL_STAT_FAMILY}
+MAX_SAME_FAMILY = {"NFL": 2}
 
 UD_MLB_STAT_MAP = {
     "Hits": "Hits", "Strikeouts": "Pitcher Strikeouts",
@@ -93,7 +124,7 @@ def load_cal(sport):
 
 # run_sport passes the PrizePicks league id, not the sport, and canonical_abbr needs the
 # sport to know which alias table applies.
-_PP_LEAGUE_SPORT = {2: "mlb", 6: "wnba", 7: "nba"}
+_PP_LEAGUE_SPORT = {2: "mlb", 6: "wnba", 7: "nba", 9: "nfl"}
 
 
 def fetch_prizepicks(league_id: int) -> pd.DataFrame:
@@ -263,9 +294,63 @@ def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
     return pm._nba_hit_rate(player_name, stat_type, line, odds_type=odds_type,
                              implied_override=implied, cal_factor=cal)
 
+# NFL scoring is expensive to set up and cheap to reuse: the weekly frame is ~18.5k rows
+# and team_volume/position_priors are full-table groupbys. score_legs calls the rate fn
+# once per prop, so building them per call would redo that work a thousand times a run.
+# Cached per (process, season) and rebuilt when the season rolls over.
+_NFL_CTX: dict = {}
+
+def _nfl_context():
+    import nfl_analysis as nfl
+    # Resolve the season ONCE per process. latest_season_with_data() probes the nflverse
+    # release by actually reading the parquet, so calling it per prop was a remote round
+    # trip per prop — 419ms each, which is where a 1,000-prop board's seven minutes went.
+    # The season cannot change mid-run, and the daily job is a fresh process every time.
+    if not _NFL_CTX:
+        season = nfl.latest_season_with_data()
+        _, df = nfl.get_season(season)
+        _NFL_CTX.update({
+            "season": season, "df": df,
+            "priors": nfl.position_priors(df),
+            "vol": nfl.team_volume(df),
+            "idx": nfl.player_index(df),
+            "dcache": {},
+            # Rosters for the season being PLAYED, which is the season after the stats
+            # season while the new one has no games yet. That mapping is the entire point
+            # of the usage model — it is what rebases a mover onto his new offence.
+            "teams": nfl.current_teams(season + 1),
+        })
+    return _NFL_CTX
+
+def nfl_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0, team=""):
+    """
+    Model probability for an NFL prop, RAW — the market blend is applied downstream by
+    _apply_market_blend, same as the other sports, so returning a blended number here
+    would shrink toward the market twice and make calibration measure a model that was
+    never shipped.
+
+    `team` is the leg's game_label, not a club, so the opponent is left unset: a defence
+    adjustment needs to know which side the player is on, and guessing it from a label
+    would silently apply the wrong defence half the time. Opponent-aware scoring is wired
+    in the dashboard builder, where the matchup is known.
+    """
+    import nfl_analysis as nfl
+    ctx = _nfl_context()
+    try:
+        s = nfl.score_prop_usage(ctx["df"], player_name, stat_type, line,
+                                 teams=ctx["teams"], priors=ctx["priors"], vol=ctx["vol"],
+                                 idx=ctx["idx"], dcache=ctx["dcache"])
+    except Exception:
+        return 0.0, 0
+    if not s:
+        return 0.0, 0
+    rate = max(0.01, min(0.99, float(s["model_over"]) * float(cal)))
+    return rate, int(s.get("n", 0))
+
 def build_parlays(legs, min_legs=2, max_legs=5, top_n=50, pool_size=30, max_leg_uses=6,
                   sportsbook="PrizePicks", parlay_cal=None,
-                  market_blend=None, same_game_penalty=1.0):
+                  market_blend=None, same_game_penalty=1.0, max_same_market=None,
+                  stat_family=None, max_same_family=None):
     # max_legs was 4, so the daily job could never emit a 5-leg parlay — the only size
     # that has actually been profitable (+100% ROI on MLB, vs -58% for the 4-leg it did
     # emit). The EV filter decides which sizes survive; the cap no longer prejudges it.
@@ -273,7 +358,10 @@ def build_parlays(legs, min_legs=2, max_legs=5, top_n=50, pool_size=30, max_leg_
                               top_n=top_n, pool_size=pool_size, max_leg_uses=max_leg_uses,
                               sportsbook=sportsbook, parlay_cal=parlay_cal,
                               market_blend=market_blend,
-                              same_game_penalty=same_game_penalty)
+                              same_game_penalty=same_game_penalty,
+                              max_same_market=max_same_market,
+                              stat_family=stat_family,
+                              max_same_family=max_same_family)
 
 # ── Leg scorer ─────────────────────────────────────────────────────────────
 
@@ -448,7 +536,10 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
             continue
 
         safe, value = build_parlays(legs, sportsbook=sb, parlay_cal=p_cal,
-                                    market_blend=mkt_w)
+                                    market_blend=mkt_w,
+                                    max_same_market=MAX_SAME_MARKET.get(sport_label),
+                                    stat_family=STAT_FAMILY.get(sport_label),
+                                    max_same_family=MAX_SAME_FAMILY.get(sport_label))
         if not safe and not value:
             continue
         s = parlay_tracker.log_parlays(safe,  sport_label, sb, kind="safe")
@@ -666,6 +757,14 @@ def main():
         total += run_sport("nba",  "NBA",  7, NBA_STAT_TYPES,  nba_hit_rate)
     else:
         print("\n  NBA: off-season — skipping.")
+
+    # Sep-Feb covers Week 1 through the Super Bowl. The empty-fetch guard in run_sport
+    # would skip an out-of-season NFL run anyway, but the month gate saves three book
+    # fetches and the ~2s nflverse load on every run for the other six months.
+    if month >= 9 or month <= 2:
+        total += run_sport("nfl",  "NFL",  9, NFL_STAT_TYPES,  nfl_hit_rate)
+    else:
+        print("\n  NFL: off-season — skipping.")
 
     print(f"\n{'='*62}")
     print(f"  Total parlays logged: {total}")
