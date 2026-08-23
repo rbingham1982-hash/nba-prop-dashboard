@@ -106,25 +106,26 @@ def platoon_factor(pid: int, season: int, opp_hand: str) -> dict:
     one of the most over-read numbers in baseball: 57 at-bats carries a standard error on
     batting average of roughly 60 points, which is larger than the effect being measured.
 
-    DO NOT WIRE THIS INTO THE PROPS SCORER on the strength of it looking sensible. Tested
-    against 731 resolved MLB Hits legs whose opposing starter's hand was recovered from the
-    boxscore, it predicts BACKWARDS:
+    SEASON-LONG, so it is contaminated for any predictive use — it includes the game being
+    predicted. Measured that way against 731 resolved Hits legs it appears to predict
+    BACKWARDS (unfavourable 62.1% vs favourable 53.9%, t=-3.0), which is a hot streak being
+    read as a talent and then reverting, not a real inversion.
 
-        unfavourable platoon (<0.99)   n=298   hit 62.1%
-        favourable   platoon (>1.01)   n=343   hit 53.9%
-        controlling for the model's own prediction: t = -3.0
+    point_in_time_platoon() below is the clean version, and it settles the question
+    differently. Over 538 legs scored with only games BEFORE each one:
 
-    The likely cause is not that platoon splits are useless but that THIS measurement is
-    contaminated: the split comes from full-season numbers that include the very game being
-    predicted, so a hitter with a high vs-RHP factor is partly a hitter who happened to run
-    hot against righties in that sample, and mean reversion does the rest. A clean test
-    needs point-in-time splits — the player's rate against that hand using only games
-    BEFORE the one in question, which means recovering the starter faced in each historical
-    game.
+        unfavourable  n=232  hit 63.4%      favourable  n=248  hit 69.4%
+        controlling for the model's own prediction:  t = +0.1
 
-    So this is honest analysis output for the hit board and the profile view, where a human
-    reads it in context. It is not a prediction input, and the contaminated test is not
-    evidence that it would be a good one.
+    So the direction is real once the contamination is removed — favourable matchups do hit
+    more — but the factor adds NOTHING the model does not already have. It is collinear
+    with the existing prediction, which is unsurprising: the blended price is mostly the
+    book's, and the book prices the platoon matchup.
+
+    Conclusion for both versions: keep them as analysis output for the hit board and the
+    profile view, where a human reads the matchup in context. Neither belongs in the props
+    scorer — the season one because it is contaminated, the point-in-time one because it is
+    already priced.
     """
     code = "vl" if str(opp_hand).upper().startswith("L") else "vr"
     sp = player_splits(pid, season)
@@ -311,3 +312,138 @@ def player_profile(name: str, season: int | None = None) -> dict:
     except Exception:
         out["statcast"] = {}
     return out
+
+
+# ── Point-in-time splits ────────────────────────────────────────────────────
+#
+# The season splits above are contaminated for any predictive use: they cover the whole
+# season including the game being predicted. Measured that way the platoon factor comes
+# out BACKWARDS (t=-3.0 over 731 resolved Hits legs), which is what you would expect from
+# a hot streak being read as a talent and then reverting.
+#
+# The honest version tags each of a player's PAST games with the handedness of the starter
+# he actually faced, then computes his rate against that hand using only games strictly
+# before the date in question. That is a real join — the game log carries the opponent
+# TEAM, not the pitcher — but schedule rows for completed dates name both probables, so it
+# costs one request per date rather than one per game.
+
+_HAND_CACHE: dict = {}
+
+
+def starters_on(date_str: str) -> dict:
+    """
+    team abbreviation -> {'name', 'hand'} for that team's starting pitcher on a date.
+
+    Uses the schedule's probable pitchers, which on a completed date is the pitcher who
+    actually started. Verified against boxscores, where box[side]['pitchers'][0] is the
+    starter, and the two agree.
+    """
+    if date_str in _HAND_CACHE:
+        return _HAND_CACHE[date_str]
+    import statsapi
+    import parlay_model as pm
+    # _mlb_abbrev_from_name lives in parlay_tracker, not parlay_model. Getting that wrong
+    # raised an AttributeError that a bare `except` swallowed, so this returned {} for every
+    # date and tag_games_with_hand produced zero tagged games while looking like it ran.
+    # The import is deliberately outside the try for that reason: a missing dependency
+    # should fail loudly, not degrade to silence.
+    import parlay_tracker as pt
+
+    out = {}
+    try:
+        games = statsapi.schedule(date=date_str, sportId=1)
+    except Exception:
+        return out          # a network blip is a real empty; a coding error above is not
+    for g in games:
+        for side in ("home", "away"):
+            nm = g.get(f"{side}_probable_pitcher") or ""
+            team = pt._mlb_abbrev_from_name(g.get(f"{side}_name") or "")
+            if not nm or not team:
+                continue
+            key = ("hand", nm)
+            if key not in _HAND_CACHE:
+                try:
+                    spid = pm.mlb_player_id(nm)
+                    _HAND_CACHE[key] = player_meta(spid).get("throws") if spid else None
+                except Exception:
+                    _HAND_CACHE[key] = None
+            out[team] = {"name": nm, "hand": _HAND_CACHE[key]}
+    _HAND_CACHE[date_str] = out
+    return out
+
+
+def tag_games_with_hand(name: str, seasons=("2025", "2026")) -> list:
+    """
+    A hitter's game log with each game tagged by the handedness of the starter he faced.
+
+    Returns [{date, opp, hand, ab, h, bb, hr, tb}], oldest first. Games whose opposing
+    starter cannot be resolved are dropped rather than guessed — a wrong hand is worse
+    than a smaller sample.
+    """
+    import parlay_model as pm
+    pid = pm.mlb_player_id(name)
+    if not pid:
+        return []
+    df = pm.get_mlb_hitting_logs(pid, tuple(seasons))
+    if df is None or df.empty or "date" not in df.columns:
+        return []
+    out = []
+    for _, r in df.iterrows():
+        d = pm._mlb_log_date(r) if hasattr(pm, "_mlb_log_date") else None
+        if d is None:
+            try:
+                import datetime as _dt
+                d = _dt.date.fromisoformat(str(r["date"])[:10])
+            except Exception:
+                continue
+        opp = str(r.get("opponent", "")).upper().strip()
+        if not opp:
+            continue
+        hand = (starters_on(d.strftime("%m/%d/%Y")).get(opp) or {}).get("hand")
+        if not hand:
+            continue
+        out.append({"date": d, "opp": opp, "hand": hand,
+                    "ab": float(r.get("AB", 0) or 0), "h": float(r.get("H", 0) or 0),
+                    "bb": float(r.get("BB", 0) or 0), "hr": float(r.get("HR", 0) or 0),
+                    "tb": float(r.get("TB", 0) or 0)})
+    out.sort(key=lambda x: x["date"])
+    return out
+
+
+def point_in_time_platoon(name: str, as_of, seasons=("2025", "2026"),
+                          tagged: list | None = None) -> dict:
+    """
+    Platoon factor against a given hand using ONLY games strictly before `as_of`.
+
+    Same shrinkage as the season version, and the same output shape, so the two can be
+    compared directly on the same legs. `tagged` lets a caller reuse one tagged log across
+    many dates instead of re-tagging per call.
+    """
+    games = tagged if tagged is not None else tag_games_with_hand(name, seasons)
+    prior = [g for g in games if g["date"] < as_of]
+    if not prior:
+        return {"factor": 1.0, "ab": 0, "n_games": 0}
+    out = {}
+    for hand in ("L", "R"):
+        sel = [g for g in prior if str(g["hand"]).upper().startswith(hand)]
+        ab = sum(g["ab"] for g in sel)
+        h = sum(g["h"] for g in sel)
+        out[hand] = (ab, h)
+    ab_all = sum(v[0] for v in out.values())
+    h_all = sum(v[1] for v in out.values())
+    res = {"n_games": len(prior), "ab_all": ab_all}
+    if ab_all <= 0:
+        return {**res, "factor": 1.0, "ab": 0}
+    r_all = h_all / ab_all
+    for hand in ("L", "R"):
+        ab, h = out[hand]
+        if ab <= 0 or r_all <= 0:
+            res[f"factor_{hand}"] = 1.0
+            res[f"ab_{hand}"] = 0
+            continue
+        raw = (h / ab) / r_all
+        w = ab / (ab + _SPLIT_SHRINK_AB)
+        res[f"factor_{hand}"] = round(1.0 + w * (raw - 1.0), 4)
+        res[f"ab_{hand}"] = int(ab)
+        res[f"raw_{hand}"] = round(raw, 3)
+    return res
