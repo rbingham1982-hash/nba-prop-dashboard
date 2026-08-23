@@ -98,6 +98,9 @@ NFL_STAT_FAMILY = {
 STAT_FAMILY = {"NFL": NFL_STAT_FAMILY}
 MAX_SAME_FAMILY = {"NFL": 2}
 
+# Games of history a leg needs before it is scored, per sport. See score_legs.
+MIN_SAMPLE = {"NFL": 0}
+
 UD_MLB_STAT_MAP = {
     "Hits": "Hits", "Strikeouts": "Pitcher Strikeouts",
     "Pitcher Strikeouts": "Pitcher Strikeouts", "Runs": "Runs Scored",
@@ -315,6 +318,12 @@ def _nfl_context():
             "vol": nfl.team_volume(df),
             "idx": nfl.player_index(df),
             "dcache": {},
+            # Fantasy-board projections cover the players the usage model cannot see at
+            # all — rookies, who have no game log and are exactly who books post Week 1
+            # props on. Built once; the board itself is a couple of parquet reads.
+            "board": nfl.board_projections(season + 1),
+            "rates": nfl.league_rates(df),
+            "cvcache": {},
             # Rosters for the season being PLAYED, which is the season after the stats
             # season while the new one has no games yet. That mapping is the entire point
             # of the usage model — it is what rebases a mover onto his new offence.
@@ -337,9 +346,10 @@ def nfl_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
     import nfl_analysis as nfl
     ctx = _nfl_context()
     try:
-        s = nfl.score_prop_usage(ctx["df"], player_name, stat_type, line,
-                                 teams=ctx["teams"], priors=ctx["priors"], vol=ctx["vol"],
-                                 idx=ctx["idx"], dcache=ctx["dcache"])
+        s = nfl.score_prop_nfl(ctx["df"], player_name, stat_type, line,
+                               teams=ctx["teams"], priors=ctx["priors"], vol=ctx["vol"],
+                               idx=ctx["idx"], dcache=ctx["dcache"], board=ctx["board"],
+                               rates=ctx["rates"], cvcache=ctx["cvcache"])
     except Exception:
         return 0.0, 0
     if not s:
@@ -386,7 +396,7 @@ def _has_started(start_time) -> bool:
         return False
 
 
-def score_legs(df, cal, stat_types, rate_fn):
+def score_legs(df, cal, stat_types, rate_fn, min_sample=3):
     df   = df[df["stat_type"].isin(stat_types)].copy()
     legs, seen = [], set()
     started = 0
@@ -414,7 +424,12 @@ def score_legs(df, cal, stat_types, rate_fn):
             cal=cal.get(row["stat_type"], 1.0),
             team=str(row.get("team", "")),
         )
-        if n < 3:
+        # min_sample is the games-of-history floor. NFL passes 0 because a leg can be
+        # priced off the fantasy board's draft-cohort projection, which is a real
+        # projection with n=0 games behind it — the scorer already refuses anything it
+        # cannot price, so the floor would only be discarding rookies. Other sports keep
+        # 3, where n really is a game-log count and a 1-game sample is noise.
+        if n < min_sample:
             continue
         legs.append({
             "player_name":   row["player_name"],
@@ -495,7 +510,8 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
             except Exception:
                 pass
 
-        legs = score_legs(raw, cal, stat_types, rate_fn)
+        legs = score_legs(raw, cal, stat_types, rate_fn,
+                          min_sample=MIN_SAMPLE.get(sport_label, 3))
         print(f"    {len(legs)} legs scored.")
 
         # Price the legs BEFORE anything logs them. _build_parlays used to apply the

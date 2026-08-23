@@ -8862,7 +8862,8 @@ elif sport == "🏈 NFL":
                 _pmax = _pmin
             try:
                 with st.spinner("Scoring props and building parlays…"):
-                    _plegs = _gen.score_legs(_fd_nfl, {}, _gen.NFL_STAT_TYPES, _gen.nfl_hit_rate)
+                    _plegs = _gen.score_legs(_fd_nfl, {}, _gen.NFL_STAT_TYPES, _gen.nfl_hit_rate,
+                                             min_sample=_gen.MIN_SAMPLE.get("NFL", 3))
                     _pcal = parlay_tracker.get_parlay_calibration(sport="NFL") or {}
                     _pblend = parlay_tracker.get_market_blend(sport="NFL")
                     _psafe, _pval = _gen.build_parlays(
