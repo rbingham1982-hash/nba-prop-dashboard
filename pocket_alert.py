@@ -12,14 +12,27 @@ import parlay_tracker as pt
 
 a = pt.get_pocket_alert()   # all sports, today
 stamp = datetime.datetime.now().isoformat(timespec="seconds")
+_lead = a.get("max_lead_hours")
 lines = [f"Pocket-day alert — {stamp} — date {a['date']}",
-         f"  threshold: edge >= {a['min_edge']*100:.0f}%  AND  odds >= {a['min_odds']:+d}",
+         f"  threshold: edge >= {a['min_edge']*100:.0f}%  AND  odds >= {a['min_odds']:+d}"
+         + (f"  AND  lead <= {_lead:.0f}h" if _lead else ""),
          f"  pocket props scanned: {a['n_pocket']}"]
+# Filtered counts are printed rather than swallowed: a quiet alert on a day that had six
+# strong edges four hours ago is a different situation from a genuinely dry board.
+_skipped = []
+if a.get("n_started"):
+    _skipped.append(f"{a['n_started']} already under way")
+if a.get("n_beyond_lead"):
+    _skipped.append(f"{a['n_beyond_lead']} beyond the lead window")
+if _skipped:
+    lines.append(f"  filtered out: {', '.join(_skipped)}")
 if a["qualifies"]:
     lines.append(f"  ** STRONG-EDGE DAY ** {len(a['plays'])} qualifying play(s):")
     for p in a["plays"]:
+        _lh = p.get("lead_hours")
+        _in = f"in {_lh:.1f}h" if _lh is not None else "start unknown"
         lines.append(f"    {p['edge']*100:+5.1f}% edge  {p['player']:<22} {p['stat']:<10} "
-                     f"o{p['line']} ({p['odds']:+d}) {p['book']:<9} {p['game']}")
+                     f"o{p['line']} ({p['odds']:+d}) {p['book']:<9} {p['game']:<12} {_in}")
 else:
     lines.append("  no qualifying plays — dry board, skip today.")
 

@@ -2365,6 +2365,20 @@ def _is_pocket(sport: str, stat_type: str) -> bool:
     return (sport, stat_type) in POCKET_MARKETS
 
 
+def _lead_hours(start_time: str):
+    """Hours from now until first pitch/kickoff. Negative once under way, None if unknown."""
+    s = str(start_time or "").strip()
+    if not s:
+        return None
+    try:
+        st = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        if st.tzinfo is None:
+            st = st.replace(tzinfo=timezone.utc)
+        return round((st - datetime.now(timezone.utc)).total_seconds() / 3600, 1)
+    except Exception:
+        return None
+
+
 def get_pocket_experiment(sport: str | None = None, forward_only: bool = False) -> dict:
     """
     A/B the "pocket strategy" (POCKET_MARKETS) against everything else on CLV (leading) and
@@ -2552,11 +2566,18 @@ def get_paper_portfolio(strategy: str = "pocket", sport: str | None = None,
 # on. Bet threshold, not vibes.
 POCKET_ALERT_MIN_EDGE = 0.03    # model prob over the line — meaningfully above the noise floor
 POCKET_ALERT_MIN_ODDS = -140    # odds floor so a strong-edge play also pays a worthwhile return
+POCKET_ALERT_MAX_LEAD = 18.0    # hours before kickoff past which a play is not "today's".
+                                # 18 because that is where the measured CLV falls off a
+                                # cliff (>=18h: -0.0229; 6-12h: +0.0032), so a play priced
+                                # further out than this has already given up more to line
+                                # movement than the alert's 3% edge bar is asking for.
+                                # None disables the filter.
 
 
 def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
                      min_edge: float = POCKET_ALERT_MIN_EDGE,
-                     min_odds: int = POCKET_ALERT_MIN_ODDS) -> dict:
+                     min_odds: int = POCKET_ALERT_MIN_ODDS,
+                     max_lead_hours: float | None = POCKET_ALERT_MAX_LEAD) -> dict:
     """
     Scan a day's logged pocket-market props and return the ones that clear BOTH a strong-edge
     bar and an odds floor — the plays worth a straight bet. on_date defaults to today (local,
@@ -2633,6 +2654,8 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
                 "odds": int(odds), "pred": round(float(pred), 4),
                 "edge": round(float(pred) - float(impl), 4),
                 "book": book, "game": leg.get("game_label", ""),
+                "start_time": leg.get("start_time", ""),
+                "lead_hours": _lead_hours(leg.get("start_time", "")),
             }
             prev = seen.get(key)
             if prev is None:
@@ -2643,10 +2666,32 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
             if int(odds) > prev["odds"]:
                 row["books"] = prev["books"]
                 seen[key] = row
-    plays = sorted((v for v in seen.values() if v["edge"] >= min_edge and v["odds"] >= min_odds),
-                   key=lambda r: r["edge"], reverse=True)
+    # An edge on a game that already kicked off is not a play, and a game 26 hours out is
+    # not today's. The alert scanned by calendar date with no start-time test at all, so on
+    # 2026-08-20 it printed five "qualifying plays" of which three had first pitch four
+    # hours earlier and one was the following night — one genuinely actionable name out of
+    # five, and no way to tell which from the output. Both filters are on lead_hours, which
+    # is now reported per play so the remaining ones can be judged rather than trusted:
+    # anything past max_lead_hours is priced at the lead time the CLV data likes least.
+    live = []
+    stale = started = 0
+    for v in seen.values():
+        if v["edge"] < min_edge or v["odds"] < min_odds:
+            continue
+        lead = v.get("lead_hours")
+        if lead is not None:
+            if lead <= 0:
+                started += 1
+                continue
+            if max_lead_hours is not None and lead > max_lead_hours:
+                stale += 1
+                continue
+        live.append(v)
+    plays = sorted(live, key=lambda r: r["edge"], reverse=True)
     return {"date": day, "min_edge": min_edge, "min_odds": min_odds,
-            "n_pocket": len(seen), "qualifies": bool(plays), "plays": plays}
+            "max_lead_hours": max_lead_hours, "n_pocket": len(seen),
+            "n_started": started, "n_beyond_lead": stale,
+            "qualifies": bool(plays), "plays": plays}
 
 
 DRIFT_MIN_PROPS  = 20    # unique props before a gap is worth calling drift rather than noise
