@@ -382,6 +382,10 @@ def log_parlays(
                 "player_name":       leg["player_name"],
                 "stat_type":         leg["stat_type"],
                 "line_score":        float(leg["line_score"]),
+                # Which side of the line was taken. Both loggers whitelist fields, so
+                # without this the resolver would grade every under as an over and record
+                # the exact opposite of what happened.
+                "side":              str(leg.get("side", "over")).lower(),
                 "predicted_hit_rate": round(float(leg["hit_rate"]), 4),
                 # Distinct scoring model, when a builder uses one that isn't the
                 # standard game-log/Statcast scorer (e.g. "hr_power_picks"). Keeps
@@ -481,6 +485,7 @@ def log_tracking_legs(legs: list, sport: str, sportsbook: str,
             "legs": [{
                 "player_name": leg["player_name"], "stat_type": leg["stat_type"],
                 "line_score": float(leg["line_score"]),
+                "side": str(leg.get("side", "over")).lower(),
                 "predicted_hit_rate": hr,
                 **({"source": leg["source"]} if leg.get("source") else {}),
                 "model_hit_rate": round(float(leg["model_hit_rate"]), 4)
@@ -1005,7 +1010,7 @@ def resolve_nba_legs() -> int:
                 continue
             try:
                 actual = _stat_from_row(row, spec)
-                leg["outcome"] = bool(actual > leg["line_score"])
+                leg["outcome"] = _side_hit(leg, actual)
                 resolved_count += 1
             except Exception:
                 continue
@@ -1200,7 +1205,7 @@ def _resolve_mlb_legs() -> int:
                         # Empty dict means player didn't appear; treat stat as 0
                         actual = (derived if derived is not None
                                   else float(source.get(col, 0) or 0))
-                        leg["outcome"] = bool(actual > leg["line_score"])
+                        leg["outcome"] = _side_hit(leg, actual)
                         resolved_count += 1
                     except Exception:
                         continue
@@ -1328,7 +1333,7 @@ def _resolve_wnba_legs() -> int:
                 continue
             try:
                 actual = _stat_from_row(row, spec)
-                leg["outcome"] = bool(actual > leg["line_score"])
+                leg["outcome"] = _side_hit(leg, actual)
                 resolved_count += 1
             except Exception:
                 continue
@@ -1479,7 +1484,7 @@ def _resolve_nfl_legs() -> int:
                 actual = None
             if actual is None:
                 continue
-            leg["outcome"] = bool(actual > leg["line_score"])
+            leg["outcome"] = _side_hit(leg, actual)
             resolved_count += 1
 
     marked = _mark_parlay_outcomes(data)
@@ -1533,7 +1538,27 @@ def _prop_key(leg: dict) -> tuple:
         str(leg.get("stat_type", "")),
         leg.get("line_score"),
         str(game),
+        # Over and under of the same line are two different bets with opposite outcomes,
+        # so they must not collapse into one key — deduping them would let one side
+        # silently overwrite the other in calibration and in the pocket alert. Legs logged
+        # before two-sided scoring have no side and read as "over", which is what they were.
+        str(leg.get("side", "over")).lower(),
     )
+
+
+def _side_hit(leg: dict, actual: float) -> bool:
+    """
+    Did this leg win? Under legs win BELOW the line; anything without a side is an over,
+    which is every leg logged before two-sided scoring existed.
+
+    Books post half-point lines precisely so `actual == line` cannot happen, so there is no
+    push case to handle — but if a whole-number line ever appears, an exact match counts as
+    a loss on both sides rather than silently paying one of them.
+    """
+    line = leg["line_score"]
+    if str(leg.get("side", "over")).lower() == "under":
+        return bool(actual < line)
+    return bool(actual > line)
 
 
 def _leg_hit(leg: dict):

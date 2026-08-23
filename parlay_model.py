@@ -967,6 +967,9 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
                                     "american_odds": american, "implied_prob": implied,
                                     "game_id": str(ev_id), "game_label": label,
                                     "start_time": start, "sportsbook": "FanDuel",
+                                    # Milestone markets are yes/no with no second side to
+                                    # bet, so they are always the "over" of their threshold.
+                                    "side": "over",
                                 }
                 continue                      # alt lines ("To Score 20+") aren't over/unders
             core = match.group("core")
@@ -1010,7 +1013,32 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
                 "implied_prob": round(devig_two_way(imp_over, imp_under), 4),
                 "game_id": str(ev_id), "game_label": label,
                 "start_time": start, "sportsbook": "FanDuel",
+                "side": "over",
             })
+
+            # The under, when the book actually quotes one. Only two-way markets get this:
+            # the milestone path below is a yes/no market with no second side to bet, so
+            # emitting an under there would invent a price.
+            #
+            # Worth having because the board only ever bet overs, and on the one MLB market
+            # where both sides exist the over is the losing side. Over 320 resolved
+            # two-way pitcher-strikeout legs from starters: over -10.3% ROI, under +0.5%.
+            # Against a 5.8% vig a fair market puts both near -2.9%, so the over runs 7.4
+            # points worse than fair and the under 3.4 better — the signature of a shaded
+            # over. The under is NOT a proven edge (+0.5% carries a standard error near
+            # 5.6%); it is a side the system could not previously even consider.
+            if imp_under is not None and au is not None:
+                rows.append({
+                    "player_name": player, "team": "", "stat_type": stat,
+                    "line_score": line, "odds_type": "standard",
+                    "american_odds": au,
+                    # devig_two_way normalises by the same total either way, so the two
+                    # sides sum to exactly 1 and the model can work purely in over-space.
+                    "implied_prob": round(devig_two_way(imp_under, imp_over), 4),
+                    "game_id": str(ev_id), "game_label": label,
+                    "start_time": start, "sportsbook": "FanDuel",
+                    "side": "under",
+                })
 
     rows.extend(milestone_best.values())
     return rows

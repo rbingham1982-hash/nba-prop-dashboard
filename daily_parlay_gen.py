@@ -431,7 +431,12 @@ def score_legs(df, cal, stat_types, rate_fn, min_sample=3):
     legs, seen = [], set()
     started = 0
     for _, row in df.iterrows():
-        key = (row["player_name"], row["stat_type"])
+        # Side is part of the identity now: over and under of one line are two different
+        # bets, and keying without it would let the first side seen suppress the other.
+        # Normalised defensively: a DataFrame row missing the column yields NaN, not
+        # None, so a bare str(...) default would produce the literal "nan".
+        side = "under" if str(row.get("side", "over")).lower() == "under" else "over"
+        key = (row["player_name"], row["stat_type"], side)
         if key in seen:
             continue
         seen.add(key)
@@ -447,13 +452,23 @@ def score_legs(df, cal, stat_types, rate_fn, min_sample=3):
             line = float(row["line_score"])
         except Exception:
             continue
+        # Every scorer reasons in OVER-space: it estimates P(stat > line) and blends that
+        # against the market's over price. So an under row is flipped into over-space on the
+        # way in and back out again on the way out. devig_two_way normalises both sides by
+        # the same total, so 1 - implied_under is exactly implied_over — no information is
+        # lost in the round trip, and no scorer needs to learn about sides.
+        implied_in = float(row.get("implied_prob", -1.0))
+        if side == "under" and implied_in >= 0:
+            implied_in = 1.0 - implied_in
         rate, n = rate_fn(
             row["player_name"], row["stat_type"], line,
             odds_type=str(row.get("odds_type", "standard")),
-            implied=float(row.get("implied_prob", -1.0)),
+            implied=implied_in,
             cal=cal.get(row["stat_type"], 1.0),
             team=str(row.get("team", "")),
         )
+        if side == "under":
+            rate = 1.0 - rate
         # min_sample is the games-of-history floor. NFL passes 0 because a leg can be
         # priced off the fantasy board's draft-cohort projection, which is a real
         # projection with n=0 games behind it — the scorer already refuses anything it
@@ -473,6 +488,7 @@ def score_legs(df, cal, stat_types, rate_fn, min_sample=3):
             "game_id":       str(row.get("game_id", "")),
             "game_label":    str(row.get("game_label", "")),
             "start_time":    str(row.get("start_time", "")),
+            "side":          side,
             "hit_rate":      rate,
             "sample_n":      n,
         })
