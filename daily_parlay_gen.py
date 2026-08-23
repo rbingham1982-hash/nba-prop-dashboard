@@ -287,12 +287,13 @@ def fetch_underdog(sport: str) -> pd.DataFrame:
             # hit least. De-vigged book probability restores the signal.
             implied_over = pm.american_to_implied(american)
             implied_under = None
+            under_american = None
             if under_opt is not None:
                 try:
                     under_american = int(str(under_opt.get("american_price", "-110")).replace("+", ""))
                     implied_under = pm.american_to_implied(under_american)
                 except Exception:
-                    implied_under = None
+                    implied_under = under_american = None
             implied = round(pm.devig_two_way(implied_over, implied_under), 4)
 
             rows.append({
@@ -301,8 +302,24 @@ def fetch_underdog(sport: str) -> pd.DataFrame:
                 "american_odds": american, "implied_prob": implied,
                 "game_id": app.get("match_id", ""), "game_label": title,
                 "start_time": game.get("scheduled_at", ""),
-                "sportsbook": "Underdog",
+                "sportsbook": "Underdog", "side": "over",
             })
+
+            # The under. Underdog quotes both choices ("higher"/"lower") and the price was
+            # already being parsed for the de-vig above and then thrown away, so the board
+            # only ever bet overs on a book where both sides are takeable — 5,239 legs of
+            # one-sided coverage. Same reasoning as the FanDuel two-way branch: on the one
+            # market where both sides could be measured, the over was the losing side.
+            if under_opt is not None and implied_under is not None:
+                rows.append({
+                    "player_name": name, "team": team, "stat_type": st_type,
+                    "line_score": val, "odds_type": "standard",
+                    "american_odds": under_american,
+                    "implied_prob": round(pm.devig_two_way(implied_under, implied_over), 4),
+                    "game_id": app.get("match_id", ""), "game_label": title,
+                    "start_time": game.get("scheduled_at", ""),
+                    "sportsbook": "Underdog", "side": "under",
+                })
         return pd.DataFrame(rows) if rows else pd.DataFrame()
     except Exception as e:
         print(f"    Underdog fetch failed: {e}")
@@ -867,6 +884,19 @@ def snapshot_only_pass(month: int) -> int:
                 print(f"    {sport_label} [{sb}]: snapshot failed ({e}).")
     if not total:
         print("    No pending legs still on the board.")
+
+    # Audit the snapshots this pass just wrote. It runs here rather than by hand because
+    # it has caught two real problems already and both were silent: 345 cross-book rows of
+    # unexplained origin, and 448 legitimate Underdog snapshots that the audit ITSELF
+    # deleted when its cross-book rule went stale. A checker nobody runs is not a checker,
+    # and a checker that only runs after something looks wrong finds it too late.
+    try:
+        au = parlay_tracker.purge_bad_snapshots()
+        if au.get("cross_game") or au.get("cross_book"):
+            print(f"    ! SNAPSHOT AUDIT removed {au['cross_game']} cross-game and "
+                  f"{au['cross_book']} cross-book price(s) — investigate, this should be 0.")
+    except Exception as e:
+        print(f"    Snapshot audit failed ({e}).")
 
     # Lineups post ~3-4h before first pitch, so the hourly firing is the only thing in the
     # system positioned to see them. This is where the batter-prop drift comes from.

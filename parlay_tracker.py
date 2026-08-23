@@ -2876,6 +2876,16 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
             # reconstruction would be a guess dressed as a price.
             if leg.get("model_hit_rate") is None:
                 continue
+            # A player who is not in the posted lineup is not a play at any price. The
+            # lineup pass was writing lineup_status and lineup_hit_rate and NOTHING was
+            # reading them — the alert still ranked on the number the 2 PM board shipped,
+            # so the most valuable information in the system reached no decision.
+            if leg.get("lineup_status") == "out":
+                continue
+            # Where the lineup IS known, re-price on it. predicted_hit_rate stays the
+            # shipped number for calibration; this is the current view.
+            if leg.get("lineup_hit_rate") is not None:
+                pred = float(leg["lineup_hit_rate"])
             label = leg.get("game_label") or ""
             game = (str(leg.get("game_id", "")) if (not label or label in split_labels)
                     else label)
