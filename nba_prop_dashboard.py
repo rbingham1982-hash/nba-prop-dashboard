@@ -8836,6 +8836,77 @@ elif sport == "🏈 NFL":
 
         st.divider()
 
+        # ── Parlay builder ───────────────────────────────────────────────────
+        # Same pipeline the daily generator runs, so what you see here and what gets
+        # logged overnight are the same board: usage-share scorer -> market blend ->
+        # _build_parlays under the NFL diversity caps.
+        st.markdown("**Parlay builder**")
+        if _bwk is None or _bwk.empty:
+            st.caption("NFL data unavailable right now.")
+        elif _fd_nfl is None or _fd_nfl.empty:
+            st.caption("Needs posted props — the builder runs off the live FanDuel board above.")
+        else:
+            import daily_parlay_gen as _gen
+            _pc1, _pc2, _pc3 = st.columns([1, 1, 1.4])
+            with _pc1:
+                _pmin = st.slider("Min legs", 2, 5, 2, key="nfl_p_min")
+            with _pc2:
+                _pmax = st.slider("Max legs", 2, 5, 5, key="nfl_p_max")
+            with _pc3:
+                _pmix = st.checkbox(
+                    "Force mixed outcomes", value=True, key="nfl_p_mix",
+                    help="Cap legs per market and per outcome family (volume / yards / TDs). "
+                         "Off, the highest-probability combos collapse into one market — the "
+                         "first NFL slate returned 5-leg parlays that were five Passing TDs.")
+            if _pmax < _pmin:
+                _pmax = _pmin
+            try:
+                with st.spinner("Scoring props and building parlays…"):
+                    _plegs = _gen.score_legs(_fd_nfl, {}, _gen.NFL_STAT_TYPES, _gen.nfl_hit_rate)
+                    _pcal = parlay_tracker.get_parlay_calibration(sport="NFL") or {}
+                    _pblend = parlay_tracker.get_market_blend(sport="NFL")
+                    _psafe, _pval = _gen.build_parlays(
+                        _plegs, min_legs=_pmin, max_legs=_pmax, top_n=15,
+                        sportsbook="FanDuel", parlay_cal=_pcal, market_blend=_pblend,
+                        max_same_market=_gen.MAX_SAME_MARKET.get("NFL") if _pmix else None,
+                        stat_family=_gen.STAT_FAMILY.get("NFL") if _pmix else None,
+                        max_same_family=_gen.MAX_SAME_FAMILY.get("NFL") if _pmix else None)
+            except Exception as _pe:
+                _plegs, _psafe, _pval = [], [], []
+                st.error(f"Couldn't build parlays: {_pe}")
+
+            if not _plegs:
+                st.info("No props scored — players need at least 3 games of history.")
+            elif not _psafe and not _pval:
+                st.info("Props scored but no parlay cleared the constraints.")
+            else:
+                import pandas as _pd
+                _fam = _gen.NFL_STAT_FAMILY
+                for _lbl, _pool in (("Safe · most likely to hit", _psafe),
+                                    ("Value · highest EV", _pval)):
+                    if not _pool:
+                        continue
+                    st.markdown(f"*{_lbl}*")
+                    for _p in _pool[:5]:
+                        _mk = len({_l["stat_type"] for _l in _p["legs"]})
+                        _fm = len({_fam.get(_l["stat_type"], "?") for _l in _p["legs"]})
+                        _rec = "✅ +EV" if _p.get("recommended") else "—"
+                        with st.expander(
+                            f"{_p['n']} legs · {_p['payout']:.1f}x · {_p['prob']*100:.1f}% "
+                            f"· EV {_p['ev']:+.3f} {_rec} · {_mk} markets / {_fm} families"):
+                            st.dataframe(_pd.DataFrame([{
+                                "Player": _l["player_name"], "Stat": _l["stat_type"],
+                                "Line": _l["line_score"], "Odds": _l["american_odds"],
+                                "Family": _fam.get(_l["stat_type"], "?"),
+                                "Model %": round(_l["hit_rate"] * 100, 1),
+                            } for _l in _p["legs"]]), width="stretch", hide_index=True)
+                st.caption(
+                    f"{len(_plegs)} legs scored · probabilities are calibrated and market-blended, "
+                    "so they match what the nightly board logs. Only ✅ +EV parlays are worth a stake — "
+                    "the rest are logged for calibration, not to bet.")
+
+        st.divider()
+
         # ── Manual edge check (works now) ────────────────────────────────────
         st.markdown("**Manual edge check**")
         if _bwk is None or _bwk.empty:
