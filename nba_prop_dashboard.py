@@ -4166,7 +4166,7 @@ with hdr_col:
         <p class="konjure-sub">Multi-Sport Prop Intelligence &nbsp;&middot;&nbsp; Powered by Data</p>
     </div>""", unsafe_allow_html=True)
 with sport_col:
-    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL"], key="sport_selector")
+    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy"], key="sport_selector")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SPORT-SPECIFIC CSS INJECTION
@@ -8578,86 +8578,8 @@ elif sport == "⚾ MLB":
             MLB data is sourced from the official MLB Stats API.
         </p>""", unsafe_allow_html=True)
 elif sport == "🏈 NFL":
-    (_nfl_tab_board, _nfl_tab_analyze, _nfl_tab_bet,
-     _nfl_tab_fantasy, _nfl_tab_track) = st.tabs(
-        ["📊 Draft Board", "🔬 Player Analysis", "💰 Edge Finder",
-         "🏆 DFS & Waivers", "📈 Track"])
-
-    with _nfl_tab_fantasy:
-        st.markdown(
-            "<div style='margin:0.2rem 0 0.9rem;'>"
-            "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
-            "DFS &amp; Waivers &nbsp;·&nbsp; Same Projections, No Vig</div>"
-            "<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>"
-            "The props model has to clear a 5.8–19% hold before a bet is playable. DFS salaries "
-            "are set days ahead and waiver competition runs off consensus rankings, so the same "
-            "projections go further here.</div></div>",
-            unsafe_allow_html=True,
-        )
-        import fantasy_tools as _ft
-        _f1, _f2, _f3 = st.tabs(["Daily DFS", "Waiver Board", "Start / Sit"])
-
-        with _f1:
-            _sport = st.radio("Slate", ["MLB", "NFL"], horizontal=True,
-                              key="dfs_sport", label_visibility="collapsed")
-            if st.button("Load slate", key="dfs_go"):
-                with st.spinner("Fetching DraftKings salaries and projecting…"):
-                    try:
-                        _sl = _ft.dfs_slate(_sport)
-                    except Exception as _e:
-                        _sl = None
-                        st.error(f"Couldn't build the slate: {_e}")
-                if _sl is None or _sl.empty:
-                    st.info("No slate posted yet — DraftKings populates a draft group "
-                            "closer to lock.")
-                else:
-                    st.caption(f"{len(_sl)} players · slate starts {_sl['start'].iloc[0]}")
-                    st.dataframe(
-                        _sl[[c for c in ("player", "position", "team", "salary",
-                                         "proj_points", "value") if c in _sl.columns]],
-                        width="stretch", hide_index=True)
-                    st.caption("`value` is projected points per $1,000. Cheap players rank "
-                               "high by construction — that is the point of a salary cap, "
-                               "not a bug, but read it next to proj_points rather than alone.")
-
-        with _f2:
-            if st.button("Build waiver board", key="wv_go"):
-                with st.spinner("Projecting the player pool and pulling Sleeper trends…"):
-                    try:
-                        _wb = _ft.waiver_board(limit=24)
-                    except Exception as _e:
-                        _wb = []
-                        st.error(f"Couldn't build the board: {_e}")
-                if _wb:
-                    import pandas as _pdw
-                    st.dataframe(_pdw.DataFrame(_wb)[
-                        ["player", "position", "team", "proj_points",
-                         "search_rank", "adds", "crowd"]],
-                        width="stretch", hide_index=True)
-                    st.caption("Filtered to players outside Sleeper's top 150, so these are "
-                               "plausibly available. **quiet** is the one you want — the "
-                               "projection likes him and the crowd has not moved yet; "
-                               "**hot** means your league already knows.")
-                else:
-                    st.info("No board returned.")
-
-        with _f3:
-            _names = st.text_area("Players to compare (one per line)",
-                                  key="ss_names", height=110,
-                                  placeholder="Puka Nacua\nTrey McBride\nWan'Dale Robinson")
-            if st.button("Rank them", key="ss_go") and _names.strip():
-                with st.spinner("Projecting…"):
-                    try:
-                        _rows = _ft.start_sit([n.strip() for n in _names.splitlines() if n.strip()])
-                    except Exception as _e:
-                        _rows = []
-                        st.error(f"Couldn't rank: {_e}")
-                if _rows:
-                    import pandas as _pds
-                    st.dataframe(_pds.DataFrame(_rows), width="stretch", hide_index=True)
-                    st.caption("Same projection engine as the DFS and waiver boards — if a "
-                               "start/sit call disagreed with the waiver ranking, one of "
-                               "them would be wrong.")
+    _nfl_tab_board, _nfl_tab_analyze, _nfl_tab_bet, _nfl_tab_track = st.tabs(
+        ["📊 Draft Board", "🔬 Player Analysis", "💰 Edge Finder", "📈 Track"])
 
     with _nfl_tab_board:
         # ══ NFL — Draft Board (Phase 1) + Player Analysis (Phase 2). Bet/Track are later phases. ══
@@ -9046,3 +8968,81 @@ elif sport == "🏈 NFL":
             st.caption("Tracking is available in the local app.")
 
 # END OF FILE — orphaned block removed
+
+
+elif sport == "🏆 Fantasy":
+    st.markdown(
+        "<div style='margin:0.2rem 0 0.9rem;'>"
+        "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
+        "DFS &amp; Waivers &nbsp;·&nbsp; Same Projections, No Vig</div>"
+        "<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>"
+        "The props model has to clear a 5.8–19% hold before a bet is playable. DFS salaries "
+        "are set days ahead and waiver competition runs off consensus rankings, so the same "
+        "projections go further here.</div></div>",
+        unsafe_allow_html=True,
+    )
+    import fantasy_tools as _ft
+    _f1, _f2, _f3 = st.tabs(["Daily DFS", "Waiver Board", "Start / Sit"])
+
+    with _f1:
+        _sport = st.radio("Slate", ["MLB", "NFL"], horizontal=True,
+                          key="dfs_sport", label_visibility="collapsed")
+        if st.button("Load slate", key="dfs_go"):
+            with st.spinner("Fetching DraftKings salaries and projecting…"):
+                try:
+                    _sl = _ft.dfs_slate(_sport)
+                except Exception as _e:
+                    _sl = None
+                    st.error(f"Couldn't build the slate: {_e}")
+            if _sl is None or _sl.empty:
+                st.info("No slate posted yet — DraftKings populates a draft group "
+                        "closer to lock.")
+            else:
+                st.caption(f"{len(_sl)} players · slate starts {_sl['start'].iloc[0]}")
+                st.dataframe(
+                    _sl[[c for c in ("player", "position", "team", "salary",
+                                     "proj_points", "value") if c in _sl.columns]],
+                    width="stretch", hide_index=True)
+                st.caption("`value` is projected points per $1,000. Cheap players rank "
+                           "high by construction — that is the point of a salary cap, "
+                           "not a bug, but read it next to proj_points rather than alone.")
+
+    with _f2:
+        if st.button("Build waiver board", key="wv_go"):
+            with st.spinner("Projecting the player pool and pulling Sleeper trends…"):
+                try:
+                    _wb = _ft.waiver_board(limit=24)
+                except Exception as _e:
+                    _wb = []
+                    st.error(f"Couldn't build the board: {_e}")
+            if _wb:
+                import pandas as _pdw
+                st.dataframe(_pdw.DataFrame(_wb)[
+                    ["player", "position", "team", "proj_points",
+                     "search_rank", "adds", "crowd"]],
+                    width="stretch", hide_index=True)
+                st.caption("Filtered to players outside Sleeper's top 150, so these are "
+                           "plausibly available. **quiet** is the one you want — the "
+                           "projection likes him and the crowd has not moved yet; "
+                           "**hot** means your league already knows.")
+            else:
+                st.info("No board returned.")
+
+    with _f3:
+        _names = st.text_area("Players to compare (one per line)",
+                              key="ss_names", height=110,
+                              placeholder="Puka Nacua\nTrey McBride\nWan'Dale Robinson")
+        if st.button("Rank them", key="ss_go") and _names.strip():
+            with st.spinner("Projecting…"):
+                try:
+                    _rows = _ft.start_sit([n.strip() for n in _names.splitlines() if n.strip()])
+                except Exception as _e:
+                    _rows = []
+                    st.error(f"Couldn't rank: {_e}")
+            if _rows:
+                import pandas as _pds
+                st.dataframe(_pds.DataFrame(_rows), width="stretch", hide_index=True)
+                st.caption("Same projection engine as the DFS and waiver boards — if a "
+                           "start/sit call disagreed with the waiver ranking, one of "
+                           "them would be wrong.")
+
