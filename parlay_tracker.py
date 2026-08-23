@@ -274,6 +274,53 @@ EARLY_LEAD_HOURS = 8   # experiment threshold. A pick placed this many+ hours be
                        # A/B the two cohorts prospectively (see get_lead_time_experiment).
 
 
+# An "opener" is listed as the probable pitcher and throws one or two innings. The strikeout
+# scorer has no innings model — it weights the last 3 outings at 50% of a frequency over the
+# line — so for a pitcher whose role is short relief, three outings is noise rather than
+# form, and a 2-for-3 streak outruns a 3-for-10 record.
+#
+# On 2026-08-23 the alert surfaced Sean Newcomb o1.5 K's at a model 64.6% on a prop his own
+# last ten outings cleared 30% of the time, all ten of them 2.3 innings or shorter. Brady
+# Basso was the same shape at 5-for-10. Tomoyuki Sugano, a real 5-to-6-inning starter, was
+# 7-for-10 and priced at 66.4% — coherent.
+#
+# This is why the aggregate says Pitcher Strikeouts is the one clean MLB market (-1.1 vs
+# -5.3 to -6.5 for batters): it is dominated by genuine starters, whose workload is
+# announced when the prop is priced. Openers sit inside that market carrying the same
+# rate-without-opportunity bias as a batter with no plate-appearance model.
+_OPENER_MAX_IP   = 3.5   # mean innings below which a listed starter is really an opener
+_OPENER_LOOKBACK = 8     # recent outings the mean is taken over
+_OPENER_MIN_GAMES = 4    # fewer than this and the role is unknown, so the play is kept
+
+
+def _recent_mean_ip(player_name: str):
+    """
+    Mean innings over a pitcher's recent outings, or None when it cannot be determined.
+
+    None means "cannot judge" and callers keep the play — a returning starter or a rookie
+    with no log should not be filtered out on missing data.
+    """
+    try:
+        import parlay_model as _pm
+        pid = _pm.mlb_player_id(player_name)
+        if not pid:
+            return None
+        df = _pm.get_mlb_pitching_logs(pid, ("2025", "2026"))
+        if df is None or df.empty or "IP" not in df.columns:
+            return None
+        ips = [float(x or 0) for x in df["IP"].tail(_OPENER_LOOKBACK)]
+        if len(ips) < _OPENER_MIN_GAMES:
+            return None
+        return sum(ips) / len(ips)
+    except Exception:
+        return None
+
+
+def _is_opener(player_name: str) -> bool:
+    ip = _recent_mean_ip(player_name)
+    return ip is not None and ip < _OPENER_MAX_IP
+
+
 def _lead_hours(start_time: str, ref_utc: datetime) -> float | None:
     """Hours from ref (UTC, taken at log time) to the game's start. None if unparseable."""
     if not start_time:
@@ -2581,7 +2628,8 @@ POCKET_ALERT_MAX_LEAD = 18.0    # hours before kickoff past which a play is not 
 def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
                      min_edge: float = POCKET_ALERT_MIN_EDGE,
                      min_odds: int = POCKET_ALERT_MIN_ODDS,
-                     max_lead_hours: float | None = POCKET_ALERT_MAX_LEAD) -> dict:
+                     max_lead_hours: float | None = POCKET_ALERT_MAX_LEAD,
+                     drop_openers: bool = True) -> dict:
     """
     Scan a day's logged pocket-market props and return the ones that clear BOTH a strong-edge
     bar and an odds floor — the plays worth a straight bet. on_date defaults to today (local,
@@ -2694,10 +2742,23 @@ def get_pocket_alert(sport: str | None = None, on_date: str | None = None,
                 stale += 1
                 continue
         live.append(v)
+
+    # Opener check runs LAST, on the handful that already cleared every other bar, because
+    # it costs a game-log fetch per pitcher. Only MLB strikeout props can be openers.
+    openers = 0
+    if drop_openers:
+        kept = []
+        for v in live:
+            if v["sport"] == "MLB" and v["stat"] == "Pitcher Strikeouts" and _is_opener(v["player"]):
+                openers += 1
+                continue
+            kept.append(v)
+        live = kept
+
     plays = sorted(live, key=lambda r: r["edge"], reverse=True)
     return {"date": day, "min_edge": min_edge, "min_odds": min_odds,
             "max_lead_hours": max_lead_hours, "n_pocket": len(seen),
-            "n_started": started, "n_beyond_lead": stale,
+            "n_started": started, "n_beyond_lead": stale, "n_openers": openers,
             "qualifies": bool(plays), "plays": plays}
 
 

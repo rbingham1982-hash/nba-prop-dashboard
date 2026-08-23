@@ -24,6 +24,8 @@ if a.get("n_started"):
     _skipped.append(f"{a['n_started']} already under way")
 if a.get("n_beyond_lead"):
     _skipped.append(f"{a['n_beyond_lead']} beyond the lead window")
+if a.get("n_openers"):
+    _skipped.append(f"{a['n_openers']} opener(s) — listed as starters, pitching 1-2 innings")
 if _skipped:
     lines.append(f"  filtered out: {', '.join(_skipped)}")
 if a["qualifies"]:
