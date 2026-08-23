@@ -155,6 +155,29 @@ def _mlb_match_player(box: dict, norm_name: str):
              and fp[-1] == tlast and fp[0][:1] == tinit]
     return cands[0] if len(cands) == 1 else None
 
+_MLB_VALID_ABBRS = set(_MLB_NAME_TO_ABBR.values()) | {
+    a for variants in _MLB_ABBR_ALIASES.values() for a in variants
+}
+
+def _mlb_label_is_ambiguous(game_label: str) -> bool:
+    """
+    True if a game_label names a club no abbreviation maps to.
+
+    These come from the retired `full_name[:3]` fallback in parlay_model._fd_team_abbr,
+    which did not fail so much as invent: "LOS" for both Los Angeles clubs, "NEW" for
+    both New York, "SAN" for San Diego and San Francisco. A leg carrying one cannot be
+    pinned to a fixture at all, and combined with a missing start_time there is nothing
+    left to identify the game — the parlay's own date only narrows it to a 3-game series,
+    and picking the middle game would bake a coin flip into calibration. So they are
+    retired rather than graded; see _leg_is_abandoned.
+    """
+    label = (game_label or "").upper()
+    parts = [p.strip() for p in label.replace("@", " @ ").split("@") if p.strip()]
+    if len(parts) < 2:
+        return False
+    return any(p not in _MLB_VALID_ABBRS for p in parts)
+
+
 def _mlb_game_matches_label(away_name: str, home_name: str, game_label: str) -> bool:
     """
     True if a schedule game (full team names) is the same matchup as a leg's abbreviated
@@ -475,7 +498,8 @@ def _resolve_over_budget() -> bool:
     return _resolve_deadline is not None and _time.monotonic() >= _resolve_deadline
 
 
-def _leg_is_abandoned(leg: dict, now: datetime | None = None) -> bool:
+def _leg_is_abandoned(leg: dict, now: datetime | None = None,
+                      sport: str | None = None) -> bool:
     """
     True once a leg has been tried enough times, long enough after its game, that it is
     never going to resolve — a player the boxscore doesn't name, a game the schedule
@@ -489,6 +513,17 @@ def _leg_is_abandoned(leg: dict, now: datetime | None = None) -> bool:
     backfill after a resolver fix still re-tries everything. A bare age check would have
     silently refused to re-resolve the WNBA legs the wrong-game fix depended on.
     """
+    # Structurally ungradeable, so the attempt counter is beside the point: no number of
+    # API calls will identify the game. Checking it before the counter is what keeps these
+    # from costing five more lookups every time a backfill reopens them — 90 legs from
+    # 2026-07-19 had done exactly that once per fix.
+    #
+    # Gated on sport because the abbreviation vocabulary is MLB's: WNBA labels are full of
+    # tokens no MLB club uses (CON, LVA, GSV), so running this unqualified would retire
+    # every start_time-less WNBA leg as ambiguous. sport=None skips it.
+    if (sport == "MLB" and not leg.get("start_time")
+            and _mlb_label_is_ambiguous(leg.get("game_label", ""))):
+        return True
     if int(leg.get("resolve_attempts", 0)) < RESOLVE_MAX_ATTEMPTS:
         return False
     start = leg.get("start_time", "")
@@ -558,9 +593,9 @@ def _did_not_play(leg: dict, now: datetime | None = None) -> bool:
     return now >= game_start + timedelta(hours=RESOLVE_DNP_HOURS)
 
 
-def _leg_is_resolvable(leg: dict, generated_at: str) -> bool:
+def _leg_is_resolvable(leg: dict, generated_at: str, sport: str | None = None) -> bool:
     """True if enough time has passed that the game should be finished."""
-    if _leg_is_abandoned(leg):
+    if _leg_is_abandoned(leg, sport=sport):
         return False
     start = leg.get("start_time", "")
     if start:
@@ -886,7 +921,7 @@ def resolve_nba_legs() -> int:
                 continue
             if _is_historical_leg(leg):
                 continue  # fallback legs have no real game — skip permanently
-            if not _leg_is_resolvable(leg, parlay["generated_at"]):
+            if not _leg_is_resolvable(leg, parlay["generated_at"], "NBA"):
                 continue
             player_legs[leg["player_name"]].append((parlay, leg))
 
@@ -956,7 +991,7 @@ def _resolve_mlb_legs() -> int:
                 continue
             if _is_historical_leg(leg):
                 continue
-            if not _leg_is_resolvable(leg, parlay["generated_at"]):
+            if not _leg_is_resolvable(leg, parlay["generated_at"], "MLB"):
                 continue
             player_legs[leg["player_name"]].append((parlay, leg))
 
@@ -1133,7 +1168,7 @@ def _resolve_wnba_legs() -> int:
     has_pending = any(
         parlay.get("sport") == "WNBA"
         and leg["outcome"] is None and not _is_historical_leg(leg)
-        and _leg_is_resolvable(leg, parlay["generated_at"])
+        and _leg_is_resolvable(leg, parlay["generated_at"], "WNBA")
         for parlay in data["parlays"] for leg in parlay["legs"]
     )
     if not has_pending:
@@ -1171,7 +1206,7 @@ def _resolve_wnba_legs() -> int:
                 continue
             if _is_historical_leg(leg):
                 continue
-            if not _leg_is_resolvable(leg, parlay["generated_at"]):
+            if not _leg_is_resolvable(leg, parlay["generated_at"], "WNBA"):
                 continue
             player_legs[leg["player_name"]].append((parlay, leg))
 
@@ -1251,7 +1286,7 @@ def get_abandoned_legs(sport: str | None = None) -> list:
         if sport and parlay.get("sport") != sport:
             continue
         for leg in parlay["legs"]:
-            if leg["outcome"] is not None or not _leg_is_abandoned(leg):
+            if leg["outcome"] is not None or not _leg_is_abandoned(leg, sport=parlay.get("sport")):
                 continue
             key = (parlay.get("sport"), leg["stat_type"])
             counts[key]["n"] += 1
@@ -1279,7 +1314,7 @@ def retry_abandoned_legs(sport: str | None = None) -> int:
         if sport and parlay.get("sport") != sport:
             continue
         for leg in parlay["legs"]:
-            if leg["outcome"] is None and _leg_is_abandoned(leg):
+            if leg["outcome"] is None and _leg_is_abandoned(leg, sport=parlay.get("sport")):
                 leg.pop("resolve_attempts", None)
                 reopened += 1
     if reopened:
@@ -1335,7 +1370,7 @@ def _resolve_nfl_legs() -> int:
                 continue
             if _is_historical_leg(leg):
                 continue
-            if not _leg_is_resolvable(leg, parlay["generated_at"]):
+            if not _leg_is_resolvable(leg, parlay["generated_at"], "NFL"):
                 continue
             player_legs[leg["player_name"]].append((parlay, leg))
 
