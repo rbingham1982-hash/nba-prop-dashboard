@@ -1420,6 +1420,18 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
     if len(last10) >= 5 and len(prev10) >= 5:
         r_prev = float((prev10 > line).sum()) / len(prev10)
         hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
+
+    # Fold in the minutes model. Same weighting as the MLB opportunity models: it is the
+    # principled version of the same signal — identical games, but minutes and per-minute
+    # rate kept apart instead of fused into a threshold frequency — so it carries the
+    # larger share, with the frequency term retained as a hedge until calibration has
+    # graded it.
+    try:
+        opp_p = _hoops_min_over_prob(df, stat_type, col, line)
+    except Exception:
+        opp_p = None
+    if opp_p is not None:
+        hist = min(0.97, max(0.03, 0.65 * opp_p + 0.35 * hist))
     implied = implied_override if implied_override >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
     rate = 0.7 * hist + 0.3 * implied
     rate = rate * cal_factor
@@ -1473,6 +1485,18 @@ def _wnba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str
     if len(last10) >= 5 and len(prev10) >= 5:
         r_prev = float((prev10 > line).sum()) / len(prev10)
         hist = min(0.97, max(0.03, hist + (r10 - r_prev) * 0.1))
+
+    # Fold in the minutes model. Same weighting as the MLB opportunity models: it is the
+    # principled version of the same signal — identical games, but minutes and per-minute
+    # rate kept apart instead of fused into a threshold frequency — so it carries the
+    # larger share, with the frequency term retained as a hedge until calibration has
+    # graded it.
+    try:
+        opp_p = _hoops_min_over_prob(df, stat_type, col, line)
+    except Exception:
+        opp_p = None
+    if opp_p is not None:
+        hist = min(0.97, max(0.03, 0.65 * opp_p + 0.35 * hist))
     implied = implied_override if implied_override >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
     rate = 0.7 * hist + 0.3 * implied
     rate = rate * cal_factor
@@ -1784,6 +1808,104 @@ def _mlb_bf_over_prob(df, stat_type: str, line: float):
     for b in bf_series:
         weights[b] = weights.get(b, 0.0) + 1.0 / len(bf_series)
     return round(sum(w * _binom_sf(line, b, rate) for b, w in weights.items()), 4)
+
+
+# ── Minutes model for basketball props ──────────────────────────────────────
+#
+# Third sport, same structural gap: a rate applied over an unmodelled opportunity. The
+# hoops scorer is "70% historical (60/40 last-10/30 + trend) + 30% implied" — a frequency
+# of games above the line, with nothing about how long the player was on the floor.
+#
+# It is the worst case of the three. Measured over 3,976 resolved WNBA legs matched to the
+# minutes actually played:
+#
+#   30+ min    55.7% of legs   over hits 53.5%
+#   24-30      27.2%                     41.5%
+#   18-24      10.2%                     32.4%
+#   under 18    6.9%                      9.5%
+#
+# 44% of legs resolve on a short night. A full-minutes board hits 53.5%; the real one hits
+# 45.0%, an 8.5-point gap that matches the 8.8 points plate appearances cost in baseball.
+# And basketball minutes swing far wider than plate appearances — 25 to 43 in five games
+# for one starter — with load management, back-to-backs and blowouts on top.
+#
+# Both halves come from the player's own log, so the minutes distribution already carries
+# his role, his rest pattern and his blowout exposure.
+
+_HOOPS_MIN_LOOKBACK = 15
+_HOOPS_MIN_GAMES = 6
+# Discrete low counts where the market posts lines on the half point and the normal fit is
+# poor near zero — the same reasoning as NFL touchdowns. Points, and every combo built on
+# points, accumulate over many possessions and stay normal-ish.
+_HOOPS_COUNT_STATS = {"3-PT Made", "Steals", "Blocks", "Blocked Shots", "Turnovers"}
+
+
+def _hoops_min_over_prob(df, stat_type: str, col: str, line: float):
+    """
+    P(stat > line) marginalised over the player's own minutes distribution.
+    Returns None when the sample cannot support it.
+    """
+    import statistics as _st
+    if df is None or df.empty or "MIN" not in df.columns or col not in df.columns:
+        return None
+    sub = df.tail(_HOOPS_MIN_LOOKBACK)
+    pairs = []
+    for m, v in zip(sub["MIN"], sub[col]):
+        try:
+            mm = float(m or 0)
+        except (TypeError, ValueError):
+            continue
+        # A zero-minute game is a DNP, which books void rather than settle, so it is not a
+        # data point about how the player performs.
+        if mm > 0:
+            pairs.append((mm, float(v or 0)))
+    if len(pairs) < _HOOPS_MIN_GAMES:
+        return None
+    tot_min = sum(m for m, _ in pairs)
+    tot_val = sum(v for _, v in pairs)
+    if tot_min <= 0 or tot_val <= 0:
+        return None
+    per_min = tot_val / tot_min
+    mean_min = tot_min / len(pairs)
+    vals = [v for _, v in pairs]
+    own_sd = _st.pstdev(vals) if len(vals) > 1 else max(tot_val / len(pairs) * 0.5, 1.0)
+    own_mean = tot_val / len(pairs)
+
+    total = 0.0
+    for m, _ in pairs:
+        mu = per_min * m
+        if stat_type in _HOOPS_COUNT_STATS:
+            p = _poisson_sf_hoops(line, mu)
+        else:
+            # Scale the player's own spread by how far this game's minutes sit from his
+            # average, preserving the shape and moving only the location — the same
+            # treatment the NFL scorer gives sigma.
+            sd = (own_sd * (mu / own_mean)) if own_mean > 0 else own_sd
+            sd = max(sd, 0.30 * max(mu, 0.5))
+            p = 1.0 - _norm_cdf_hoops(line, mu, sd)
+        total += p / len(pairs)
+    return round(min(0.99, max(0.01, total)), 4)
+
+
+def _poisson_sf_hoops(line: float, mu: float) -> float:
+    import math
+    if mu <= 0:
+        return 0.0
+    k = int(math.floor(line))
+    if k < 0:
+        return 1.0
+    term = cdf = math.exp(-mu)
+    for i in range(1, k + 1):
+        term *= mu / i
+        cdf += term
+    return max(0.0, min(1.0, 1.0 - cdf))
+
+
+def _norm_cdf_hoops(x: float, mu: float, sigma: float) -> float:
+    import math
+    if sigma <= 0:
+        return 1.0 if x < mu else 0.0
+    return 0.5 * (1 + math.erf((x - mu) / (sigma * math.sqrt(2))))
 
 
 def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
