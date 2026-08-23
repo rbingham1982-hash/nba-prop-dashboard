@@ -105,6 +105,26 @@ def platoon_factor(pid: int, season: int, opp_hand: str) -> dict:
     Shrunk hard toward 1.0 by at-bats — see _SPLIT_SHRINK_AB. An unshrunk platoon split is
     one of the most over-read numbers in baseball: 57 at-bats carries a standard error on
     batting average of roughly 60 points, which is larger than the effect being measured.
+
+    DO NOT WIRE THIS INTO THE PROPS SCORER on the strength of it looking sensible. Tested
+    against 731 resolved MLB Hits legs whose opposing starter's hand was recovered from the
+    boxscore, it predicts BACKWARDS:
+
+        unfavourable platoon (<0.99)   n=298   hit 62.1%
+        favourable   platoon (>1.01)   n=343   hit 53.9%
+        controlling for the model's own prediction: t = -3.0
+
+    The likely cause is not that platoon splits are useless but that THIS measurement is
+    contaminated: the split comes from full-season numbers that include the very game being
+    predicted, so a hitter with a high vs-RHP factor is partly a hitter who happened to run
+    hot against righties in that sample, and mean reversion does the rest. A clean test
+    needs point-in-time splits — the player's rate against that hand using only games
+    BEFORE the one in question, which means recovering the starter faced in each historical
+    game.
+
+    So this is honest analysis output for the hit board and the profile view, where a human
+    reads it in context. It is not a prediction input, and the contaminated test is not
+    evidence that it would be a good one.
     """
     code = "vl" if str(opp_hand).upper().startswith("L") else "vr"
     sp = player_splits(pid, season)
