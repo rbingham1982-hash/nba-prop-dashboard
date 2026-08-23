@@ -1567,12 +1567,41 @@ def _market_diverse_pool(legs: list, pool_size: int) -> list:
     return pool[:pool_size]
 
 
+def _within_caps(combo, max_same_market, stat_family, max_same_family) -> bool:
+    """
+    True if a combo respects the per-market and per-family diversity caps.
+
+    Two levels because they catch different things. The market cap stops five legs of the
+    same stat_type. The FAMILY cap stops five legs of the same kind of outcome: with only
+    the market cap, the top NFL 5-leg came back Passing TDs x2 / Rushing TDs x2 /
+    Receiving TDs x1 — three markets by name, but one event repeated, since every leg
+    needs someone to reach the end zone. Touchdown props are also the most heavily
+    regressed thing on the board, so a parlay made of them stacks the model's least
+    confident numbers and calls the result diversification.
+    """
+    for key, cap in ((lambda l: l.get("stat_type", ""), max_same_market),
+                     (lambda l: (stat_family or {}).get(l.get("stat_type", ""), ""),
+                      max_same_family if stat_family else None)):
+        if cap is None:
+            continue
+        counts: dict = {}
+        for l in combo:
+            k = key(l)
+            counts[k] = counts.get(k, 0) + 1
+            if counts[k] > cap:
+                return False
+    return True
+
+
 def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int = 50,
                     pool_size: int = 30, max_leg_uses: int = 6,
                     max_player_uses: int | None = None,
                     sportsbook: str = "PrizePicks", parlay_cal: dict | None = None,
                     min_ev: float = 0.0, market_blend: float | None = None,
-                    same_game_penalty: float = 1.0):
+                    same_game_penalty: float = 1.0,
+                    max_same_market: int | None = None,
+                    stat_family: dict | None = None,
+                    max_same_family: int | None = None):
     """
     Safe  — highest probability combos (most likely to hit).
     Value — highest EV combos that are NOT already in Safe.
@@ -1625,6 +1654,24 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
     exposure across the board is up to twice max_player_uses. They are not shared on
     purpose: safe is built first and would spend the whole budget, leaving value empty.
 
+    max_same_market caps how many legs of one stat_type may appear in a single parlay.
+    _market_diverse_pool quotas the INPUT pool, which is a different guarantee and not
+    the one that matters here: a pool spanning nine markets still yields a top parlay of
+    five Passing TDs, because the combos are ranked by probability and the highest
+    probabilities cluster in whichever market sits closest to its line. On the first NFL
+    slate every 5-leg came back single-market at 0.20 distinct-markets-per-leg.
+
+    Those are not five bets, they are one bet with five names on it — the identical shape
+    as the MLB home-run stacks that went 0-for-48 in 2026-W34 at a median 51.5x. The cap
+    is what makes "wide variance of outcomes" structural rather than incidental.
+
+    stat_family + max_same_family apply the same idea one level coarser — see
+    _within_caps for why the market cap alone is not enough.
+
+    Both default to None (no constraint) so MLB/WNBA boards are unchanged; NFL passes 2
+    and 2, which forces a 5-leg to span at least three markets across all three of
+    volume, yardage and touchdowns.
+
     market_blend (parlay_tracker.get_market_blend) shrinks leg probabilities
     toward the de-vigged market before combining.
 
@@ -1648,6 +1695,8 @@ def _build_parlays(legs: list, min_legs: int = 2, max_legs: int = 5, top_n: int 
         factor = float(parlay_cal.get(n, parlay_cal.get(str(n), 1.0)))
         for combo in combinations(legs, n):
             if len({l["player_name"] for l in combo}) < n:
+                continue
+            if not _within_caps(combo, max_same_market, stat_family, max_same_family):
                 continue
             raw = 1.0
             for leg in combo:
