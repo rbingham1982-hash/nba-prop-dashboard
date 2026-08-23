@@ -2298,6 +2298,9 @@ def update_market_snapshots(props_df, sport: str) -> int:
                 leg["closing_implied"] = implied
                 leg["closing_odds"] = odds
                 leg["closing_seen_at"] = now_iso
+                # Which book quoted it. Needed once every book snapshots its own legs:
+                # the audit below can no longer infer the source from "not FanDuel".
+                leg["closing_book"] = book
                 updated += 1
     if updated:
         _save(data)
@@ -2457,9 +2460,11 @@ def purge_bad_snapshots() -> dict:
       cross_game — stamped more than an hour after the leg's own game started, which
                    only happens when the quote came from a later fixture that reused
                    the same player+stat+line.
-      cross_book — a FanDuel quote written onto an Underdog or PrizePicks leg. FanDuel
-                   is the only fetch that snapshots, and its de-vigged two-way implied
-                   is not comparable to a pick'em ladder's entry price.
+      cross_book — a quote from one book written onto another book's leg, which is not a
+                   comparable price: FanDuel's de-vigged two-way implied and a pick'em
+                   ladder's entry are different units. Judged on closing_book where it
+                   exists; older rows predate every-book snapshotting, so a price on a
+                   non-FanDuel leg could only have come from FanDuel.
 
     Leaving these in place would mean the key fix changes nothing about any number the
     dashboard reports, since every CLV read is over the stored snapshots. A leg with no
@@ -2473,7 +2478,13 @@ def purge_bad_snapshots() -> dict:
             if leg.get("closing_implied") is None:
                 continue
             reason = None
-            if book and book != "FanDuel":
+            src = leg.get("closing_book")
+            if src:
+                if book and src != book:
+                    reason = "cross_book"
+            elif book and book != "FanDuel":
+                # Legacy rows, written when FanDuel was the only fetch that snapshotted,
+                # so a price on a non-FanDuel leg could only have come from FanDuel.
                 reason = "cross_book"
             else:
                 start, seen = leg.get("start_time"), leg.get("closing_seen_at")

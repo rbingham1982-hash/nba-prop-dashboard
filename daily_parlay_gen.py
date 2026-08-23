@@ -558,15 +558,15 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
             continue
         print(f"    {len(raw)} lines fetched.")
 
-        if sb == "FanDuel":
-            # CLV: stamp pending logged legs with the latest price. Games drop off
-            # the feed once they start, so the last stamp ≈ the closing line.
-            try:
-                n_clv = parlay_tracker.update_market_snapshots(raw, sport_label)
-                if n_clv:
-                    print(f"    CLV snapshots updated on {n_clv} pending legs.")
-            except Exception:
-                pass
+        # CLV: stamp pending logged legs with the latest price. Games drop off the feed
+        # once they start, so the last stamp is close to the closing line. Runs for every
+        # book now — the key is book-scoped, so each book only ever prices its own legs.
+        try:
+            n_clv = parlay_tracker.update_market_snapshots(raw, sport_label)
+            if n_clv:
+                print(f"    CLV snapshots updated on {n_clv} pending legs.")
+        except Exception:
+            pass
 
         legs = score_legs(raw, cal, stat_types, rate_fn,
                           min_sample=MIN_SAMPLE.get(sport_label, 3))
@@ -830,24 +830,41 @@ def snapshot_only_pass(month: int) -> int:
     work back on a schedule that has no board to protect.
     """
     total = 0
-    for sport_key, sport_label, in_season in (
-        ("mlb",  "MLB",  True),
-        ("wnba", "WNBA", 5 <= month <= 9),
-        ("nba",  "NBA",  month >= 10 or month <= 6),
-        ("nfl",  "NFL",  month >= 9 or month <= 2),
+    for sport_key, sport_label, pp_id, in_season in (
+        ("mlb",  "MLB",  2, True),
+        ("wnba", "WNBA", 6, 5 <= month <= 9),
+        ("nba",  "NBA",  7, month >= 10 or month <= 6),
+        ("nfl",  "NFL",  9, month >= 9 or month <= 2),
     ):
         if not in_season:
             continue
-        try:
-            raw = fetch_fanduel(sport_key)
-            if raw is None or raw.empty:
-                continue
-            n = parlay_tracker.update_market_snapshots(raw, sport_label)
-            total += n
-            if n:
-                print(f"    {sport_label}: {n} leg(s) re-priced.")
-        except Exception as e:
-            print(f"    {sport_label}: snapshot failed ({e}).")
+        # Every book, not just FanDuel. Only FanDuel was ever re-snapshotted, which left
+        # 0% of 5,239 Underdog legs and 0% of 328 PrizePicks legs with any price path at
+        # all — so the question of which book MOVES FIRST could only be inferred from
+        # open-versus-close rather than observed in time.
+        #
+        # That question looks worth answering: Underdog's opening price predicts where
+        # FanDuel closes with t=4.8 after controlling for FanDuel's own mean reversion,
+        # and FanDuel travels about 28% of the way toward Underdog's disagreement. Whether
+        # it is profitable is still unproven (t=1.4 against realized outcomes on n=946,
+        # which is underpowered rather than negative), and more paths is what settles it.
+        #
+        # Safe to run per book because _snapshot_keys includes the book: an Underdog quote
+        # can only ever match an Underdog leg. Without that this would reintroduce exactly
+        # the cross-book contamination that was purged earlier.
+        for sb, fetch in (("FanDuel", lambda: fetch_fanduel(sport_key)),
+                          ("Underdog", lambda: fetch_underdog(sport_key)),
+                          ("PrizePicks", lambda: fetch_prizepicks(pp_id))):
+            try:
+                raw = fetch()
+                if raw is None or raw.empty:
+                    continue
+                n = parlay_tracker.update_market_snapshots(raw, sport_label)
+                total += n
+                if n:
+                    print(f"    {sport_label} [{sb}]: {n} leg(s) re-priced.")
+            except Exception as e:
+                print(f"    {sport_label} [{sb}]: snapshot failed ({e}).")
     if not total:
         print("    No pending legs still on the board.")
 
