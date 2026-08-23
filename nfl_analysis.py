@@ -186,6 +186,280 @@ def opponent_splits(df, player: str, stat: str) -> list:
     return sorted(rows, key=lambda r: r["avg"], reverse=True)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Usage-share projection — the cold-start model for Weeks 1-2
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# project() above is a recency-weighted mean of a player's own raw per-game numbers.
+# That is honest mid-season and actively misleading in Week 1, because NFL rosters turn
+# over every offseason: a receiver who saw 8 targets a game on a 36-target offence and
+# then signed with a 24-target offence does not carry his old volume with him.
+#
+# So project the two halves separately. USAGE (what share of his team's work he gets)
+# travels with the player and stabilises within a few games; VOLUME (how much work the
+# team generates) belongs to the new team. Multiply the player's share by the new team's
+# per-game volume, apply EFFICIENCY (yards per opportunity), and the projection is
+# rebased onto where he actually plays.
+#
+# Everything gets shrunk toward a position prior — see _shrink. Touchdown rates get the
+# heaviest shrinkage of all: they are the noisiest thing on the board, and a leg priced
+# off an unregressed TD rate is the same mistake that cost the MLB board 0-for-48 on
+# home-run stacks in 2026-W34.
+
+_ROSTER_URL = "https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_{y}.parquet"
+
+# The roster feed writes Arizona as AZ, the weekly stats feed as ARI. One club, and
+# joining on the raw string silently drops it.
+_TEAM_FIX = {"AZ": "ARI"}
+
+# stat -> (opportunity column, per-opportunity rate column, shrink weight for that rate).
+# The weight is a pseudo-count in OPPORTUNITIES: k=14 means a receiver needs 14 targets
+# before his own TD rate outweighs his position's, k=4 that catch rate settles quickly.
+_USAGE_MODEL = {
+    "Passing Yards":   ("attempts", "passing_yards",   6),
+    "Passing TDs":     ("attempts", "passing_tds",    14),
+    "Completions":     ("attempts", "completions",     4),
+    "Rushing Yards":   ("carries",  "rushing_yards",   6),
+    "Rushing TDs":     ("carries",  "rushing_tds",    14),
+    "Carries":         ("carries",  None,              0),
+    "Receptions":      ("targets",  "receptions",      4),
+    "Receiving Yards": ("targets",  "receiving_yards", 6),
+    "Receiving TDs":   ("targets",  "receiving_tds",  14),
+}
+_VOLUME_COL = {"attempts": "attempts", "carries": "carries", "targets": "targets"}
+
+_SHARE_MIN_GAMES = 4          # below this, a share is damped toward zero rather than trusted
+_OPP_CLAMP = (0.88, 1.12)     # an opponent adjustment may move a projection ~12%, no more
+
+
+def _shrink(value: float, prior: float, n: float, k: float) -> float:
+    """Regress an observed rate toward a prior, weighted by how much of it we saw."""
+    if k <= 0 or n <= 0:
+        return value
+    return (n * value + k * prior) / (n + k)
+
+
+def current_teams(target_season: int) -> dict:
+    """player_id -> team for the target season, from the nflverse roster feed."""
+    import pandas as pd
+    df = pd.read_parquet(_ROSTER_URL.format(y=target_season))
+    idc = "player_id" if "player_id" in df.columns else "gsis_id"
+    out = {}
+    for pid, team in zip(df[idc], df["team"]):
+        if pid and team:
+            out[str(pid)] = _TEAM_FIX.get(str(team), str(team))
+    return out
+
+
+def team_volume(df) -> dict:
+    """team -> mean per-game {attempts, targets, carries}. The denominator for every share."""
+    g = df.groupby(["team", "week"])[["attempts", "targets", "carries"]].sum()
+    m = g.groupby("team").mean()
+    return {t: {c: float(r[c]) for c in ("attempts", "targets", "carries")}
+            for t, r in m.iterrows()}
+
+
+def position_priors(df) -> dict:
+    """(position, opportunity, rate_col) -> league rate, the prior every player shrinks to."""
+    priors: dict = {}
+    for pos, g in df.groupby("position"):
+        for _stat, (opp_col, rate_col, _k) in _USAGE_MODEL.items():
+            if rate_col is None:
+                continue
+            denom = float(g[opp_col].sum())
+            if denom > 0:
+                priors[(pos, opp_col, rate_col)] = float(g[rate_col].sum()) / denom
+    return priors
+
+
+def player_index(df) -> dict:
+    """
+    player -> his rows, built once.
+
+    Every scorer below starts by slicing one player out of the weekly frame, and
+    `df[df[...] == player]` is a full scan of ~18.5k rows. Doing that several times per
+    prop put a single scored prop at ~0.4s, which is 7 minutes for a 1,000-prop board and
+    would have blown the resolve/generate budget outright. Grouping once makes the lookup
+    a dict hit; pass the result through and a prop scores in ~1ms.
+    """
+    return {name: g.sort_values("week") for name, g in df.groupby("player_display_name")}
+
+
+def _rows_for(df, player: str, idx: dict | None):
+    if idx is not None:
+        return idx.get(player)
+    sub = df[df["player_display_name"] == player]
+    return None if sub.empty else sub.sort_values("week")
+
+
+def _log_from_rows(sub) -> list:
+    """game_log() for rows already sliced — same shape, no rescan."""
+    out = []
+    for _, r in sub.iterrows():
+        row = {"week": int(r["week"]), "opp": r.get("opponent_team", ""), "team": r.get("team", "")}
+        for label, (col, _) in PROP_STATS.items():
+            row[label] = float(r.get(col, 0) or 0)
+        out.append(row)
+    return out
+
+
+def usage_profile(df, player: str, priors: dict | None = None, vol: dict | None = None,
+                  idx: dict | None = None) -> dict:
+    """
+    A player's share of his team's work and his per-opportunity efficiency, both shrunk
+    toward his position. Shares are what travel to a new team; raw per-game totals do not.
+    """
+    sub = _rows_for(df, player, idx)
+    if sub is None or sub.empty:
+        return {}
+    n = len(sub)
+    pos = str(sub.iloc[0].get("position", ""))
+    team = str(sub.iloc[-1].get("team", ""))
+    priors = priors if priors is not None else position_priors(df)
+    vol = vol if vol is not None else team_volume(df)
+
+    shares, rates = {}, {}
+    for opp_col in ("attempts", "targets", "carries"):
+        team_pg = (vol.get(team) or {}).get(opp_col, 0.0)
+        player_pg = float(sub[opp_col].sum()) / n
+        share = (player_pg / team_pg) if team_pg > 0 else 0.0
+        # A share off one or two games is mostly noise, and the honest prior is not the
+        # league median (most rostered players see none of the work) but zero — an
+        # unproven player is assumed marginal until the sample says otherwise.
+        shares[opp_col] = share if n >= _SHARE_MIN_GAMES else share * (n / _SHARE_MIN_GAMES)
+
+    for _stat, (opp_col, rate_col, k) in _USAGE_MODEL.items():
+        if rate_col is None:
+            continue
+        prior = priors.get((pos, opp_col, rate_col))
+        if prior is None:
+            continue
+        opps = float(sub[opp_col].sum())
+        observed = (float(sub[rate_col].sum()) / opps) if opps > 0 else prior
+        rates[(opp_col, rate_col)] = _shrink(observed, prior, opps, k)
+
+    return {"player": player, "position": pos, "team_prev": team, "games": n,
+            "shares": shares, "rates": rates}
+
+
+def defense_factor(df, opponent: str, position: str, stat: str) -> float:
+    """
+    How much this defence inflates or suppresses a stat for this position, as a multiplier
+    on the league mean. Clamped: a 17-game sample cannot justify moving a projection more
+    than ~12%, and an unclamped factor off a handful of games is how a model talks itself
+    into a bad line.
+    """
+    col = PROP_STATS.get(stat, (None,))[0]
+    if not col or col not in df.columns or not opponent:
+        return 1.0
+    pos_rows = df[df["position"] == position]
+    if pos_rows.empty:
+        return 1.0
+    allowed = pos_rows.groupby(["opponent_team", "week"])[col].sum().groupby("opponent_team").mean()
+    if opponent not in allowed.index or float(allowed.mean()) <= 0:
+        return 1.0
+    factor = float(allowed[opponent]) / float(allowed.mean())
+    return max(_OPP_CLAMP[0], min(_OPP_CLAMP[1], factor))
+
+
+def project_usage(df, player: str, stat: str, opponent: str | None = None,
+                  teams: dict | None = None, priors: dict | None = None,
+                  vol: dict | None = None, idx: dict | None = None,
+                  dcache: dict | None = None) -> dict:
+    """
+    Rebased projection: the player's shrunk usage share x his CURRENT team's per-game
+    volume x his shrunk efficiency, adjusted for the opponent.
+
+    Returns {} when there is not enough history to say anything. `changed_team` marks a
+    projection rebased onto a different offence than the history came from — those are
+    the numbers to distrust first, so they are surfaced rather than folded in silently.
+    """
+    model = _USAGE_MODEL.get(stat)
+    if model is None:
+        return {}
+    prof = usage_profile(df, player, priors=priors, vol=vol, idx=idx)
+    if not prof or prof["games"] < 3:
+        return {}
+    opp_col, rate_col, _k = model
+
+    sub = _rows_for(df, player, idx)
+    pid = str(sub.iloc[0].get("player_id", ""))
+    team_now = (teams or {}).get(pid) or prof["team_prev"]
+    changed = bool(team_now and prof["team_prev"] and team_now != prof["team_prev"])
+
+    vol = vol if vol is not None else team_volume(df)
+    team_pg = (vol.get(team_now) or vol.get(prof["team_prev"]) or {}).get(_VOLUME_COL[opp_col], 0.0)
+    opportunities = prof["shares"].get(opp_col, 0.0) * team_pg
+    if opportunities <= 0:
+        return {}
+
+    mu = opportunities if rate_col is None else opportunities * prof["rates"].get((opp_col, rate_col), 0.0)
+    if opponent:
+        # Memoised: the factor is a full groupby over the position's rows and depends only
+        # on (opponent, position, stat), so one slate of props would otherwise recompute
+        # the same handful of numbers hundreds of times.
+        ck = (opponent, prof["position"], stat)
+        if dcache is not None and ck in dcache:
+            dfac = dcache[ck]
+        else:
+            dfac = defense_factor(df, opponent, prof["position"], stat)
+            if dcache is not None:
+                dcache[ck] = dfac
+    else:
+        dfac = 1.0
+    mu *= dfac
+
+    return {"player": player, "stat": stat, "position": prof["position"],
+            "team_prev": prof["team_prev"], "team_now": team_now, "changed_team": changed,
+            "games": prof["games"], "opportunities": round(opportunities, 2),
+            "def_factor": round(dfac, 3), "projection": round(mu, 2)}
+
+
+def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None,
+                     opponent: str | None = None, market_blend: float = 0.35,
+                     teams: dict | None = None, priors: dict | None = None,
+                     vol: dict | None = None, idx: dict | None = None,
+                     dcache: dict | None = None) -> dict:
+    """
+    score_prop, but off the rebased projection — the Week 1-2 scorer.
+
+    Sigma comes from the player's own game-to-game spread, rescaled by however much the
+    mean moved. Keeping the raw sigma after rebasing a mean down 30% would leave the
+    distribution far too wide for the new role; preserving the coefficient of variation
+    keeps the shape and moves the location, which is what actually changed. The floor
+    stops a player with a flat history from pricing a real tail at ~0.
+    """
+    import statistics as _st
+    proj = project_usage(df, player, stat, opponent=opponent, teams=teams,
+                         priors=priors, vol=vol, idx=idx, dcache=dcache)
+    if not proj:
+        return {}
+    sub = _rows_for(df, player, idx)
+    if sub is None:
+        return {}
+    vals = [g[stat] for g in _log_from_rows(sub) if stat in g]
+    if len(vals) < 3:
+        return {}
+    raw_mu = sum(vals) / len(vals)
+    raw_sigma = _st.pstdev(vals) if len(vals) > 1 else max(raw_mu * 0.5, 1.0)
+    mu = proj["projection"]
+    sigma = (raw_sigma * (mu / raw_mu)) if raw_mu > 0 else raw_sigma
+    sigma = max(sigma, 0.35 * max(mu, 0.5))
+
+    model_over = round(1 - _norm_cdf(line, mu, sigma), 4)
+    out = dict(proj)
+    out.update({"line": float(line), "sigma": round(sigma, 2), "model_over": model_over,
+                "hit_rate_hist": round(sum(1 for v in vals if v > line) / len(vals), 3),
+                "n": len(vals)})
+    if american_odds is not None:
+        implied = _implied_from_odds(american_odds)
+        blended = round(market_blend * model_over + (1 - market_blend) * implied, 4)
+        out.update({"american_odds": int(american_odds), "implied": round(implied, 4),
+                    "blended_over": blended, "edge": round(blended - implied, 4),
+                    "model_edge": round(model_over - implied, 4)})
+    return out
+
+
 if __name__ == "__main__":
     import sys
     sys.stdout.reconfigure(encoding="utf-8")
