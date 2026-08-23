@@ -1119,6 +1119,24 @@ def _resolve_mlb_legs() -> int:
                         continue
                     stat_type = leg["stat_type"]
                     is_pitching = stat_type in _MLB_PITCHER_TYPES
+                    # A batter who never came to the plate did not lose the bet — books
+                    # void a batter prop on zero plate appearances, and grading it 0 is a
+                    # guaranteed loss on a wager that was never action. 5% of sampled
+                    # batter legs land here and "hit" 2.2%, dragging every batter market's
+                    # measured rate down about 2.6 points.
+                    #
+                    # PA rather than AB, because a walk is a plate appearance: a hitter who
+                    # walks twice has 0 AB and was very much in the game. The boxscore has
+                    # no plateAppearances field, so it is reconstructed — AB + BB is the
+                    # bulk of it, missing only HBP and sacrifices, which cannot be zero
+                    # when AB and BB both are.
+                    if not is_pitching:
+                        _b = bstats or {}
+                        _pa = float(_b.get("atBats", 0) or 0) + float(_b.get("baseOnBalls", 0) or 0)
+                        if _pa <= 0:
+                            leg["outcome"] = "void"
+                            resolved_count += 1
+                            continue
                     if is_pitching:
                         col = _MLB_PITCHING_RESOLVE.get(stat_type)
                         source = pstats
