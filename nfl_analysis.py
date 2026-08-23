@@ -460,6 +460,174 @@ def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None
     return out
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Fantasy-board fallback — how a rookie gets priced at all
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# The usage model needs a game log, so it cannot say anything about a player who has
+# never played. That is not a small hole in Week 1: 227 of the 2026 rookie class play a
+# fantasy position, and the ones who matter (a first-round RB, a top-15 WR) are exactly
+# the names books post props on.
+#
+# nfl_fantasy_rankings already solves the projection half of this for the draft board,
+# from draft slot against the previous rookie class by position and tier. This maps its
+# output onto the prop markets so the same expectation prices a leg.
+#
+# Two honest limits. Every rookie in one (position, draft tier) bucket gets the SAME
+# projection — that is what a cohort model is, and it means the board separates a
+# first-round RB from a fifth-round RB but not two first-round RBs. And the board carries
+# no Completions or Carries, so those are derived from the yardage projection at the
+# position's league rate rather than projected directly.
+
+_BOARD_TO_STAT = {
+    "pass_yd": "Passing Yards", "pass_td": "Passing TDs",
+    "rush_yd": "Rushing Yards", "rush_td": "Rushing TDs",
+    "rec": "Receptions", "rec_yd": "Receiving Yards", "rec_td": "Receiving TDs",
+}
+# Derived markets: stat -> (source stat, per-unit rate column, opportunity column).
+# Carries = rushing yards / yards-per-carry, Completions = passing yards / yards-per-completion.
+_BOARD_DERIVED = {
+    "Carries":     ("Rushing Yards", "rushing_yards", "carries"),
+    "Completions": ("Passing Yards", "passing_yards", "completions"),
+}
+
+
+def board_projections(target_season: int) -> dict:
+    """
+    normalised player name -> {stat label: per-game projection}, from the fantasy board.
+
+    Board rows carry SEASON totals (veteran rows multiply per-game by proj_games, and the
+    rookie rows now match), so everything is divided back down by "games".
+    """
+    import nfl_fantasy_rankings as fr
+    try:
+        board = fr.get_ppr_projections(target_season)
+    except Exception:
+        return {}
+    out = {}
+    for row in board.get("players", []):
+        name = str(row.get("name", "")).strip()
+        games = float(row.get("games", 0) or 0)
+        if not name or games <= 0:
+            continue
+        per_game = {label: float(row.get(key, 0) or 0) / games
+                    for key, label in _BOARD_TO_STAT.items()}
+        per_game["_pos"] = row.get("pos") or row.get("position", "")
+        per_game["_team"] = row.get("team", "")
+        per_game["_rookie"] = (row.get("note") == "rookie")
+        out[_norm_name(name)] = per_game
+    return out
+
+
+def _norm_name(name: str) -> str:
+    """Loose name key — the board reads rosters, the stats feed reads box scores."""
+    import re as _re
+    return _re.sub(r"[^a-z]", "", str(name).lower())
+
+
+def league_rates(df) -> dict:
+    """(position, rate_col, opp_col) -> league per-opportunity rate, for derived markets."""
+    out = {}
+    for pos, g in df.groupby("position"):
+        for _stat, (src, rate_col, opp_col) in _BOARD_DERIVED.items():
+            opps = float(g[opp_col].sum())
+            yards = float(g[rate_col].sum())
+            if opps > 0 and yards > 0:
+                out[(str(pos), rate_col, opp_col)] = yards / opps
+    return out
+
+
+def stat_cv(df, position: str, stat: str, cache: dict | None = None) -> float:
+    """
+    Median game-to-game coefficient of variation for a position's players in this market.
+
+    A board projection is a mean with no distribution attached, and a prop needs a spread.
+    Rather than invent one, measure what the spread actually looks like for players at
+    that position in that market and reuse it. Falls back to 0.6, which is roughly where
+    yardage markets sit.
+    """
+    import statistics as _st
+    key = (position, stat)
+    if cache is not None and key in cache:
+        return cache[key]
+    col = PROP_STATS.get(stat, (None,))[0]
+    cv = 0.6
+    if col and col in df.columns:
+        cvs = []
+        for _pid, g in df[df["position"] == position].groupby("player_id"):
+            vals = [float(v or 0) for v in g[col]]
+            if len(vals) < 6:
+                continue
+            m = sum(vals) / len(vals)
+            if m > 0:
+                cvs.append(_st.pstdev(vals) / m)
+        if cvs:
+            cv = float(_st.median(cvs))
+    cv = max(0.25, min(1.6, cv))
+    if cache is not None:
+        cache[key] = cv
+    return cv
+
+
+def score_prop_board(df, player: str, stat: str, line: float, american_odds=None,
+                     board: dict | None = None, market_blend: float = 0.35,
+                     rates: dict | None = None, cvcache: dict | None = None) -> dict:
+    """Price a prop off the fantasy board's projection — the no-game-log path."""
+    row = (board or {}).get(_norm_name(player))
+    if not row:
+        return {}
+    pos = str(row.get("_pos", ""))
+    if stat in _BOARD_DERIVED:
+        src, rate_col, opp_col = _BOARD_DERIVED[stat]
+        yards = float(row.get(src, 0) or 0)
+        rate = (rates or {}).get((pos, rate_col, opp_col))
+        mu = (yards / rate) if (rate and rate > 0) else 0.0
+    else:
+        mu = float(row.get(stat, 0) or 0)
+    if mu <= 0:
+        return {}
+
+    sigma = max(mu * stat_cv(df, pos, stat, cache=cvcache), 0.35 * max(mu, 0.5))
+    model_over = round(1 - _norm_cdf(line, mu, sigma), 4)
+    out = {"player": player, "stat": stat, "line": float(line), "position": pos,
+           "team_now": row.get("_team", ""), "source": "board",
+           "rookie": bool(row.get("_rookie")), "projection": round(mu, 2),
+           "sigma": round(sigma, 2), "model_over": model_over, "n": 0}
+    if american_odds is not None:
+        implied = _implied_from_odds(american_odds)
+        blended = round(market_blend * model_over + (1 - market_blend) * implied, 4)
+        out.update({"american_odds": int(american_odds), "implied": round(implied, 4),
+                    "blended_over": blended, "edge": round(blended - implied, 4),
+                    "model_edge": round(model_over - implied, 4)})
+    return out
+
+
+def score_prop_nfl(df, player: str, stat: str, line: float, american_odds=None,
+                   opponent: str | None = None, market_blend: float = 0.35,
+                   teams: dict | None = None, priors: dict | None = None,
+                   vol: dict | None = None, idx: dict | None = None,
+                   dcache: dict | None = None, board: dict | None = None,
+                   rates: dict | None = None, cvcache: dict | None = None) -> dict:
+    """
+    The single NFL scorer. Usage model when the player has a game log, fantasy board when
+    he does not.
+
+    Order matters and is not arbitrary: a player's own usage is strictly better evidence
+    than his draft cohort's average, so the board is a fallback rather than a blend. Every
+    result carries `source` so a board-priced leg can be told apart downstream — those are
+    cohort averages, and two rookies in one tier will price identically.
+    """
+    s = score_prop_usage(df, player, stat, line, american_odds=american_odds,
+                         opponent=opponent, market_blend=market_blend, teams=teams,
+                         priors=priors, vol=vol, idx=idx, dcache=dcache)
+    if s:
+        s.setdefault("source", "usage")
+        return s
+    return score_prop_board(df, player, stat, line, american_odds=american_odds,
+                            board=board, market_blend=market_blend, rates=rates,
+                            cvcache=cvcache)
+
+
 if __name__ == "__main__":
     import sys
     sys.stdout.reconfigure(encoding="utf-8")
