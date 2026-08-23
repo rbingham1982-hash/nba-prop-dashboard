@@ -391,8 +391,8 @@ def tag_games_with_hand(name: str, seasons=("2025", "2026")) -> list:
     for _, r in df.iterrows():
         d = pm._mlb_log_date(r) if hasattr(pm, "_mlb_log_date") else None
         if d is None:
+            import datetime as _dt
             try:
-                import datetime as _dt
                 d = _dt.date.fromisoformat(str(r["date"])[:10])
             except Exception:
                 continue

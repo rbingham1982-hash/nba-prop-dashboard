@@ -300,8 +300,10 @@ def _recent_mean_ip(player_name: str):
     None means "cannot judge" and callers keep the play — a returning starter or a rookie
     with no log should not be filtered out on missing data.
     """
+    # Outside the try: this returning None means "cannot judge, keep the play", so a typo
+    # in the calls below would quietly disable the opener filter rather than error.
+    import parlay_model as _pm
     try:
-        import parlay_model as _pm
         pid = _pm.mlb_player_id(player_name)
         if not pid:
             return None
@@ -707,8 +709,11 @@ def _team_label_to_abbrev(token: str) -> str:
     if len(token) <= 4:
         return token.upper()[:3]  # already an abbreviation
     # Build a keyword → abbrev map from nba_api teams (cached in module)
+    # Outside the try for the same reason as _fd_team_abbr: the fallback invents an
+    # abbreviation from the first three characters, so a swallowed import would silently
+    # start mislabelling every team instead of erroring.
+    from nba_api.stats.static import teams as _nba_teams  # type: ignore
     try:
-        from nba_api.stats.static import teams as _nba_teams  # type: ignore
         all_teams = _nba_teams.get_teams()
         token_up = token.upper()
         for t in all_teams:
@@ -858,8 +863,8 @@ _NBA_PLAYER_ALIASES: dict[str, str] = {
 
 def _get_nba_player_id(name: str):
     """Resolve a display name (including known nicknames) to an NBA API player ID."""
+    from nba_api.stats.static import players as _nba_players
     try:
-        from nba_api.stats.static import players as _nba_players
         # Alias substitution
         lookup = _NBA_PLAYER_ALIASES.get(name.strip().lower(), name)
         results = _nba_players.find_players_by_full_name(lookup)

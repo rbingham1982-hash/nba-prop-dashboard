@@ -151,10 +151,23 @@ UD_NBA_STAT_MAP = {
 # ── Calibration ────────────────────────────────────────────────────────────
 
 def load_cal(sport):
+    """
+    Per-stat calibration factors, or {} — which silently means "no correction at all".
+
+    Worth being loud about: every factor defaults to 1.0 when this returns empty, so a
+    broken calibration does not fail, it just stops correcting, and the board looks
+    completely normal while shipping uncalibrated prices. The caller prints the factors it
+    got, so an empty dict printed nothing at all and read as "no line in the log" rather
+    than "the correction is off".
+    """
     try:
-        return parlay_tracker.get_calibration(sport=sport)
-    except Exception:
+        cal = parlay_tracker.get_calibration(sport=sport)
+    except Exception as e:
+        print(f"  ! CALIBRATION FAILED for {sport} ({e}) — shipping uncorrected prices.")
         return {}
+    if not cal:
+        print(f"  ! No calibration factors for {sport} — every market defaults to 1.0.")
+    return cal
 
 # ── PrizePicks API ─────────────────────────────────────────────────────────
 
@@ -436,8 +449,8 @@ def _has_started(start_time) -> bool:
     s = str(start_time or "").strip()
     if not s:
         return False
+    from datetime import timezone
     try:
-        from datetime import timezone
         st = datetime.fromisoformat(s.replace("Z", "+00:00"))
         if st.tzinfo is None:
             st = st.replace(tzinfo=timezone.utc)

@@ -725,8 +725,12 @@ def _fd_team_abbr(sport: str, full_name: str) -> str:
         if hit:
             return canonical_abbr(sport, hit)
     elif sport == "nba":
+        # Import outside the try on purpose: a missing or renamed module is a coding
+        # error and must fail loudly, because the fallback below INVENTS an abbreviation
+        # from the first three characters — the mechanism that produced "LOS" for both
+        # Los Angeles clubs and left 90 legs permanently unresolvable.
+        from nba_api.stats.static import teams as _t  # type: ignore
         try:
-            from nba_api.stats.static import teams as _t  # type: ignore
             for t in _t.get_teams():
                 if t["full_name"].lower() == key:
                     return canonical_abbr(sport, t["abbreviation"])
