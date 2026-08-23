@@ -188,21 +188,38 @@ def _matchup(rate_b, rate_p, lg):
         return rate_b * rate_p / lg
     return rate_b
 
-def statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id=None):
-    """P(stat > line) from Statcast expected rates, or None when unsupported."""
+def statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id=None,
+                       opportunity=None):
+    """
+    P(stat > line) from Statcast expected rates, or None when unsupported.
+
+    `opportunity` is this player's own expected batters faced (pitchers) or plate
+    appearances (batters). It defaults to the league constants below, and that default is
+    the third place the same bug lived: a Statcast rate is per-batter, so multiplying an
+    excellent K% by a starter's 22 batters faced prices an opener as a starter. Sean
+    Newcomb faces ~5.8 batters an outing and this component alone had his o1.5 strikeouts
+    at 91%, which then carried 0.35 weight into the shipped price.
+
+    Passing the measured opportunity makes the rate and the workload independent inputs
+    here too, so all three components of the blend agree about how much of the game the
+    player is actually going to see.
+    """
     lg = _savant_league()
     k_over = _over_int(line)
+    _bf = float(opportunity) if opportunity else _BF_START
+    _ab = float(opportunity) if opportunity else _AB_PER_GAME
+    _pa = float(opportunity) if opportunity else _PA_PER_GAME
     if is_pitcher:
         p = savant_pitcher_stats().get(pid) or {}
         if stat_type in ("Pitcher Strikeouts", "Strikeouts"):
             kp = p.get("k_pct")
-            return _pois_ge(k_over, (kp / 100) * _BF_START) if kp is not None else None
+            return _pois_ge(k_over, (kp / 100) * _bf) if kp is not None else None
         if stat_type == "Walks Allowed":
             bb = p.get("bb_pct")
-            return _pois_ge(k_over, (bb / 100) * _BF_START) if bb is not None else None
+            return _pois_ge(k_over, (bb / 100) * _bf) if bb is not None else None
         if stat_type == "Hits Allowed":
             xba = p.get("xba")
-            return _pois_ge(k_over, xba * _BF_START) if xba is not None else None
+            return _pois_ge(k_over, xba * _bf) if xba is not None else None
         return None
     b = savant_batter_stats().get(pid) or {}
     opp = savant_pitcher_stats().get(opp_pitcher_id) if opp_pitcher_id else None
@@ -212,7 +229,7 @@ def statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id=None):
             return None
         if stat_type == "Singles":
             r *= 0.66                      # singles are ~2/3 of all hits
-        return _binom_ge(k_over, _AB_PER_GAME, min(0.65, max(0.05, r)))
+        return _binom_ge(k_over, int(round(_ab)), min(0.65, max(0.05, r)))
     if stat_type == "Home Runs":
         return barrel_hr_prob(pid, opp_pitcher_id)
     if stat_type == "Total Bases":
@@ -221,13 +238,13 @@ def statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id=None):
             return None
         if opp and opp.get("xslg") and lg["xslg"]:
             xslg = xslg * opp["xslg"] / lg["xslg"]
-        return _pois_ge(k_over, xslg * _AB_PER_GAME)
+        return _pois_ge(k_over, xslg * _ab)
     if stat_type in ("Hitter Strikeouts", "Strikeouts"):
         r = _matchup(b.get("k_pct"), opp.get("k_pct") if opp else None, lg["k"])
-        return _binom_ge(k_over, _PA_PER_GAME, min(0.70, max(0.05, r / 100))) if r is not None else None
+        return _binom_ge(k_over, int(round(_pa)), min(0.70, max(0.05, r / 100))) if r is not None else None
     if stat_type == "Walks":
         r = _matchup(b.get("bb_pct"), opp.get("bb_pct") if opp else None, lg["bb"])
-        return _binom_ge(k_over, _PA_PER_GAME, min(0.50, max(0.02, r / 100))) if r is not None else None
+        return _binom_ge(k_over, int(round(_pa)), min(0.50, max(0.02, r / 100))) if r is not None else None
     return None
 
 
@@ -1503,6 +1520,111 @@ def _mlb_pa_over_prob(df, stat_type: str, line: float):
     return round(sum(w * f(k) for k, w in weights.items()), 4)
 
 
+# ── Batters-faced model for pitcher props ───────────────────────────────────
+#
+# Third instance of the same structural gap: the scorer has a good RATE and no model of
+# the OPPORTUNITY it applies over. For batters that was plate appearances; here it is
+# batters faced, and it is what separates a starter from an opener.
+#
+# The frequency estimator weights a pitcher's last 3 outings at 50%, which is reasonable
+# form-tracking for someone who throws 5-6 innings and nonsense for someone who throws
+# one. On 2026-08-23 it priced Sean Newcomb's o1.5 strikeouts at 64.6% off a 2-for-3
+# recent streak, against a 3-for-10 record over ten straight outings of 2.3 innings or
+# fewer. The pocket alert now filters those, but filtering only guards the alert — the
+# leg still prices at 64.6% inside a parlay or the BET tab. This fixes the price.
+#
+#   P(over) = SUM_b  P(BF = b) * P(stat > line | b batters faced)
+#
+# Both halves come from the pitcher's own log, so the BF distribution carries his role and
+# his leash without needing to know whether tonight is a start or an opener appearance.
+#
+# BF is not in the feed and is reconstructed as outs + hits + walks. IP here is thirds of
+# an inning written as .0/.3/.7 (never baseball's .1/.2 — verified across five pitchers'
+# logs), so outs = round(IP * 3) is exact rather than approximate.
+
+_MLB_BF_LOOKBACK = 12      # recent outings behind the BF distribution and the per-BF rate
+_MLB_BF_MIN_GAMES = 5
+
+# Markets that are a per-batter Bernoulli trial, so binomial in batters faced. Earned runs
+# are excluded on purpose: runs cluster within an inning rather than arriving independently
+# per batter, so a binomial would understate the tail that actually decides those props.
+_MLB_BF_RATE_COL = {
+    "Pitcher Strikeouts": "K",
+    "Strikeouts":         "K",
+    "Walks Allowed":      "BB",
+    "Hits Allowed":       "H",
+}
+
+
+def _mlb_mean_opportunity(df, is_pitcher: bool):
+    """
+    Mean batters faced (pitcher) or plate appearances (batter) over recent games, or None.
+
+    This is the workload the Statcast rates get applied over, replacing the league
+    constants. Zero-opportunity games are excluded — those are voids, and averaging them
+    in would drag every projection toward a scenario the bet never pays out on.
+    """
+    if df is None or df.empty:
+        return None
+    if is_pitcher:
+        if not {"IP", "H", "BB"}.issubset(df.columns):
+            return None
+        sub = df.tail(_MLB_BF_LOOKBACK)
+        vals = []
+        for ip, h, bb in zip(sub["IP"], sub["H"], sub["BB"]):
+            try:
+                bf = round(float(ip or 0) * 3) + int(h or 0) + int(bb or 0)
+            except (TypeError, ValueError):
+                continue
+            if bf > 0:
+                vals.append(bf)
+        need = _MLB_BF_MIN_GAMES
+    else:
+        if not {"AB", "BB"}.issubset(df.columns):
+            return None
+        sub = df.tail(_MLB_PA_LOOKBACK)
+        vals = [int(a or 0) + int(b or 0) for a, b in zip(sub["AB"], sub["BB"])]
+        vals = [v for v in vals if v > 0]
+        need = _MLB_PA_MIN_GAMES
+    if len(vals) < need:
+        return None
+    return sum(vals) / len(vals)
+
+
+def _mlb_bf_over_prob(df, stat_type: str, line: float):
+    """
+    P(stat > line) marginalised over the pitcher's own batters-faced distribution.
+    Returns None when the market or the sample cannot support it.
+    """
+    col = _MLB_BF_RATE_COL.get(stat_type)
+    if col is None or df is None or df.empty:
+        return None
+    if not {"IP", "H", "BB", col}.issubset(df.columns):
+        return None
+    sub = df.tail(_MLB_BF_LOOKBACK)
+    bf_series, stat_total, bf_total = [], 0.0, 0.0
+    for ip, h, bb, sv in zip(sub["IP"], sub["H"], sub["BB"], sub[col]):
+        try:
+            outs = round(float(ip or 0) * 3)
+        except (TypeError, ValueError):
+            continue
+        bf = outs + int(h or 0) + int(bb or 0)
+        if bf <= 0:
+            continue        # did not pitch — a void, not a data point
+        bf_series.append(bf)
+        bf_total += bf
+        stat_total += float(sv or 0)
+    if len(bf_series) < _MLB_BF_MIN_GAMES or bf_total <= 0:
+        return None
+    rate = stat_total / bf_total
+    if rate <= 0:
+        return None
+    weights: dict = {}
+    for b in bf_series:
+        weights[b] = weights.get(b, 0.0) + 1.0 / len(bf_series)
+    return round(sum(w * _binom_sf(line, b, rate) for b, w in weights.items()), 4)
+
+
 def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
                    odds_type: str = "standard", implied_override: float = -1.0,
                    cal_factor: float = 1.0, opp_pitcher_id: int | None = None,
@@ -1588,13 +1710,13 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
     # retained at 0.35 as a hedge: the PA model adds its own assumptions (binomial hits,
     # a convolved per-PA distribution for total bases) that have not been measured against
     # this log yet, and the calibration loop needs a few weeks to grade them.
-    if not is_pitcher:
-        try:
-            pa_p = _mlb_pa_over_prob(df, stat_type, line)
-        except Exception:
-            pa_p = None
-        if pa_p is not None:
-            hist = min(0.97, max(0.03, 0.65 * pa_p + 0.35 * hist))
+    try:
+        opp_p = (_mlb_bf_over_prob(df, stat_type, line) if is_pitcher
+                 else _mlb_pa_over_prob(df, stat_type, line))
+    except Exception:
+        opp_p = None
+    if opp_p is not None:
+        hist = min(0.97, max(0.03, 0.65 * opp_p + 0.35 * hist))
 
     implied = implied_override if implied_override >= 0 else PP_ODDS_IMPLIED.get(odds_type, 0.50)
     # Statcast expected-stat model, when the prop has one (xBA→hits, xSLG→total
@@ -1602,7 +1724,8 @@ def _mlb_hit_rate(player_name: str, stat_type: str, line: float,
     # game-log recency rate, so give it real weight when available.
     sc = None
     try:
-        sc = statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id)
+        sc = statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id,
+                                opportunity=_mlb_mean_opportunity(df, is_pitcher))
     except Exception:
         sc = None
     if sc is not None:
