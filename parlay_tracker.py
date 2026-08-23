@@ -451,6 +451,10 @@ def _parse_game_date(leg: dict, parlay_generated_at: str) -> date | None:
 
 RESOLVE_MAX_ATTEMPTS  = 5   # tries before a long-finished leg is presumed unresolvable
 RESOLVE_GIVE_UP_DAYS  = 3   # ...and only once its game is this far in the past
+RESOLVE_DNP_HOURS     = 12  # a finished game the player is absent from is a DNP by now.
+                            # Must stay well under RESOLVE_GIVE_UP_DAYS: see _did_not_play,
+                            # where equal thresholds meant the leg was abandoned on the very
+                            # pass that should have voided it.
 # statsapi (MLB) and commonallplayers (WNBA) issue requests with no timeout, so one
 # stalled connection freezes the whole resolve run indefinitely. A process-wide
 # socket timeout during resolve turns that hang into a caught exception the per-call
@@ -533,6 +537,15 @@ def _did_not_play(leg: dict, now: datetime | None = None) -> bool:
     rather than sitting pending until they abandon. Azzi Fudd has not logged a game since
     08-05 and carried 74 pending legs across four later dates; grading them as misses
     would be wrong and abandoning them reports a resolver bug that isn't one.
+
+    The window is HOURS, not RESOLVE_GIVE_UP_DAYS, and that difference is the whole
+    point. Both thresholds started at 3 days, so a leg became voidable and abandonable in
+    the same instant — and _leg_is_resolvable tests _leg_is_abandoned first, so the
+    resolver stopped examining the leg on exactly the pass that would have voided it. 73
+    legs died that way (Ronny Simon, Tyler Soderstrom, Ketel Marte, Jordin Canada — all
+    confirmed absent from their box scores), reported as a resolver bug when they were
+    roster news. A finished game settles in well under 12 hours, so the DNP verdict now
+    lands days before the give-up counter can close the door on it.
     """
     start = leg.get("start_time", "")
     if not start:
@@ -542,7 +555,7 @@ def _did_not_play(leg: dict, now: datetime | None = None) -> bool:
     except Exception:
         return False
     now = now or datetime.now(timezone.utc).astimezone()
-    return now >= game_start + timedelta(days=RESOLVE_GIVE_UP_DAYS)
+    return now >= game_start + timedelta(hours=RESOLVE_DNP_HOURS)
 
 
 def _leg_is_resolvable(leg: dict, generated_at: str) -> bool:
@@ -993,6 +1006,15 @@ def _resolve_mlb_legs() -> int:
                 for _off in (-1, 0, 1):
                     dates_needed.add((d + timedelta(days=_off)).strftime("%m/%d/%Y"))
 
+        # A DNP verdict needs the whole day's slate, not one game. MLB schedules ~15
+        # games a date and the player is in exactly one box, so testing "not in this box
+        # AND this box is on the leg's date" voids the leg against the first unrelated
+        # game the loop happens to reach — Ohtani and Lindor both played on 08-22 and
+        # were voided anyway. Decide only after every candidate game has been scanned:
+        # scanned_dates is where a Final box actually loaded, appeared_dates is where
+        # this player turned up in one.
+        scanned_dates: set = set()
+        appeared_dates: set = set()
         for date_str in dates_needed:
             schedule = _get_schedule(date_str)
 
@@ -1045,17 +1067,13 @@ def _resolve_mlb_legs() -> int:
                         return False
                     return _mlb_game_matches_label(away_name, home_name, leg.get("game_label", ""))
 
+                if game_date is not None:
+                    scanned_dates.add(game_date)
                 player_data = _mlb_match_player(box, norm_name)
                 if player_data is None:
-                    # This game is Final, its box score loaded, and the player is not in
-                    # it — so for any leg pinned to this game he did not appear. That is
-                    # a refund at the book, same as a postponement; Kyle Karros carried
-                    # 21 legs on COL @ ARI 08-12 and is simply absent from that box.
-                    for parlay, leg in entries:
-                        if leg["outcome"] is None and _is_this_game(parlay, leg) and _did_not_play(leg):
-                            leg["outcome"] = "void"
-                            resolved_count += 1
                     continue
+                if game_date is not None:
+                    appeared_dates.add(game_date)
                 stats = player_data.get("stats", {})
                 bstats = stats.get("batting", {})
                 pstats = stats.get("pitching", {})
@@ -1086,6 +1104,20 @@ def _resolve_mlb_legs() -> int:
                         resolved_count += 1
                     except Exception:
                         continue
+
+        # Every candidate game for this player has now been scanned. A leg whose date had
+        # Final box scores that never named him is a DNP — a refund at the book, same as a
+        # postponement. Kyle Karros carried 21 legs on COL @ ARI 08-12 and is simply absent
+        # from that box.
+        for parlay, leg in entries:
+            if leg["outcome"] is not None:
+                continue
+            leg_date = _parse_game_date(leg, parlay["generated_at"])
+            if leg_date is None or leg_date in appeared_dates or leg_date not in scanned_dates:
+                continue
+            if _did_not_play(leg):
+                leg["outcome"] = "void"
+                resolved_count += 1
 
     marked = _mark_parlay_outcomes(data)
     if resolved_count or marked or attempted:
