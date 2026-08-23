@@ -83,7 +83,7 @@ NFL_STAT_TYPES  = ["Passing Yards", "Passing TDs", "Completions",
 # MLB and WNBA are left unconstrained on purpose: this changes which parlays a board emits,
 # and retuning a live board is a separate decision from standing up a new one. MLB is the
 # obvious next candidate.
-MAX_SAME_MARKET = {"NFL": 2}
+MAX_SAME_MARKET = {"NFL": 2, "MLB": 2}
 
 # The coarser cut: what KIND of outcome a market resolves on. The market cap alone still
 # produced a 5-leg of Passing TDs / Rushing TDs / Receiving TDs — three markets by name,
@@ -95,8 +95,38 @@ NFL_STAT_FAMILY = {
     "Passing Yards": "yards", "Rushing Yards": "yards", "Receiving Yards": "yards",
     "Passing TDs": "td", "Rushing TDs": "td", "Receiving TDs": "td",
 }
-STAT_FAMILY = {"NFL": NFL_STAT_FAMILY}
-MAX_SAME_FAMILY = {"NFL": 2}
+# MLB, added after the 2026-W34 board went 0-for-48 on its recommended parlays at a median
+# 51.5x payout and 2.0% model probability — 47 of 48 paid 20x or more, and they were built
+# by stacking the same longshot market. Home Runs is the one MLB market that is a rare
+# event, and it is also the worst-calibrated (factor 0.796, hr_power_picks 0.733), so a
+# parlay made of them multiplies the model's least reliable numbers together.
+#
+# BUT THE DATA DOES NOT YET BACK THIS UP, and that is worth knowing before trusting it.
+# Backtested over the logged board:
+#
+#   ROI          W33  -55.0% all vs -41.2% capped   (cap helps)
+#                W34  -35.6% all vs -50.9% capped   (cap hurts)
+#   calibration  3wk, actual/predicted: 0.90 diverse vs 0.87 concentrated — no real gap,
+#                and by pick count it flips (3-leg 1.11 vs 0.78, 4-leg 0.49 vs 0.89)
+#
+# So the correlation argument — that same-market legs are one bet and the independence
+# product overprices them — is sound reasoning that this sample cannot confirm. It also
+# costs about half the board (593 of 1231 W34 parlays, and 95 of 165 winners). Kept
+# because a 5-leg of one longshot market is a concentration risk regardless of what three
+# weeks of variance says, but it is a judgement call, not a measured improvement: delete
+# the "MLB" entries here and in MAX_SAME_FAMILY to revert it.
+#
+# Total Bases sits with Hits rather than with Home Runs even though a homer is four bases:
+# the line books post on it (1.5, 2.5) resolves on contact, not on power, and grouping it
+# with HR would leave "contact" too thin to fill a leg on most slates.
+MLB_STAT_FAMILY = {
+    "Home Runs": "power",
+    "Hits": "contact", "Total Bases": "contact",
+    "Runs Scored": "runs",
+    "Pitcher Strikeouts": "pitching",
+}
+STAT_FAMILY = {"NFL": NFL_STAT_FAMILY, "MLB": MLB_STAT_FAMILY}
+MAX_SAME_FAMILY = {"NFL": 2, "MLB": 2}
 
 # Games of history a leg needs before it is scored, per sport. See score_legs.
 MIN_SAMPLE = {"NFL": 0}
@@ -736,6 +766,47 @@ def already_ran_today(now) -> bool:
     return last is not None and last.date() == now.date()
 
 
+def snapshot_only_pass(month: int) -> int:
+    """
+    Re-price today's still-pending legs against the current market. Returns legs stamped.
+
+    This is what the hourly catch-up firings do now instead of returning immediately, and
+    it exists because CLV was close to unmeasurable: only 27.8% of logged props ever
+    received a closing snapshot, and on a one-board day it was 10%. A leg can only be
+    stamped while its game is still quoted, so with a single working pass a day most legs
+    got exactly one chance — at the moment they were logged, at their own entry price,
+    which records a CLV of zero rather than a closing line.
+
+    Firing hourly through the evening catches prices near kickoff, which is the number
+    CLV is supposed to compare against. Deliberately snapshot-only: no resolve, no
+    generation, no logging. One FanDuel fetch per in-season sport is cheap enough to run
+    every hour, where a resolve pass carries a 600s budget and would put the expensive
+    work back on a schedule that has no board to protect.
+    """
+    total = 0
+    for sport_key, sport_label, in_season in (
+        ("mlb",  "MLB",  True),
+        ("wnba", "WNBA", 5 <= month <= 9),
+        ("nba",  "NBA",  month >= 10 or month <= 6),
+        ("nfl",  "NFL",  month >= 9 or month <= 2),
+    ):
+        if not in_season:
+            continue
+        try:
+            raw = fetch_fanduel(sport_key)
+            if raw is None or raw.empty:
+                continue
+            n = parlay_tracker.update_market_snapshots(raw, sport_label)
+            total += n
+            if n:
+                print(f"    {sport_label}: {n} leg(s) re-priced.")
+        except Exception as e:
+            print(f"    {sport_label}: snapshot failed ({e}).")
+    if not total:
+        print("    No pending legs still on the board.")
+    return total
+
+
 def main():
     now   = datetime.now()
     month = now.month
@@ -754,7 +825,8 @@ def main():
     print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}{'  (forced)' if force else ''}")
 
     if already_ran_today(now) and not force:
-        print("  Already generated today — nothing to do (hourly catch-up firing).")
+        print("  Already generated today — catch-up firing, snapshotting prices only.")
+        snapshot_only_pass(month)
         return
 
     warn_if_stale(now)
