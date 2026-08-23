@@ -2597,16 +2597,102 @@ def get_lead_time_experiment(sport: str | None = None,
 # WNBA rebounding/assist props beat their implied hit rate — while MLB Hits/Home Runs and
 # WNBA scoring lose. Unlike lead time, pocket membership is static (no log-time stamp needed),
 # so the readout works on history AND accrues forward.
-POCKET_MARKETS = frozenset({
+# The ORIGINAL hand-picked set, kept only as a fallback for when there is too little
+# out-of-sample data to derive one. Do not treat it as a recommendation: measured on the
+# forward window it does not hold. Its four markets return -11.5%, -13.7%, -22.8% and
+# -12.6% flat at the real price, and as a group they now underperform their implied hit
+# rate by MORE than everything else does (-4.65 points vs -3.30).
+_POCKET_MARKETS_SEED = frozenset({
     ("MLB", "Pitcher Strikeouts"),
     ("WNBA", "Rebounds"),
     ("WNBA", "Assists"),
     ("WNBA", "Rebs+Asts"),
 })
 
+POCKET_MIN_LEGS = 150     # resolved legs before a market can qualify
+POCKET_MIN_EDGE = 0.01    # must beat its own de-vigged price by a point, not by noise
+_pocket_cache: dict = {}
+
+
+def derive_pocket_markets(min_legs: int = POCKET_MIN_LEGS,
+                          min_edge: float = POCKET_MIN_EDGE) -> frozenset:
+    """
+    Markets where the model beats the de-vigged price OUT OF SAMPLE, derived rather than
+    hand-picked.
+
+    The original set was chosen on the history it was fit to and does not survive forward.
+    That matters because the pocket alert is the main actionable output in the system — it
+    is what says there is a play today — so its market list has to be re-measured rather
+    than inherited.
+
+    The criterion is realized hit rate minus de-vigged implied, which is the definition of
+    model edge. It is deliberately NOT closing-line value, even though CLV is the better
+    leading indicator in principle: CLV currently covers only 17-30% of legs per market,
+    and that subset is selective (the props still listed when a snapshot happened to run).
+    On the same window the two disagree flatly — WNBA 3-PT Made shows +2.59 points of CLV
+    and -20.6% ROI, which is five standard errors below zero and so is not variance. Until
+    coverage is high enough for CLV to describe the whole population, edge-vs-implied is
+    the honest criterion.
+
+    A market clearing this bar is NOT necessarily bettable. Every market in the current
+    window is ROI-negative at the real price; the two that qualify are the two closest to
+    break-even. Qualifying means the model has demonstrable edge over the de-vigged number,
+    which is a precondition for a bet, not a reason to place one.
+    """
+    key = (min_legs, min_edge)
+    if key in _pocket_cache:
+        return _pocket_cache[key]
+    data = _load()
+    start = str(PAPER_TRACK_START)
+    seen: set = set()
+    agg: dict = defaultdict(lambda: {"n": 0, "hit": 0, "impl": 0.0})
+    for p in data["parlays"]:
+        if str(p.get("generated_at", ""))[:10] < start:
+            continue
+        if p.get("model_epoch") not in _MARKET_EPOCHS:
+            continue
+        for leg in p["legs"]:
+            # Overs only: an under is a different bet and the two would cancel.
+            if str(leg.get("side", "over")).lower() != "over":
+                continue
+            k = _prop_key(leg)
+            if k in seen:
+                continue
+            seen.add(k)
+            hit, impl = _leg_hit(leg), leg.get("implied_prob")
+            if hit is None or not impl:
+                continue
+            d = agg[(p.get("sport"), leg.get("stat_type"))]
+            d["n"] += 1
+            d["hit"] += 1 if hit else 0
+            d["impl"] += float(impl)
+    out = {k for k, d in agg.items()
+           if d["n"] >= min_legs and (d["hit"] / d["n"] - d["impl"] / d["n"]) >= min_edge}
+    result = frozenset(out) if out else frozenset()
+    _pocket_cache[key] = result
+    return result
+
+
+def _pocket_markets() -> frozenset:
+    """
+    Derived set, falling back to the seed only when there is nothing to derive from.
+
+    Resolved LAZILY, not at import. Binding it at module level did two bad things at once:
+    it parsed the 48MB log on every `import parlay_tracker`, and it ran before
+    PAPER_TRACK_START was defined further down the file, so derivation raised, the except
+    swallowed it, and the module silently served the stale hand-picked list while
+    derive_pocket_markets() returned the right answer when called directly. Exactly the
+    failure this whole exercise is about: a thing that looks configured and isn't.
+    """
+    try:
+        d = derive_pocket_markets()
+    except Exception:
+        d = frozenset()
+    return d if d else _POCKET_MARKETS_SEED
+
 
 def _is_pocket(sport: str, stat_type: str) -> bool:
-    return (sport, stat_type) in POCKET_MARKETS
+    return (sport, stat_type) in _pocket_markets()
 
 
 def get_pocket_experiment(sport: str | None = None, forward_only: bool = False) -> dict:
@@ -2655,7 +2741,7 @@ def get_pocket_experiment(sport: str | None = None, forward_only: bool = False) 
             "hit_rate":     round(sum(h for h, _ in res) / len(res), 4) if res else None,
             "implied":      round(sum(i for _, i in res) / len(res), 4) if res else None,
         }
-    return {"markets": sorted(f"{s}:{m}" for s, m in POCKET_MARKETS),
+    return {"markets": sorted(f"{s}:{m}" for s, m in _pocket_markets()),
             "forward_only": forward_only,
             "pocket": _summ(b["pocket"]), "rest": _summ(b["rest"])}
 

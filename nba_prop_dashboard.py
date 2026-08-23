@@ -4708,7 +4708,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
     # ── Pocket-market experiment (positive-edge markets vs the rest) ──────────
     st.markdown("#### Pocket-Market Experiment")
     _pk_mkts = ", ".join(m.replace(":", " ") for m in
-                         sorted(f"{s}:{m}" for s, m in parlay_tracker.POCKET_MARKETS))
+                         sorted(f"{s}:{m}" for s, m in parlay_tracker._pocket_markets()))
     st.caption(
         f"The one market segment that isn't losing to the line — **{_pk_mkts}** — vs. everything "
         "else. In-sample the pocket ran ~break-even (realized +1.3 pts vs implied) while the rest "
