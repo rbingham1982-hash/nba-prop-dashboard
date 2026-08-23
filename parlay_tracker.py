@@ -2054,12 +2054,55 @@ def get_reliability_curve(sport: str | None = None) -> dict:
             "base_rate": round(hits_total / n_total, 4) if n_total else None}
 
 
+def _snapshot_keys(row, book: str) -> list:
+    """
+    Identities under which a quote and a logged leg are the same bet.
+
+    Game identity is the point. Keying on player+stat+line alone — the original — is
+    not a bet, it is a recurring market: Rhyne Howard Assists o3.5 exists again every
+    time Atlanta plays. So the next board carrying that prop overwrote the previous
+    game's leg with a price quoted for a different fixture, sometimes days later.
+    557 of 2280 snapshots (24%) were stamped more than an hour after their own leg's
+    game had started, which is only possible if the quote belonged to another game,
+    and those rows averaged -2.58 CLV points against -0.09 for the rest — i.e. most of
+    the "market moves against us" signal was this join, not the market.
+
+    game_id is exact but book-specific, so it is tried first and (game_label, date) is
+    the fallback for feeds that omit it. The book is part of every key because a price
+    is only a close for the book that quoted it: FanDuel is the only fetch that calls
+    this, and it was stamping FanDuel's de-vigged two-way price onto 709 Underdog and
+    PrizePicks legs whose entry prices come off a pick'em ladder. Those two numbers do
+    not belong in the same subtraction.
+    """
+    keys = []
+    try:
+        base = (book, str(row.get("player_name", "")).lower(),
+                str(row.get("stat_type", "")), float(row.get("line_score", 0)))
+    except (TypeError, ValueError):
+        return keys
+    gid = str(row.get("game_id") or "").strip()
+    if gid:
+        keys.append(base + ("id", gid))
+    label = str(row.get("game_label") or "").strip().upper()
+    day = str(row.get("start_time") or "")[:10]
+    if label and day:
+        keys.append(base + ("label", label, day))
+    return keys
+
+
 def update_market_snapshots(props_df, sport: str) -> int:
     """
-    Stamp pending legs with the latest market price for the same
-    player+stat+line. Called after every FanDuel fetch; games stop being
-    listed once they start, so the last snapshot to land approximates the
-    closing line. Returns the number of legs updated.
+    Stamp pending legs with the latest market price for the same bet — same book, same
+    game, same player+stat+line. Called after every FanDuel fetch; games stop being
+    listed once they start, so the last snapshot to land approximates the closing line.
+    Returns the number of legs updated.
+
+    Coverage is thin by construction and this does not change that: only 27.8% of logged
+    props ever receive a snapshot, because the generator does one working pass a day and
+    the hourly catch-up firings return at already_ran_today() before fetching anything.
+    A leg's game has to still be on the board when a fetch happens, so in practice most
+    legs are stamped once, at logging time, at their own entry price. Fixing that means
+    letting the catch-up firings run a snapshot pass, not changing this function.
     """
     try:
         if props_df is None or props_df.empty:
@@ -2071,9 +2114,9 @@ def update_market_snapshots(props_df, sport: str) -> int:
         implied = r.get("implied_prob")
         if implied is None:
             continue
-        key = (str(r.get("player_name", "")).lower(), str(r.get("stat_type", "")),
-               float(r.get("line_score", 0)))
-        quotes[key] = (float(implied), r.get("american_odds"))
+        book = str(r.get("sportsbook") or "").strip()
+        for key in _snapshot_keys(r, book):
+            quotes[key] = (float(implied), r.get("american_odds"))
     if not quotes:
         return 0
     data = _load()
@@ -2082,12 +2125,15 @@ def update_market_snapshots(props_df, sport: str) -> int:
     for p in data["parlays"]:
         if p.get("sport") != sport:
             continue
+        book = str(p.get("sportsbook") or "").strip()
         for leg in p["legs"]:
             if leg.get("outcome") is not None:
                 continue   # game resolved — entry vs close is already frozen
-            key = (str(leg.get("player_name", "")).lower(), str(leg.get("stat_type", "")),
-                   float(leg.get("line_score", 0)))
-            q = quotes.get(key)
+            q = None
+            for key in _snapshot_keys(leg, book):
+                q = quotes.get(key)
+                if q is not None:
+                    break
             if q is None:
                 continue
             implied, odds = q
@@ -2099,6 +2145,55 @@ def update_market_snapshots(props_df, sport: str) -> int:
     if updated:
         _save(data)
     return updated
+
+
+def purge_bad_snapshots() -> dict:
+    """
+    Drop closing prices that the old snapshot key wrote onto the wrong bet. Returns
+    counts by reason.
+
+    Two kinds, both from _snapshot_keys' docstring:
+
+      cross_game — stamped more than an hour after the leg's own game started, which
+                   only happens when the quote came from a later fixture that reused
+                   the same player+stat+line.
+      cross_book — a FanDuel quote written onto an Underdog or PrizePicks leg. FanDuel
+                   is the only fetch that snapshots, and its de-vigged two-way implied
+                   is not comparable to a pick'em ladder's entry price.
+
+    Leaving these in place would mean the key fix changes nothing about any number the
+    dashboard reports, since every CLV read is over the stored snapshots. A leg with no
+    start_time cannot be judged on timing and is left alone.
+    """
+    data = _load()
+    counts = {"cross_game": 0, "cross_book": 0, "kept": 0}
+    for p in data["parlays"]:
+        book = str(p.get("sportsbook") or "").strip()
+        for leg in p["legs"]:
+            if leg.get("closing_implied") is None:
+                continue
+            reason = None
+            if book and book != "FanDuel":
+                reason = "cross_book"
+            else:
+                start, seen = leg.get("start_time"), leg.get("closing_seen_at")
+                if start and seen:
+                    try:
+                        gs = datetime.fromisoformat(
+                            start.replace("Z", "+00:00")).astimezone().replace(tzinfo=None)
+                        if datetime.fromisoformat(seen) > gs + timedelta(hours=1):
+                            reason = "cross_game"
+                    except Exception:
+                        pass
+            if reason is None:
+                counts["kept"] += 1
+                continue
+            for f in ("closing_implied", "closing_odds", "closing_seen_at"):
+                leg.pop(f, None)
+            counts[reason] += 1
+    if counts["cross_game"] or counts["cross_book"]:
+        _save(data)
+    return counts
 
 
 def get_clv_summary(sport: str | None = None) -> dict:
