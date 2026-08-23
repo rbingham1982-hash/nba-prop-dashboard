@@ -185,6 +185,13 @@ def get_ppr_projections(target: int = 2026, pool_size: int = 250) -> dict:
             try: p = float(dn)
             except Exception: return 4
             return 1 if p <= 15 else 2 if p <= 45 else 3 if p <= 100 else 4
+        # Bucket the COMPONENTS too, not just PPR. The rows below used to ship a real
+        # ppg with every stat zeroed, which made the board's rookie stat line blank and
+        # made the board useless as a projection source for anything but fantasy points
+        # — nfl_analysis prices props off components, so a rookie could never be scored.
+        # Same cohort, same tiers; PPR is just one more column.
+        _COMPONENTS = ("passing_yards", "passing_tds", "rushing_yards", "rushing_tds",
+                       "receptions", "receiving_yards", "receiving_tds")
         buckets = {}
         for _, rr in rk_prev.iterrows():
             pid = rr.get("player_id", "")
@@ -192,9 +199,13 @@ def get_ppr_projections(target: int = 2026, pool_size: int = 250) -> dict:
                 continue
             st = prev_stats.loc[pid]
             g = max(float(st.get("games", 0)) or 1, 1)
-            buckets.setdefault((rr["position"], _tier(rr.get("draft_number"))), []).append(
-                float(st.get("fantasy_points_ppr", 0) or 0) / g)
-        tier_pg = {k: (sum(v) / len(v)) for k, v in buckets.items() if v}
+            key = (rr["position"], _tier(rr.get("draft_number")))
+            rec = buckets.setdefault(key, [])
+            rec.append({"ppr": float(st.get("fantasy_points_ppr", 0) or 0) / g,
+                        **{c: float(st.get(c, 0) or 0) / g for c in _COMPONENTS}})
+        tier_pg = {k: (sum(r["ppr"] for r in v) / len(v)) for k, v in buckets.items() if v}
+        tier_comp = {k: {c: (sum(r[c] for r in v) / len(v)) for c in _COMPONENTS}
+                     for k, v in buckets.items() if v}
         incoming = rost[rost.apply(
             lambda r: str(r.get("rookie_year", "")).startswith(str(target)) or str(r.get("entry_year", "")).startswith(str(target)), axis=1)]
         for _, pr in incoming.iterrows():
@@ -202,10 +213,19 @@ def get_ppr_projections(target: int = 2026, pool_size: int = 250) -> dict:
             if not pg:
                 continue
             g = 16
+            comp = tier_comp.get((pr["position"], _tier(pr.get("draft_number"))), {})
+            # Season totals, matching the veteran rows above (which multiply per-game by
+            # proj_games). Consumers divide by "games" to get back to per-game.
             rows.append({"player_id": pr.get("player_id", ""), "name": pr.get("full_name", ""),
                          "position": pr["position"], "team": pr.get("team", ""), "note": "rookie",
                          "ppg": pg, "proj_total": pg * g, "games": g,
-                         "pass_yd": 0, "pass_td": 0, "rush_yd": 0, "rush_td": 0, "rec": 0, "rec_yd": 0, "rec_td": 0})
+                         "pass_yd": comp.get("passing_yards", 0) * g,
+                         "pass_td": comp.get("passing_tds", 0) * g,
+                         "rush_yd": comp.get("rushing_yards", 0) * g,
+                         "rush_td": comp.get("rushing_tds", 0) * g,
+                         "rec":     comp.get("receptions", 0) * g,
+                         "rec_yd":  comp.get("receiving_yards", 0) * g,
+                         "rec_td":  comp.get("receiving_tds", 0) * g})
     except Exception:
         pass
 
