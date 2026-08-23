@@ -7134,7 +7134,7 @@ elif sport == "⚾ MLB":
         st.rerun()
     _mlb_tabs_iter  = _grouped_tabs([
         ("Home",    []),
-        ("Analyze", ["Hitter Analysis", "Pitcher Analysis", "vs Opponent"]),
+        ("Analyze", ["Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Hit Board"]),
         ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
@@ -7143,12 +7143,90 @@ elif sport == "⚾ MLB":
     tab_hitter      = next(_mlb_tabs_iter)
     tab_pitcher     = next(_mlb_tabs_iter)
     tab_vs_opp      = next(_mlb_tabs_iter)
+    tab_hitboard    = next(_mlb_tabs_iter)
     tab_sim_mlb     = next(_mlb_tabs_iter)
     tab_pp_mlb      = next(_mlb_tabs_iter)
     tab_parlays_mlb = next(_mlb_tabs_iter)
     tab_accuracy_mlb = next(_mlb_tabs_iter) if _IS_LOCAL else None
     tab_blog_mlb    = next(_mlb_tabs_iter)
     tab_disc_mlb    = next(_mlb_tabs_iter)
+
+    # ── MLB HIT BOARD ─────────────────────────────────────────────────────────
+    with tab_hitboard:
+        st.markdown(
+            "<div style='margin:0.2rem 0 0.9rem;'>"
+            "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
+            "Hit Board &nbsp;·&nbsp; Who Is Most Likely To Get A Hit Today</div>"
+            "<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>"
+            "Built from the pieces rather than from a posted line: expected plate appearances "
+            "off the posted batting slot, hit rate per PA from recent games, and the platoon "
+            "split against tonight's actual starter.</div></div>",
+            unsafe_allow_html=True,
+        )
+        import mlb_insights as _mi
+        _hb1, _hb2 = st.tabs(["Today's Board", "Player Profile"])
+
+        with _hb1:
+            st.caption("Lineups post ~3-4h before first pitch; the board is empty until then. "
+                       "It walks every hitter in every posted lineup, so give it a minute.")
+            if st.button("Build hit board", key="mlb_hb_go"):
+                with st.spinner("Reading lineups, starters and game logs…"):
+                    try:
+                        _rows = _mi.hit_board(limit=60)
+                    except Exception as _e:
+                        _rows = []
+                        st.error(f"Couldn't build the board: {_e}")
+                if _rows:
+                    import pandas as _pdh
+                    _d = _pdh.DataFrame(_rows)
+                    _d["P(1+ hit)"] = (_d["p_hit"] * 100).round(1)
+                    st.dataframe(
+                        _d[["player", "team", "bats", "slot", "exp_pa", "hit_per_pa",
+                            "starter", "vs_hand", "platoon_x", "platoon_ab", "P(1+ hit)"]],
+                        width="stretch", hide_index=True)
+                    st.caption("`platoon_x` is the hitter's rate against that hand relative to his "
+                               "own overall rate, shrunk hard by at-bats — `platoon_ab` is the sample "
+                               "behind it. A 57-AB split carries about 60 points of standard error on "
+                               "average, which is bigger than the effect, so small samples are pulled "
+                               "most of the way back to 1.0 on purpose.")
+                else:
+                    st.info("No posted lineups yet for today.")
+
+        with _hb2:
+            _pname = st.text_input("Player", key="mlb_prof_name", placeholder="Aaron Judge")
+            if st.button("Load profile", key="mlb_prof_go") and _pname.strip():
+                with st.spinner("Pulling splits, game logs and Statcast…"):
+                    try:
+                        _pr = _mi.player_profile(_pname.strip())
+                    except Exception as _e:
+                        _pr = {}
+                        st.error(f"Couldn't load: {_e}")
+                if not _pr:
+                    st.info("No player found by that name.")
+                else:
+                    import pandas as _pdp
+                    _c1, _c2, _c3 = st.columns(3)
+                    _c1.metric("Bats", _pr.get("bats") or "—")
+                    _c2.metric("Position", _pr.get("position") or "—")
+                    _c3.metric("Mean PA / game", _pr.get("pa_profile", {}).get("mean_pa") or "—")
+                    _form = [{"window": k, **{kk: vv for kk, vv in (_pr.get(k) or {}).items()}}
+                             for k in ("last_10", "last_30") if _pr.get(k)]
+                    if _form:
+                        st.markdown("**Recent form**")
+                        st.dataframe(_pdp.DataFrame(_form), width="stretch", hide_index=True)
+                    _lab = {"vl": "vs LHP", "vr": "vs RHP", "h": "Home", "a": "Away",
+                            "d": "Day", "n": "Night", "risp": "RISP"}
+                    _sp = [{"split": _lab.get(k, k), "AB": int(v["ab"]), "AVG": v["avg"],
+                            "OPS": v["ops"], "HR": int(v["hr"])}
+                           for k, v in (_pr.get("splits") or {}).items() if v.get("ab")]
+                    if _sp:
+                        st.markdown("**Situational splits**")
+                        st.dataframe(_pdp.DataFrame(_sp), width="stretch", hide_index=True)
+                    st.markdown("**Platoon factor (shrunk)**")
+                    st.write({"vs LHP": _pr.get("platoon_vs_L"), "vs RHP": _pr.get("platoon_vs_R")})
+                    if _pr.get("statcast"):
+                        st.markdown("**Statcast**")
+                        st.write(_pr["statcast"])
 
     # ── MLB HOME ──────────────────────────────────────────────────────────────
     with tab_mlb_home:
