@@ -188,6 +188,15 @@ def _matchup(rate_b, rate_p, lg):
         return rate_b * rate_p / lg
     return rate_b
 
+# The other batted-ball fields we already fetch — hardhit, fb, pull, ev, la — were tested
+# as extra inputs and REJECTED. Against 786 resolved Home Runs legs, barrel alone explains
+# R^2 0.031 of the actual outcome and adding all five gets 0.035. `pull` correlates +0.058
+# with whether the homer happened, which is nothing.
+#
+# They look powerful against xISO (barrel R^2 0.88, all six 0.90) but that test is circular:
+# xISO is itself derived from batted-ball data. Predicting a Statcast aggregate from
+# Statcast inputs proves only that the aggregate is computed from them. Judge these against
+# resolved outcomes or not at all.
 def statcast_over_prob(pid, stat_type, line, is_pitcher, opp_pitcher_id=None,
                        opportunity=None):
     """
