@@ -424,7 +424,49 @@ _FD_OVERROUND_CURVE = [
 ]
 
 
-def devig_one_sided(implied: float) -> float:
+# Refit 2026-08-23 against 2,350 resolved one-sided MLB props, and the old curve was
+# stripping about half the margin it should. Method: bucket legs by RAW implied (the
+# curve's input, straight off the American odds), take the realized hit rate per bucket,
+# and the divisor that makes de-vigged equal reality is mean_raw / realized. Buckets are
+# shrunk toward the pooled divisor (1.1361) with a 120-leg pseudo-count so a thin band
+# cannot fit its own noise.
+#
+#   raw band     n     raw     realized   fit     shrunk
+#   0.05-0.15   151   11.0%      9.9%    1.105   1.1187
+#   0.15-0.25   156   19.1%     13.5%    1.416   1.2944   <- least certain, see below
+#   0.25-0.35   146   31.3%     27.4%    1.144   1.1403
+#   0.35-0.45   322   40.1%     34.5%    1.163   1.1559
+#   0.45-0.55   283   49.7%     41.0%    1.212   1.1891
+#   0.55-0.65   321   61.3%     55.1%    1.112   1.1183
+#   0.65-0.75   965   68.9%     61.7%    1.117   1.1188
+#
+# So FanDuel's yes/no milestone markets carry roughly a 12-19% overround, which is normal
+# for alt markets and far above the 3-9% the old curve assumed. Every batter prop was
+# being de-vigged to a probability about 11% too high, which inflated EV — and then
+# per-stat calibration (0.95-0.98) and parlay calibration (0.89-0.90) deflated it back.
+# Three corrections stacked on a mis-specified root.
+#
+# The 0.15-0.25 point is the one to distrust: n=156, realized 13.5% has a standard error
+# near 2.7 points, and the unshrunk fit of 1.42 would mean a 42% hold. Shrinkage pulls it
+# to 1.29. A higher divisor in that band is at least theoretically expected — it is the
+# +300 to +500 longshot range where books apply the most margin — but refresh it before
+# leaning on it.
+_FD_OVERROUND_CURVE_MLB = [
+    (0.110, 1.1187),
+    (0.191, 1.2944),
+    (0.313, 1.1403),
+    (0.401, 1.1559),
+    (0.497, 1.1891),
+    (0.613, 1.1183),
+    (0.689, 1.1188),
+]
+# Keyed by sport because the fit is MLB-only. WNBA carries 2,820 FanDuel legs of its own
+# and nothing here shows the same margin applies to them, so everything else keeps the
+# original curve until it has been measured the same way.
+_FD_OVERROUND_CURVES = {"mlb": _FD_OVERROUND_CURVE_MLB}
+
+
+def devig_one_sided(implied: float, sport: str | None = None) -> float:
     """
     Strip an estimated margin from a market that quotes only one side.
 
@@ -436,7 +478,7 @@ def devig_one_sided(implied: float) -> float:
     """
     if implied <= 0:
         return implied
-    pts = _FD_OVERROUND_CURVE
+    pts = _FD_OVERROUND_CURVES.get(str(sport or "").lower(), _FD_OVERROUND_CURVE)
     if implied <= pts[0][0]:
         div = pts[0][1]
     elif implied >= pts[-1][0]:
@@ -915,7 +957,7 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
                             # every MLB batter prop by ~4.9% and, because MLB's blend
                             # weight is 0.258, that inflated number was ~74% of the
                             # shipped hit_rate.
-                            implied = round(devig_one_sided(american_to_implied(american)), 4)
+                            implied = round(devig_one_sided(american_to_implied(american), sport), 4)
                             bk = (player, mstat)
                             prev = milestone_best.get(bk)
                             if prev is None or abs(implied - 0.5) < abs(prev["implied_prob"] - 0.5):
