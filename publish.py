@@ -87,15 +87,24 @@ def render_card(title: str, subtitle: str, rows: list, footer: str,
     d.text((64, 152), subtitle, font=_font(30), fill=_MUTED)
     d.line([(64, 214), (_W - 64, 214)], fill=(55, 65, 81), width=2)
 
-    y = 262
+    # Positional splits make short cards the normal case — a QB board is often four names.
+    # Stretching the rows to fill the frame looked wrong (a 104px cap still left half the
+    # card empty, and lifting the cap spaces names absurdly far apart), so the block keeps
+    # a comfortable fixed rhythm and is CENTRED in the space instead. Deliberate whitespace
+    # reads as design; a top-aligned block with a void underneath reads as a bug.
+    shown = rows[:14]
+    top, bottom = 262, _H - 210
+    step = 78 if len(shown) <= 8 else 66
+    block = step * len(shown)
+    y = top + max(0, (bottom - top - block) // 2)
     f_row, f_num = _font(38), _font(38, True)
-    for left, right in rows[:14]:
+    for left, right in shown:
         d.text((64, y), str(left)[:30], font=f_row, fill=_FG)
         rt = str(right)
         w = d.textlength(rt, font=f_num)
         d.text((_W - 64 - w, y), rt, font=f_num, fill=_ACCENT)
-        y += 66
-        if y > _H - 220:
+        y += step
+        if y > bottom:
             break
 
     d.line([(64, _H - 168), (_W - 64, _H - 168)], fill=(55, 65, 81), width=2)
@@ -110,24 +119,44 @@ def render_card(title: str, subtitle: str, rows: list, footer: str,
 
 
 def render_cards(data: dict) -> list:
-    """One card per section that has enough rows to be worth a post."""
-    import datetime
+    """
+    One card per POSITION for the waiver board, plus one for DFS.
+
+    Split by position because a mixed card is quietly misleading: quarterbacks project
+    10-12 points and receivers 5-6 under the same scoring, so putting them on one list
+    makes Tyrod Taylor look like twice the play Dontayvion Wicks is when they are not
+    comparable at all. Within a position every number means the same thing.
+
+    DFS stays mixed on purpose — value is points per $1,000, which is exactly the quantity
+    a salary cap makes comparable across positions.
+    """
     stamp = data["generated"].strftime("%Y-%m-%d")
+    when = data["generated"].strftime("%B %d")
     out = []
+
     w = data.get("waivers") or []
-    if len(w) >= 6:
-        rows = [(f"{r['player']}  ({r['position']})", f"{float(r['proj_points']):.1f}")
-                for r in w[:10]]
+    by_pos: dict = {}
+    for r in w:
+        by_pos.setdefault(r.get("position") or "?", []).append(r)
+    for pos in ("QB", "RB", "WR", "TE"):
+        rows_ = sorted(by_pos.get(pos, []), key=lambda r: -float(r.get("proj_points") or 0))
+        # Below three names it reads as a thin list rather than a board, which is worse
+        # than not posting that position this week.
+        if len(rows_) < 3:
+            continue
+        rows = [(r["player"], f"{float(r['proj_points']):.1f}") for r in rows_[:10]]
         out.append(render_card(
-            "Waiver Targets", data["generated"].strftime("%B %d"), rows,
-            "Outside the top 150 rostered", _OUT / f"{stamp}-card-waivers.png"))
+            f"Waiver Targets — {pos}", when, rows,
+            "Outside the top 150 rostered · projected points",
+            _OUT / f"{stamp}-card-waivers-{pos.lower()}.png"))
+
     dfs = data.get("dfs") or []
     if len(dfs) >= 6:
-        rows = [(f"{r['player']}  ${int(r['salary']):,}", f"{r['value']}")
-                for r in dfs[:10]]
+        rows = [(f"{r['player']}  ${int(r['salary']):,}", f"{r['value']}") for r in dfs[:10]]
         out.append(render_card(
-            f"{data.get('dfs_sport','DFS')} Value", data["generated"].strftime("%B %d"), rows,
-            "Projected points per $1,000", _OUT / f"{stamp}-card-dfs.png"))
+            f"{data.get('dfs_sport','DFS')} Value", when, rows,
+            "Projected points per $1,000",
+            _OUT / f"{stamp}-card-dfs.png"))
     return out
 
 
