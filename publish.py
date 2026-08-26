@@ -71,7 +71,7 @@ def _font(size: int, bold: bool = False):
 
 
 def render_card(title: str, subtitle: str, rows: list, footer: str,
-                path: pathlib.Path | None = None) -> pathlib.Path:
+                path: pathlib.Path | None = None, footer2: str = "") -> pathlib.Path:
     """
     Render a board as a 1080x1350 card for Instagram/TikTok.
 
@@ -107,10 +107,13 @@ def render_card(title: str, subtitle: str, rows: list, footer: str,
         if y > bottom:
             break
 
+    # Two footer lines, both supplied by the caller. They used to be one caller line plus a
+    # hardcoded "not last week's box score", which read as boilerplate and was sometimes
+    # simply false — on a pre-season sleepers card there IS no last week.
     d.line([(64, _H - 168), (_W - 64, _H - 168)], fill=(55, 65, 81), width=2)
     d.text((64, _H - 138), footer, font=_font(26), fill=_MUTED)
-    d.text((64, _H - 96), "Projected from usage, not last week's box score.",
-           font=_font(26), fill=_MUTED)
+    if footer2:
+        d.text((64, _H - 96), footer2, font=_font(26), fill=_MUTED)
 
     path = path or (_OUT / "card.png")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -143,8 +146,9 @@ def render_cards(data: dict) -> list:
                  f"+{r['gap']}") for r in sl[:10]]
         out.append(render_card(
             "Sleepers", when, rows,
-            "Spots higher at his position than consensus",
-            _OUT / f"{stamp}-card-sleepers.png"))
+            "Spots higher at his position than consensus draft rank",
+            _OUT / f"{stamp}-card-sleepers.png",
+            footer2="Projected from usage and depth chart, not name recognition."))
 
     w = data.get("waivers") or []
     by_pos: dict = {}
@@ -160,15 +164,22 @@ def render_cards(data: dict) -> list:
         out.append(render_card(
             f"Waiver Targets — {pos}", when, rows,
             "Outside the top 150 rostered · projected points",
-            _OUT / f"{stamp}-card-waivers-{pos.lower()}.png"))
+            _OUT / f"{stamp}-card-waivers-{pos.lower()}.png",
+            footer2="Projected from usage, not last week's box score."))
 
     dfs = data.get("dfs") or []
     if len(dfs) >= 6:
-        rows = [(f"{r['player']}  ${int(r['salary']):,}", f"{r['value']}") for r in dfs[:10]]
+        # Both numbers, and the projection first. Stripped to a card, a lone value figure
+        # reads as "best play on the slate" when it means "best points per dollar" — a
+        # different claim, and one that could have someone start a $5,100 outfielder over a
+        # star. In the newsletter a caveat sits next to it; a card has to carry its own.
+        rows = [(f"{r['player']}  ${int(r['salary']):,}",
+                 f"{float(r['proj_points']):.1f}  ·  {r['value']}/$K") for r in dfs[:10]]
         out.append(render_card(
             f"{data.get('dfs_sport','DFS')} Value", when, rows,
-            "Projected points per $1,000",
-            _OUT / f"{stamp}-card-dfs.png"))
+            "Projected points  ·  points per $1,000",
+            _OUT / f"{stamp}-card-dfs.png",
+            footer2="Value is not the best play — cheap players rank high by design."))
     return out
 
 
