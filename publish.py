@@ -356,18 +356,28 @@ def run(dry_run: bool = True, channels: tuple = ("discord", "x", "beehiiv")) -> 
                                 "beehiiv_title": md.splitlines()[0].lstrip("# ")}
         return result
 
-    if "discord" in channels:
-        result["posted"]["discord"] = post_webhook(headline, "discord")
-    if "slack" in channels:
-        result["posted"]["slack"] = post_webhook(headline, "slack")
-    if "x" in channels:
-        result["posted"]["x"] = post_x(headline[:280])
-    if "beehiiv" in channels:
-        result["posted"]["beehiiv"] = draft_beehiiv(
-            md.splitlines()[0].lstrip("# "), html,
-            subtitle="Fantasy football and DFS, projected from usage")
+    # Per channel, so a re-run tops up what has not gone out rather than being blocked by
+    # what has. beehiiv is exempt: a draft sends nothing, so re-drafting is harmless and
+    # being locked out of it by an earlier Discord post is just an obstacle.
+    def _send(name, fn):
+        if name not in channels:
+            return
+        if name != "beehiiv" and nl.already_sent(data, name):
+            result["posted"][name] = {"ok": False, "skipped": True,
+                                      "reason": "already sent to this channel today"}
+            return
+        res = fn()
+        result["posted"][name] = res
+        if res.get("ok"):
+            nl.mark_published(data, name)
 
-    nl.mark_published(data)
+    _send("discord", lambda: post_webhook(headline, "discord"))
+    _send("slack", lambda: post_webhook(headline, "slack"))
+    _send("x", lambda: post_x(headline[:280]))
+    _send("beehiiv", lambda: draft_beehiiv(
+        md.splitlines()[0].lstrip("# "), html,
+        subtitle="Fantasy football and DFS, projected from usage"))
+
     result["action"] = "published"
     return result
 

@@ -407,18 +407,24 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
             fails.append(f"content implies a betting edge ('{phrase}') — the model does not "
                          f"have one and the house rule forbids claiming it")
 
-    # Duplicate guard: publishing the same day twice reads as a bot malfunction.
-    stamp = data["generated"].strftime("%Y-%m-%d")
-    marker = OUT_DIR / f".published-{stamp}"
-    if marker.exists():
-        fails.append(f"an issue was already published for {stamp}")
-
+    # NOTE: the duplicate-send guard deliberately does NOT live here. This function judges
+    # whether the CONTENT is fit to publish; whether a given channel has already received
+    # it is a delivery question, and conflating the two was wrong in a way that showed up
+    # immediately — posting to Discord marked the whole day published, which then blocked
+    # creating the beehiiv draft. A draft is not a duplicate of a Discord post, and it
+    # cannot be a duplicate publication at all because nothing is sent. See already_sent().
     return (not fails), fails
 
 
-def mark_published(data: dict) -> None:
-    """Record that an issue went out, so the duplicate guard can see it."""
+def already_sent(data: dict, channel: str) -> bool:
+    """True if this issue has already gone to this specific channel today."""
+    stamp = data["generated"].strftime("%Y-%m-%d")
+    return (OUT_DIR / f".published-{stamp}-{channel}").exists()
+
+
+def mark_published(data: dict, channel: str) -> None:
+    """Record that an issue reached one channel, so a re-run does not double-post it."""
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     stamp = data["generated"].strftime("%Y-%m-%d")
-    (OUT_DIR / f".published-{stamp}").write_text(
+    (OUT_DIR / f".published-{stamp}-{channel}").write_text(
         datetime.datetime.now().isoformat(timespec="seconds"), encoding="utf-8")
