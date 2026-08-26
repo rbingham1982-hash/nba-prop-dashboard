@@ -28,6 +28,11 @@ import pathlib
 
 _OUT = pathlib.Path(__file__).parent / "newsletter_out"
 
+# beehiiv's `status` field defaults to "confirmed", and confirmed means SENT. This is a
+# constant with no override path so that no future edit, flag or config can turn an
+# automated draft into an automated send.
+_BEEHIIV_STATUS = "draft"
+
 
 def _secret(name: str) -> str:
     """Streamlit secrets first, environment second, empty string if neither."""
@@ -224,25 +229,79 @@ def post_x(text: str) -> dict:
         return {"ok": False, "error": str(e)}
 
 
-def draft_beehiiv(title: str, html: str) -> dict:
+def draft_beehiiv(title: str, html: str, subtitle: str = "") -> dict:
     """
-    Create a Beehiiv post as a DRAFT. Never sends.
+    Create a beehiiv post as a DRAFT. Never sends.
 
-    Email is the one channel where a mistake is permanent — a bad tweet is deletable in a
-    minute, a bad send sits in every inbox forever. So the automation stops one step short
-    and you press send.
+    Verified against the v2 API reference rather than written from memory, which turned up
+    a landmine: `status` DEFAULTS TO "confirmed", and confirmed means sent. Omitting one
+    field would have mailed the list. So the value is a module constant, asserted before
+    the request, and there is no parameter to override it — the only way to send this
+    newsletter is for a human to press the button in beehiiv.
+
+    That asymmetry is deliberate. A bad tweet is deletable in a minute; a bad send sits in
+    every inbox permanently, and this project has produced four things today that would
+    have published if nothing stopped them.
+
+    POST /v2/publications/{id}/posts, Bearer auth, `body_content` for raw HTML (mutually
+    exclusive with `blocks`). Creation is asynchronous and returns 201 with a post id.
     """
     import requests
     key, pub = _secret("BEEHIIV_API_KEY"), _secret("BEEHIIV_PUBLICATION_ID")
     if not (key and pub):
-        return {"ok": False, "skipped": True, "reason": "no Beehiiv credentials configured"}
+        return {"ok": False, "skipped": True, "reason": "no beehiiv credentials configured"}
+
+    payload = {
+        "title": title,
+        "body_content": html,
+        "status": _BEEHIIV_STATUS,
+        # The title is a headline; a subject line is a different job. Without this beehiiv
+        # reuses the title, which reads fine on the web and poorly in an inbox.
+        "email_settings": {"email_subject_line": subtitle or title},
+    }
+    if subtitle:
+        payload["subtitle"] = subtitle
+    assert payload["status"] == "draft", "refusing to create a beehiiv post that would send"
+
     try:
         r = requests.post(
             f"https://api.beehiiv.com/v2/publications/{pub}/posts",
             headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-            json={"title": title, "body_content": html, "status": "draft"}, timeout=30)
-        return {"ok": r.status_code < 300, "status": r.status_code,
-                "body": r.text[:200] if r.status_code >= 300 else ""}
+            json=payload, timeout=30)
+        ok = r.status_code in (200, 201)
+        out = {"ok": ok, "status": r.status_code}
+        if ok:
+            try:
+                out["post_id"] = (r.json().get("data") or {}).get("id")
+            except Exception:
+                pass
+            out["note"] = "created as a DRAFT — nothing was emailed"
+        else:
+            out["body"] = r.text[:300]
+        return out
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+def test_beehiiv() -> dict:
+    """
+    Check credentials and reachability WITHOUT creating anything.
+
+    A GET against the publication is the cheapest proof that the key is valid and the
+    publication id is right — worth having, because the alternative way to discover a bad
+    id is a failed post at publish time.
+    """
+    import requests
+    key, pub = _secret("BEEHIIV_API_KEY"), _secret("BEEHIIV_PUBLICATION_ID")
+    if not (key and pub):
+        return {"ok": False, "reason": "no beehiiv credentials configured"}
+    try:
+        r = requests.get(f"https://api.beehiiv.com/v2/publications/{pub}",
+                         headers={"Authorization": f"Bearer {key}"}, timeout=25)
+        if r.status_code == 200:
+            d = (r.json().get("data") or {})
+            return {"ok": True, "publication": d.get("name"), "id": d.get("id")}
+        return {"ok": False, "status": r.status_code, "body": r.text[:200]}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
@@ -304,7 +363,9 @@ def run(dry_run: bool = True, channels: tuple = ("discord", "x", "beehiiv")) -> 
     if "x" in channels:
         result["posted"]["x"] = post_x(headline[:280])
     if "beehiiv" in channels:
-        result["posted"]["beehiiv"] = draft_beehiiv(md.splitlines()[0].lstrip("# "), html)
+        result["posted"]["beehiiv"] = draft_beehiiv(
+            md.splitlines()[0].lstrip("# "), html,
+            subtitle="Fantasy football and DFS, projected from usage")
 
     nl.mark_published(data)
     result["action"] = "published"
