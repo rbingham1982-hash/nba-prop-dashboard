@@ -163,6 +163,9 @@ def sleeper_players() -> dict:
                     continue
                 out[pid] = {"name": nm, "position": p.get("position"),
                             "team": p.get("team"),
+                            # Which slot he holds. The single most important field here:
+                            # a QB2 is not a waiver target, he is a backup.
+                            "depth_chart_order": p.get("depth_chart_order"),
                             # Sleeper's popularity rank: Josh Allen is 3, a deep-league
                             # dart is in the thousands. The closest free proxy for
                             # "already rostered" — see waiver_board.
@@ -284,7 +287,60 @@ def dfs_slate(sport: str = "MLB", draft_group_id: int | None = None):
 
 # ── Tool 2: waiver board ────────────────────────────────────────────────────
 
-def waiver_board(limit: int = 40, min_rank: int = 150) -> list:
+# Share of a position's snaps a player at each depth-chart slot actually sees. This is the
+# fourth instance of the same structural gap in this project: the projection engine models
+# a RATE and has no concept of whether the player takes the field at all.
+#
+# It is most extreme at quarterback, and it produced a wrong answer that a domain expert
+# spotted instantly and no automated check caught. The first waiver board led with Tyrod
+# Taylor at 12.2 projected points — along with Jake Browning, Davis Mills and Kirk Cousins,
+# every one of them depth_chart_order 2. usage_profile computes share-of-team-attempts from
+# games the player ACTUALLY PLAYED, and when a backup quarterback plays he plays a full
+# game, so his per-game usage reads exactly like a starter's. The board then surfaced them
+# precisely BECAUSE they were unrostered, which is the same fact as "he does not play".
+#
+# Quarterback is nearly binary — one man takes essentially every snap — while the other
+# positions rotate, which is why the curve is so much steeper for QB.
+_DEPTH_SHARE = {
+    "QB": {1: 1.00, 2: 0.12, 3: 0.03},
+    "RB": {1: 1.00, 2: 0.75, 3: 0.35, 4: 0.12},
+    "WR": {1: 1.00, 2: 1.00, 3: 0.80, 4: 0.45, 5: 0.15},
+    "TE": {1: 1.00, 2: 0.35, 3: 0.10},
+}
+_DEPTH_FLOOR = {"QB": 0.03, "RB": 0.10, "WR": 0.12, "TE": 0.08}
+
+# Minimum projected points for a player to be worth naming as a waiver add, per position.
+# Applying the depth discount above without this just produces a politely-ranked list of
+# people nobody should add: the first depth-aware board led with quarterbacks projecting
+# 1.6 points. A board that recommends a 1.6-point quarterback is worse than an empty one,
+# because it teaches the reader the numbers do not mean anything.
+#
+# Empty is a legitimate answer and the newsletter gate treats it as one. In late August
+# everyone with a real role is rostered, so "nothing worth adding this week" is simply
+# true — and saying so is the thing that makes the weeks with a real name credible.
+_WAIVER_FLOOR = {"QB": 11.0, "RB": 7.0, "WR": 7.0, "TE": 5.0}
+
+
+def depth_multiplier(position: str, order) -> float:
+    """
+    How much of a full workload to expect from a player at this depth-chart slot.
+
+    Unknown depth returns 1.0 — no information is not evidence of a bench role, and
+    discounting on a missing field would quietly bury every player Sleeper has not charted.
+    """
+    if order is None:
+        return 1.0
+    try:
+        o = int(order)
+    except (TypeError, ValueError):
+        return 1.0
+    table = _DEPTH_SHARE.get(str(position).upper())
+    if not table:
+        return 1.0
+    return table.get(o, _DEPTH_FLOOR.get(str(position).upper(), 0.1))
+
+
+def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False):
     """
     Players we project well who are probably still available.
 
@@ -315,14 +371,17 @@ def waiver_board(limit: int = 40, min_rank: int = 150) -> list:
 
     adds = {p["name"]: p["count"] for p in sleeper_trending("add", limit=200)}
     drops = {p["name"]: p["count"] for p in sleeper_trending("drop", limit=200)}
-    ranks = {p["name"]: (p.get("search_rank") or 10 ** 7)
-             for p in sleeper_players().values()}
+    _sp = sleeper_players()
+    ranks = {p["name"]: (p.get("search_rank") or 10 ** 7) for p in _sp.values()}
+    depths = {p["name"]: p.get("depth_chart_order") for p in _sp.values()}
 
     out = []
+    _scored = _after_rank = 0
     for name, sub in idx.items():
         pos = str(sub.iloc[0].get("position", ""))
         if pos not in ("QB", "RB", "WR", "TE"):
             continue
+        _scored += 1
         proj = {}
         for stat in nfl._USAGE_MODEL:
             try:
@@ -337,12 +396,20 @@ def waiver_board(limit: int = 40, min_rank: int = 150) -> list:
         pts = dk_points_nfl(proj)
         if pts <= 0:
             continue
+        # Discount to the workload his depth-chart slot actually implies.
+        order = depths.get(name)
+        mult = depth_multiplier(pos, order)
+        pts = round(pts * mult, 2)
+        if pts < _WAIVER_FLOOR.get(pos, 5.0):
+            continue
         rank = ranks.get(name, 10 ** 7)
         if rank < min_rank:
             continue          # rostered everywhere; not a waiver decision
+        _after_rank += 1
         out.append({"player": name, "position": pos,
                     "team": (teams.get(str(sub.iloc[0].get("player_id", ""))) or ""),
                     "proj_points": pts, "search_rank": rank,
+                    "depth": order, "depth_mult": mult,
                     "adds": adds.get(name, 0), "drops": drops.get(name, 0),
                     # "quiet" is the one you want: the projection likes him and the
                     # crowd has not moved yet. "hot" means your league already knows.
@@ -371,6 +438,12 @@ def waiver_board(limit: int = 40, min_rank: int = 150) -> list:
     # a receiver for an equivalent week, so an overall ranking returned fourteen
     # quarterbacks and nothing else — true, and useless, since you start one. Top N per
     # position is the shape a waiver decision actually takes.
+    # Diagnostics so a caller can tell "the feed is down" from "nobody qualified", which
+    # look identical from an empty list and are opposite situations: one is a bug, the
+    # other is a true and publishable answer.
+    stats = {"scored": _scored, "after_rank": _after_rank,
+             "after_floor": len(out), "returned": 0}
+
     out.sort(key=lambda r: -r["proj_points"])
     per_pos, kept = {}, []
     cap = max(1, limit // 4)
@@ -380,7 +453,8 @@ def waiver_board(limit: int = 40, min_rank: int = 150) -> list:
             continue
         per_pos[pos] = per_pos.get(pos, 0) + 1
         kept.append(r)
-    return kept
+    stats["returned"] = len(kept)
+    return (kept, stats) if with_stats else kept
 
 
 # ── Tool 3: start / sit ─────────────────────────────────────────────────────

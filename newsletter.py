@@ -53,9 +53,10 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
     out: dict = {"generated": datetime.datetime.now(), "errors": []}
 
     try:
-        out["waivers"] = ft.waiver_board(limit=nfl_limit)
+        rows, stats = ft.waiver_board(limit=nfl_limit, with_stats=True)
+        out["waivers"], out["waiver_stats"] = rows, stats
     except Exception as e:
-        out["waivers"] = []
+        out["waivers"], out["waiver_stats"] = [], {}
         out["errors"].append(f"waiver board: {e}")
 
     try:
@@ -94,6 +95,14 @@ def render_markdown(data: dict) -> str:
     L.append("")
 
     w = data.get("waivers") or []
+    st = data.get("waiver_stats") or {}
+    if not w and st.get("scored"):
+        L += ["## Waiver targets", "",
+              "**Nothing worth adding this week.** "
+              f"{st.get('after_rank', 0)} unrostered players were projected and none cleared "
+              "the bar for a startable add — which is the normal state of a waiver wire "
+              "before the season, when everyone with a real role is already taken.", "",
+              "We would rather say that than pad the list.", ""]
     if w:
         L += ["## Waiver targets", "",
               "Ranked by projected points among players outside Sleeper's top 150 — so these "
@@ -311,10 +320,15 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
 
     waivers = data.get("waivers") or []
     dfs = data.get("dfs") or []
-    if not waivers:
-        fails.append("waiver board is empty — the projection or Sleeper feed is down")
-    if len(waivers) < 6:
-        fails.append(f"only {len(waivers)} waiver rows; expected at least 6")
+    st = data.get("waiver_stats") or {}
+    # An empty board is only a failure if nothing was SCORED. Zero players clearing the
+    # floor is a true answer — in late August everyone with a role is rostered — and
+    # publishing "nothing worth adding" is what makes the weeks with a real name credible.
+    if not st.get("scored"):
+        fails.append("waiver board scored no players at all — the projection or Sleeper "
+                     "feed is down")
+    elif not waivers:
+        pass
 
     for r in waivers:
         pos, pts = r.get("position"), r.get("proj_points")
