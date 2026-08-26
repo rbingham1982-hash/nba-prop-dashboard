@@ -50,6 +50,9 @@ def configured() -> dict:
     """Which channels have credentials. Useful for a dry run before wiring a scheduler."""
     return {
         "discord": bool(_secret("DISCORD_WEBHOOK_URL")),
+        "instagram": bool(_secret("IG_ACCESS_TOKEN") and _secret("IG_USER_ID")
+                          and _secret("CARD_BASE_URL")),
+        "threads": bool(_secret("THREADS_ACCESS_TOKEN") and _secret("THREADS_USER_ID")),
         "slack": bool(_secret("SLACK_WEBHOOK_URL")),
         "x": bool(_secret("X_BEARER_TOKEN")),
         "beehiiv": bool(_secret("BEEHIIV_API_KEY") and _secret("BEEHIIV_PUBLICATION_ID")),
@@ -120,9 +123,13 @@ def render_card(title: str, subtitle: str, rows: list, footer: str,
     if footer2:
         d.text((64, _H - 96), footer2, font=_font(26), fill=_MUTED)
 
-    path = path or (_OUT / "card.png")
+    # JPEG, not PNG. Instagram's content-publishing API accepts JPEG only, and a card that
+    # cannot be posted to the platform it was designed for is a card that does not work.
+    # Quality 92 keeps flat colour and text crisp at this size; the files land around
+    # 120KB, well inside every platform limit.
+    path = path or (_OUT / "card.jpg")
     path.parent.mkdir(parents=True, exist_ok=True)
-    img.save(path, "PNG")
+    img.convert("RGB").save(path, "JPEG", quality=92, optimize=True)
     return path
 
 
@@ -152,7 +159,7 @@ def render_cards(data: dict) -> list:
         out.append(render_card(
             "Sleepers", when, rows,
             "Spots higher at his position than consensus draft rank",
-            _OUT / f"{stamp}-card-sleepers.png",
+            _OUT / f"{stamp}-card-sleepers.jpg",
             footer2="Projected from usage and depth chart, not name recognition."))
 
     w = data.get("waivers") or []
@@ -169,7 +176,7 @@ def render_cards(data: dict) -> list:
         out.append(render_card(
             f"Waiver Targets — {pos}", when, rows,
             "Outside the top 150 rostered · projected points",
-            _OUT / f"{stamp}-card-waivers-{pos.lower()}.png",
+            _OUT / f"{stamp}-card-waivers-{pos.lower()}.jpg",
             footer2="Projected from usage, not last week's box score."))
 
     dfs = data.get("dfs") or []
@@ -183,7 +190,7 @@ def render_cards(data: dict) -> list:
         out.append(render_card(
             f"{data.get('dfs_sport','DFS')} Value", when, rows,
             "Projected points  ·  points per $1,000",
-            _OUT / f"{stamp}-card-dfs.png",
+            _OUT / f"{stamp}-card-dfs.jpg",
             footer2="Value is not the best play — cheap players rank high by design."))
     return out
 
@@ -225,6 +232,111 @@ def post_x(text: str) -> dict:
                           json={"text": text}, timeout=25)
         return {"ok": r.status_code < 300, "status": r.status_code,
                 "body": r.text[:200] if r.status_code >= 300 else ""}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+# ── Meta platforms: Instagram and Threads ───────────────────────────────────
+#
+# Both use the same two-step shape — create a media container, then publish it — and both
+# share one requirement that is a HOSTING problem rather than a code one:
+#
+#     "We cURL media used in publishing attempts, so the media must be hosted on a
+#      publicly accessible server."
+#
+# There is no file upload. A local card in newsletter_out/ cannot be posted no matter how
+# valid the token is, so image_url must point at somewhere public — an S3/R2 bucket, GitHub
+# Pages, or wherever the newsletter's own assets end up living. CARD_BASE_URL is that
+# location, and both clients refuse rather than guess when it is unset.
+#
+# Instagram additionally needs a PROFESSIONAL account (Business or Creator); a personal
+# account cannot publish through the API at all.
+
+_IG_GRAPH = "https://graph.instagram.com/v21.0"
+_THREADS_GRAPH = "https://graph.threads.net/v1.0"
+
+
+def card_url(path) -> str:
+    """
+    Public URL for a rendered card, or "" when no host is configured.
+
+    Returning "" rather than a guessed path is deliberate: a wrong URL fails inside Meta's
+    fetch with an opaque error, which is a much worse way to learn the host is missing.
+    """
+    base = _secret("CARD_BASE_URL").rstrip("/")
+    if not base:
+        return ""
+    return f"{base}/{pathlib.Path(path).name}"
+
+
+def post_instagram(image_path, caption: str) -> dict:
+    """
+    Publish one image to Instagram. Two steps: container, then publish.
+
+    Requires a professional account, an IG user id, and a token with
+    instagram_business_content_publish. JPEG only — which is why render_card writes JPEG.
+    """
+    import requests
+    token = _secret("IG_ACCESS_TOKEN")
+    user_id = _secret("IG_USER_ID")
+    if not (token and user_id):
+        return {"ok": False, "skipped": True, "reason": "no Instagram credentials configured"}
+    url = card_url(image_path)
+    if not url:
+        return {"ok": False, "skipped": True,
+                "reason": "CARD_BASE_URL not set — Instagram fetches images by URL and "
+                          "cannot accept a local file"}
+    try:
+        c = requests.post(f"{_IG_GRAPH}/{user_id}/media",
+                          data={"image_url": url, "caption": caption[:2200],
+                                "access_token": token}, timeout=30)
+        if c.status_code >= 300:
+            return {"ok": False, "step": "container", "status": c.status_code,
+                    "body": c.text[:300]}
+        cid = (c.json() or {}).get("id")
+        if not cid:
+            return {"ok": False, "step": "container", "reason": "no container id returned"}
+        r = requests.post(f"{_IG_GRAPH}/{user_id}/media_publish",
+                          data={"creation_id": cid, "access_token": token}, timeout=30)
+        return {"ok": r.status_code < 300, "status": r.status_code,
+                "post_id": (r.json() or {}).get("id") if r.status_code < 300 else None,
+                "body": r.text[:300] if r.status_code >= 300 else ""}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+def post_threads(text: str, image_path=None) -> dict:
+    """
+    Publish to Threads. Same container/publish flow; text-only posts skip the image URL,
+    which means Threads is the ONE Meta surface that works without hosting.
+    """
+    import requests
+    token = _secret("THREADS_ACCESS_TOKEN")
+    user_id = _secret("THREADS_USER_ID")
+    if not (token and user_id):
+        return {"ok": False, "skipped": True, "reason": "no Threads credentials configured"}
+    data = {"access_token": token}
+    if image_path:
+        url = card_url(image_path)
+        if not url:
+            return {"ok": False, "skipped": True,
+                    "reason": "CARD_BASE_URL not set — Threads fetches images by URL"}
+        data.update({"media_type": "IMAGE", "image_url": url, "text": text[:500]})
+    else:
+        data.update({"media_type": "TEXT", "text": text[:500]})
+    try:
+        c = requests.post(f"{_THREADS_GRAPH}/{user_id}/threads", data=data, timeout=30)
+        if c.status_code >= 300:
+            return {"ok": False, "step": "container", "status": c.status_code,
+                    "body": c.text[:300]}
+        cid = (c.json() or {}).get("id")
+        if not cid:
+            return {"ok": False, "step": "container", "reason": "no container id returned"}
+        r = requests.post(f"{_THREADS_GRAPH}/{user_id}/threads_publish",
+                          data={"creation_id": cid, "access_token": token}, timeout=30)
+        return {"ok": r.status_code < 300, "status": r.status_code,
+                "post_id": (r.json() or {}).get("id") if r.status_code < 300 else None,
+                "body": r.text[:300] if r.status_code >= 300 else ""}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
@@ -308,7 +420,8 @@ def test_beehiiv() -> dict:
 
 # ── The run ─────────────────────────────────────────────────────────────────
 
-def run(dry_run: bool = True, channels: tuple = ("discord", "x", "beehiiv")) -> dict:
+def run(dry_run: bool = True,
+        channels: tuple = ("discord", "x", "threads", "instagram", "beehiiv")) -> dict:
     """
     Build an issue, gate it, and distribute it.
 
@@ -374,6 +487,9 @@ def run(dry_run: bool = True, channels: tuple = ("discord", "x", "beehiiv")) -> 
     _send("discord", lambda: post_webhook(headline, "discord"))
     _send("slack", lambda: post_webhook(headline, "slack"))
     _send("x", lambda: post_x(headline[:280]))
+    _send("threads", lambda: post_threads(headline))
+    _send("instagram", lambda: post_instagram(cards[0], headline) if cards
+          else {"ok": False, "skipped": True, "reason": "no card rendered to post"})
     _send("beehiiv", lambda: draft_beehiiv(
         md.splitlines()[0].lstrip("# "), html,
         subtitle="Fantasy football and DFS, projected from usage"))
