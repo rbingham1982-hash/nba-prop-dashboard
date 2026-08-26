@@ -266,3 +266,92 @@ if __name__ == "__main__":
     print("sections:", res["sections"])
     if res["errors"]:
         print("errors:", res["errors"])
+
+
+# ── Quality gate ────────────────────────────────────────────────────────────
+#
+# Auto-posting is only defensible if something refuses to post. These are the checks that
+# would have caught the failures this project has actually produced, rather than the ones
+# that sound thorough:
+#
+#   - Lamar Jackson appeared as a "waiver target" because a third-party availability rank
+#     said 1059. One obviously wrong name discredits an entire list.
+#   - starters_on() returned {} for every date for an hour, and looked like it worked.
+#   - A feature ran, logged success, and changed nothing, six separate times in a day.
+#
+# So the gate is biased toward blocking: an empty section, an implausible number, or a
+# source that came back silent all stop the issue. A missed post costs nothing. A wrong
+# one published under your name costs the audience.
+
+# Projected points above which a "waiver target" is not credible — nobody projecting this
+# is unrostered in a real league, whatever a rank field claims.
+_MAX_CREDIBLE_WAIVER = {"QB": 16.0, "RB": 14.0, "WR": 13.0, "TE": 10.0}
+
+# Phrases that imply a betting edge. The model does not have one — negative CLV, an
+# INCONCLUSIVE paper verdict — so this is a house rule enforced in code rather than left
+# to whoever is writing that week.
+_BANNED_PHRASES = (
+    "lock", "guaranteed", "can't lose", "cant lose", "free money", "sure thing",
+    "best bet", "max bet", "hammer", "+ev play", "positive ev", "beat the book",
+    "edge over the book", "sharp play",
+)
+
+
+def quality_gate(data: dict, rendered: str = "") -> tuple:
+    """
+    Decide whether an issue is safe to publish automatically.
+
+    Returns (ok, failures). `failures` is a list of human-readable reasons; anything in it
+    blocks the post.
+    """
+    fails = []
+
+    if data.get("errors"):
+        fails.append(f"a data source failed: {'; '.join(data['errors'])}")
+
+    waivers = data.get("waivers") or []
+    dfs = data.get("dfs") or []
+    if not waivers:
+        fails.append("waiver board is empty — the projection or Sleeper feed is down")
+    if len(waivers) < 6:
+        fails.append(f"only {len(waivers)} waiver rows; expected at least 6")
+
+    for r in waivers:
+        pos, pts = r.get("position"), r.get("proj_points")
+        cap = _MAX_CREDIBLE_WAIVER.get(pos)
+        if cap and pts and float(pts) > cap:
+            fails.append(f"{r.get('player')} projects {pts} at {pos} — too high to be a "
+                         f"credible waiver add (cap {cap}); availability data is probably wrong")
+        if not r.get("player") or not pos:
+            fails.append(f"waiver row missing player or position: {r}")
+        if pts is None or float(pts) <= 0:
+            fails.append(f"{r.get('player')} has no usable projection")
+
+    for r in dfs:
+        sal, pts = r.get("salary"), r.get("proj_points")
+        if not sal or float(sal) <= 0:
+            fails.append(f"DFS row for {r.get('player')} has no salary")
+        if pts is None or float(pts) < 0:
+            fails.append(f"DFS row for {r.get('player')} has no usable projection")
+
+    low = (rendered or "").lower()
+    for phrase in _BANNED_PHRASES:
+        if phrase in low:
+            fails.append(f"content implies a betting edge ('{phrase}') — the model does not "
+                         f"have one and the house rule forbids claiming it")
+
+    # Duplicate guard: publishing the same day twice reads as a bot malfunction.
+    stamp = data["generated"].strftime("%Y-%m-%d")
+    marker = OUT_DIR / f".published-{stamp}"
+    if marker.exists():
+        fails.append(f"an issue was already published for {stamp}")
+
+    return (not fails), fails
+
+
+def mark_published(data: dict) -> None:
+    """Record that an issue went out, so the duplicate guard can see it."""
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    stamp = data["generated"].strftime("%Y-%m-%d")
+    (OUT_DIR / f".published-{stamp}").write_text(
+        datetime.datetime.now().isoformat(timespec="seconds"), encoding="utf-8")
