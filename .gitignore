@@ -42,3 +42,5 @@ android/local.properties
 
 # Android release keystore (contains private key — never commit)
 android/konjure-release.jks
+
+newsletter_out/

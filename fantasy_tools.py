@@ -348,6 +348,25 @@ def waiver_board(limit: int = 40, min_rank: int = 150) -> list:
                     # crowd has not moved yet. "hot" means your league already knows.
                     "crowd": "hot" if adds.get(name, 0) > 20000 else
                              ("cooling" if drops.get(name, 0) > 20000 else "quiet")})
+    # Sleeper's search_rank is not reliable enough to be the only availability test. It
+    # put Lamar Jackson at 1059 and Marvin Harrison Jr. at 10,000,000, so the first build
+    # of this board recommended both as waiver pickups — tolerable in an internal tool,
+    # fatal in anything published, because one obviously wrong name discredits the whole
+    # list.
+    #
+    # So a second gate that does not depend on their data: anyone our OWN projection ranks
+    # inside the startable tier for his position is rostered by definition, whatever
+    # search_rank claims. Roughly a 12-team league's starters plus a bench.
+    startable = {"QB": 14, "RB": 30, "WR": 36, "TE": 14}
+    by_pos: dict = {}
+    for r in sorted(out, key=lambda r: -r["proj_points"]):
+        by_pos.setdefault(r["position"], []).append(r)
+    elite = set()
+    for pos, rows_ in by_pos.items():
+        for r in rows_[:startable.get(pos, 20)]:
+            elite.add((r["player"], r["position"]))
+    out = [r for r in out if (r["player"], r["position"]) not in elite]
+
     # Per position, not overall. DK scoring pays a quarterback roughly twice what it pays
     # a receiver for an equivalent week, so an overall ranking returned fourteen
     # quarterbacks and nothing else — true, and useless, since you start one. Top N per
