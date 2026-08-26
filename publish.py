@@ -305,6 +305,66 @@ def post_instagram(image_path, caption: str) -> dict:
         return {"ok": False, "error": str(e)}
 
 
+def threads_token_status() -> dict:
+    """
+    How long the Threads token has left, without changing anything.
+
+    Worth having because this token is unlike every other credential here: the Discord
+    webhook and beehiiv key are permanent, but a Threads long-lived token dies after 60
+    DAYS. Nothing would announce that — the automation would simply start failing two
+    months from now, which is precisely the silent-degradation shape this project has hit
+    six times already.
+    """
+    import requests
+    token = _secret("THREADS_ACCESS_TOKEN")
+    if not token:
+        return {"ok": False, "reason": "no Threads token configured"}
+    try:
+        r = requests.get(f"{_THREADS_GRAPH}/me",
+                         params={"fields": "id,username", "access_token": token}, timeout=25)
+        if r.status_code >= 300:
+            return {"ok": False, "status": r.status_code, "body": r.text[:200],
+                    "hint": "a 190 error usually means the token expired — refresh or "
+                            "re-authorise"}
+        d = r.json() or {}
+        return {"ok": True, "user_id": d.get("id"), "username": d.get("username")}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+def refresh_threads_token() -> dict:
+    """
+    Exchange the current long-lived token for a fresh 60 days.
+
+    GET /refresh_access_token with grant_type=th_refresh_token. Refreshable once the token
+    is at least 24 hours old and not yet expired; past 60 days of inactivity it is gone and
+    only a full re-authorisation brings it back.
+
+    Deliberately does NOT write the new token back to secrets.toml. Rewriting a credentials
+    file from automation is the kind of thing that works until it truncates the file at the
+    wrong moment and takes the other keys with it. The new value is returned for a person
+    to paste, and the expiry is reported so a calendar reminder can be set.
+    """
+    import requests
+    token = _secret("THREADS_ACCESS_TOKEN")
+    if not token:
+        return {"ok": False, "reason": "no Threads token configured"}
+    try:
+        r = requests.get("https://graph.threads.net/refresh_access_token",
+                         params={"grant_type": "th_refresh_token", "access_token": token},
+                         timeout=25)
+        if r.status_code >= 300:
+            return {"ok": False, "status": r.status_code, "body": r.text[:300]}
+        d = r.json() or {}
+        secs = int(d.get("expires_in") or 0)
+        return {"ok": True, "expires_in_days": round(secs / 86400, 1),
+                "new_token": d.get("access_token"),
+                "note": "paste new_token into .streamlit/secrets.toml — not written "
+                        "automatically, on purpose"}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
 def post_threads(text: str, image_path=None) -> dict:
     """
     Publish to Threads. Same container/publish flow; text-only posts skip the image URL,
