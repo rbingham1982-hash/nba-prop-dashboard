@@ -52,6 +52,15 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
     import fantasy_tools as ft
     out: dict = {"generated": datetime.datetime.now(), "errors": []}
 
+    # Pre-season the waiver wire has nothing to say — nobody has been dropped yet — so
+    # the sleepers list carries the issue. It answers the question people actually have in
+    # late August: who is going later than he should.
+    try:
+        out["sleepers"] = ft.sleepers(limit=16)
+    except Exception as e:
+        out["sleepers"] = []
+        out["errors"].append(f"sleepers: {e}")
+
     try:
         rows, stats = ft.waiver_board(limit=nfl_limit, with_stats=True)
         out["waivers"], out["waiver_stats"] = rows, stats
@@ -94,6 +103,24 @@ def render_markdown(data: dict) -> str:
              "box score.*")
     L.append("")
 
+    sl = data.get("sleepers") or []
+    if sl:
+        L += ["## Sleepers — going later than they should", "",
+              "Every rank below is **within position**, so the gap reads as: we have him "
+              "this many spots higher at his position than consensus does. It measures a "
+              "disagreement, not a good player — the best players alive are nobody's "
+              "sleeper.", "",
+              "Consensus comes from Sleeper's popularity ordering, which stands in for ADP. "
+              "Backups are discounted to the workload their depth-chart slot implies, and "
+              "unsigned free agents are excluded outright.", "",
+              "| Player | Pos | Team | Proj | Ours | Consensus | Gap |",
+              "|---|---|---|---:|---:|---:|---:|"]
+        for r in sl[:14]:
+            L.append(f"| {r['player']} | {r['position']} | {r.get('team') or '—'} | "
+                     f"{_fmt_pts(r.get('proj_points'))} | {r['position']}{r['our_pos_rank']} | "
+                     f"{r['position']}{r['consensus_pos_rank']} | +{r['gap']} |")
+        L.append("")
+
     w = data.get("waivers") or []
     st = data.get("waiver_stats") or {}
     if not w and st.get("scored"):
@@ -102,7 +129,8 @@ def render_markdown(data: dict) -> str:
               f"{st.get('after_rank', 0)} unrostered players were projected and none cleared "
               "the bar for a startable add — which is the normal state of a waiver wire "
               "before the season, when everyone with a real role is already taken.", "",
-              "We would rather say that than pad the list.", ""]
+              "That changes the week players start getting dropped. Until then, the "
+              "sleepers list above is where the value is.", ""]
     if w:
         L += ["## Waiver targets", "",
               "Ranked by projected points among players outside Sleeper's top 150 — so these "
@@ -205,7 +233,18 @@ def render_social(data: dict) -> str:
     L = [f"# Social drafts — {d}", "",
          "Copy-paste. Nothing here is posted automatically.", ""]
 
-    if w:
+    sl = data.get("sleepers") or []
+    if sl:
+        t = sl[0]
+        L += ["## X / Twitter", "",
+              "```",
+              f"{t['player']} is going {t['position']}{t['consensus_pos_rank']} in drafts.",
+              f"We have him {t['position']}{t['our_pos_rank']} — a {t['gap']}-spot gap at his "
+              f"position.",
+              "",
+              "Projected from usage, not last year's box score.",
+              "```", ""]
+    elif w:
         top = w[0]
         L += ["## X / Twitter", "",
               "```",
@@ -340,6 +379,20 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
             fails.append(f"waiver row missing player or position: {r}")
         if pts is None or float(pts) <= 0:
             fails.append(f"{r.get('player')} has no usable projection")
+
+    for r in (data.get("sleepers") or []):
+        pos, pts = r.get("position"), r.get("proj_points")
+        if not r.get("team"):
+            fails.append(f"{r.get('player')} has no team — an unsigned free agent cannot "
+                         f"be a sleeper")
+        cap = _MAX_CREDIBLE_WAIVER.get(pos)
+        # Sleepers are drafted players, so the ceiling is higher than a waiver add's — but
+        # a projection far above it still means the depth or availability data is wrong.
+        if cap and pts and float(pts) > cap * 1.8:
+            fails.append(f"{r.get('player')} projects {pts} at {pos} — implausibly high "
+                         f"for someone going outside the top {r.get('consensus_rank')}")
+        if r.get("gap", 0) <= 0:
+            fails.append(f"{r.get('player')} has no positive gap and should not be listed")
 
     for r in dfs:
         sal, pts = r.get("salary"), r.get("proj_points")

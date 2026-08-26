@@ -134,6 +134,18 @@ def render_cards(data: dict) -> list:
     when = data["generated"].strftime("%B %d")
     out = []
 
+    # Sleepers lead the pre-season issue, so they get the first card. The right-hand
+    # number is the GAP, not the projection — the card has to show the disagreement,
+    # because "we like him more than the room does" is the entire claim.
+    sl = data.get("sleepers") or []
+    if len(sl) >= 4:
+        rows = [(f"{r['player']}  ({r['position']})",
+                 f"+{r['gap']}") for r in sl[:10]]
+        out.append(render_card(
+            "Sleepers", when, rows,
+            "Spots higher at his position than consensus",
+            _OUT / f"{stamp}-card-sleepers.png"))
+
     w = data.get("waivers") or []
     by_pos: dict = {}
     for r in w:

@@ -496,3 +496,107 @@ def start_sit(players: list) -> list:
                     "note": "new team — projection rebased" if locals().get("changed") else ""})
     out.sort(key=lambda r: -(r["proj_points"] or -1))
     return out
+
+
+# ── Sleepers: projection versus consensus ───────────────────────────────────
+
+def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
+    """
+    Players our projection likes far more than consensus does — the pre-season question,
+    where a waiver board has nothing to say because nobody has been dropped yet.
+
+    A sleeper is a GAP, not a good player. Both ranks are computed within position, so the
+    number means "we have him N spots higher at his position than the crowd does". Ranking
+    on raw projection instead would just return the best players alive, who are nobody's
+    sleeper.
+
+    Sleeper's search_rank stands in for ADP. It is not a true draft position, but it is a
+    consensus popularity ordering and it is free, which is the trade being made — nflverse
+    publishes no ADP feed (ff_rankings 404s).
+
+    Three guards, each of which exists because its absence produced a wrong answer:
+
+      depth_multiplier   a backup is not a sleeper, he is a backup. Without this the board
+                         led with Tyrod Taylor, a QB2 projected like a starter because his
+                         usage was measured over the games he actually played.
+      _WAIVER_FLOOR      a player projecting 1.6 points is not a sleeper at any ADP.
+      rank bounds        min_rank skips the top of the draft, where being 5 spots higher
+                         than consensus is an opinion rather than a find. max_rank excludes
+                         the unranked, whose sentinel value (10,000,000) would otherwise
+                         make every uncharted player look like the steal of the century —
+                         which is exactly how Marvin Harrison Jr. once turned up as a
+                         waiver target.
+    """
+    import nfl_analysis as nfl
+    season = nfl.latest_season_with_data()
+    _, df = nfl.get_season(season)
+    idx = nfl.player_index(df)
+    priors, vol = nfl.position_priors(df), nfl.team_volume(df)
+    teams = nfl.current_teams(season + 1)
+    board = nfl.board_projections(season + 1)
+    rates, cv = nfl.league_rates(df), {}
+
+    sp = sleeper_players()
+    ranks = {p["name"]: p.get("search_rank") for p in sp.values()}
+    depths = {p["name"]: p.get("depth_chart_order") for p in sp.values()}
+    cur_team = {p["name"]: p.get("team") for p in sp.values()}
+
+    rows = []
+    for name, sub in idx.items():
+        pos = str(sub.iloc[0].get("position", ""))
+        if pos not in ("QB", "RB", "WR", "TE"):
+            continue
+        # Fifth instance of the availability gap, and the bluntest: an unsigned free agent
+        # has no team, so project_usage falls back to team_prev and scores him on LAST
+        # year's offence as though he were still starting there. The first sleepers list
+        # led with Tyreek Hill, Kareem Hunt and Zach Ertz — all unsigned, none on a 2026
+        # roster, all projected like starters.
+        #
+        # Sleeper's team field is the check rather than nflverse's roster, because the two
+        # disagree and Sleeper is the fresher of the pair in late August: it has Stefon
+        # Diggs on Washington and Keenan Allen on Indianapolis, both of whom the nflverse
+        # 2026 roster has not picked up yet.
+        if not cur_team.get(name):
+            continue
+        rank = ranks.get(name)
+        if not rank or not (min_rank <= int(rank) <= max_rank):
+            continue
+        proj = {}
+        for stat in nfl._USAGE_MODEL:
+            try:
+                s = nfl.score_prop_nfl(df, name, stat, 0.5, teams=teams, priors=priors,
+                                       vol=vol, idx=idx, board=board, rates=rates, cvcache=cv)
+            except Exception:
+                s = None
+            if s:
+                proj[stat] = s.get("projection", 0)
+        if not proj:
+            continue
+        order = depths.get(name)
+        pts = round(dk_points_nfl(proj) * depth_multiplier(pos, order), 2)
+        if pts < _WAIVER_FLOOR.get(pos, 5.0):
+            continue
+        rows.append({"player": name, "position": pos,
+                     # Sleeper's team, not nflverse's — see the free-agent guard above.
+                     "team": cur_team.get(name) or teams.get(str(sub.iloc[0].get("player_id", ""))) or "",
+                     "proj_points": pts, "consensus_rank": int(rank),
+                     "depth": order, "depth_mult": depth_multiplier(pos, order)})
+
+    # Rank within position on each axis, then take the gap.
+    by_pos: dict = {}
+    for r in rows:
+        by_pos.setdefault(r["position"], []).append(r)
+    out = []
+    for pos, group in by_pos.items():
+        ours = sorted(group, key=lambda r: -r["proj_points"])
+        theirs = sorted(group, key=lambda r: r["consensus_rank"])
+        our_rank = {r["player"]: i + 1 for i, r in enumerate(ours)}
+        their_rank = {r["player"]: i + 1 for i, r in enumerate(theirs)}
+        for r in group:
+            r["our_pos_rank"] = our_rank[r["player"]]
+            r["consensus_pos_rank"] = their_rank[r["player"]]
+            r["gap"] = their_rank[r["player"]] - our_rank[r["player"]]
+            if r["gap"] > 0:
+                out.append(r)
+    out.sort(key=lambda r: -r["gap"])
+    return out[:limit]
