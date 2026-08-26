@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Authorization — Konjure Analytics</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+background:#0f1117;color:#c8cad4;line-height:1.75;padding:3rem 1rem}
+.c{max-width:680px;margin:0 auto}
+h1{color:#f3f4f6;font-size:1.6rem;margin-bottom:.4rem}
+p{margin:.9rem 0} a{color:#818cf8}
+.k{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#818cf8;font-weight:800}
+code{background:#171f32;padding:.15rem .4rem;border-radius:4px;font-size:.9em}
+</style></head><body><div class="c">
+<div class="k">Konjure Analytics</div><h1>Authorization</h1><p>If you have just authorized the application, the authorization code is below. Copy
+  it — it is valid for one hour.</p>
+  <p><code id="code">reading…</code></p>
+  <p id="err" style="color:#f87171"></p>
+  <script>
+  var p = new URLSearchParams(window.location.search);
+  var c = p.get('code'), e = p.get('error_description') || p.get('error');
+  document.getElementById('code').textContent = c ? c : 'no code in this URL';
+  if (e) document.getElementById('err').textContent = e;
+  </script>
+  <p style="margin-top:2rem;font-size:.85rem;color:#6b7280">This page reads the code from
+  the URL in your browser and displays it. Nothing is transmitted or stored.</p>
+</div></body></html>
