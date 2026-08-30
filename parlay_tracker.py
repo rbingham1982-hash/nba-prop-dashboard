@@ -2283,6 +2283,7 @@ def update_market_snapshots(props_df, sport: str) -> int:
         return 0
     data = _load()
     now_iso = datetime.now().isoformat(timespec="seconds")
+    _now_utc_snap = datetime.now(timezone.utc)
     updated = 0
     for p in data["parlays"]:
         if p.get("sport") != sport:
@@ -2303,6 +2304,15 @@ def update_market_snapshots(props_df, sport: str) -> int:
                 leg["closing_implied"] = implied
                 leg["closing_odds"] = odds
                 leg["closing_seen_at"] = now_iso
+                # How close to first pitch this price was taken. Without it every snapshot
+                # is treated as a closing line, and most are not: the median last snapshot
+                # lands 2.6h before start and only 28% are inside an hour. That biases CLV
+                # OPTIMISTIC, because late adverse movement is never observed — which is
+                # the likeliest explanation for CLV reading positive in 5 of 13 markets
+                # while realized results are positive in 2.
+                _lh = _lead_hours(str(leg.get("start_time", "")), _now_utc_snap)
+                if _lh is not None:
+                    leg["closing_lead_h"] = _lh
                 # Which book quoted it. Needed once every book snapshots its own legs:
                 # the audit below can no longer infer the source from "not FanDuel".
                 leg["closing_book"] = book
@@ -2512,7 +2522,30 @@ def purge_bad_snapshots() -> dict:
     return counts
 
 
-def get_clv_summary(sport: str | None = None) -> dict:
+# A snapshot taken this close to first pitch is treated as the closing line. Beyond it the
+# price is a real observation but not a close, and calling it one is how CLV came to read
+# rosier than realized results across the board.
+CLOSING_MAX_LEAD_H = 2.0
+
+
+def _is_closing(leg: dict, max_lead: float = CLOSING_MAX_LEAD_H) -> bool:
+    """True if this leg's stored price was captured near enough to lock to be a close."""
+    lh = leg.get("closing_lead_h")
+    if lh is None:
+        # Legacy rows carry no lead. Reconstruct it rather than discarding them, since
+        # closing_seen_at and start_time are both present on almost all of them.
+        st, cs = leg.get("start_time"), leg.get("closing_seen_at")
+        if not st or not cs:
+            return False
+        try:
+            gs = datetime.fromisoformat(st.replace("Z", "+00:00")).astimezone().replace(tzinfo=None)
+            lh = (gs - datetime.fromisoformat(cs)).total_seconds() / 3600
+        except Exception:
+            return False
+    return 0 <= float(lh) <= max_lead
+
+
+def get_clv_summary(sport: str | None = None, strict: bool = True) -> dict:
     """
     Closing-line value of logged picks: closing implied minus entry implied,
     in probability points. Positive CLV = the market moved toward the pick,
@@ -2531,6 +2564,11 @@ def get_clv_summary(sport: str | None = None) -> dict:
             close = leg.get("closing_implied")
             entry = leg.get("implied_prob")
             if close is None or not entry:
+                continue
+            # strict=True counts only prices captured near lock. The loose number answers
+            # "did the line move our way at some point", which is a different and much
+            # more flattering question than "did we beat the close".
+            if strict and not _is_closing(leg):
                 continue
             key = _prop_key(leg)
             if key in seen:
@@ -2850,6 +2888,18 @@ def get_paper_portfolio(strategy: str = "pocket", sport: str | None = None,
                 continue
             seen.add(key)
             entry = leg.get("implied_prob")
+            # Only a price captured near lock counts as a close here. Using the last
+            # price seen at any hour returned a NO_EDGE verdict at 95% confidence
+            # (n=4369, mean -1.09, CI [-1.37, -0.80]); restricted to genuine closes the
+            # same window is inconclusive (n=1075, mean -0.18, CI [-0.81, +0.46]). The
+            # verdict was an artifact of counting stale observations as closing lines.
+            #
+            # The gap is adverse selection, not missing late movement: a prop whose last
+            # snapshot is hours early is usually one the book PULLED early, and books pull
+            # props on news. Those legs carry the news-driven move and were being folded
+            # into a statistic that claims to measure something else.
+            if not _is_closing(leg):
+                continue
             close = leg.get("closing_implied")
             if entry and close is not None:
                 clv.append(float(close) - float(entry))
