@@ -141,6 +141,20 @@ UD_MLB_STAT_MAP = {
     "Earned Runs": "Earned Runs Allowed", "Stolen Bases": "Stolen Bases",
     "Total Bases": "Total Bases",
 }
+# Underdog's NFL stat labels, read off the live feed rather than guessed. Only the markets
+# nfl_analysis._USAGE_MODEL can actually project are mapped — the rest of what Underdog
+# posts (First TD Scorer, Longest Reception, 1Q/1H splits, Defensive INTs) has no
+# projection behind it, and mapping a market the model cannot price would put unscored
+# legs on the board.
+UD_NFL_STAT_MAP = {
+    "Pass Yards": "Passing Yards",
+    "Pass TDs": "Passing TDs",
+    "Completions": "Completions",
+    "Rush Yards": "Rushing Yards",
+    "Rush Attempts": "Carries",
+    "Receptions": "Receptions",
+    "Receiving Yards": "Receiving Yards",
+}
 UD_NBA_STAT_MAP = {
     "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
     "3-Pointers Made": "3-PT Made", "Pts+Rebs+Asts": "Pts+Rebs+Asts",
@@ -237,8 +251,13 @@ def fetch_prizepicks(league_id: int) -> pd.DataFrame:
 # ── Underdog API ───────────────────────────────────────────────────────────
 
 def fetch_underdog(sport: str) -> pd.DataFrame:
-    sport_id = {"nba": "NBA", "wnba": "WNBA", "mlb": "MLB"}[sport]
-    stat_map  = UD_MLB_STAT_MAP if sport == "mlb" else UD_NBA_STAT_MAP
+    # KeyError on an unmapped sport, which is how "NFL [Underdog]: snapshot failed ('nfl')"
+    # appeared in the log the week NFL props went live — Underdog was already carrying 16
+    # NFL games. .get() returns None so the caller sees an empty frame instead of a crash.
+    sport_id = {"nba": "NBA", "wnba": "WNBA", "mlb": "MLB", "nfl": "NFL"}.get(sport)
+    if not sport_id:
+        return pd.DataFrame()
+    stat_map = {"mlb": UD_MLB_STAT_MAP, "nfl": UD_NFL_STAT_MAP}.get(sport, UD_NBA_STAT_MAP)
     try:
         resp = requests.get(
             "https://api.underdogfantasy.com/beta/v5/over_under_lines",
