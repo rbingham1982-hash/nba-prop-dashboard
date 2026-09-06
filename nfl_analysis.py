@@ -307,6 +307,22 @@ def position_priors(df) -> dict:
     return priors
 
 
+def _name_key(name: str) -> str:
+    """
+    Loose key for joining book names to nflverse names.
+
+    The books and nflverse disagree on punctuation and generational suffixes — FanDuel
+    posts "Travis Etienne Jr." where nflverse has "Travis Etienne", and D.J./DJ, O'Dell,
+    De'Zhaun all differ. An exact-match join silently dropped those players, which mattered
+    far more than the count suggests because of what a failed lookup used to return.
+    """
+    import re
+    import unicodedata
+    t = unicodedata.normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
+    t = re.sub(r"\s+(?:jr|sr|ii|iii|iv|v)\.?$", "", t.strip().lower())
+    return re.sub(r"[^a-z]", "", t)
+
+
 def player_index(df) -> dict:
     """
     player -> his rows, built once.
@@ -317,12 +333,25 @@ def player_index(df) -> dict:
     would have blown the resolve/generate budget outright. Grouping once makes the lookup
     a dict hit; pass the result through and a prop scores in ~1ms.
     """
-    return {name: g.sort_values("week") for name, g in df.groupby("player_display_name")}
+    idx = {name: g.sort_values("week") for name, g in df.groupby("player_display_name")}
+    # Alias every player under a loose key too, so a book's spelling still finds him.
+    # Aliases never overwrite a real name, so an exact match always wins.
+    for name, rows in list(idx.items()):
+        k = _name_key(name)
+        if k and k not in idx:
+            idx[k] = rows
+    return idx
 
 
 def _rows_for(df, player: str, idx: dict | None):
     if idx is not None:
-        return idx.get(player)
+        # `a or b` on DataFrames raises ValueError ("truth value is ambiguous"), and the
+        # caller's except swallowed it — so every lookup failed and only 38 of 736 props
+        # scored while the code looked correct.
+        rows = idx.get(player)
+        if rows is None:
+            rows = idx.get(_name_key(player))
+        return rows
     sub = df[df["player_display_name"] == player]
     return None if sub.empty else sub.sort_values("week")
 

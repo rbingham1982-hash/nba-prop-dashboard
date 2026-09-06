@@ -433,9 +433,9 @@ def nfl_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
                                idx=ctx["idx"], dcache=ctx["dcache"], board=ctx["board"],
                                rates=ctx["rates"], cvcache=ctx["cvcache"])
     except Exception:
-        return 0.0, 0
+        return None, 0
     if not s:
-        return 0.0, 0
+        return None, 0
     rate = max(0.01, min(0.99, float(s["model_over"]) * float(cal)))
     return rate, int(s.get("n", 0))
 
@@ -519,8 +519,19 @@ def score_legs(df, cal, stat_types, rate_fn, min_sample=3):
             cal=cal.get(row["stat_type"], 1.0),
             team=str(row.get("team", "")),
         )
+        # A scorer that could not price this prop returns None, and None is NOT a
+        # prediction. Returning 0.0 instead meant an UNSCORED leg became a confident one:
+        # the over shipped at 0.0 and its under at 1.0, and with NFL's MIN_SAMPLE of 0
+        # nothing filtered it out. That is how the first NFL board recommended 63 of 64
+        # parlays — 87% of legs sat above the book, and the top parlay carried three legs
+        # whose raw model probability was exactly 1.0.
+        #
+        # Checked BEFORE the under flip, since 1.0 - None raises.
+        if rate is None:
+            continue
         if side == "under":
             rate = 1.0 - rate
+
         # min_sample is the games-of-history floor. NFL passes 0 because a leg can be
         # priced off the fantasy board's draft-cohort projection, which is a real
         # projection with n=0 games behind it — the scorer already refuses anything it
