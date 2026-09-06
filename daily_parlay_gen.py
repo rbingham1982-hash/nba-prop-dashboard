@@ -595,6 +595,23 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
     except Exception:
         pass
 
+    # A market blend weight has to be EARNED, not assumed. get_market_blend falls back to
+    # a 0.35 prior when a sport has no resolved history, and for NFL on opening weekend that
+    # prior is doing all the work: the raw model is unbiased against the book (median gap
+    # 0.000, 50% either side) but noisy, with a median absolute disagreement of 9.4 points
+    # per leg. At 0.35 that noise survives the blend on 238 of 718 legs, the builder selects
+    # exactly the ones where noise runs favourable, and 75 of 75 parlays price as positive
+    # EV. That is a cherry-picking artifact, not an edge.
+    #
+    # MLB's fitted weight is 0.107 after thousands of resolved legs. Until NFL has its own
+    # fit, it uses the same floor rather than three times the trust on zero evidence.
+    if mkt_w is not None and not parlay_tracker.get_calibration(sport=sport_label):
+        floor = 0.11
+        if mkt_w > floor:
+            print(f"  ! No resolved history for {sport_label} — capping blend "
+                  f"{mkt_w} -> {floor} until the model has been graded.")
+            mkt_w = floor
+
     drift = {}
     try:
         drift = parlay_tracker.get_market_drift(sport=sport_label)
