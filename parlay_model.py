@@ -1290,7 +1290,7 @@ def _current_season_nba_player_ids() -> dict:
     """Live fallback: name->id map from CommonAllPlayers for players missing from the static db."""
     try:
         df = commonallplayers.CommonAllPlayers(
-            is_only_current_season=1, league_id="00", season="2025-26"
+            is_only_current_season=1, league_id="00", season=nba_season_strings()[0]
         ).get_data_frames()[0]
         return {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"]) for _, row in df.iterrows()}
     except Exception:
@@ -1326,6 +1326,24 @@ def _sort_by_game_date(df: pd.DataFrame) -> pd.DataFrame:
 
 
 @_ttl_cache(3600)
+def nba_season_strings(today=None) -> tuple:
+    """
+    (current, previous) NBA season strings, derived from the date.
+
+    These were hardcoded as ("2025-26",) with a ("2024-25",) fallback. In October 2026 the
+    league is playing 2026-27, so the scorer would have read last season's logs all year
+    and never picked up a single current-season game — silently, since stale data returns
+    a perfectly valid-looking projection. The same literal appears in the current-season
+    player list, which would have missed every rookie and every trade.
+
+    The season is named for the year it starts, and it starts in October.
+    """
+    import datetime
+    d = today or datetime.date.today()
+    start = d.year if d.month >= 10 else d.year - 1
+    return (f"{start}-{str(start + 1)[-2:]}", f"{start - 1}-{str(start)[-2:]}")
+
+
 def get_gamelogs(player_id, seasons):
     frames = []
     for season in seasons:
@@ -1413,9 +1431,10 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
     pid = get_player_id(player_name)
     if not pid:
         return 0.5, 0
-    df = get_gamelogs(pid, ("2025-26",))
+    _cur, _prev = nba_season_strings()
+    df = get_gamelogs(pid, (_cur,))
     if df.empty:
-        df = get_gamelogs(pid, ("2024-25",))
+        df = get_gamelogs(pid, (_prev,))
     if df.empty:
         return 0.5, 0
     if col in ("PRA", "PA", "PR", "RA", "FS"):
@@ -1882,6 +1901,25 @@ def _hoops_min_over_prob(df, stat_type: str, col: str, line: float):
     import statistics as _st
     if df is None or df.empty or "MIN" not in df.columns or col not in df.columns:
         return None
+
+    # Regular-season rows only, where the log distinguishes them. get_gamelogs pools
+    # Regular Season and Playoffs, and the lookback takes the LAST 15 games — so for any
+    # player who made a run, the minutes distribution is mostly playoff basketball. Playoff
+    # rotations compress to eight men and starters absorb the difference: Jokic averaged
+    # 34.8 minutes in the regular season and 39.5 in the playoffs, Tatum 32.6 and 36.3.
+    # Projecting that into an October game overstates minutes for exactly the stars books
+    # post props on.
+    #
+    # It also matches the validation ground. get_wnba_gamelogs requests Regular Season
+    # only, so every measurement of this model has been made on regular-season data; giving
+    # NBA a mixed pool would deploy it on a distribution it was never tested against.
+    #
+    # Falls back to the full pool when the filter leaves too little — early in a season the
+    # only games available are last year's, and some of those are playoffs.
+    if "SEASON_TYPE" in df.columns:
+        reg = df[df["SEASON_TYPE"] == "Regular Season"]
+        if len(reg) >= _HOOPS_MIN_GAMES:
+            df = reg
     sub = df.tail(_HOOPS_MIN_LOOKBACK)
     pairs = []
     for m, v in zip(sub["MIN"], sub[col]):
