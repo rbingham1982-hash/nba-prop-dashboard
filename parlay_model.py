@@ -542,8 +542,38 @@ FD_HEADERS  = {
 # pitcher lines use a PITCHER_ role instead of PLAYER_ (PITCHER_C_TOTAL_STRIKEOUTS).
 # So the role is an alternation, the suffix is optional, and <core> is non-greedy so
 # the optional suffix is stripped rather than swallowed into the core.
+# NFL breaks the pattern again, in two new ways, and both had to be handled without
+# loosening the match for the sports that already work:
+#
+#   MLB/NBA/WNBA   PLAYER_A_TOTAL_POINTS_WNBA      role, TOTAL, core, optional league
+#   NFL            PLAYER_X_RECEIVING_YARDS_HIGH   role, NO "TOTAL", core, tier suffix
+#
+# So TOTAL_ is optional, and a trailing _HIGH/_MEDIUM/_LOW is stripped. Those tiers are
+# FanDuel's own segmentation of which players get featured, not a different market — the
+# same receiver appears as _HIGH on one slate and _MEDIUM on another, and both are just
+# receiving yards.
+#
+# ALT_ is deliberately NOT accepted. Alternate lines are the same prop at a different
+# threshold, they are correlated with the standard line, and the milestone-dedupe logic
+# below already exists because of exactly that problem in MLB.
 _FD_MARKET_RE = re.compile(
     r"^(?:PLAYER|PITCHER|BATTER)_[A-Z]+_TOTAL_(?P<core>.+?)(?:_(?:WNBA|NBA|MLB|NFL))?$"
+)
+# NFL is a SEPARATE pattern rather than a loosening of the one above, and that distinction
+# cost a regression to learn. Making TOTAL_ optional in the shared regex did make NFL match
+# — and silently broke MLB, because PLAYER_A_RECORD_A_HIT then matched as core RECORD_A_HIT
+# instead of falling through to the milestone parser. MLB lost Hits and Hits+Runs+RBIs
+# outright, 2,178 rows down to 1,638, with no error anywhere.
+#
+# The tier suffix is FanDuel's own segmentation of which players get featured, not a
+# different market: the same receiver is _HIGH on one slate and _MEDIUM on another, and
+# both are just receiving yards.
+#
+# ALT_ is excluded by construction. Alternate lines are the same prop at another threshold,
+# correlated with the standard line, and the milestone dedupe below exists precisely
+# because of that problem in MLB.
+_FD_NFL_MARKET_RE = re.compile(
+    r"^PLAYER_[A-Z]+_(?P<core>(?!ALT_).+?)(?:_(?:HIGH|MEDIUM|LOW))?(?:_NFL)?$"
 )
 
 _FD_HOOPS_CORE = {
@@ -949,7 +979,7 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
 
         for m in markets.values():
             mtype = m.get("marketType", "")
-            match = _FD_MARKET_RE.match(mtype)
+            match = (_FD_NFL_MARKET_RE if sport == "nfl" else _FD_MARKET_RE).match(mtype)
             if not match:
                 # MLB batter props are milestone yes/no markets, not over/unders.
                 if sport == "mlb":
