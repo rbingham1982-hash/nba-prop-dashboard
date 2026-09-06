@@ -1344,7 +1344,35 @@ def nba_season_strings(today=None) -> tuple:
     return (f"{start}-{str(start + 1)[-2:]}", f"{start - 1}-{str(start)[-2:]}")
 
 
+# Game logs, cached per (player, season) for the life of the process.
+#
+# Without this the scorer fetched once PER LEG. A board posts eight markets over two sides
+# for the same player, so a six-player preseason slate made 96 nba_api calls where six
+# would do — a 16x multiplier. A real slate of ~200 players is 3,200 calls instead of 200.
+#
+# nba_api rate-limits well before that, and the failure is silent in a way that matters:
+# get_gamelogs swallows the exception and returns empty, _nba_hit_rate then returns
+# (0.5, 0), and score_legs drops the leg because n=0 is below min_sample. Legs vanish from
+# the board with no error anywhere. That is how a check of the preseason board went from
+# 96 of 96 scored to 84 of 96 between two runs minutes apart — not a code change, just the
+# API throttling under repeated calls.
+_GAMELOG_CACHE: dict = {}
+
+
 def get_gamelogs(player_id, seasons):
+    key = (str(player_id), tuple(seasons))
+    hit = _GAMELOG_CACHE.get(key)
+    if hit is not None:
+        return hit
+    df = _fetch_gamelogs(player_id, seasons)
+    # Only cache a real answer. Caching an empty frame would make one throttled call
+    # poison that player for the whole run, which is the opposite of what this is for.
+    if df is not None and not df.empty:
+        _GAMELOG_CACHE[key] = df
+    return df
+
+
+def _fetch_gamelogs(player_id, seasons):
     frames = []
     for season in seasons:
         for s_type in ("Regular Season", "Playoffs"):
