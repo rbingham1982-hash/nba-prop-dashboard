@@ -90,6 +90,7 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["ats"] = entry.get("ats") or []
         out["parlay"] = entry.get("parlay") or []
         out["parlay_price"] = entry.get("parlay_price") or {}
+        out["td"] = entry.get("td") or []
         out["picks_locked"] = entry.get("locked", True)
         out["picks_lock_day"] = entry.get("locks_on", "Friday")
         out["picks_record"] = wp.record()
@@ -177,7 +178,7 @@ def render_markdown(data: dict) -> str:
     # Say why the section is missing rather than leaving a hole. An issue that silently
     # drops its NFL board on a Tuesday looks broken; one that explains it locks on Friday
     # is describing a deliberate choice, which is what it is.
-    if not (data.get("ats") or data.get("parlay")) and data.get("picks_locked") is False:
+    if not (data.get("ats") or data.get("parlay") or data.get("td"))             and data.get("picks_locked") is False:
         # "lock" is deliberately absent from this copy. In betting slang a lock is a
         # guaranteed winner, which is exactly the claim _BANNED_PHRASES exists to prevent —
         # and the gate duly rejected the first draft of this very paragraph.
@@ -235,11 +236,29 @@ def render_markdown(data: dict) -> str:
                      f"A five-leg parlay is a longshot by construction.")
             L.append("")
 
-    # The running record. This exists so the two boards above can be checked rather than
+    td = data.get("td") or []
+    if td:
+        L += [f"## Touchdown scorers — Week {data.get('week', '?')}", "",
+              "Most likely to find the end zone, rushing or receiving. Passing touchdowns "
+              "are excluded: a quarterback who throws one has not scored one.", "",
+              "The model prices rushing and receiving touchdowns as Poisson counts, so a "
+              "player fails to score only if both come up zero — "
+              "`P = 1 - (1 - P_rush)(1 - P_rec)`. **Book** is FanDuel's price with the "
+              "margin stripped out; where the two disagree sharply it is usually a rookie, "
+              "whose usage the model has the least history to project.", "",
+              "| Player | Game | Odds | Book | Model |", "|---|---|---:|---:|---:|"]
+        for r in td[:12]:
+            L.append(f"| {r['player']} | {r.get('game', '')} | "
+                     f"{int(r.get('american_odds', 0)):+d} | "
+                     f"{float(r.get('fair_prob', 0)):.0%} | "
+                     f"{float(r.get('model_prob', 0)):.0%} |")
+        L.append("")
+
+    # The running record. This exists so the boards above can be checked rather than
     # taken on trust, and it prints even when it is unflattering — especially then. A
     # published prediction with no scoreboard is just content.
     rec = data.get("picks_record") or {}
-    if rec.get("ats_n") or rec.get("leg_n"):
+    if rec.get("ats_n") or rec.get("leg_n") or rec.get("td_n"):
         L += ["## The record so far", ""]
         if rec.get("ats_n"):
             L.append(f"- **Against the spread:** {rec['ats_record']} "
@@ -250,13 +269,22 @@ def render_markdown(data: dict) -> str:
             L.append(f"- **Parlay legs:** {rec['leg_record']} ({rec['leg_pct']}%) "
                      f"over {rec['leg_n']} graded legs"
                      + (f", {rec['legs_dnp']} did not play." if rec.get("legs_dnp") else "."))
+        if rec.get("td_n"):
+            # Hit rate and expected rate together, never one alone. Hitting 60% on players
+            # we called 60% is a working model; hitting 60% on players we called 90% is not,
+            # and a lone percentage cannot tell those apart.
+            L.append(f"- **Touchdown board:** {rec['td_record']} ({rec['td_pct']}%) "
+                     f"over {rec['td_n']} graded players, against "
+                     f"{rec['td_expected_pct']}% expected from the published "
+                     f"probabilities"
+                     + (f", {rec['td_dnp']} did not play." if rec.get("td_dnp") else "."))
         if rec.get("parlays_settled"):
             L.append(f"- **Parlays:** {rec['parlays_hit']} of {rec['parlays_settled']} hit.")
         L.append("")
         if rec.get("weeks"):
-            L += ["| Week | ATS | Legs |", "|---|---|---|"]
+            L += ["| Week | ATS | Legs | TDs |", "|---|---|---|---|"]
             for w in rec["weeks"]:
-                L.append(f"| {w['week']} | {w['ats']} | {w['legs']} |")
+                L.append(f"| {w['week']} | {w['ats']} | {w['legs']} | {w.get('td', '—')} |")
             L.append("")
 
     dfs = data.get("dfs") or []
@@ -551,6 +579,25 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
             if mp is not None and bp is not None and float(mp) < float(bp) - 1e-9:
                 fails.append(f"parlay leg {l.get('player')} blends ABOVE the raw model "
                              f"probability — the blend is backwards")
+
+    # The touchdown board is a list of probabilities, so the checks are that they are
+    # probabilities and that the blend sits where a blend has to sit — between the two
+    # numbers it is blending. Outside that range means the weight is wrong or inverted.
+    seen_td = set()
+    for r in (data.get("td") or []):
+        mp, fp, bp = r.get("model_prob"), r.get("fair_prob"), r.get("blended_prob")
+        if bp is None or not (0.0 < float(bp) < 1.0):
+            fails.append(f"TD row {r.get('player')} has no usable probability")
+            continue
+        if r.get("player") in seen_td:
+            fails.append(f"TD board repeats {r.get('player')}")
+        seen_td.add(r.get("player"))
+        if mp is not None and fp is not None:
+            lo, hi = sorted((float(mp), float(fp)))
+            if not (lo - 1e-9 <= float(bp) <= hi + 1e-9):
+                fails.append(f"TD row {r.get('player')} blends to {float(bp):.3f}, outside "
+                             f"the model {float(mp):.3f} and book {float(fp):.3f} it sits "
+                             f"between — the blend weight is wrong")
 
     for r in dfs:
         sal, pts = r.get("salary"), r.get("proj_points")

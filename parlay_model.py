@@ -784,6 +784,95 @@ def _fd_american(runner: dict):
         return None
 
 
+def _fd_anytime_td_event(ev_id: str, ev: dict) -> list:
+    """One event's anytime-touchdown runners."""
+    start = ev.get("openDate", "")
+    label = ev.get("name", "")
+    try:
+        r = requests.get(f"{FD_BASE}/event-page",
+                         params={"eventId": ev_id, "_ak": FD_AK,
+                                 "tab": "td-scorer-props"},
+                         headers=FD_HEADERS, timeout=25)
+        if r.status_code != 200:
+            return []
+        markets = r.json().get("attachments", {}).get("markets", {})
+    except Exception:
+        return []
+
+    rows = []
+    for m in markets.values():
+        if m.get("marketType") != "ANY_TIME_TOUCHDOWN_SCORER":
+            continue
+        for rn in m.get("runners", []):
+            name = (rn.get("runnerName") or "").strip()
+            odds = ((rn.get("winRunnerOdds") or {}).get("americanDisplayOdds") or {})                 .get("americanOddsInt")
+            if not name or odds is None:
+                continue
+            rows.append({
+                "player_name": name,
+                "stat_type": "Anytime TD",
+                # Written as an over-0.5 so it reads in the same units as every other leg
+                # in this project: "more than half a touchdown" is "at least one".
+                "line_score": 0.5,
+                "side": "over",
+                "american_odds": int(odds),
+                "implied_prob": american_to_implied(int(odds)),
+                "sportsbook": "FanDuel",
+                "game_id": str(ev_id),
+                "game_label": label,
+                "start_time": start,
+                "odds_type": "standard",
+            })
+    return rows
+
+
+def fetch_fanduel_anytime_td() -> pd.DataFrame:
+    """
+    Anytime touchdown scorer odds, one row per player.
+
+    Lives apart from fetch_fanduel because the market has a different SHAPE. Every other
+    prop here is two-sided over/under on one player; this is a single market with fifty
+    runners whose outcomes are not mutually exclusive — several players score in a game —
+    so the runner probabilities do not sum to one and cannot be normalised against each
+    other. That also means the two-way de-vig does not apply and the one-sided curve has
+    to do the work.
+
+    It is on a tab the main fetch never opened. _fd_parse_event selects tabs whose title
+    contains player/passing/rushing/receiving, and FanDuel calls this one "TD Scorer
+    Props" — no keyword match, so it was skipped silently. RUSHING_TOUCHDOWNS and
+    RECEIVING_TOUCHDOWNS have been sitting in _FD_NFL_CORE the whole time, mapped and
+    unreachable, because FanDuel does not offer them as over/unders at all: the anytime
+    market is how it prices a touchdown.
+    """
+    page_id = FD_PAGE_ID.get("nfl")
+    if not page_id:
+        return pd.DataFrame()
+    try:
+        r = requests.get(f"{FD_BASE}/content-managed-page",
+                         params={"page": "CUSTOM", "customPageId": page_id,
+                                 "_ak": FD_AK, "timezone": "America/New_York"},
+                         headers=FD_HEADERS, timeout=20)
+        if r.status_code != 200:
+            print(f"    FanDuel TD page fetch failed: HTTP {r.status_code}")
+            return pd.DataFrame()
+        events = r.json().get("attachments", {}).get("events", {})
+    except Exception as e:
+        print(f"    FanDuel TD fetch failed: {e}")
+        return pd.DataFrame()
+
+    games = {i: e for i, e in events.items() if " @ " in (e.get("name") or "")}
+    rows = []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        futures = [ex.submit(_fd_anytime_td_event, ev_id, ev)
+                   for ev_id, ev in games.items()]
+        for fut in futures:
+            try:
+                rows.extend(fut.result())
+            except Exception:
+                continue
+    return pd.DataFrame(rows) if rows else pd.DataFrame()
+
+
 def fetch_fanduel(sport: str) -> pd.DataFrame:
     """
     Player props from FanDuel's public web API. No key, no quota.

@@ -280,6 +280,88 @@ def parlay_price(legs: list) -> dict:
             "breakeven_prob": round(1.0 / dec, 5) if dec else None}
 
 
+# ── the touchdown board ────────────────────────────────────────────────────
+
+def td_board(n: int = 10) -> list:
+    """
+    Most likely touchdown scorers this week, model against book.
+
+    The model probability is EXACT under the assumptions, not an approximation worth
+    apologising for. nfl_analysis already prices Rushing TDs and Receiving TDs as Poisson
+    counts — they are in _COUNT_STATS — so p_rush = 1 - exp(-lambda_rush) and likewise for
+    receiving. A player fails to score at all only if both counts come up zero, and if the
+    two are independent that is exp(-lambda_rush) * exp(-lambda_rec):
+
+        P(anytime TD) = 1 - (1 - p_rush)(1 - p_rec)
+
+    Independence is the assumption doing the work, and it is not perfectly true — a goal
+    line back who gets the carry is a receiver who did not get the target. It will be
+    slightly optimistic for players who score both ways.
+
+    Passing TDs are deliberately excluded. A quarterback throwing a touchdown is not a
+    quarterback scoring one, and the market this board quotes against pays only rushing and
+    receiving scores.
+
+    De-vig is one-sided because it has to be: anytime-TD runners are not mutually exclusive
+    — several players score in a game — so their implied probabilities sum to roughly five
+    per game and cannot be normalised against each other. The curve used is the project
+    default, fitted on two-sided markets in other sports, so it is an assumption rather
+    than a measurement for this one. Worth refitting once the log has a season of results.
+    """
+    import daily_parlay_gen as dg
+    import parlay_model as pm
+    import parlay_tracker
+
+    raw = pm.fetch_fanduel_anytime_td()
+    if raw is None or raw.empty:
+        return []
+
+    # A game already under way is not a prediction — the same rule the rest of the board
+    # runs on, and the reason the Friday board excludes the Thursday night game.
+    raw = raw[~raw["start_time"].map(dg._has_started)]
+    if raw.empty:
+        return []
+
+    mkt_w = 0.11
+    try:
+        fitted = parlay_tracker.get_market_blend(sport="NFL")
+        if fitted is not None and parlay_tracker.get_calibration(sport="NFL"):
+            mkt_w = float(fitted)
+    except Exception:
+        pass
+
+    out = []
+    for _, r in raw.iterrows():
+        name = r["player_name"]
+        p_rush, n_rush = dg.nfl_hit_rate(name, "Rushing TDs", 0.5)
+        p_rec, n_rec = dg.nfl_hit_rate(name, "Receiving TDs", 0.5)
+        if p_rush is None and p_rec is None:
+            continue
+        pr = float(p_rush) if p_rush is not None else 0.0
+        pc = float(p_rec) if p_rec is not None else 0.0
+        model = 1.0 - (1.0 - pr) * (1.0 - pc)
+
+        implied = float(r["implied_prob"])
+        fair = pm.devig_one_sided(implied, sport="nfl")
+        blended = mkt_w * model + (1.0 - mkt_w) * fair
+        out.append({
+            "player": name, "game": r["game_label"],
+            "american_odds": int(r["american_odds"]),
+            "implied_prob": round(implied, 4),
+            "fair_prob": round(fair, 4),
+            "model_prob": round(model, 4),
+            "blended_prob": round(blended, 4),
+            "edge": round(model - fair, 4),
+            "p_rush": round(pr, 4), "p_rec": round(pc, 4),
+            "sample_n": int(max(n_rush or 0, n_rec or 0)),
+            "start_time": str(r["start_time"]),
+        })
+
+    # Ranked by what we believe, not by disagreement — the same discipline as the parlay.
+    out.sort(key=lambda r: -r["blended_prob"])
+    return out[:n]
+
+
 # ── the log ────────────────────────────────────────────────────────────────
 
 def _load() -> dict:
@@ -306,7 +388,8 @@ def locked_today(today=None) -> bool:
 
 def log_picks(season: int | None = None, week: int | None = None,
               ats: list | None = None, parlay: list | None = None,
-              overwrite: bool = False, force: bool = False) -> dict:
+              td: list | None = None, overwrite: bool = False,
+              force: bool = False) -> dict:
     """
     Record a week's picks, once, and not before Friday.
 
@@ -327,11 +410,12 @@ def log_picks(season: int | None = None, week: int | None = None,
     if k in data and not overwrite:
         return data[k]
     if not (force or locked_today()):
-        return {"season": season, "week": week, "ats": [], "parlay": [],
+        return {"season": season, "week": week, "ats": [], "parlay": [], "td": [],
                 "locked": False, "locks_on": "Friday"}
 
     ats = ats if ats is not None else ats_board(season, week)
     parlay = parlay if parlay is not None else parlay_legs()
+    td = td if td is not None else td_board()
 
     entry = {
         "season": season, "week": week,
@@ -346,6 +430,11 @@ def log_picks(season: int | None = None, week: int | None = None,
                     "model_prob": r.get("model_prob"), "blended_prob": r.get("blended_prob"),
                     "implied_prob": r.get("implied_prob"), "team": r.get("team", ""),
                     "outcome": None, "actual": None} for r in parlay],
+        "td": [{"player": r["player"], "game": r.get("game", ""),
+                "american_odds": r.get("american_odds"),
+                "model_prob": r.get("model_prob"), "fair_prob": r.get("fair_prob"),
+                "blended_prob": r.get("blended_prob"), "edge": r.get("edge"),
+                "outcome": None, "actual": None} for r in td],
     }
     if entry["parlay"]:
         entry["parlay_price"] = parlay_price(parlay)
@@ -443,29 +532,81 @@ def _grade_parlay(entry: dict) -> int:
     return filled
 
 
+def _grade_td(entry: dict) -> int:
+    """
+    Did he score a rushing or receiving touchdown that week.
+
+    Passing touchdowns are not counted, matching what the board predicted and what the
+    market pays. A player with no row for the week is "dnp" for the same reason as a
+    parlay leg: he did not lose a prediction about whether he would score.
+    """
+    import nfl_analysis as nfl
+    pending = [r for r in entry.get("td", []) if not r.get("outcome")]
+    if not pending:
+        return 0
+    try:
+        _, wk = nfl.get_season(entry["season"])
+    except Exception:
+        return 0
+    wk = wk[wk["week"] == entry["week"]]
+    if wk.empty:
+        return 0
+    by_name = {}
+    for _, row in wk.iterrows():
+        nm = row.get("player_display_name")
+        if not nm:
+            continue
+        by_name[nm] = row
+        by_name.setdefault(nfl._name_key(nm), row)
+
+    filled = 0
+    for r in pending:
+        row = by_name.get(r["player"])
+        if row is None:
+            row = by_name.get(nfl._name_key(r["player"]))
+        if row is None:
+            r["outcome"] = "dnp"
+            filled += 1
+            continue
+        tds = 0.0
+        for col in ("rushing_tds", "receiving_tds"):
+            if col in row.index:
+                v = row.get(col)
+                if v is not None and v == v:
+                    tds += float(v)
+        r["actual"] = tds
+        r["outcome"] = "win" if tds >= 1 else "loss"
+        filled += 1
+    return filled
+
+
 def grade(season: int | None = None) -> dict:
     """Grade every ungraded week that has finished. Safe to run repeatedly."""
     import nfl_game_model as gm
     data = _load()
     if not data:
-        return {"weeks": 0, "ats_filled": 0, "parlay_filled": 0}
+        return {"weeks": 0, "ats_filled": 0, "parlay_filled": 0, "td_filled": 0}
     sched = gm.games()
     sched = sched[sched["result"].notna()]
-    ats_filled = parlay_filled = weeks = 0
+    ats_filled = parlay_filled = td_filled = weeks = 0
     for k, entry in data.items():
         if season is not None and entry.get("season") != season:
             continue
         a = _grade_ats(entry, sched)
         p = _grade_parlay(entry)
-        if a or p:
+        t = _grade_td(entry)
+        if a or p or t:
             weeks += 1
         ats_filled += a
         parlay_filled += p
-        entry["graded"] = all(r.get("outcome") for r in entry.get("ats", [])) and \
-                          all(r.get("outcome") for r in entry.get("parlay", []))
-    if ats_filled or parlay_filled:
+        td_filled += t
+        entry["graded"] = (all(r.get("outcome") for r in entry.get("ats", []))
+                           and all(r.get("outcome") for r in entry.get("parlay", []))
+                           and all(r.get("outcome") for r in entry.get("td", [])))
+    if ats_filled or parlay_filled or td_filled:
         _save(data)
-    return {"weeks": weeks, "ats_filled": ats_filled, "parlay_filled": parlay_filled}
+    return {"weeks": weeks, "ats_filled": ats_filled, "parlay_filled": parlay_filled,
+            "td_filled": td_filled}
 
 
 def record(season: int | None = None) -> dict:
@@ -480,6 +621,8 @@ def record(season: int | None = None) -> dict:
     data = _load()
     ats_w = ats_l = ats_p = 0
     leg_w = leg_l = leg_p = leg_dnp = 0
+    td_w = td_l = td_dnp = 0
+    td_expected = 0.0
     parlays_hit = parlays_done = 0
     weeks = []
     for k in sorted(data):
@@ -493,6 +636,16 @@ def record(season: int | None = None) -> dict:
         ll = sum(1 for r in e.get("parlay", []) if r.get("outcome") == "loss")
         lp = sum(1 for r in e.get("parlay", []) if r.get("outcome") == "push")
         ld = sum(1 for r in e.get("parlay", []) if r.get("outcome") == "dnp")
+        tw = sum(1 for r in e.get("td", []) if r.get("outcome") == "win")
+        tl = sum(1 for r in e.get("td", []) if r.get("outcome") == "loss")
+        td_ = sum(1 for r in e.get("td", []) if r.get("outcome") == "dnp")
+        # Expected hits sums the probability we PUBLISHED over the rows that actually
+        # graded, so it is comparable to the hits those same rows produced. Summing over
+        # every logged row instead would count players who never took the field and make
+        # the board look overconfident for a reason that has nothing to do with the model.
+        td_expected += sum(float(r.get("blended_prob") or 0)
+                           for r in e.get("td", []) if r.get("outcome") in ("win", "loss"))
+        td_w += tw; td_l += tl; td_dnp += td_
         ats_w += aw; ats_l += al; ats_p += ap
         leg_w += lw; leg_l += ll; leg_p += lp; leg_dnp += ld
         legs = e.get("parlay", [])
@@ -501,9 +654,11 @@ def record(season: int | None = None) -> dict:
             if all(r.get("outcome") in ("win", "push") for r in legs):
                 parlays_hit += 1
         weeks.append({"week": k, "ats": f"{aw}-{al}" + (f"-{ap}" if ap else ""),
-                      "legs": f"{lw}-{ll}" + (f" ({ld} dnp)" if ld else "")})
+                      "legs": f"{lw}-{ll}" + (f" ({ld} dnp)" if ld else ""),
+                      "td": f"{tw}-{tl}" if (tw or tl) else "—"})
     ats_dec = ats_w + ats_l
     leg_dec = leg_w + leg_l
+    td_dec = td_w + td_l
     return {
         "ats_record": f"{ats_w}-{ats_l}" + (f"-{ats_p}" if ats_p else ""),
         "ats_pct": round(ats_w / ats_dec * 100, 2) if ats_dec else None,
@@ -514,6 +669,15 @@ def record(season: int | None = None) -> dict:
         "leg_pct": round(leg_w / leg_dec * 100, 2) if leg_dec else None,
         "leg_n": leg_dec, "legs_dnp": leg_dnp,
         "parlays_hit": parlays_hit, "parlays_settled": parlays_done,
+        "td_record": f"{td_w}-{td_l}",
+        "td_pct": round(td_w / td_dec * 100, 2) if td_dec else None,
+        "td_n": td_dec, "td_dnp": td_dnp,
+        # Calibration, which is the only honest test of a board of probabilities. A hit
+        # rate on its own says nothing: predicting 60% players and hitting 60% is a good
+        # model, and predicting 90% players and hitting 60% is a bad one. These two
+        # numbers have to be read together.
+        "td_expected_hits": round(td_expected, 2) if td_dec else None,
+        "td_expected_pct": round(td_expected / td_dec * 100, 2) if td_dec else None,
         "weeks": weeks,
         # The backtest this record is meant to confirm or contradict.
         "ats_backtest_pct": 49.25,

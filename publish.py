@@ -228,6 +228,22 @@ def render_cards(data: dict) -> list:
             f"{len(legs)}-Leg Parlay", wk, rows, foot,
             _OUT / f"{stamp}-card-parlay.jpg", footer2=f2))
 
+    # Shows the BLENDED probability, which is both what the board is ranked by and what
+    # this project is allowed to publish — the same number the parlay card shows. Printing
+    # the raw model figure instead put an unsorted column on a list captioned "most likely"
+    # (63, 68, 61, 54, 41, 46...), which reads as a rendering fault rather than as the two
+    # different quantities it actually was. The newsletter table is where book and model sit
+    # side by side and the disagreement is legible.
+    td = data.get("td") or []
+    if len(td) >= 5:
+        wk = f"Week {data['week']}" if data.get("week") else when
+        rows = [(r["player"], f"{float(r['blended_prob']):.0%}") for r in td[:10]]
+        out.append(render_card(
+            "Touchdown Scorers", wk, rows,
+            "Chance of a rushing or receiving TD, model blended with the market",
+            _OUT / f"{stamp}-card-td.jpg",
+            footer2="Passing TDs excluded. Rookies are where the model is least certain."))
+
     dfs = data.get("dfs") or []
     if len(dfs) >= 6:
         # Both numbers, and the projection first. Stripped to a card, a lone value figure
