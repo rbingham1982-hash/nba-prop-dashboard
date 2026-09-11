@@ -340,6 +340,57 @@ def depth_multiplier(position: str, order) -> float:
     return table.get(o, _DEPTH_FLOOR.get(str(position).upper(), 0.1))
 
 
+def sleeper_profiles() -> dict:
+    """
+    Sleeper player records keyed by (name, position).
+
+    Keying on name alone loses players to collisions, silently and consequentially. Sleeper
+    carries two Lamar Jacksons: the Baltimore quarterback (depth_chart_order 1, search_rank
+    11) and a cornerback with no team, no depth chart and search_rank 1059. A flat
+    name-keyed dict kept whichever happened to come last. The cornerback won, his rank
+    cleared the "probably still available" threshold, and his missing depth chart skipped
+    the starter discount — so the league MVP came out of the board as a waiver pickup.
+
+    Every caller already knows which position it is asking about, so putting it in the key
+    costs nothing and removes the entire class of bug rather than this one instance.
+
+    Where a (name, position) pair still collides, the lowest search_rank wins: that is the
+    fantasy-relevant player, and the duplicate is a camp body with the same name.
+
+    Names are additionally aliased under a loose key, because a miss here is the PERMISSIVE
+    path — unknown depth means no starter discount and unknown rank means "nobody has him."
+    Sleeper writes "Michael Penix" where nflverse writes "Michael Penix Jr.", so the exact
+    key missed and Atlanta's week-one starter came back as an unrostered free agent. A
+    spelling difference must never be what promotes a starter onto a waiver board.
+    """
+    import nfl_analysis as nfl
+    out: dict = {}
+
+    def _better(key, pl):
+        cur = out.get(key)
+        return cur is None or ((pl.get("search_rank") or 10 ** 7)
+                               < (cur.get("search_rank") or 10 ** 7))
+
+    for pl in sleeper_players().values():
+        pos = str(pl.get("position") or "")
+        key = (pl.get("name"), pos)
+        if _better(key, pl):
+            out[key] = pl
+    # Loose keys second, so an exact-name match always wins over a normalised one.
+    for pl in sleeper_players().values():
+        pos = str(pl.get("position") or "")
+        k = nfl._name_key(pl.get("name") or "")
+        if k and (k, pos) not in out and _better((k, pos), pl):
+            out[(k, pos)] = pl
+    return out
+
+
+def _profile(sp: dict, name: str, pos: str) -> dict:
+    """Exact name first, then the normalised spelling."""
+    import nfl_analysis as nfl
+    return sp.get((name, pos)) or sp.get((nfl._name_key(name or ""), pos)) or {}
+
+
 def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False):
     """
     Players we project well who are probably still available.
@@ -371,13 +422,11 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
 
     adds = {p["name"]: p["count"] for p in sleeper_trending("add", limit=200)}
     drops = {p["name"]: p["count"] for p in sleeper_trending("drop", limit=200)}
-    _sp = sleeper_players()
-    ranks = {p["name"]: (p.get("search_rank") or 10 ** 7) for p in _sp.values()}
-    depths = {p["name"]: p.get("depth_chart_order") for p in _sp.values()}
+    _sp = sleeper_profiles()
 
     out = []
-    _scored = _after_rank = 0
-    for name, sub in idx.items():
+    _scored = _after_starter = _after_floor = _after_rank = 0
+    for name, sub in nfl.real_players(idx).items():
         pos = str(sub.iloc[0].get("position", ""))
         if pos not in ("QB", "RB", "WR", "TE"):
             continue
@@ -397,17 +446,22 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
         if pts <= 0:
             continue
         # Discount to the workload his depth-chart slot actually implies.
-        order = depths.get(name)
+        prof = _profile(_sp, name, pos)
+        # Sixth instance of the availability gap. Without a team, project_usage falls back
+        # to last year's offence and scores an unsigned free agent as though he were still
+        # starting there — which is how Zach Ertz, unsigned, reached this board at 9.7
+        # projected points. sleepers() has guarded this for weeks; this board never did.
+        team = prof.get("team") or teams.get(str(sub.iloc[0].get("player_id", ""))) or ""
+        if not team:
+            continue
+        order = prof.get("depth_chart_order")
         mult = depth_multiplier(pos, order)
         pts = round(pts * mult, 2)
-        if pts < _WAIVER_FLOOR.get(pos, 5.0):
-            continue
-        rank = ranks.get(name, 10 ** 7)
-        if rank < min_rank:
-            continue          # rostered everywhere; not a waiver decision
-        _after_rank += 1
-        out.append({"player": name, "position": pos,
-                    "team": (teams.get(str(sub.iloc[0].get("player_id", ""))) or ""),
+        # Every scorable player is kept here, gates applied after the loop. The startable
+        # tier below has to be ranked against the WHOLE population to mean anything, so
+        # filtering first would destroy the information it needs.
+        rank = prof.get("search_rank") or 10 ** 7
+        out.append({"player": name, "position": pos, "team": team,
                     "proj_points": pts, "search_rank": rank,
                     "depth": order, "depth_mult": mult,
                     "adds": adds.get(name, 0), "drops": drops.get(name, 0),
@@ -424,6 +478,14 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
     # So a second gate that does not depend on their data: anyone our OWN projection ranks
     # inside the startable tier for his position is rostered by definition, whatever
     # search_rank claims. Roughly a 12-team league's starters plus a bench.
+    #
+    # The tier is ranked across EVERY player scored above, not across the ones who already
+    # survived the availability gates. Ranked against the survivors it deletes the board:
+    # the gates leave well under fourteen quarterbacks, so "the top fourteen quarterbacks
+    # are rostered" marks every quarterback left and the list comes back empty. It only
+    # ever produced rows because a duplicate-alias bug had inflated the pool past these
+    # thresholds, which is the kind of agreement between two bugs that looks like working
+    # code.
     startable = {"QB": 14, "RB": 30, "WR": 36, "TE": 14}
     by_pos: dict = {}
     for r in sorted(out, key=lambda r: -r["proj_points"]):
@@ -432,6 +494,19 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
     for pos, rows_ in by_pos.items():
         for r in rows_[:startable.get(pos, 20)]:
             elite.add((r["player"], r["position"]))
+
+    # search_rank does not work for quarterbacks. Sleeper ranks them by positional
+    # scarcity, so listed week-one starters sit well past the availability threshold —
+    # Brissett 203, Tua 237, Rodgers 188, Geno 216 — and all four read as free agents. The
+    # depth chart is the direct evidence the rank is standing in for: a team's listed
+    # starting quarterback is on a roster in every league that exists.
+    out = [r for r in out if not (r["position"] == "QB" and r["depth"] == 1)]
+    _after_starter = len(out)
+
+    out = [r for r in out if r["proj_points"] >= _WAIVER_FLOOR.get(r["position"], 5.0)]
+    _after_floor = len(out)
+    out = [r for r in out if r["search_rank"] >= min_rank]
+    _after_rank = len(out)
     out = [r for r in out if (r["player"], r["position"]) not in elite]
 
     # Per position, not overall. DK scoring pays a quarterback roughly twice what it pays
@@ -441,8 +516,8 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
     # Diagnostics so a caller can tell "the feed is down" from "nobody qualified", which
     # look identical from an empty list and are opposite situations: one is a bug, the
     # other is a true and publishable answer.
-    stats = {"scored": _scored, "after_rank": _after_rank,
-             "after_floor": len(out), "returned": 0}
+    stats = {"scored": _scored, "after_starter": _after_starter, "after_floor": _after_floor,
+             "after_rank": _after_rank, "after_startable": len(out), "returned": 0}
 
     out.sort(key=lambda r: -r["proj_points"])
     per_pos, kept = {}, []
@@ -536,13 +611,10 @@ def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
     board = nfl.board_projections(season + 1)
     rates, cv = nfl.league_rates(df), {}
 
-    sp = sleeper_players()
-    ranks = {p["name"]: p.get("search_rank") for p in sp.values()}
-    depths = {p["name"]: p.get("depth_chart_order") for p in sp.values()}
-    cur_team = {p["name"]: p.get("team") for p in sp.values()}
+    sp = sleeper_profiles()
 
     rows = []
-    for name, sub in idx.items():
+    for name, sub in nfl.real_players(idx).items():
         pos = str(sub.iloc[0].get("position", ""))
         if pos not in ("QB", "RB", "WR", "TE"):
             continue
@@ -556,9 +628,10 @@ def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
         # disagree and Sleeper is the fresher of the pair in late August: it has Stefon
         # Diggs on Washington and Keenan Allen on Indianapolis, both of whom the nflverse
         # 2026 roster has not picked up yet.
-        if not cur_team.get(name):
+        prof = _profile(sp, name, pos)
+        if not prof.get("team"):
             continue
-        rank = ranks.get(name)
+        rank = prof.get("search_rank")
         if not rank or not (min_rank <= int(rank) <= max_rank):
             continue
         proj = {}
@@ -572,13 +645,13 @@ def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
                 proj[stat] = s.get("projection", 0)
         if not proj:
             continue
-        order = depths.get(name)
+        order = prof.get("depth_chart_order")
         pts = round(dk_points_nfl(proj) * depth_multiplier(pos, order), 2)
         if pts < _WAIVER_FLOOR.get(pos, 5.0):
             continue
         rows.append({"player": name, "position": pos,
                      # Sleeper's team, not nflverse's — see the free-agent guard above.
-                     "team": cur_team.get(name) or teams.get(str(sub.iloc[0].get("player_id", ""))) or "",
+                     "team": prof.get("team") or teams.get(str(sub.iloc[0].get("player_id", ""))) or "",
                      "proj_points": pts, "consensus_rank": int(rank),
                      "depth": order, "depth_mult": depth_multiplier(pos, order)})
 

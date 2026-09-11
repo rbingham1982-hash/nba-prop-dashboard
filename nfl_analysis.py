@@ -350,11 +350,27 @@ def player_index(df) -> dict:
     idx = {name: g.sort_values("week") for name, g in df.groupby("player_display_name")}
     # Alias every player under a loose key too, so a book's spelling still finds him.
     # Aliases never overwrite a real name, so an exact match always wins.
+    #
+    # These aliases are LOOKUP ENTRIES, not players. Anything that walks the index has to
+    # skip them — see real_players(). Iterating the raw dict processes every player twice,
+    # once under his display name and once under a lowercase key that matches no roster,
+    # so the depth-chart lookup misses and the discount silently does not apply. That put
+    # Lamar Jackson back on the waiver board as a free agent.
     for name, rows in list(idx.items()):
         k = _name_key(name)
         if k and k not in idx:
             idx[k] = rows
     return idx
+
+
+def real_players(idx: dict):
+    """
+    Display names only, with the lookup aliases filtered out.
+
+    An alias key equals its own normalised form — lowercase, no spaces or punctuation —
+    which no real display name ever does.
+    """
+    return {k: v for k, v in idx.items() if k != _name_key(k)}
 
 
 def _rows_for(df, player: str, idx: dict | None):
