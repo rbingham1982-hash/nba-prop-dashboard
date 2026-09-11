@@ -333,7 +333,13 @@ if __name__ == "__main__":
 
 # Projected points above which a "waiver target" is not credible — nobody projecting this
 # is unrostered in a real league, whatever a rank field claims.
-_MAX_CREDIBLE_WAIVER = {"QB": 16.0, "RB": 14.0, "WR": 13.0, "TE": 10.0}
+#
+# TE sits at 12.0 rather than 10.0 because the position's projections are compressed: TE9
+# through TE16 span half a point (Kincaid 10.68 down to Waller 10.16), so a cap of 10.0
+# fell inside a cluster the model cannot resolve and flagged an ordinary TE1 as a data
+# error. 12.0 still leaves the genuine studs above it — McBride 18.3, Kittle 14.0, Kraft
+# 12.8 — which is the case the cap exists to catch.
+_MAX_CREDIBLE_WAIVER = {"QB": 16.0, "RB": 14.0, "WR": 13.0, "TE": 12.0}
 
 # Phrases that imply a betting edge. The model does not have one — negative CLV, an
 # INCONCLUSIVE paper verdict — so this is a house rule enforced in code rather than left
