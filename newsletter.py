@@ -76,6 +76,26 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["dfs"] = []
         out["errors"].append(f"dfs slate: {e}")
 
+    # The week's NFL boards, read back from the PREDICTION LOG rather than freshly
+    # generated. log_picks writes once per week and refuses to overwrite, so whichever run
+    # first built the week is the record, and the card published later always shows exactly
+    # what was committed to. Generating the board a second time at render time would let a
+    # line that moved midweek quietly change the published pick while the log kept the old
+    # one — and a record that disagrees with what went out is worse than no record.
+    try:
+        import weekly_picks as wp
+        wp.grade()                     # fill in last week's results before reporting
+        entry = wp.log_picks()
+        out["season"], out["week"] = entry["season"], entry["week"]
+        out["ats"] = entry.get("ats") or []
+        out["parlay"] = entry.get("parlay") or []
+        out["parlay_price"] = entry.get("parlay_price") or {}
+        out["picks_record"] = wp.record()
+    except Exception as e:
+        out["ats"], out["parlay"], out["parlay_price"] = [], [], {}
+        out["picks_record"] = {}
+        out["errors"].append(f"weekly picks: {e}")
+
     try:
         adds = ft.sleeper_trending("add", limit=12)
         out["trending"] = adds
@@ -151,6 +171,77 @@ def render_markdown(data: dict) -> str:
             L.append(f"- **{t['name']}** ({t.get('position') or '?'}, {t.get('team') or 'FA'}) "
                      f"— {t.get('count', 0):,} adds")
         L.append("")
+
+    ats = data.get("ats") or []
+    if ats:
+        L += [f"## Model vs line — Week {data.get('week', '?')}", "",
+              "The games where the spread model and the market disagree most. **This is not "
+              "a pick list.** Against the closing line the model hits 49.3% over 1,359 "
+              "out-of-sample games, where 52.4% is break-even at -110 — so the interesting "
+              "content is the disagreement itself, not a recommendation to act on it.", "",
+              "`Model` is the projected home margin from EPA-based team ratings, built only "
+              "from games that finished before kickoff. Week 1 ratings carry over from last "
+              "season at half weight.", "",
+              "| Game | Line | Model | Leans | Gap |", "|---|---:|---:|---|---:|"]
+        for r in ats:
+            L.append(f"| {r['game']} | {float(r['spread_line']):+.1f} | "
+                     f"{float(r['pred_margin']):+.1f} | {r['pick_label']} | "
+                     f"{abs(float(r['edge'])):.1f} |")
+        L.append("")
+
+    legs = data.get("parlay") or []
+    price = data.get("parlay_price") or {}
+    if legs:
+        cats = len({l.get("stat_type") for l in legs})
+        L += [f"## The {len(legs)}-leg parlay", "",
+              f"{len(legs)} players across {cats} different stat categories. The category "
+              "spread is the only part of this that is defensible on its own terms: five "
+              "legs from one market are close to the same bet five times over, and they "
+              "price as independent when they are not.", "",
+              "Probabilities are **blended against the book**, which is the number this "
+              "project is allowed to publish. The raw model figure is roughly double it and "
+              "has no resolved history behind it yet.", "",
+              "| Player | Category | Pick | Odds | Model prob |",
+              "|---|---|---|---:|---:|"]
+        for l in legs:
+            L.append(f"| {l['player']} | {l['stat_type']} | "
+                     f"{str(l['side']).upper()} {float(l['line']):g} | "
+                     f"{int(l.get('american_odds', -110)):+d} | "
+                     f"{float(l.get('blended_prob', 0)):.1%} |")
+        L.append("")
+        if price:
+            # Two decimals deliberately: at one, 7.84% against 7.75% both print as 7.8%
+            # and the sentence reads as a tautology when the point is how narrow the margin
+            # genuinely is.
+            L.append(f"Combined: **{price.get('american', 0):+d}**, model probability "
+                     f"**{float(price.get('blended_prob', 0)):.2%}** against "
+                     f"**{float(price.get('breakeven_prob', 0)):.2%}** needed to break even. "
+                     f"A five-leg parlay is a longshot by construction.")
+            L.append("")
+
+    # The running record. This exists so the two boards above can be checked rather than
+    # taken on trust, and it prints even when it is unflattering — especially then. A
+    # published prediction with no scoreboard is just content.
+    rec = data.get("picks_record") or {}
+    if rec.get("ats_n") or rec.get("leg_n"):
+        L += ["## The record so far", ""]
+        if rec.get("ats_n"):
+            L.append(f"- **Against the spread:** {rec['ats_record']} "
+                     f"({rec['ats_pct']}%) over {rec['ats_n']} graded picks. "
+                     f"Break-even is {rec['ats_breakeven']}%; the backtest says "
+                     f"{rec.get('ats_backtest_pct')}%.")
+        if rec.get("leg_n"):
+            L.append(f"- **Parlay legs:** {rec['leg_record']} ({rec['leg_pct']}%) "
+                     f"over {rec['leg_n']} graded legs"
+                     + (f", {rec['legs_dnp']} did not play." if rec.get("legs_dnp") else "."))
+        if rec.get("parlays_settled"):
+            L.append(f"- **Parlays:** {rec['parlays_hit']} of {rec['parlays_settled']} hit.")
+        L.append("")
+        if rec.get("weeks"):
+            L += ["| Week | ATS | Legs |", "|---|---|---|"]
+            for w in rec["weeks"]:
+                L.append(f"| {w['week']} | {w['ats']} | {w['legs']} |")
+            L.append("")
 
     dfs = data.get("dfs") or []
     if dfs:
@@ -399,6 +490,51 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
                          f"for someone going outside the top {r.get('consensus_rank')}")
         if r.get("gap", 0) <= 0:
             fails.append(f"{r.get('player')} has no positive gap and should not be listed")
+
+    # The ATS board is published as model-vs-line disagreement, so the checks are about
+    # whether a row is COHERENT, not whether it looks like a good bet. A pick label that
+    # contradicts its own spread is the failure that matters here: it is invisible in the
+    # data and obvious on the card, which is the worst combination.
+    for r in (data.get("ats") or []):
+        sp, pick, label = r.get("spread_line"), r.get("pick"), r.get("pick_label") or ""
+        if sp is None or pick not in ("home", "away"):
+            fails.append(f"ATS row is unusable: {r}")
+            continue
+        want = (r.get("home_team") if pick == "home" else r.get("away_team")) or ""
+        if not label.startswith(want):
+            fails.append(f"ATS label {label!r} does not name the picked side ({want})")
+        # The displayed number must be the picked side's spread, which is the negative of
+        # spread_line for a home pick. A sign error here prints a dog as a favourite.
+        expect = -float(sp) if pick == "home" else float(sp)
+        try:
+            shown = float(label.rsplit(" ", 1)[-1])
+        except ValueError:
+            fails.append(f"ATS label {label!r} has no readable number")
+            continue
+        if abs(shown - expect) > 0.01:
+            fails.append(f"ATS label {label!r} shows {shown:+.1f} but the picked side is "
+                         f"{expect:+.1f} — the spread sign is inverted")
+        if r.get("pred_margin") is None or abs(float(r["pred_margin"])) > 30:
+            fails.append(f"ATS row {r.get('game')} projects an implausible margin "
+                         f"{r.get('pred_margin')}")
+
+    # A five-leg parlay has to actually be five different categories and five different
+    # players, because that is the only property of it being published as a feature.
+    legs = data.get("parlay") or []
+    if legs:
+        if len({l.get("stat_type") for l in legs}) != len(legs):
+            fails.append("parlay repeats a stat category — the legs are closer to the same "
+                         "bet than the card claims")
+        if len({l.get("player") for l in legs}) != len(legs):
+            fails.append("parlay repeats a player")
+        for l in legs:
+            bp = l.get("blended_prob")
+            if bp is None or not (0.0 < float(bp) < 1.0):
+                fails.append(f"parlay leg {l.get('player')} has no usable probability")
+            mp = l.get("model_prob")
+            if mp is not None and bp is not None and float(mp) < float(bp) - 1e-9:
+                fails.append(f"parlay leg {l.get('player')} blends ABOVE the raw model "
+                             f"probability — the blend is backwards")
 
     for r in dfs:
         sal, pts = r.get("salary"), r.get("proj_points")

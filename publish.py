@@ -179,6 +179,55 @@ def render_cards(data: dict) -> list:
             _OUT / f"{stamp}-card-waivers-{pos.lower()}.jpg",
             footer2="Projected from usage, not last week's box score."))
 
+    # The ATS card. The right-hand number is the DISAGREEMENT in points, never a
+    # probability or a unit size, because disagreement is the only claim the model can
+    # support — it hits 49.25% against the closing line over 1,359 out-of-sample games,
+    # where break-even is 52.38%. The footers say so in as many words. A card that showed
+    # these as "picks" would be asserting an edge the backtest specifically denies.
+    ats = data.get("ats") or []
+    if len(ats) >= 4:
+        wk = f"Week {data['week']}" if data.get("week") else when
+        rows = [(f"{r['game']}   {r['pick_label']}", f"{abs(float(r['edge'])):.1f} pts")
+                for r in ats[:8]]
+        out.append(render_card(
+            "Model vs Line", wk, rows,
+            "Gap between the model's projected margin and the posted spread",
+            _OUT / f"{stamp}-card-ats.jpg",
+            footer2="49.3% ATS in backtest vs 52.4% break-even — analysis, not picks."))
+
+    # The parlay card. Probability shown is the BLENDED one, and the payout next to it, so
+    # the two numbers can be compared by eye. The raw model probability is deliberately not
+    # on the card: it is roughly double the blended figure and putting the flattering number
+    # on the image while the caveat lives in the newsletter is how a reader ends up misled.
+    # Abbreviated on the card only. render_card truncates the left column at 30 characters
+    # to stop it colliding with the number on the right, and "Chris Olave  ·  Receiving
+    # Yards" is 31 — so the full names printed as "Receiving Yard" and "Passing Yar", which
+    # looks like a rendering fault rather than a deliberate abbreviation. The newsletter
+    # table keeps the full names; only the image shortens them.
+    _SHORT = {"Receiving Yards": "Rec Yds", "Rushing Yards": "Rush Yds",
+              "Passing Yards": "Pass Yds", "Passing TDs": "Pass TDs",
+              "Rushing TDs": "Rush TDs", "Receptions": "Receptions",
+              "Completions": "Completions", "Carries": "Carries"}
+
+    legs = data.get("parlay") or []
+    price = data.get("parlay_price") or {}
+    if len(legs) >= 4:
+        wk = f"Week {data['week']}" if data.get("week") else when
+        rows = [(f"{l['player']}  ·  {_SHORT.get(l['stat_type'], l['stat_type'])}",
+                 f"{str(l['side']).upper()} {float(l['line']):g}") for l in legs]
+        bp = price.get("blended_prob")
+        be = price.get("breakeven_prob")
+        foot = f"{len(legs)} players, {len({l['stat_type'] for l in legs})} stat categories"
+        if bp is not None:
+            foot += f"  ·  {float(bp):.2%} model probability"
+        f2 = "A five-leg parlay is a longshot by construction. Entertainment, not a system."
+        if bp is not None and be is not None:
+            f2 = (f"Needs {float(be):.2%} to break even at {price.get('american', 0):+d}. "
+                  f"Longshot by construction.")
+        out.append(render_card(
+            f"{len(legs)}-Leg Parlay", wk, rows, foot,
+            _OUT / f"{stamp}-card-parlay.jpg", footer2=f2))
+
     dfs = data.get("dfs") or []
     if len(dfs) >= 6:
         # Both numbers, and the projection first. Stripped to a card, a lone value figure
