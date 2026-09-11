@@ -41,6 +41,16 @@ _PARAMS_CACHE = pathlib.Path(__file__).with_name(".nfl_ats_params.json")
 # important of the two. It is what keeps a Bhayshul-Tuten-at-+52-points row off the card.
 _MIN_EDGE, _MAX_EDGE = 0.04, 0.18
 
+# Day of week a week's board locks, Monday=0. Friday, so the picks are made against lines
+# close to kickoff rather than against whatever was posted the moment the week became
+# "current" — early-week numbers move a lot, and a prediction logged on Tuesday is being
+# graded against a market it never saw.
+#
+# Friday through Sunday all qualify, so a missed Friday run is not a lost week. It cannot
+# reach back further than that: by Monday the week's games have been played, and upcoming()
+# will have excluded them anyway.
+_LOCK_WEEKDAY = 4
+
 # Depth-chart slot beyond which a player's projected role is not trustworthy enough to
 # publish. Third-stringers carry last season's usage into a role they no longer have.
 _MAX_DEPTH = 2
@@ -75,8 +85,12 @@ def upcoming(season: int, week: int) -> list:
     import pandas as pd
     import nfl_game_model as gm
     d = pd.read_csv(gm._GAMES_URL)
+    # Unplayed only. This filter is what makes the Friday lock safe: the Thursday night
+    # game has already finished by then, and without this it would be picked up as an
+    # upcoming game and logged as a prediction after the result was known. A record that
+    # contains one retro-graded game is not a record at all.
     g = d[(d["season"] == season) & (d["week"] == week) & (d["game_type"] == "REG")
-          & d["spread_line"].notna()]
+          & d["spread_line"].notna() & d["home_score"].isna()]
     return [{"away_team": r["away_team"], "home_team": r["home_team"],
              "spread_line": float(r["spread_line"]),
              "total_line": (float(r["total_line"]) if pd.notna(r.get("total_line")) else None),
@@ -285,16 +299,26 @@ def _key(season: int, week: int) -> str:
     return f"{season}-{week:02d}"
 
 
+def locked_today(today=None) -> bool:
+    """True once the week is close enough to kickoff to commit to a board."""
+    return (today or _today()).weekday() >= _LOCK_WEEKDAY
+
+
 def log_picks(season: int | None = None, week: int | None = None,
               ats: list | None = None, parlay: list | None = None,
-              overwrite: bool = False) -> dict:
+              overwrite: bool = False, force: bool = False) -> dict:
     """
-    Record a week's picks, once.
+    Record a week's picks, once, and not before Friday.
 
     Refuses to overwrite a week that already has picks unless asked explicitly. A board
     regenerated mid-week would silently become a different prediction — the model's ratings
     move as games finish, and the lines move too — and the record would describe picks that
     were never published. `overwrite` exists for a genuine mistake, not for a second run.
+
+    Before the lock day it returns an empty board rather than raising. A newsletter that
+    runs on a Tuesday should simply go out without the NFL section; treating "too early to
+    commit" as a source failure would block the whole issue over a working system behaving
+    correctly.
     """
     if season is None or week is None:
         season, week = current_week()
@@ -302,6 +326,9 @@ def log_picks(season: int | None = None, week: int | None = None,
     k = _key(season, week)
     if k in data and not overwrite:
         return data[k]
+    if not (force or locked_today()):
+        return {"season": season, "week": week, "ats": [], "parlay": [],
+                "locked": False, "locks_on": "Friday"}
 
     ats = ats if ats is not None else ats_board(season, week)
     parlay = parlay if parlay is not None else parlay_legs()

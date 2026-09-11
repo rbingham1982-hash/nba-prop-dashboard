@@ -90,6 +90,8 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["ats"] = entry.get("ats") or []
         out["parlay"] = entry.get("parlay") or []
         out["parlay_price"] = entry.get("parlay_price") or {}
+        out["picks_locked"] = entry.get("locked", True)
+        out["picks_lock_day"] = entry.get("locks_on", "Friday")
         out["picks_record"] = wp.record()
     except Exception as e:
         out["ats"], out["parlay"], out["parlay_price"] = [], [], {}
@@ -171,6 +173,20 @@ def render_markdown(data: dict) -> str:
             L.append(f"- **{t['name']}** ({t.get('position') or '?'}, {t.get('team') or 'FA'}) "
                      f"— {t.get('count', 0):,} adds")
         L.append("")
+
+    # Say why the section is missing rather than leaving a hole. An issue that silently
+    # drops its NFL board on a Tuesday looks broken; one that explains it locks on Friday
+    # is describing a deliberate choice, which is what it is.
+    if not (data.get("ats") or data.get("parlay")) and data.get("picks_locked") is False:
+        # "lock" is deliberately absent from this copy. In betting slang a lock is a
+        # guaranteed winner, which is exactly the claim _BANNED_PHRASES exists to prevent —
+        # and the gate duly rejected the first draft of this very paragraph.
+        L += [f"## Week {data.get('week', '?')} boards arrive "
+              f"{data.get('picks_lock_day', 'Friday')}", "",
+              "The spread board and the parlay are committed close to kickoff, not at the "
+              "start of the week — early lines move a long way, and a prediction recorded on "
+              "Tuesday would be graded against a market it never saw. They will be here in "
+              "the next issue, and written down before any of these games are played.", ""]
 
     ats = data.get("ats") or []
     if ats:
