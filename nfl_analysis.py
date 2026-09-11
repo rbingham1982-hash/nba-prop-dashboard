@@ -39,14 +39,28 @@ def _load_weekly(season: int):
     return df[df["season_type"] == "REG"].copy()
 
 
+# Weeks a season must contain before it is worth projecting from. A season's file appears
+# as soon as Week 1 is played, and "the file exists" is not the same as "there is enough
+# here to model". With one week of 2026 data every usage profile fell below the 3-game
+# floor and a 756-prop Sunday board scored ZERO legs — the projection engine silently had
+# nothing to work with.
+_MIN_WEEKS_FOR_SEASON = 6
+
+
 def latest_season_with_data(guess: int | None = None) -> int:
-    """Most recent season that has weekly data (current season before Week 1 falls back a year)."""
+    """
+    Most recent season with enough weekly data to project from.
+
+    Falls back a year both before Week 1 and through the early weeks, since a two-week
+    sample makes a worse baseline than a complete prior season.
+    """
     import pandas as pd
     y = guess or datetime.datetime.now().year
     for cand in (y, y - 1):
         try:
-            pd.read_parquet(_WEEKLY.format(y=cand))
-            return cand
+            df = pd.read_parquet(_WEEKLY.format(y=cand))
+            if df[df["season_type"] == "REG"]["week"].nunique() >= _MIN_WEEKS_FOR_SEASON:
+                return cand
         except Exception:
             continue
     return y - 1
