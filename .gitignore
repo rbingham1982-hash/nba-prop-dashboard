@@ -44,3 +44,6 @@ android/local.properties
 android/konjure-release.jks
 
 newsletter_out/
+
+# Fitted ATS scale/hfa — a derived cache, refits from public data on demand.
+.nfl_ats_params.json

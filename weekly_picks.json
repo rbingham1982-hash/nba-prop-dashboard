@@ -1,0 +1,144 @@
+{
+ "2026-01": {
+  "season": 2026,
+  "week": 1,
+  "generated": "2026-09-10T21:03:41",
+  "ats": [
+   {
+    "game": "BAL @ IND",
+    "away_team": "BAL",
+    "home_team": "IND",
+    "spread_line": -3.5,
+    "pred_margin": 3.32,
+    "edge": 6.82,
+    "pick": "home",
+    "pick_label": "IND +3.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "DAL @ NYG",
+    "away_team": "DAL",
+    "home_team": "NYG",
+    "spread_line": -3.0,
+    "pred_margin": 2.23,
+    "edge": 5.23,
+    "pick": "home",
+    "pick_label": "NYG +3.0",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "MIA @ LV",
+    "away_team": "MIA",
+    "home_team": "LV",
+    "spread_line": 3.0,
+    "pred_margin": -1.29,
+    "edge": -4.29,
+    "pick": "away",
+    "pick_label": "MIA +3.0",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "TB @ CIN",
+    "away_team": "TB",
+    "home_team": "CIN",
+    "spread_line": 3.5,
+    "pred_margin": -0.47,
+    "edge": -3.97,
+    "pick": "away",
+    "pick_label": "TB +3.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "WAS @ PHI",
+    "away_team": "WAS",
+    "home_team": "PHI",
+    "spread_line": 6.0,
+    "pred_margin": 9.27,
+    "edge": 3.27,
+    "pick": "home",
+    "pick_label": "PHI -6.0",
+    "outcome": null,
+    "result": null
+   }
+  ],
+  "parlay": [
+   {
+    "player": "Tua Tagovailoa",
+    "stat_type": "Passing TDs",
+    "line": 0.5,
+    "side": "over",
+    "american_odds": -260,
+    "model_prob": 0.8021,
+    "blended_prob": 0.7056,
+    "implied_prob": 0.6753,
+    "team": "",
+    "outcome": "dnp",
+    "actual": null
+   },
+   {
+    "player": "Kyle Monangai",
+    "stat_type": "Receptions",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -245,
+    "model_prob": 0.8333,
+    "blended_prob": 0.7043,
+    "implied_prob": 0.6638,
+    "team": "",
+    "outcome": "dnp",
+    "actual": null
+   },
+   {
+    "player": "Chris Olave",
+    "stat_type": "Receiving Yards",
+    "line": 76.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.6799,
+    "blended_prob": 0.543,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": "dnp",
+    "actual": null
+   },
+   {
+    "player": "James Cook",
+    "stat_type": "Rushing Yards",
+    "line": 74.5,
+    "side": "over",
+    "american_odds": -114,
+    "model_prob": 0.6722,
+    "blended_prob": 0.5412,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": "dnp",
+    "actual": null
+   },
+   {
+    "player": "Jayden Daniels",
+    "stat_type": "Passing Yards",
+    "line": 205.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.6536,
+    "blended_prob": 0.5367,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": "dnp",
+    "actual": null
+   }
+  ],
+  "parlay_price": {
+   "decimal": 12.898,
+   "american": 1190,
+   "model_prob": 0.19966,
+   "blended_prob": 0.07838,
+   "breakeven_prob": 0.07753
+  },
+  "graded": false
+ }
+}
