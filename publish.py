@@ -214,6 +214,55 @@ def post_webhook(text: str, which: str = "discord") -> dict:
         return {"ok": False, "error": str(e)}
 
 
+def post_webhook_images(text: str, image_paths, which: str = "discord") -> dict:
+    """
+    Post text WITH image attachments to a Discord webhook.
+
+    post_webhook sends a simple JSON body, which Discord accepts but which cannot carry a
+    file. Attachments require multipart/form-data: each file goes in as files[N] and the
+    message body rides along in a payload_json part. Slack's webhook has no file upload at
+    all, so this is Discord-only and says so rather than silently dropping the images.
+    """
+    import json
+    import requests
+    if which != "discord":
+        return {"ok": False, "skipped": True,
+                "reason": "only Discord webhooks accept file attachments"}
+    url = _secret("DISCORD_WEBHOOK_URL")
+    if not url:
+        return {"ok": False, "skipped": True, "reason": "no discord webhook configured"}
+
+    paths = [pathlib.Path(x) for x in image_paths]
+    missing = [str(x) for x in paths if not x.exists()]
+    if missing:
+        return {"ok": False, "reason": f"image not found: {missing}"}
+    # Discord caps a webhook upload at 8MB; the cards run ~130KB, but refusing loudly beats
+    # a 413 that reads like a network error.
+    total = sum(x.stat().st_size for x in paths)
+    if total > 8 * 1024 * 1024:
+        return {"ok": False, "reason": f"attachments total {total/1e6:.1f}MB, over the 8MB limit"}
+
+    files, handles = {}, []
+    try:
+        for i, path in enumerate(paths):
+            fh = open(path, "rb")
+            handles.append(fh)
+            files[f"files[{i}]"] = (path.name, fh, "image/jpeg")
+        files["payload_json"] = (None, json.dumps({"content": text[:2000]}), "application/json")
+        r = requests.post(url, files=files, timeout=60)
+        return {"ok": r.status_code < 300, "status": r.status_code,
+                "attached": [x.name for x in paths],
+                "body": r.text[:200] if r.status_code >= 300 else ""}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+    finally:
+        for fh in handles:
+            try:
+                fh.close()
+            except Exception:
+                pass
+
+
 def post_x(text: str) -> dict:
     """
     Post to X. Requires a developer app YOU own and a token you supply; this never creates
