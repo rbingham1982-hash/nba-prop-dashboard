@@ -34,6 +34,14 @@ _GAMES_URL = "https://raw.githubusercontent.com/nflverse/nfldata/master/data/gam
 # season every rating is a small sample, and an unshrunk week-2 rating is mostly noise.
 _RATING_SHRINK_GAMES = 6
 
+# How much a game from LAST season counts toward this season's rating, relative to a game
+# from this one. Without carryover there is no week-1 rating at all — _ratings_through had
+# nothing to average and returned {}, so the backtest silently skipped every opening week
+# and predict_slate could not price the games people most want priced. Rosters and coaching
+# turn over, so a prior-season game is real evidence but not equal evidence. The value is
+# fitted in sweep_carryover() rather than assumed.
+_CARRYOVER_WEIGHT = 0.5
+
 _cache: dict = {}
 
 
@@ -79,53 +87,74 @@ def team_game_epa(seasons):
     return out
 
 
-def _ratings_through(epa_rows, sched, season: int, week: int) -> dict:
+def _with_prior(seasons):
+    """Requested seasons plus the one before each, so week 1 has something to carry over."""
+    ss = {int(x) for x in seasons}
+    return sorted(ss | {x - 1 for x in ss})
+
+
+def _ratings_through(epa_rows, sched, season: int, week: int,
+                     carryover: float = _CARRYOVER_WEIGHT) -> dict:
     """
-    Team ratings built ONLY from games before `week` in `season`.
+    Team ratings built ONLY from games that finished before `week` of `season`.
+
+    Prior-season games are included at `carryover` weight when the frames contain them.
+    That is what makes a week-1 rating possible; by mid-season the current year's games
+    outweigh it naturally, because weight accumulates and the carryover block does not.
 
     Defensive EPA has to come from the schedule: a team's weekly row carries what its own
     players produced, so what it ALLOWED is the opponent's offensive EPA in the same game.
     """
-    prior = epa_rows[(epa_rows["season"] == season) & (epa_rows["week"] < week)]
-    if prior.empty:
+    cur = epa_rows[(epa_rows["season"] == season) & (epa_rows["week"] < week)]
+    prev = epa_rows[epa_rows["season"] == season - 1] if carryover > 0 else cur.iloc[:0]
+    if cur.empty and prev.empty:
         return {}
-    off = {}
-    for _, r in prior.iterrows():
-        off.setdefault(r["team"], []).append(float(r["off_epa"]))
 
-    # Map each prior game to its two teams so offence can be flipped into defence.
-    sc = sched[(sched["season"] == season) & (sched["week"] < week)]
-    by_week: dict = {}
-    for _, r in prior.iterrows():
-        by_week[(int(r["week"]), r["team"])] = float(r["off_epa"])
+    # (season, week, team) -> offensive EPA, with the weight that observation carries.
+    by_game: dict = {}
+    for rows, w in ((cur, 1.0), (prev, float(carryover))):
+        for _, r in rows.iterrows():
+            by_game[(int(r["season"]), int(r["week"]), r["team"])] = (float(r["off_epa"]), w)
+
+    off: dict = {}
+    for (_, _, team), (v, w) in by_game.items():
+        o = off.setdefault(team, [0.0, 0.0])
+        o[0] += v * w
+        o[1] += w
+
+    # Flip offence into defence through the schedule.
+    sc = sched[((sched["season"] == season) & (sched["week"] < week))
+               | (sched["season"] == season - 1)]
     deff: dict = {}
     for _, g in sc.iterrows():
-        w = int(g["week"])
+        sn, wk = int(g["season"]), int(g["week"])
         h, a = g["home_team"], g["away_team"]
-        ho, ao = by_week.get((w, h)), by_week.get((w, a))
+        ho, ao = by_game.get((sn, wk, h)), by_game.get((sn, wk, a))
         if ho is not None:
-            deff.setdefault(a, []).append(ho)   # away team allowed home's offence
+            d = deff.setdefault(a, [0.0, 0.0])   # away team allowed home's offence
+            d[0] += ho[0] * ho[1]
+            d[1] += ho[1]
         if ao is not None:
-            deff.setdefault(h, []).append(ao)
+            d = deff.setdefault(h, [0.0, 0.0])
+            d[0] += ao[0] * ao[1]
+            d[1] += ao[1]
 
-    all_off = [v for vs in off.values() for v in vs]
-    league = sum(all_off) / len(all_off) if all_off else 0.0
+    tw = sum(w for _, w in off.values())
+    league = (sum(v for v, _ in off.values()) / tw) if tw else 0.0
 
     out = {}
     for team in set(off) | set(deff):
-        o = off.get(team, [])
-        d = deff.get(team, [])
+        os_, ow = off.get(team, [0.0, 0.0])
+        ds_, dw = deff.get(team, [0.0, 0.0])
         # Shrink both sides toward the league mean by how little has been seen.
-        o_m = ((sum(o) + _RATING_SHRINK_GAMES * league) / (len(o) + _RATING_SHRINK_GAMES)
-               if o or league else 0.0)
-        d_m = ((sum(d) + _RATING_SHRINK_GAMES * league) / (len(d) + _RATING_SHRINK_GAMES)
-               if d or league else 0.0)
+        o_m = (os_ + _RATING_SHRINK_GAMES * league) / (ow + _RATING_SHRINK_GAMES)
+        d_m = (ds_ + _RATING_SHRINK_GAMES * league) / (dw + _RATING_SHRINK_GAMES)
         out[team] = {"off": o_m, "def": d_m, "rating": o_m - d_m,
-                     "n_off": len(o), "n_def": len(d)}
+                     "n_off": round(ow, 2), "n_def": round(dw, 2)}
     return out
 
 
-def fit(train_seasons) -> dict:
+def fit(train_seasons, carryover: float = _CARRYOVER_WEIGHT) -> dict:
     """
     Least-squares fit of margin on rating difference, walk-forward within each season.
 
@@ -133,12 +162,13 @@ def fit(train_seasons) -> dict:
     home-field advantage in points, fitted rather than assumed.
     """
     import numpy as np
-    sched = games(train_seasons)
-    epa = team_game_epa(train_seasons)
+    want = {int(x) for x in train_seasons}
+    sched = games(_with_prior(train_seasons))
+    epa = team_game_epa(_with_prior(train_seasons))
     X, y = [], []
-    for season in sorted(sched["season"].unique()):
+    for season in sorted(s for s in sched["season"].unique() if int(s) in want):
         for week in sorted(sched[sched["season"] == season]["week"].unique()):
-            R = _ratings_through(epa, sched, int(season), int(week))
+            R = _ratings_through(epa, sched, int(season), int(week), carryover)
             if not R:
                 continue
             wk = sched[(sched["season"] == season) & (sched["week"] == week)]
@@ -157,7 +187,7 @@ def fit(train_seasons) -> dict:
     return {"scale": float(beta[0]), "hfa": float(beta[1]), "n": len(X), "rmse": rmse}
 
 
-def backtest(test_seasons, params: dict) -> dict:
+def backtest(test_seasons, params: dict, carryover: float = _CARRYOVER_WEIGHT) -> dict:
     """
     Walk-forward evaluation against the ACTUAL closing spread.
 
@@ -168,12 +198,13 @@ def backtest(test_seasons, params: dict) -> dict:
     Pushes are excluded from the percentage rather than counted as half a win, because a
     push returns the stake and is not a result.
     """
-    sched = games(test_seasons)
-    epa = team_game_epa(test_seasons)
+    want = {int(x) for x in test_seasons}
+    sched = games(_with_prior(test_seasons))
+    epa = team_game_epa(_with_prior(test_seasons))
     rows = []
-    for season in sorted(sched["season"].unique()):
+    for season in sorted(s for s in sched["season"].unique() if int(s) in want):
         for week in sorted(sched[sched["season"] == season]["week"].unique()):
-            R = _ratings_through(epa, sched, int(season), int(week))
+            R = _ratings_through(epa, sched, int(season), int(week), carryover)
             if not R:
                 continue
             wk = sched[(sched["season"] == season) & (sched["week"] == week)]
@@ -213,8 +244,8 @@ def backtest(test_seasons, params: dict) -> dict:
 
 def predict_slate(season: int, week: int, params: dict, upcoming=None) -> list:
     """Rate an upcoming slate. Ratings use only games before `week`."""
-    sched = games([season])
-    epa = team_game_epa([season])
+    sched = games([season - 1, season])
+    epa = team_game_epa([season - 1, season])
     R = _ratings_through(epa, sched, season, week)
     out = []
     for g in (upcoming if upcoming is not None else []):
@@ -229,3 +260,26 @@ def predict_slate(season: int, week: int, params: dict, upcoming=None) -> list:
                     "pick": ("home" if sp is not None and pred > float(sp) else "away")
                             if sp is not None else None})
     return out
+
+
+def sweep_carryover(train_seasons, test_seasons, weights=(0.0, 0.25, 0.5, 0.75, 1.0)) -> list:
+    """
+    Out-of-sample ATS by carryover weight, refitting scale and hfa at each one.
+
+    The point is to choose the weight on evidence instead of taste, and to see what
+    including week 1 does — the old backtest had no week-1 rating and quietly dropped those
+    games, so its number described fifteen weeks of the season and was reported as all of
+    it.
+    """
+    rows = []
+    for w in weights:
+        params = fit(train_seasons, carryover=w)
+        bt = backtest(test_seasons, params, carryover=w)
+        wk1 = [r for r in bt["picks"] if r["week"] == 1]
+        w1 = [r for r in wk1 if r["outcome"] in ("win", "loss")]
+        rows.append({"carryover": w, "n": bt["n"], "ats_pct": bt["ats_pct"],
+                     "roi_pct": bt["roi_pct"], "scale": round(params["scale"], 4),
+                     "hfa": round(params["hfa"], 3), "week1_n": len(wk1),
+                     "week1_ats": (round(sum(1 for r in w1 if r["outcome"] == "win")
+                                         / len(w1) * 100, 2) if w1 else None)})
+    return rows
