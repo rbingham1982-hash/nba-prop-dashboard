@@ -392,8 +392,26 @@ def _nfl_context():
     # trip per prop — 419ms each, which is where a 1,000-prop board's seven minutes went.
     # The season cannot change mid-run, and the daily job is a fresh process every time.
     if not _NFL_CTX:
-        season = nfl.latest_season_with_data()
-        _, df = nfl.get_season(season)
+        # The nflverse CDN 404s intermittently — the same file read fine seconds earlier
+        # and seconds later. latest_season_with_data() can therefore return a season whose
+        # very next read fails, which killed a whole board run with a bare HTTPError.
+        # Retry, then fall back a season rather than abort: last year's usage is a weaker
+        # baseline than this year's, and far better than no board at all.
+        season, df = None, None
+        for cand in (nfl.latest_season_with_data(), nfl.latest_season_with_data() - 1):
+            for _attempt in range(3):
+                try:
+                    _, df = nfl.get_season(cand)
+                    season = cand
+                    break
+                except Exception:
+                    time.sleep(1.5)
+            if season is not None:
+                break
+        if season is None:
+            raise RuntimeError("nflverse weekly data unreachable after retries")
+        import datetime as _dt
+        _play_season = max(season, nfl.season_for_date(_dt.date.today()))
         _NFL_CTX.update({
             "season": season, "df": df,
             "priors": nfl.position_priors(df),
@@ -403,13 +421,18 @@ def _nfl_context():
             # Fantasy-board projections cover the players the usage model cannot see at
             # all — rookies, who have no game log and are exactly who books post Week 1
             # props on. Built once; the board itself is a couple of parquet reads.
-            "board": nfl.board_projections(season + 1),
+            "board": nfl.board_projections(_play_season),
             "rates": nfl.league_rates(df),
             "cvcache": {},
-            # Rosters for the season being PLAYED, which is the season after the stats
-            # season while the new one has no games yet. That mapping is the entire point
-            # of the usage model — it is what rebases a mover onto his new offence.
-            "teams": nfl.current_teams(season + 1),
+            # Rosters for the season being PLAYED. This was season + 1, on the assumption
+            # that the stats season is always last season — true in the off-season, and
+            # wrong the moment the new season produces its first game. Once 2026 stats
+            # existed it started requesting 2027 rosters, which 404 and took the whole
+            # board down with an HTTPError that read like a CDN outage.
+            #
+            # season_for_date is the actual answer: the NFL season spans Sep-Feb, so it is
+            # named for the calendar year it starts in.
+            "teams": nfl.current_teams(_play_season),
         })
     return _NFL_CTX
 
