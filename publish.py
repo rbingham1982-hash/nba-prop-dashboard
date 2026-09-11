@@ -593,7 +593,14 @@ def run(dry_run: bool = True,
         if res.get("ok"):
             nl.mark_published(data, name)
 
-    _send("discord", lambda: post_webhook(headline, "discord"))
+    # Discord gets the cards attached when there are any. A board of numbers is far more
+    # readable as an image in a feed than as text, and the cards are already rendered by
+    # this point — posting text-only while sitting on them was leaving the better artifact
+    # on disk. Falls back to a plain text post when no card was rendered, which is the
+    # normal case on a thin slate rather than an error.
+    _send("discord", lambda: (post_webhook_images(headline, cards, "discord") if cards
+                              else post_webhook(headline, "discord")))
+    # Slack webhooks cannot take a file upload at all, so it stays text-only by necessity.
     _send("slack", lambda: post_webhook(headline, "slack"))
     _send("x", lambda: post_x(headline[:280]))
     _send("threads", lambda: post_threads(headline))
