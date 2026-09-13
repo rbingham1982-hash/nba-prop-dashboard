@@ -433,6 +433,10 @@ def _nfl_context():
             # season_for_date is the actual answer: the NFL season spans Sep-Feb, so it is
             # named for the calendar year it starts in.
             "teams": nfl.current_teams(_play_season),
+            # ESPN depth charts, so a projection knows the job a player holds NOW rather
+            # than only last season's. Optional: an unavailable chart returns {} and every
+            # projection stays exactly as it was.
+            "depth": nfl.depth_context(season, _play_season, df),
         })
     return _NFL_CTX
 
@@ -454,7 +458,8 @@ def nfl_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
         s = nfl.score_prop_nfl(ctx["df"], player_name, stat_type, line,
                                teams=ctx["teams"], priors=ctx["priors"], vol=ctx["vol"],
                                idx=ctx["idx"], dcache=ctx["dcache"], board=ctx["board"],
-                               rates=ctx["rates"], cvcache=ctx["cvcache"])
+                               rates=ctx["rates"], cvcache=ctx["cvcache"],
+                               depth=ctx.get("depth"))
     except Exception:
         return None, 0
     if not s:
@@ -486,7 +491,8 @@ def nfl_role_flags(player_name, stat_type, line) -> list:
         s = nfl.score_prop_nfl(ctx["df"], player_name, stat_type, line,
                                teams=ctx["teams"], priors=ctx["priors"], vol=ctx["vol"],
                                idx=ctx["idx"], dcache=ctx["dcache"], board=ctx["board"],
-                               rates=ctx["rates"], cvcache=ctx["cvcache"])
+                               rates=ctx["rates"], cvcache=ctx["cvcache"],
+                               depth=ctx.get("depth"))
     except Exception:
         return []
     if not s:
@@ -496,6 +502,9 @@ def nfl_role_flags(player_name, stat_type, line) -> list:
         out.append("rookie, cohort projection")
     if s.get("changed_team"):
         out.append(f"new team ({s.get('team_prev')}→{s.get('team_now')})")
+    f = s.get("depth_factor")
+    if f is not None and abs(float(f) - 1.0) >= 0.2:
+        out.append(f"depth {s.get('depth_now')}, usage ×{float(f):.2f}")
     n = int(s.get("n") or 0)
     if 0 < n < 8:
         out.append(f"{n} games of history")

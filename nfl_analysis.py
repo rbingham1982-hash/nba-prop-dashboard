@@ -300,6 +300,146 @@ def current_teams(target_season: int) -> dict:
     return out
 
 
+_DEPTH_URL = "https://github.com/nflverse/nflverse-data/releases/download/depth_charts/depth_charts_{y}.parquet"
+
+# Depth-chart slot -> share of the team's work. usage_profile knows what a player did last
+# season and nothing about the job he holds now, so a WR1 demoted to WR5 kept projecting
+# like a WR1 and priced as a 20-point "edge" against a book that knew better. The chart is
+# ESPN's, snapshotted daily by nflverse; WR rank is team-wide, one ordering per position.
+#
+# The adjustment is half the ratio between the slot he holds now and the slots he held
+# while earning his share, clamped. Tested 2026-09-13 on 2025 (slot table fit on odd weeks,
+# 2,787 even-week player-weeks, 848 with a slot change; MAE in thousandths of a share):
+#
+#   method                              all    slot changed   unchanged
+#   own share, no depth               69.25       75.85          66.36
+#   full ratio to the new slot        69.48       77.52          65.96
+#   50/50 own share + slot share      66.15       65.97          66.23
+#   half the ratio  <- shipped        66.26       66.81          66.02
+#
+# The 50/50 blend is a hair better on changed slots but pulls every player toward his
+# slot's average, which would move nearly every projection in the repo; half the ratio is
+# exactly 1.0 when the slot has not moved. The full ratio is worse than no depth at all.
+# The slot table is conditional on the player appearing, matching how usage_profile
+# computes a share (per game played); counting zero weeks made every method worse.
+_DEPTH_DAMP = 0.5
+_DEPTH_CLAMP = (0.25, 4.0)
+# An earned share below this (a WR's carries, a TE's rushing) is too small for a ratio to
+# mean anything, so those projections are left alone.
+_DEPTH_MIN_SHARE = 0.01
+_DEPTH_POS = ("QB", "RB", "WR", "TE")
+
+
+def _depth_frame(season: int):
+    """One season's offensive depth-chart snapshots, skill positions only."""
+    import pandas as pd
+    d = pd.read_parquet(_DEPTH_URL.format(y=season))
+    d = d[(d["pos_grp"] == "3WR 1TE") & d["pos_abb"].isin(_DEPTH_POS)].copy()
+    d["pos_rank"] = pd.to_numeric(d["pos_rank"], errors="coerce")
+    d = d.dropna(subset=["pos_rank", "gsis_id"])
+    d["pos_rank"] = d["pos_rank"].astype(int)
+    d["gsis_id"] = d["gsis_id"].astype(str)
+    d["dt"] = pd.to_datetime(d["dt"], utc=True)
+    d["team"] = d["team"].map(lambda t: _TEAM_FIX.get(str(t), str(t)))
+    return d
+
+
+def depth_context(stats_season: int, play_season: int, df) -> dict:
+    """
+    What depth_factor needs, built once: the slot table, each player's slot now, and the
+    slot value of the job he held while earning his share.
+
+    `df` is the stats season's weekly frame. The current slot is the newest snapshot of the
+    season being PLAYED; the earned slot is the snapshot before each game he actually
+    played in the stats season. Returns {} when anything is unavailable, and depth_factor
+    then leaves every projection exactly as it was.
+    """
+    import numpy as np
+    import pandas as pd
+    import nfl_game_model as gm
+    try:
+        hist = _depth_frame(stats_season)
+        cur = hist if play_season == stats_season else _depth_frame(play_season)
+
+        latest = cur[cur["dt"] == cur.groupby("team")["dt"].transform("max")]
+        now = {}
+        for pid, pos, rank in zip(latest["gsis_id"], latest["pos_abb"], latest["pos_rank"]):
+            if pid not in now or rank < now[pid][1]:
+                now[pid] = (pos, int(rank))
+
+        cols = ("attempts", "targets", "carries")
+        tot = df.groupby(["team", "week"])[list(cols)].sum()
+        pw = (df.drop_duplicates(["player_id", "week"])
+                .set_index(["player_id", "week"])[list(cols)])
+        snaps = {t: g for t, g in hist.groupby("team")}
+        sch = gm.schedule()
+        sch = sch[sch["season"] == stats_season]
+        rows = []
+        for wk_, day, home, away in zip(sch["week"], sch["gameday"],
+                                        sch["home_team"], sch["away_team"]):
+            ko = pd.Timestamp(day, tz="UTC")
+            for t in (home, away):
+                g = snaps.get(t)
+                if g is None or (t, wk_) not in tot.index:
+                    continue
+                before = g[g["dt"] < ko]
+                if before.empty:
+                    continue
+                snap = (before[before["dt"] == before["dt"].max()]
+                        .sort_values("pos_rank").drop_duplicates("gsis_id"))
+                team_tot = tot.loc[(t, wk_)]
+                for pid, pos, rank in zip(snap["gsis_id"], snap["pos_abb"], snap["pos_rank"]):
+                    # A player who did not play earned no share at that slot.
+                    if (pid, wk_) not in pw.index:
+                        continue
+                    p = pw.loc[(pid, wk_)]
+                    rows.append((pid, pos, int(rank),
+                                 *[float(p[c]) / team_tot[c] if team_tot[c] > 0 else 0.0
+                                   for c in cols]))
+        h = pd.DataFrame(rows, columns=["pid", "pos", "rank", *cols])
+        if h.empty:
+            return {}
+        slot = {(pos, c, int(rank)): float(g[c].mean())
+                for (pos, rank), g in h.groupby(["pos", "rank"]) for c in cols}
+        earned = {pid: {c: float(np.mean([slot[(p, c, int(r))]
+                                          for p, r in zip(g["pos"], g["rank"])]))
+                        for c in cols}
+                  for pid, g in h.groupby("pid")}
+        return {"now": now, "earned": earned, "slot": slot}
+    except Exception:
+        return {}
+
+
+def _slot_value(slot: dict, pos: str, col: str, rank: int):
+    """A slot's share, falling back to the deepest measured slot for ranks never seen."""
+    v = slot.get((pos, col, rank))
+    if v is None:
+        deeper = [r for (p, c, r) in slot if p == pos and c == col and r < rank]
+        v = slot.get((pos, col, max(deeper))) if deeper else None
+    return v
+
+
+def depth_factor(depth: dict | None, player_id, opp_col: str) -> float:
+    """
+    Multiplier on a player's opportunities for the slot he holds now.
+
+    1.0 whenever anything is unknown: a player missing from the chart is not evidence of a
+    bench role, the same rule fantasy_tools.depth_multiplier follows.
+    """
+    if not depth:
+        return 1.0
+    pid = str(player_id)
+    now = depth["now"].get(pid)
+    earned = depth["earned"].get(pid, {}).get(opp_col)
+    if not now or earned is None or earned < _DEPTH_MIN_SHARE:
+        return 1.0
+    cur = _slot_value(depth["slot"], now[0], opp_col, now[1])
+    if cur is None:
+        return 1.0
+    ratio = max(_DEPTH_CLAMP[0], min(_DEPTH_CLAMP[1], cur / earned))
+    return 1.0 + _DEPTH_DAMP * (ratio - 1.0)
+
+
 def team_volume(df) -> dict:
     """team -> mean per-game {attempts, targets, carries}. The denominator for every share."""
     g = df.groupby(["team", "week"])[["attempts", "targets", "carries"]].sum()
@@ -492,7 +632,7 @@ def defense_factor(df, opponent: str, position: str, stat: str) -> float:
 def project_usage(df, player: str, stat: str, opponent: str | None = None,
                   teams: dict | None = None, priors: dict | None = None,
                   vol: dict | None = None, idx: dict | None = None,
-                  dcache: dict | None = None) -> dict:
+                  dcache: dict | None = None, depth: dict | None = None) -> dict:
     """
     Rebased projection: the player's shrunk usage share x his CURRENT team's per-game
     volume x his shrunk efficiency, adjusted for the opponent.
@@ -519,6 +659,10 @@ def project_usage(df, player: str, stat: str, opponent: str | None = None,
     opportunities = prof["shares"].get(opp_col, 0.0) * team_pg
     if opportunities <= 0:
         return {}
+    # The job he holds now, not only the one he held while earning that share.
+    dmult = depth_factor(depth, pid, opp_col)
+    opportunities *= dmult
+    slot_now = (depth or {}).get("now", {}).get(pid)
 
     mu = opportunities if rate_col is None else opportunities * prof["rates"].get((opp_col, rate_col), 0.0)
     if opponent:
@@ -539,14 +683,16 @@ def project_usage(df, player: str, stat: str, opponent: str | None = None,
     return {"player": player, "stat": stat, "position": prof["position"],
             "team_prev": prof["team_prev"], "team_now": team_now, "changed_team": changed,
             "games": prof["games"], "opportunities": round(opportunities, 2),
-            "def_factor": round(dfac, 3), "projection": round(mu, 2)}
+            "def_factor": round(dfac, 3), "projection": round(mu, 2),
+            "depth_now": f"{slot_now[0]}{slot_now[1]}" if slot_now else None,
+            "depth_factor": round(dmult, 3)}
 
 
 def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None,
                      opponent: str | None = None, market_blend: float = 0.35,
                      teams: dict | None = None, priors: dict | None = None,
                      vol: dict | None = None, idx: dict | None = None,
-                     dcache: dict | None = None) -> dict:
+                     dcache: dict | None = None, depth: dict | None = None) -> dict:
     """
     score_prop, but off the rebased projection — the Week 1-2 scorer.
 
@@ -558,7 +704,7 @@ def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None
     """
     import statistics as _st
     proj = project_usage(df, player, stat, opponent=opponent, teams=teams,
-                         priors=priors, vol=vol, idx=idx, dcache=dcache)
+                         priors=priors, vol=vol, idx=idx, dcache=dcache, depth=depth)
     if not proj:
         return {}
     sub = _rows_for(df, player, idx)
@@ -734,7 +880,8 @@ def score_prop_nfl(df, player: str, stat: str, line: float, american_odds=None,
                    teams: dict | None = None, priors: dict | None = None,
                    vol: dict | None = None, idx: dict | None = None,
                    dcache: dict | None = None, board: dict | None = None,
-                   rates: dict | None = None, cvcache: dict | None = None) -> dict:
+                   rates: dict | None = None, cvcache: dict | None = None,
+                   depth: dict | None = None) -> dict:
     """
     The single NFL scorer. Usage model when the player has a game log, fantasy board when
     he does not.
@@ -746,7 +893,7 @@ def score_prop_nfl(df, player: str, stat: str, line: float, american_odds=None,
     """
     s = score_prop_usage(df, player, stat, line, american_odds=american_odds,
                          opponent=opponent, market_blend=market_blend, teams=teams,
-                         priors=priors, vol=vol, idx=idx, dcache=dcache)
+                         priors=priors, vol=vol, idx=idx, dcache=dcache, depth=depth)
     if s:
         s.setdefault("source", "usage")
         return s
