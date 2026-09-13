@@ -471,7 +471,38 @@ def _grade_ats(entry: dict, sched) -> int:
     return filled
 
 
-def _grade_parlay(entry: dict) -> int:
+def _week_teams(entry: dict, full) -> set | None:
+    """Teams that played this week, or None while any of the week's games is unfinished."""
+    g = full[(full["season"] == entry["season"]) & (full["week"] == entry["week"])]
+    if g.empty or g["home_score"].isna().any():
+        return None
+    return set(g["home_team"]) | set(g["away_team"])
+
+
+def _week_stats(entry: dict, teams: set | None):
+    """
+    The week's player rows, or None until the week is final and every team is in them.
+
+    Absence from the frame only means "did not play" once the frame is complete. Week 1 of
+    2026 was graded on a Thursday night, when the frame held the two games already played,
+    and every Sunday player was stamped "dnp" before kickoff. Because grading only visits
+    rows without an outcome, those stamps would have stood for good. Waiting for every team,
+    not just the final score, also covers the stat release lagging the scoreboard.
+    """
+    import nfl_analysis as nfl
+    if not teams:
+        return None
+    try:
+        _, wk = nfl.get_season(entry["season"])
+    except Exception:
+        return None
+    wk = wk[wk["week"] == entry["week"]]
+    if wk.empty or not teams <= set(wk["team"].dropna()):
+        return None
+    return wk
+
+
+def _grade_parlay(entry: dict, teams: set | None) -> int:
     """
     Fill in parlay leg outcomes from the weekly stat frame.
 
@@ -485,12 +516,8 @@ def _grade_parlay(entry: dict) -> int:
     pending = [r for r in entry.get("parlay", []) if not r.get("outcome")]
     if not pending:
         return 0
-    try:
-        _, wk = nfl.get_season(entry["season"])
-    except Exception:
-        return 0
-    wk = wk[wk["week"] == entry["week"]]
-    if wk.empty:
+    wk = _week_stats(entry, teams)
+    if wk is None:
         return 0
     by_name = {}
     for _, row in wk.iterrows():
@@ -532,7 +559,7 @@ def _grade_parlay(entry: dict) -> int:
     return filled
 
 
-def _grade_td(entry: dict) -> int:
+def _grade_td(entry: dict, teams: set | None) -> int:
     """
     Did he score a rushing or receiving touchdown that week.
 
@@ -544,12 +571,8 @@ def _grade_td(entry: dict) -> int:
     pending = [r for r in entry.get("td", []) if not r.get("outcome")]
     if not pending:
         return 0
-    try:
-        _, wk = nfl.get_season(entry["season"])
-    except Exception:
-        return 0
-    wk = wk[wk["week"] == entry["week"]]
-    if wk.empty:
+    wk = _week_stats(entry, teams)
+    if wk is None:
         return 0
     by_name = {}
     for _, row in wk.iterrows():
@@ -586,6 +609,7 @@ def grade(season: int | None = None) -> dict:
     data = _load()
     if not data:
         return {"weeks": 0, "ats_filled": 0, "parlay_filled": 0, "td_filled": 0}
+    full = gm.schedule()
     sched = gm.games()
     sched = sched[sched["result"].notna()]
     ats_filled = parlay_filled = td_filled = weeks = 0
@@ -593,8 +617,9 @@ def grade(season: int | None = None) -> dict:
         if season is not None and entry.get("season") != season:
             continue
         a = _grade_ats(entry, sched)
-        p = _grade_parlay(entry)
-        t = _grade_td(entry)
+        teams = _week_teams(entry, full)
+        p = _grade_parlay(entry, teams)
+        t = _grade_td(entry, teams)
         if a or p or t:
             weeks += 1
         ats_filled += a

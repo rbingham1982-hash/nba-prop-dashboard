@@ -45,14 +45,28 @@ _CARRYOVER_WEIGHT = 0.5
 _cache: dict = {}
 
 
+def schedule():
+    """
+    Every regular-season game, played or not.
+
+    games() drops unplayed rows, so it cannot tell a finished week from one that is half
+    over. Grading needs that difference: a player missing from a half-played week has
+    usually just not taken the field yet.
+    """
+    import pandas as pd
+    if "schedule" not in _cache:
+        d = pd.read_csv(_GAMES_URL)
+        _cache["schedule"] = d[d["game_type"] == "REG"].reset_index(drop=True)
+    return _cache["schedule"]
+
+
 def games(seasons=None):
     """Completed regular-season games with closing spread and final margin."""
-    import pandas as pd
     key = ("games", tuple(seasons) if seasons else None)
     if key in _cache:
         return _cache[key]
-    d = pd.read_csv(_GAMES_URL)
-    d = d[(d["game_type"] == "REG") & d["home_score"].notna() & d["spread_line"].notna()]
+    d = schedule()
+    d = d[d["home_score"].notna() & d["spread_line"].notna()]
     if seasons:
         d = d[d["season"].isin(list(seasons))]
     d = d.sort_values(["season", "week"]).reset_index(drop=True)
