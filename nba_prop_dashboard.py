@@ -8883,31 +8883,51 @@ elif sport == "🏈 NFL":
                 _fd_nfl = _pmnfl.fetch_fanduel("nfl")
         except Exception:
             _fd_nfl = None
-        if _bwk is not None and _fd_nfl is not None and not _fd_nfl.empty:
-            _scored = []
-            for _, _pr in _fd_nfl.iterrows():
-                _stat_lbl = _pr.get("stat_type")
-                if _stat_lbl not in _nflb.PROP_STATS:
-                    continue
-                _sc = _nflb.score_prop(_bwk, _pr.get("player_name", ""), _stat_lbl,
-                                       float(_pr.get("line_score", 0)), _pr.get("american_odds"))
-                if _sc and "edge" in _sc:
-                    _sc["book_line"] = _pr.get("line_score")
-                    _scored.append(_sc)
-            _scored.sort(key=lambda r: r["edge"], reverse=True)
-            if _scored:
-                import pandas as _pd
-                _edf = _pd.DataFrame([{
-                    "Player": r["player"], "Stat": r["stat"], "Line": r["line"],
-                    "Odds": r["american_odds"], "Proj": r["projection"],
-                    "Model %": round(r["model_over"]*100), "Impl %": round(r["implied"]*100),
-                    "Edge %": round(r["edge"]*100, 1),
-                } for r in _scored[:30]])
-                st.dataframe(_edf, width="stretch", hide_index=True)
-                st.caption(f"{len(_scored)} scored props · top 30 by edge. Positive edge = model likes the "
-                           "OVER vs the book; still gated by the same honest-CLV discipline as the other sports.")
-            else:
-                st.info("Props posted but none scored (no game-log history yet, or unmapped markets).")
+        # Scored once, here, and reused by the parlay builder below, so the board and the
+        # builder price every leg identically. The fetcher returns BOTH sides of every
+        # two-way market; this board used to ignore `side` and score each row as an OVER,
+        # so every prop appeared twice and the under row set the over probability
+        # against the under's price, which is a meaningless edge.
+        _plegs, _pscore_err = [], None
+        if _fd_nfl is not None and not _fd_nfl.empty:
+            import daily_parlay_gen as _gen
+            try:
+                with st.spinner("Scoring NFL props…"):
+                    _plegs = _gen.score_legs(_fd_nfl, {}, _gen.NFL_STAT_TYPES, _gen.nfl_hit_rate,
+                                             min_sample=_gen.MIN_SAMPLE.get("NFL", 3))
+            except Exception as _se:
+                _pscore_err = _se
+        if _pscore_err is not None:
+            st.error(f"Couldn't score NFL props: {_pscore_err}")
+        elif _plegs:
+            import pandas as _pd
+            _w = parlay_tracker.get_market_blend(sport="NFL")
+            # One row per prop: whichever side the model likes more. Edge is the shipped
+            # (market-blended) probability minus FanDuel's de-vigged price for that side,
+            # the same number the builder's EV is made of.
+            _best = {}
+            for _l in _plegs:
+                _imp = float(_l["implied_prob"])
+                _edge = _w * (float(_l["hit_rate"]) - _imp)
+                _k = (_l["player_name"], _l["stat_type"], _l["line_score"])
+                if _k not in _best or _edge > _best[_k][1]:
+                    _best[_k] = (_l, _edge)
+            _scored = sorted(_best.values(), key=lambda t: t[1], reverse=True)
+            _edf = _pd.DataFrame([{
+                "Player": _l["player_name"], "Game": _l["game_label"], "Stat": _l["stat_type"],
+                "Side": _l["side"].title(), "Line": _l["line_score"], "Odds": _l["american_odds"],
+                "Model %": round(_l["hit_rate"] * 100, 1),
+                "Market %": round(float(_l["implied_prob"]) * 100, 1),
+                "Edge %": round(_e * 100, 1),
+            } for _l, _e in _scored[:30]])
+            st.dataframe(_edf, width="stretch", hide_index=True)
+            st.caption(f"{len(_scored)} props scored, one row each on the side the model prefers · "
+                       f"top 30 by edge. Market % is FanDuel's de-vigged price; edge is after the NFL "
+                       f"market blend ({_w:.0%} model), so it is the same number the parlay builder "
+                       "uses. Still gated by the same honest-CLV discipline as the other sports.")
+        elif _fd_nfl is not None and not _fd_nfl.empty:
+            st.info("Props posted but none scored (games already under way, no projection for "
+                    "the player, or unmapped markets).")
         else:
             st.info("No NFL props posted yet — FanDuel puts player props up close to kickoff. "
                     "The fetch is wired and will populate automatically. Use the manual check below meanwhile.")
@@ -8939,9 +8959,7 @@ elif sport == "🏈 NFL":
             if _pmax < _pmin:
                 _pmax = _pmin
             try:
-                with st.spinner("Scoring props and building parlays…"):
-                    _plegs = _gen.score_legs(_fd_nfl, {}, _gen.NFL_STAT_TYPES, _gen.nfl_hit_rate,
-                                             min_sample=_gen.MIN_SAMPLE.get("NFL", 3))
+                with st.spinner("Building parlays…"):
                     _pcal = parlay_tracker.get_parlay_calibration(sport="NFL") or {}
                     _pblend = parlay_tracker.get_market_blend(sport="NFL")
                     _psafe, _pval = _gen.build_parlays(
@@ -8951,7 +8969,7 @@ elif sport == "🏈 NFL":
                         stat_family=_gen.STAT_FAMILY.get("NFL") if _pmix else None,
                         max_same_family=_gen.MAX_SAME_FAMILY.get("NFL") if _pmix else None)
             except Exception as _pe:
-                _plegs, _psafe, _pval = [], [], []
+                _psafe, _pval = [], []
                 st.error(f"Couldn't build parlays: {_pe}")
 
             if not _plegs:
