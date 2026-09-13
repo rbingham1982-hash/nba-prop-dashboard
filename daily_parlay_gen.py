@@ -379,66 +379,13 @@ def nba_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
     return pm._nba_hit_rate(player_name, stat_type, line, odds_type=odds_type,
                              implied_override=implied, cal_factor=cal)
 
-# NFL scoring is expensive to set up and cheap to reuse: the weekly frame is ~18.5k rows
-# and team_volume/position_priors are full-table groupbys. score_legs calls the rate fn
-# once per prop, so building them per call would redo that work a thousand times a run.
-# Cached per (process, season) and rebuilt when the season rolls over.
-_NFL_CTX: dict = {}
-
+# NFL scoring is expensive to set up and cheap to reuse: score_legs calls the rate fn once
+# per prop, so building the context per call would redo that work a thousand times a run.
+# It lives in nfl_analysis now, shared with the fantasy boards so both price a player off
+# one engine.
 def _nfl_context():
     import nfl_analysis as nfl
-    # Resolve the season ONCE per process. latest_season_with_data() probes the nflverse
-    # release by actually reading the parquet, so calling it per prop was a remote round
-    # trip per prop — 419ms each, which is where a 1,000-prop board's seven minutes went.
-    # The season cannot change mid-run, and the daily job is a fresh process every time.
-    if not _NFL_CTX:
-        # The nflverse CDN 404s intermittently — the same file read fine seconds earlier
-        # and seconds later. latest_season_with_data() can therefore return a season whose
-        # very next read fails, which killed a whole board run with a bare HTTPError.
-        # Retry, then fall back a season rather than abort: last year's usage is a weaker
-        # baseline than this year's, and far better than no board at all.
-        season, df = None, None
-        for cand in (nfl.latest_season_with_data(), nfl.latest_season_with_data() - 1):
-            for _attempt in range(3):
-                try:
-                    _, df = nfl.get_season(cand)
-                    season = cand
-                    break
-                except Exception:
-                    time.sleep(1.5)
-            if season is not None:
-                break
-        if season is None:
-            raise RuntimeError("nflverse weekly data unreachable after retries")
-        import datetime as _dt
-        _play_season = max(season, nfl.season_for_date(_dt.date.today()))
-        _NFL_CTX.update({
-            "season": season, "df": df,
-            "priors": nfl.position_priors(df),
-            "vol": nfl.team_volume(df),
-            "idx": nfl.player_index(df),
-            "dcache": {},
-            # Fantasy-board projections cover the players the usage model cannot see at
-            # all — rookies, who have no game log and are exactly who books post Week 1
-            # props on. Built once; the board itself is a couple of parquet reads.
-            "board": nfl.board_projections(_play_season),
-            "rates": nfl.league_rates(df),
-            "cvcache": {},
-            # Rosters for the season being PLAYED. This was season + 1, on the assumption
-            # that the stats season is always last season — true in the off-season, and
-            # wrong the moment the new season produces its first game. Once 2026 stats
-            # existed it started requesting 2027 rosters, which 404 and took the whole
-            # board down with an HTTPError that read like a CDN outage.
-            #
-            # season_for_date is the actual answer: the NFL season spans Sep-Feb, so it is
-            # named for the calendar year it starts in.
-            "teams": nfl.current_teams(_play_season),
-            # ESPN depth charts, so a projection knows the job a player holds NOW rather
-            # than only last season's. Optional: an unavailable chart returns {} and every
-            # projection stays exactly as it was.
-            "depth": nfl.depth_context(season, _play_season, df),
-        })
-    return _NFL_CTX
+    return nfl.scoring_context()
 
 def nfl_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.0, cal=1.0, team=""):
     """

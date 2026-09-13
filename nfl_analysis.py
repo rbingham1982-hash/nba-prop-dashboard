@@ -902,6 +902,81 @@ def score_prop_nfl(df, player: str, stat: str, line: float, american_odds=None,
                             cvcache=cvcache)
 
 
+# The scoring context every NFL projection shares: the weekly frame and everything built
+# from it. Expensive to set up (~12s with the depth charts) and cheap to reuse, so it is
+# built once and shared by the prop scorer and the fantasy boards. One engine behind both
+# is what stops a prop and a waiver board disagreeing about the same player. Rebuilt after
+# _SCORING_TTL so a long-lived dashboard picks up the day's depth-chart snapshot; the
+# nightly job is a fresh process and never reaches it.
+_SCORING_CTX: dict = {}
+_SCORING_TTL = 6 * 3600
+
+
+def scoring_context() -> dict:
+    import time
+    if _SCORING_CTX and time.time() - _SCORING_CTX.get("_built", 0) < _SCORING_TTL:
+        return _SCORING_CTX
+    # Resolve the season ONCE. latest_season_with_data() probes the nflverse release by
+    # actually reading the parquet, so calling it per prop was a remote round trip per
+    # prop — 419ms each, which is where a 1,000-prop board's seven minutes went.
+    #
+    # The nflverse CDN 404s intermittently — the same file read fine seconds earlier and
+    # seconds later. latest_season_with_data() can therefore return a season whose very
+    # next read fails, which killed a whole board run with a bare HTTPError. Retry, then
+    # fall back a season rather than abort: last year's usage is a weaker baseline than
+    # this year's, and far better than no board at all.
+    season, df = None, None
+    for cand in (latest_season_with_data(), latest_season_with_data() - 1):
+        for _attempt in range(3):
+            try:
+                _, df = get_season(cand)
+                season = cand
+                break
+            except Exception:
+                time.sleep(1.5)
+        if season is not None:
+            break
+    if season is None:
+        raise RuntimeError("nflverse weekly data unreachable after retries")
+    # The season being PLAYED, which is not always the stats season. This was season + 1,
+    # on the assumption that the stats season is always last season — true in the
+    # off-season, and wrong the moment the new season produces its first game. Once 2026
+    # stats existed it started requesting 2027 rosters, which 404 and took the whole board
+    # down with an HTTPError that read like a CDN outage. The fantasy boards carried the
+    # same season + 1 until they moved onto this context.
+    #
+    # season_for_date is the actual answer: the NFL season spans Sep-Feb, so it is named
+    # for the calendar year it starts in.
+    play = max(season, season_for_date(datetime.date.today()))
+    new = {
+        "season": season, "play_season": play, "df": df,
+        "priors": position_priors(df),
+        "vol": team_volume(df),
+        "idx": player_index(df),
+        "dcache": {},
+        # Fantasy-board projections cover the players the usage model cannot see at all —
+        # rookies, who have no game log and are exactly who books post Week 1 props on.
+        "board": board_projections(play),
+        "rates": league_rates(df),
+        "cvcache": {},
+        "teams": current_teams(play),
+        # ESPN depth charts, so a projection knows the job a player holds NOW rather than
+        # only last season's. Optional: an unavailable chart returns {} and every
+        # projection stays exactly as it was.
+        "depth": depth_context(season, play, df),
+        "_built": time.time(),
+    }
+    _SCORING_CTX.clear()
+    _SCORING_CTX.update(new)
+    return _SCORING_CTX
+
+
+def scoring_kwargs(ctx: dict) -> dict:
+    """The keyword arguments score_prop_nfl takes from a scoring context."""
+    return {k: ctx.get(k) for k in ("teams", "priors", "vol", "idx", "dcache",
+                                    "board", "rates", "cvcache", "depth")}
+
+
 if __name__ == "__main__":
     import sys
     sys.stdout.reconfigure(encoding="utf-8")

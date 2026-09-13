@@ -257,27 +257,29 @@ def dfs_slate(sport: str = "MLB", draft_group_id: int | None = None):
             rows.append({**r.to_dict(), "proj_points": pts, "proj_pa": round(pa, 2)})
     else:
         import nfl_analysis as nfl
-        season = nfl.latest_season_with_data()
-        _, df = nfl.get_season(season)
-        idx = nfl.player_index(df)
-        priors, vol = nfl.position_priors(df), nfl.team_volume(df)
-        teams = nfl.current_teams(season + 1)
-        board = nfl.board_projections(season + 1)
-        rates, cv = nfl.league_rates(df), {}
+        ctx = nfl.scoring_context()
+        df, idx = ctx["df"], ctx["idx"]
+        kw = nfl.scoring_kwargs(ctx)
         for _, r in sal.iterrows():
             proj = {}
             for stat in nfl._USAGE_MODEL:
                 try:
-                    s = nfl.score_prop_nfl(df, r["player"], stat, 0.5, teams=teams,
-                                           priors=priors, vol=vol, idx=idx,
-                                           board=board, rates=rates, cvcache=cv)
+                    s = nfl.score_prop_nfl(df, r["player"], stat, 0.5, **kw)
                 except Exception:
                     s = None
                 if s:
                     proj[stat] = s.get("projection", 0)
             if not proj:
                 continue
-            rows.append({**r.to_dict(), "proj_points": dk_points_nfl(proj)})
+            # Expected points, so a backup is discounted to the work his slot sees (see
+            # _nfl_slot). Salary is paid before the inactives are known, and without this
+            # a QB2 priced at the minimum projected like a starter and topped the value list.
+            sub = nfl._rows_for(df, r["player"], idx)
+            pid = str(sub.iloc[0].get("player_id", "")) if sub is not None else ""
+            spos, order = _nfl_slot(ctx, pid, str(r.get("position") or ""))
+            mult = depth_multiplier(spos, order)
+            rows.append({**r.to_dict(), "proj_points": round(dk_points_nfl(proj) * mult, 2),
+                         "depth_mult": mult})
     if not rows:
         return pd.DataFrame()
     out = pd.DataFrame(rows)
@@ -338,6 +340,28 @@ def depth_multiplier(position: str, order) -> float:
     if not table:
         return 1.0
     return table.get(o, _DEPTH_FLOOR.get(str(position).upper(), 0.1))
+
+
+def _nfl_slot(ctx: dict, player_id, position: str, prof: dict | None = None):
+    """
+    (position, order) for depth_multiplier: ESPN's chart first, Sleeper's order as fallback.
+
+    ESPN's is the chart the combination below was tested on (2026-09-13, 3,713 listed 2025
+    player-weeks with did-not-play weeks counted as zero; MAE in thousandths of a share):
+
+      own share, nothing                        95.2
+      own x _DEPTH_SHARE                        70.6   <- what these boards did
+      own x depth factor (the props engine)     85.4
+      own x depth factor x _DEPTH_SHARE         68.9   <- shipped, bias -1.4
+
+    Stacking the two is not a double count. The engine's depth factor moves a player's
+    usage for the job he holds WHEN he plays; this multiplier discounts for whether he plays
+    at all, which a prop never needs (a DNP voids it) and a fantasy projection always does.
+    """
+    now = (ctx.get("depth") or {}).get("now", {}).get(str(player_id))
+    if now:
+        return now
+    return position, (prof or {}).get("depth_chart_order")
 
 
 def sleeper_profiles() -> dict:
@@ -412,13 +436,9 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
     snaps spiked last week".
     """
     import nfl_analysis as nfl
-    season = nfl.latest_season_with_data()
-    _, df = nfl.get_season(season)
-    idx = nfl.player_index(df)
-    priors, vol = nfl.position_priors(df), nfl.team_volume(df)
-    teams = nfl.current_teams(season + 1)
-    board = nfl.board_projections(season + 1)
-    rates, cv = nfl.league_rates(df), {}
+    ctx = nfl.scoring_context()
+    df, idx, teams = ctx["df"], ctx["idx"], ctx["teams"]
+    kw = nfl.scoring_kwargs(ctx)
 
     adds = {p["name"]: p["count"] for p in sleeper_trending("add", limit=200)}
     drops = {p["name"]: p["count"] for p in sleeper_trending("drop", limit=200)}
@@ -434,8 +454,7 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
         proj = {}
         for stat in nfl._USAGE_MODEL:
             try:
-                s = nfl.score_prop_nfl(df, name, stat, 0.5, teams=teams, priors=priors,
-                                       vol=vol, idx=idx, board=board, rates=rates, cvcache=cv)
+                s = nfl.score_prop_nfl(df, name, stat, 0.5, **kw)
             except Exception:
                 s = None
             if s:
@@ -454,8 +473,8 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
         team = prof.get("team") or teams.get(str(sub.iloc[0].get("player_id", ""))) or ""
         if not team:
             continue
-        order = prof.get("depth_chart_order")
-        mult = depth_multiplier(pos, order)
+        spos, order = _nfl_slot(ctx, sub.iloc[0].get("player_id", ""), pos, prof)
+        mult = depth_multiplier(spos, order)
         pts = round(pts * mult, 2)
         # Every scorable player is kept here, gates applied after the loop. The startable
         # tier below has to be ranked against the WHOLE population to mean anything, so
@@ -543,21 +562,16 @@ def start_sit(players: list) -> list:
     keeping a single engine behind all three is what stops that happening quietly.
     """
     import nfl_analysis as nfl
-    season = nfl.latest_season_with_data()
-    _, df = nfl.get_season(season)
-    idx = nfl.player_index(df)
-    priors, vol = nfl.position_priors(df), nfl.team_volume(df)
-    teams = nfl.current_teams(season + 1)
-    board = nfl.board_projections(season + 1)
-    rates, cv = nfl.league_rates(df), {}
+    ctx = nfl.scoring_context()
+    df, idx, teams = ctx["df"], ctx["idx"], ctx["teams"]
+    kw = nfl.scoring_kwargs(ctx)
 
     out = []
     for name in players:
         proj, src = {}, None
         for stat in nfl._USAGE_MODEL:
             try:
-                s = nfl.score_prop_nfl(df, name, stat, 0.5, teams=teams, priors=priors,
-                                       vol=vol, idx=idx, board=board, rates=rates, cvcache=cv)
+                s = nfl.score_prop_nfl(df, name, stat, 0.5, **kw)
             except Exception:
                 s = None
             if s:
@@ -567,7 +581,14 @@ def start_sit(players: list) -> list:
         if not proj:
             out.append({"player": name, "proj_points": None, "note": "no projection"})
             continue
-        out.append({"player": name, "proj_points": dk_points_nfl(proj), "source": src,
+        # The same expected-points discount the waiver board applies; see _nfl_slot.
+        sub = nfl._rows_for(df, name, idx)
+        pid = str(sub.iloc[0].get("player_id", "")) if sub is not None else ""
+        pos = str(sub.iloc[0].get("position", "")) if sub is not None else ""
+        spos, order = _nfl_slot(ctx, pid, pos)
+        out.append({"player": name,
+                    "proj_points": round(dk_points_nfl(proj) * depth_multiplier(spos, order), 2),
+                    "source": src,
                     "note": "new team — projection rebased" if locals().get("changed") else ""})
     out.sort(key=lambda r: -(r["proj_points"] or -1))
     return out
@@ -603,13 +624,9 @@ def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
                          waiver target.
     """
     import nfl_analysis as nfl
-    season = nfl.latest_season_with_data()
-    _, df = nfl.get_season(season)
-    idx = nfl.player_index(df)
-    priors, vol = nfl.position_priors(df), nfl.team_volume(df)
-    teams = nfl.current_teams(season + 1)
-    board = nfl.board_projections(season + 1)
-    rates, cv = nfl.league_rates(df), {}
+    ctx = nfl.scoring_context()
+    df, idx, teams = ctx["df"], ctx["idx"], ctx["teams"]
+    kw = nfl.scoring_kwargs(ctx)
 
     sp = sleeper_profiles()
 
@@ -637,23 +654,22 @@ def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
         proj = {}
         for stat in nfl._USAGE_MODEL:
             try:
-                s = nfl.score_prop_nfl(df, name, stat, 0.5, teams=teams, priors=priors,
-                                       vol=vol, idx=idx, board=board, rates=rates, cvcache=cv)
+                s = nfl.score_prop_nfl(df, name, stat, 0.5, **kw)
             except Exception:
                 s = None
             if s:
                 proj[stat] = s.get("projection", 0)
         if not proj:
             continue
-        order = prof.get("depth_chart_order")
-        pts = round(dk_points_nfl(proj) * depth_multiplier(pos, order), 2)
+        spos, order = _nfl_slot(ctx, sub.iloc[0].get("player_id", ""), pos, prof)
+        pts = round(dk_points_nfl(proj) * depth_multiplier(spos, order), 2)
         if pts < _WAIVER_FLOOR.get(pos, 5.0):
             continue
         rows.append({"player": name, "position": pos,
                      # Sleeper's team, not nflverse's — see the free-agent guard above.
                      "team": prof.get("team") or teams.get(str(sub.iloc[0].get("player_id", ""))) or "",
                      "proj_points": pts, "consensus_rank": int(rank),
-                     "depth": order, "depth_mult": depth_multiplier(pos, order)})
+                     "depth": order, "depth_mult": depth_multiplier(spos, order)})
 
     # Rank within position on each axis, then take the gap.
     by_pos: dict = {}
