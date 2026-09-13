@@ -462,6 +462,45 @@ def nfl_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
     rate = max(0.01, min(0.99, float(s["model_over"]) * float(cal)))
     return rate, int(s.get("n", 0))
 
+# Past this gap between the raw model and FanDuel's de-vigged price, the model is missing
+# information rather than finding it. Measured 2026-09-13 over 14.5k graded MLB/WNBA legs:
+# once the model sat 20+ points from the market, the market was the better forecast and
+# the best-fit weight on the model fell to 0-0.25 (MLB 30+ pts: model 26%, market 52%,
+# actual 62%). In NFL the cause is visible: the usage model projects from last season, so
+# a new team, a demotion or a new starter all read as edge. Ranked by edge, rows past this
+# gap were all 30 of the live board's top 30.
+NFL_MAX_MODEL_GAP = 0.20
+
+
+def nfl_role_flags(player_name, stat_type, line) -> list:
+    """
+    Why an NFL projection may be stale, for display beside the price.
+
+    The usage model projects from last season's usage, so it cannot see this season's
+    role. These are the cases where that bites first: a player on a new team, a thin
+    sample, a rookie priced off his draft cohort. Flags only; nothing is filtered on them.
+    """
+    import nfl_analysis as nfl
+    ctx = _nfl_context()
+    try:
+        s = nfl.score_prop_nfl(ctx["df"], player_name, stat_type, line,
+                               teams=ctx["teams"], priors=ctx["priors"], vol=ctx["vol"],
+                               idx=ctx["idx"], dcache=ctx["dcache"], board=ctx["board"],
+                               rates=ctx["rates"], cvcache=ctx["cvcache"])
+    except Exception:
+        return []
+    if not s:
+        return []
+    out = []
+    if s.get("source") == "board":
+        out.append("rookie, cohort projection")
+    if s.get("changed_team"):
+        out.append(f"new team ({s.get('team_prev')}→{s.get('team_now')})")
+    n = int(s.get("n") or 0)
+    if 0 < n < 8:
+        out.append(f"{n} games of history")
+    return out
+
 def build_parlays(legs, min_legs=2, max_legs=5, top_n=50, pool_size=30, max_leg_uses=6,
                   sportsbook="PrizePicks", parlay_cal=None,
                   market_blend=None, same_game_penalty=1.0, max_same_market=None,

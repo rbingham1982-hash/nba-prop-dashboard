@@ -8913,18 +8913,46 @@ elif sport == "🏈 NFL":
                 if _k not in _best or _edge > _best[_k][1]:
                     _best[_k] = (_l, _edge)
             _scored = sorted(_best.values(), key=lambda t: t[1], reverse=True)
-            _edf = _pd.DataFrame([{
-                "Player": _l["player_name"], "Game": _l["game_label"], "Stat": _l["stat_type"],
-                "Side": _l["side"].title(), "Line": _l["line_score"], "Odds": _l["american_odds"],
-                "Model %": round(_l["hit_rate"] * 100, 1),
-                "Market %": round(float(_l["implied_prob"]) * 100, 1),
-                "Edge %": round(_e * 100, 1),
-            } for _l, _e in _scored[:30]])
-            st.dataframe(_edf, width="stretch", hide_index=True)
-            st.caption(f"{len(_scored)} props scored, one row each on the side the model prefers · "
+            # Edge grows with the model-market gap, so ranking by it put the model's biggest
+            # blind spots on top: new teams, demotions, new starters the usage model cannot
+            # see. Past NFL_MAX_MODEL_GAP the model is the worse forecast (see its comment),
+            # so those rows leave the ranking and are listed apart for what they are.
+            _main, _wide = [], []
+            for _t in _scored:
+                _gap = abs(float(_t[0]["hit_rate"]) - float(_t[0]["implied_prob"]))
+                (_wide if _gap >= _gen.NFL_MAX_MODEL_GAP else _main).append(_t)
+
+            def _nfl_board_df(_items):
+                return _pd.DataFrame([{
+                    "Player": _l["player_name"], "Game": _l["game_label"], "Stat": _l["stat_type"],
+                    "Side": _l["side"].title(), "Line": _l["line_score"], "Odds": _l["american_odds"],
+                    "Model %": round(_l["hit_rate"] * 100, 1),
+                    "Market %": round(float(_l["implied_prob"]) * 100, 1),
+                    "Edge %": round(_e * 100, 1),
+                    "Flags": ", ".join(_gen.nfl_role_flags(_l["player_name"], _l["stat_type"],
+                                                            _l["line_score"])),
+                } for _l, _e in _items])
+
+            if _main:
+                st.dataframe(_nfl_board_df(_main[:30]), width="stretch", hide_index=True)
+            else:
+                st.info("No prop is within the model's trust range of the market.")
+            st.caption(f"{len(_main)} props ranked, one row each on the side the model prefers · "
                        f"top 30 by edge. Market % is FanDuel's de-vigged price; edge is after the NFL "
-                       f"market blend ({_w:.0%} model), so it is the same number the parlay builder "
-                       "uses. Still gated by the same honest-CLV discipline as the other sports.")
+                       f"market blend ({_w:.0%} model), the same number the parlay builder uses. "
+                       "Flags mark projections built on last season's role: a new team, a thin "
+                       "sample, or a rookie's draft cohort. Still gated by the same honest-CLV "
+                       "discipline as the other sports.")
+            if _wide:
+                _wide.sort(key=lambda t: abs(float(t[0]["hit_rate"]) - float(t[0]["implied_prob"])),
+                           reverse=True)
+                with st.expander(f"Model {_gen.NFL_MAX_MODEL_GAP:.0%}+ away from the market — "
+                                 f"{len(_wide)} props, not ranked as edges"):
+                    st.caption("A gap this wide usually means the model is missing something the "
+                               "book has priced, most often a role change since last season. On "
+                               "graded MLB/WNBA legs the market was the better forecast at this "
+                               "range. Sorted by gap, widest first.")
+                    st.dataframe(_nfl_board_df(_wide[:60]), width="stretch", hide_index=True)
         elif _fd_nfl is not None and not _fd_nfl.empty:
             st.info("Props posted but none scored (games already under way, no projection for "
                     "the player, or unmapped markets).")
