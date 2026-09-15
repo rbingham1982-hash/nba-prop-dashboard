@@ -8656,8 +8656,15 @@ elif sport == "⚾ MLB":
             MLB data is sourced from the official MLB Stats API.
         </p>""", unsafe_allow_html=True)
 elif sport == "🏈 NFL":
-    _nfl_tab_board, _nfl_tab_analyze, _nfl_tab_bet, _nfl_tab_track = st.tabs(
-        ["📊 Draft Board", "🔬 Player Analysis", "💰 Edge Finder", "📈 Track"])
+    _nfl_tab_hub, _nfl_tab_analyze, _nfl_tab_bet, _nfl_tab_track, _nfl_tab_board = st.tabs(
+        ["🏠 Week Hub", "🔬 Player Analysis", "💰 Edge Finder", "📈 Track", "📊 Draft Board"])
+
+    with _nfl_tab_hub:
+        # ══ NFL — Week Hub: the in-season landing view, rendered by nfl_hub (player grades
+        # from nfl_grades, the published board from weekly_picks). The draft board it
+        # replaced as the landing moved to the last tab; the draft is over. ══
+        import nfl_hub as _nfl_hub
+        _nfl_hub.render()
 
     with _nfl_tab_board:
         # ══ NFL — Draft Board (Phase 1) + Player Analysis (Phase 2). Bet/Track are later phases. ══
