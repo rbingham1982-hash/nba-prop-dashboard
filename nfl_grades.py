@@ -273,6 +273,32 @@ def weeks_available(season: int) -> list:
         return []
 
 
+def completed_weeks(season: int) -> list:
+    """
+    Weeks whose every game is final and whose stats cover every team that played.
+
+    weeks_available() is every week with ANY stats, which includes a week in progress: by
+    Friday the file holds Thursday night's game. Treating that as "the week" would crown a
+    player of the week from one game and publish a report card of two teams.
+    """
+    import nfl_game_model as gm
+    try:
+        sch = gm.schedule()
+        sch = sch[sch["season"] == season]
+        df = _frame(season)
+    except Exception:
+        return []
+    out = []
+    for w in weeks_available(season):
+        games = sch[sch["week"] == w]
+        if games.empty or games["home_score"].isna().any():
+            continue
+        played = set(games["home_team"]) | set(games["away_team"])
+        if played <= set(df.loc[df["week"] == w, "team"].dropna()):
+            out.append(w)
+    return out
+
+
 def grade_season(season: int, ref_season: int | None = None):
     """Every graded player-week of a season so far, with a `week` column."""
     import pandas as pd

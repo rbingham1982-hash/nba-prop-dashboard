@@ -119,6 +119,11 @@ def _weeks(season):
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
+def _completed(season):
+    return ng.completed_weeks(season)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
 def _grades(season, week):
     return ng.grade_week(season, week)
 
@@ -578,7 +583,14 @@ def render() -> None:
 
     c1, c2 = st.columns([5, 1])
     with c2:
-        week = st.selectbox("Week", weeks[::-1], index=0, format_func=lambda w: f"Week {w}",
+        # Default to the latest FINISHED week. By Friday the stats already hold Thursday
+        # night's game, and opening on a two-team "Week N" would crown a player of the week
+        # from one game. An unfinished week is still selectable, and labelled as such.
+        done = set(_completed(season))
+        opts = weeks[::-1]
+        default = next((i for i, w in enumerate(opts) if w in done), 0)
+        week = st.selectbox("Week", opts, index=default,
+                            format_func=lambda w: f"Week {w}" + ("" if w in done else " (in progress)"),
                             key=_K + "week", label_visibility="collapsed")
     with c1:
         st.caption("Grades post once nflverse publishes the week's stats, usually the morning after Monday night.")

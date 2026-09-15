@@ -53,19 +53,31 @@ def schedule():
     over. Grading needs that difference: a player missing from a half-played week has
     usually just not taken the field yet.
     """
+    import time
     import pandas as pd
-    if "schedule" not in _cache:
+    hit = _cache.get("schedule")
+    # Hourly, not once per process. The nightly job is a fresh process and never noticed,
+    # but the dashboard runs for days, and a schedule cached at startup never learns that
+    # a game went final — so a week could never finish grading until someone restarted it.
+    if hit is None or time.time() - hit[0] > _SCHEDULE_TTL:
         d = pd.read_csv(_GAMES_URL)
-        _cache["schedule"] = d[d["game_type"] == "REG"].reset_index(drop=True)
-    return _cache["schedule"]
+        hit = (time.time(), d[d["game_type"] == "REG"].reset_index(drop=True))
+        _cache["schedule"] = hit
+        # games() is derived from the schedule, so its cached slices go stale with it.
+        for k in [k for k in _cache if isinstance(k, tuple) and k[0] == "games"]:
+            del _cache[k]
+    return hit[1]
+
+
+_SCHEDULE_TTL = 3600
 
 
 def games(seasons=None):
     """Completed regular-season games with closing spread and final margin."""
+    d = schedule()                     # first, so a refresh can expire the slices below
     key = ("games", tuple(seasons) if seasons else None)
     if key in _cache:
         return _cache[key]
-    d = schedule()
     d = d[d["home_score"].notna() & d["spread_line"].notna()]
     if seasons:
         d = d[d["season"].isin(list(seasons))]

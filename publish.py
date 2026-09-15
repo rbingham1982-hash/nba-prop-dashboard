@@ -149,6 +149,19 @@ def render_cards(data: dict) -> list:
     when = data["generated"].strftime("%B %d")
     out = []
 
+    # The report card leads an in-season issue: the week that just happened, graded. The
+    # right-hand side carries the letter AND the score, because a letter alone hides whether
+    # an A is a 90 or a 99, and a score alone means nothing without its scale.
+    rc = data.get("recap")
+    if rc and len(rc.get("top") or []) >= 5:
+        rows = [(f"{r['player']}  ({r['position']})", f"{r['grade']}  {float(r['score']):.0f}")
+                for r in rc["top"][:10]]
+        out.append(render_card(
+            f"Week {rc['week']} Report Card", "Top graded performances", rows,
+            "Efficiency, production, usage and mistakes, graded by position",
+            _OUT / f"{stamp}-card-report.jpg",
+            footer2="Score = percentile of last season's player-weeks at his position."))
+
     # Sleepers lead the pre-season issue, so they get the first card. The right-hand
     # number is the GAP, not the projection — the card has to show the disagreement,
     # because "we like him more than the room does" is the entire claim.

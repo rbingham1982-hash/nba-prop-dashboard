@@ -43,6 +43,28 @@ def _fmt_pts(v) -> str:
     return "—" if v is None else f"{float(v):.1f}"
 
 
+def _recap(g, season: int, week: int) -> dict:
+    """The week just played, from its graded player table (nfl_grades.grade_week)."""
+    import pandas as pd
+    # "Big role, rough day": the lowest grades among players who got a top-quarter share of
+    # the work at their position. Ranking the whole table from the bottom would lead with a
+    # backup who ran three routes — a bad grade nobody started, and a pointless one to print.
+    big = pd.concat([grp[grp["work"] >= grp["work"].quantile(0.75)]
+                     for _, grp in g.groupby("position")])
+    teams = g.groupby("team")["score"].agg(["mean", "size"])
+    teams = teams[teams["size"] >= 3].sort_values("mean", ascending=False)
+    return {
+        "season": season, "week": week, "n": len(g),
+        "n_a": int(g["grade"].str.startswith("A").sum()),
+        "potw": g.iloc[0].to_dict(),
+        "top": g.head(10).to_dict("records"),
+        "by_pos": {p: g[g["position"] == p].head(3).to_dict("records") for p in ("QB", "RB", "WR", "TE")},
+        "letdowns": big.sort_values("score").head(5).to_dict("records"),
+        "best_teams": [(t, round(float(m), 1)) for t, m in teams["mean"].head(3).items()],
+        "worst_teams": [(t, round(float(m), 1)) for t, m in teams["mean"].tail(3)[::-1].items()],
+    }
+
+
 def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
     """
     Gather every section's data. Returns {} entries rather than raising when a source is
@@ -106,14 +128,39 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["trending"] = []
         out["errors"].append(f"sleeper trending: {e}")
 
+    # The week just played: every skill player graded, and the board we published for it with
+    # its results. Only a COMPLETED week — every game final, every team's stats posted —
+    # because by Friday the stats file already holds Thursday night's game, and a recap of
+    # that would be a report card of two teams.
+    try:
+        import nfl_analysis as nfl
+        import nfl_grades as ng
+        season = nfl.season_for_date(out["generated"].date())
+        done = ng.completed_weeks(season)
+        if done:
+            g = ng.grade_week(season, done[-1])
+            if not g.empty:
+                out["recap"] = _recap(g, season, done[-1])
+                import weekly_picks as wp
+                out["recap_picks"] = wp._load().get(wp._key(season, done[-1])) or {}
+    except Exception as e:
+        out["errors"].append(f"weekly grades: {e}")
+
     # The interesting cross-section: players the crowd is piling into who our projection
     # does NOT like. That contrast is the reason to read a projection-based newsletter
     # rather than a waiver-wire listicle.
-    proj = {r["player"]: r for r in out.get("waivers", [])}
+    #
+    # Liked by the projection ANYWHERE in this issue means not a fade. Checking only the
+    # waiver board let a player lead the sleepers list and appear here as a fade in the same
+    # issue (Devaughn Vele, the Week 1 recap draft). And only positions the projection
+    # grades: a team defense was listed as one, which the model has no opinion on at all.
+    liked = ({r["player"] for r in out.get("waivers", [])}
+             | {r["player"] for r in out.get("sleepers", [])})
     fades = []
     for t in out.get("trending", []):
         nm = t.get("name")
-        if nm and nm not in proj and t.get("count", 0) > 50000:
+        if (nm and nm not in liked and t.get("position") in ("QB", "RB", "WR", "TE")
+                and t.get("count", 0) > 50000):
             fades.append(t)
     out["fades"] = fades[:6]
     return out
@@ -125,6 +172,71 @@ def render_markdown(data: dict) -> str:
     L.append("*Fantasy football and DFS, projected from usage rather than from last week's "
              "box score.*")
     L.append("")
+
+    # The week just played leads an in-season issue: what happened, then how our published
+    # board did against it, before anything looks ahead.
+    rc = data.get("recap")
+    if rc:
+        p = rc["potw"]
+        L += [f"## Week {rc['week']} report card", "",
+              "Every quarterback, running back, receiver and tight end with a real role, graded on "
+              "how well he played: efficiency (EPA per play), production, share of the team's work, "
+              "and mistakes, scored against every player-week of last season at his position. A 90 "
+              f"means better than 90% of them. {rc['n']} players qualified; {rc['n_a']} earned an "
+              "A-range grade.", "",
+              f"**Player of the week: {p['player']}** ({p['position']}, {p['team']} vs "
+              f"{p['opponent']}) — **{p['grade']}**, {float(p['score']):.1f}. {p['line']}.", "",
+              "| Pos | Player | Team | Grade | Score | Stat line |", "|---|---|---|---|---:|---|"]
+        for pos in ("QB", "RB", "WR", "TE"):
+            for r in rc["by_pos"].get(pos, []):
+                L.append(f"| {pos} | {r['player']} | {r['team']} | {r['grade']} | "
+                         f"{float(r['score']):.0f} | {r['line']} |")
+        L.append("")
+        if rc.get("letdowns"):
+            L += ["**Big role, rough day.** The lowest grades among players who got a top-quarter "
+                  "share of the work at their position — the weeks that cost the most lineups:", ""]
+            for r in rc["letdowns"]:
+                L.append(f"- **{r['player']}** ({r['position']}, {r['team']}) — {r['grade']}, "
+                         f"{float(r['score']):.0f}: {r['line']}")
+            L.append("")
+        if rc.get("best_teams") and rc.get("worst_teams"):
+            L += ["**Best offenses by average grade:** "
+                  + ", ".join(f"{t} ({m:.0f})" for t, m in rc["best_teams"])
+                  + ". **Toughest days:** "
+                  + ", ".join(f"{t} ({m:.0f})" for t, m in rc["worst_teams"]) + ".", ""]
+        L += ["*A grade describes the week that happened. It is not a projection — whether he does "
+              "it again is a separate question, and the waiver board below is where that one gets "
+              "answered.*", ""]
+
+    rp = data.get("recap_picks") or {}
+    if rc and (rp.get("ats") or rp.get("parlay") or rp.get("td")):
+        mark = {"win": "✅ win", "loss": "❌ loss", "push": "➖ push", "dnp": "did not play"}
+        L += [f"## How our Week {rc['week']} board landed", "",
+              "Written down before kickoff, graded after — every row, including the misses.", ""]
+        if rp.get("ats"):
+            L += ["| Game | Model leaned | Result |", "|---|---|---|"]
+            for r in rp["ats"]:
+                L.append(f"| {r['game']} | {r['pick_label']} | {mark.get(r.get('outcome'), 'pending')} |")
+            L.append("")
+        if rp.get("parlay"):
+            L += ["| Parlay leg | Pick | Actual | Result |", "|---|---|---:|---|"]
+            for l in rp["parlay"]:
+                act = "—" if l.get("actual") is None else f"{float(l['actual']):g}"
+                L.append(f"| {l['player']} · {l['stat_type']} | {str(l['side']).upper()} "
+                         f"{float(l['line']):g} | {act} | {mark.get(l.get('outcome'), 'pending')} |")
+            L.append("")
+            if any(l.get("outcome") == "loss" for l in rp["parlay"]):
+                L += ["The parlay did not hit — it needed every leg.", ""]
+        tds = [r for r in (rp.get("td") or []) if r.get("outcome") in ("win", "loss")]
+        if tds:
+            hit = [r["player"] for r in tds if r["outcome"] == "win"]
+            miss = [r["player"] for r in tds if r["outcome"] == "loss"]
+            exp = sum(float(r.get("blended_prob") or 0) for r in tds) / len(tds)
+            L += [f"**Touchdown board:** {len(hit)} of {len(tds)} scored, against {exp:.0%} expected "
+                  "from the probabilities we published. Scored: " + ", ".join(hit) + "."
+                  + (f" Missed: {', '.join(miss)}." if miss else ""), "",
+                  "One week of ten players says very little about calibration. A result this far "
+                  "from expectation, in either direction, is mostly variance.", ""]
 
     sl = data.get("sleepers") or []
     if sl:
@@ -368,6 +480,20 @@ def render_social(data: dict) -> str:
     L = [f"# Social drafts — {d}", "",
          "Copy-paste. Nothing here is posted automatically.", ""]
 
+    # In season the recap is the news, so the player of the week leads — and the first block
+    # is what publish.run posts as the headline.
+    rc = data.get("recap")
+    if rc:
+        p = rc["potw"]
+        L += ["## Week recap — X / Discord", "",
+              "```",
+              f"Week {rc['week']} player of the week: {p['player']} ({p['position']}, {p['team']}).",
+              f"{p['line']}. Graded {p['grade']} — better than {float(p['score']):.0f}% of "
+              f"{p['position']} weeks last season.",
+              "",
+              "Every QB, RB, WR and TE graded on efficiency, production, usage and mistakes.",
+              "```", ""]
+
     sl = data.get("sleepers") or []
     if sl:
         t = sl[0]
@@ -598,6 +724,22 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
                 fails.append(f"TD row {r.get('player')} blends to {float(bp):.3f}, outside "
                              f"the model {float(mp):.3f} and book {float(fp):.3f} it sits "
                              f"between — the blend weight is wrong")
+
+    # The recap is graded, so the checks are that every grade is a grade: a 0-100 score with
+    # a letter. And that the week was actually complete — a full week grades ~200 players,
+    # so a handful means the stats file held one game, not a week.
+    rc = data.get("recap")
+    if rc:
+        rows = [rc.get("potw") or {}] + list(rc.get("top") or [])
+        for r in rows:
+            s = r.get("score")
+            if s is None or not (0.0 <= float(s) <= 100.0):
+                fails.append(f"recap grade for {r.get('player')} is not a 0-100 score: {s}")
+            if not r.get("grade") or r.get("grade") == "—":
+                fails.append(f"recap row for {r.get('player')} has no letter grade")
+        if rc.get("n", 0) < 100:
+            fails.append(f"only {rc.get('n')} players graded for Week {rc.get('week')} — a full "
+                         "week grades ~200, so the stats are probably incomplete")
 
     for r in dfs:
         sal, pts = r.get("salary"), r.get("proj_points")
