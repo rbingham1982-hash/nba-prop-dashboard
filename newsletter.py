@@ -72,16 +72,39 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
     sections and says so.
     """
     import fantasy_tools as ft
-    out: dict = {"generated": datetime.datetime.now(), "errors": []}
+    out: dict = {"generated": datetime.datetime.now(), "errors": [], "in_season": False}
 
-    # Pre-season the waiver wire has nothing to say — nobody has been dropped yet — so
-    # the sleepers list carries the issue. It answers the question people actually have in
-    # late August: who is going later than he should.
+    # The week just played: every skill player graded. Only a COMPLETED week — every game
+    # final, every team's stats posted — because by Friday the stats file already holds
+    # Thursday night's game, and a recap of that would be a report card of two teams. Done
+    # first, because whether a week has been played also decides whether sleepers run.
     try:
-        out["sleepers"] = ft.sleepers(limit=16)
+        import nfl_analysis as nfl
+        import nfl_grades as ng
+        season = nfl.season_for_date(out["generated"].date())
+        done = ng.completed_weeks(season)
+        out["in_season"] = bool(done)
+        if done:
+            g = ng.grade_week(season, done[-1])
+            if not g.empty:
+                out["recap"] = _recap(g, season, done[-1])
     except Exception as e:
+        out["errors"].append(f"weekly grades: {e}")
+
+    # Pre-season the waiver wire has nothing to say — nobody has been dropped yet — so the
+    # sleepers list carries the issue: who is going later in drafts than he should. Once a
+    # week has been played the drafts are over, and "going WR33 in drafts" describes
+    # something nobody can act on, so the section retires until the next pre-season — and
+    # its card and social post with it, since both skip an empty list. A completed week is
+    # the test rather than a date, so it flips exactly when the recap starts.
+    if out["in_season"]:
         out["sleepers"] = []
-        out["errors"].append(f"sleepers: {e}")
+    else:
+        try:
+            out["sleepers"] = ft.sleepers(limit=16)
+        except Exception as e:
+            out["sleepers"] = []
+            out["errors"].append(f"sleepers: {e}")
 
     try:
         rows, stats = ft.waiver_board(limit=nfl_limit, with_stats=True)
@@ -128,23 +151,15 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["trending"] = []
         out["errors"].append(f"sleeper trending: {e}")
 
-    # The week just played: every skill player graded, and the board we published for it with
-    # its results. Only a COMPLETED week — every game final, every team's stats posted —
-    # because by Friday the stats file already holds Thursday night's game, and a recap of
-    # that would be a report card of two teams.
-    try:
-        import nfl_analysis as nfl
-        import nfl_grades as ng
-        season = nfl.season_for_date(out["generated"].date())
-        done = ng.completed_weeks(season)
-        if done:
-            g = ng.grade_week(season, done[-1])
-            if not g.empty:
-                out["recap"] = _recap(g, season, done[-1])
-                import weekly_picks as wp
-                out["recap_picks"] = wp._load().get(wp._key(season, done[-1])) or {}
-    except Exception as e:
-        out["errors"].append(f"weekly grades: {e}")
+    # The board we published for the recapped week, read here rather than with the recap
+    # because grade() above is what fills in its results.
+    rc = out.get("recap")
+    if rc:
+        try:
+            import weekly_picks as wp
+            out["recap_picks"] = wp._load().get(wp._key(rc["season"], rc["week"])) or {}
+        except Exception as e:
+            out["errors"].append(f"recap picks: {e}")
 
     # The interesting cross-section: players the crowd is piling into who our projection
     # does NOT like. That contrast is the reason to read a projection-based newsletter
@@ -263,9 +278,10 @@ def render_markdown(data: dict) -> str:
               "**Nothing worth adding this week.** "
               f"{st.get('after_rank', 0)} unrostered players were projected and none cleared "
               "the bar for a startable add — which is the normal state of a waiver wire "
-              "before the season, when everyone with a real role is already taken.", "",
-              "That changes the week players start getting dropped. Until then, the "
-              "sleepers list above is where the value is.", ""]
+              "before the season, when everyone with a real role is already taken.", ""]
+        if sl:
+            L += ["That changes the week players start getting dropped. Until then, the "
+                  "sleepers list above is where the value is.", ""]
     if w:
         L += ["## Waiver targets", "",
               "Ranked by projected points among players outside Sleeper's top 150 — so these "
