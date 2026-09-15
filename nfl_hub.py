@@ -303,11 +303,17 @@ def _leaders(view: pd.DataFrame, pos: str, meta: dict) -> None:
                             unsafe_allow_html=True)
     else:
         _sec(f"Top {pos}s", "the twelve best grades this week")
+        # Filled down each column, not dealt across them. Streamlit columns stack vertically,
+        # so dealing rank i into column i % 4 made the first column read #1, #5, #9 — a
+        # ranking that looked shuffled. Column-major reads in order top to bottom, the same
+        # way each position's column does in the All view.
         rows = list(view.head(12).iterrows())
-        cols = st.columns(4)
-        for i, (_, r) in enumerate(rows):
-            with cols[i % 4]:
-                st.markdown(_card(r, i + 1, meta), unsafe_allow_html=True)
+        per_col = -(-len(rows) // 4)
+        for c, col in enumerate(st.columns(4)):
+            with col:
+                chunk = rows[c * per_col:(c + 1) * per_col]
+                st.markdown("".join(_card(r, c * per_col + j + 1, meta)
+                                    for j, (_, r) in enumerate(chunk)), unsafe_allow_html=True)
 
 
 def _scatter(view: pd.DataFrame) -> None:
