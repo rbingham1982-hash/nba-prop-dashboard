@@ -167,9 +167,26 @@ def _rgba(hex_color: str, a: float) -> str:
     return f"rgba({int(h[0:2], 16)},{int(h[2:4], 16)},{int(h[4:6], 16)},{a})"
 
 
+def _lum(hex_color) -> float:
+    """Rough perceived brightness 0-1; anything unreadable counts as bright."""
+    h = str(hex_color or "").lstrip("#")
+    if len(h) != 6:
+        return 1.0
+    try:
+        r, g, b = (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    except ValueError:
+        return 1.0
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
 def _team(meta: dict, abbr: str):
     m = meta.get(abbr) or {}
-    return m.get("color") or _ACCENT, m.get("logo"), m.get("nick") or abbr
+    c = m.get("color") or _ACCENT
+    # A black or near-black primary (Raiders, Steelers) vanishes on this dark theme, so use
+    # the secondary colour instead — for those clubs it is the one on the helmet anyway.
+    if _lum(c) < 0.12 and m.get("color2") and _lum(m["color2"]) >= 0.12:
+        c = m["color2"]
+    return c, m.get("logo"), m.get("nick") or abbr
 
 
 def _img(url, cls: str) -> str:
@@ -416,28 +433,40 @@ def _spotlight(g: pd.DataFrame, view: pd.DataFrame, season: int, meta: dict) -> 
         st.caption("His season trend line appears here once he has two graded weeks.")
 
 
-def _team_card(g: pd.DataFrame, meta: dict) -> None:
+def _team_card(g: pd.DataFrame, meta: dict) -> int:
+    """Every offense that played, ranked by average grade. Returns the chart height."""
     import plotly.graph_objects as go
     _sec("Team report card", "average grade of each offense's graded players · click a team to filter the table")
     t = (g.groupby("team").agg(avg=("score", "mean"), n=("score", "size"))
-           .query("n >= 3").sort_values("avg", ascending=True).tail(16))
+           .sort_values("avg", ascending=True))
     if t.empty:
-        st.caption("Not enough graded players per team yet.")
-        return
-    colors = [_team(meta, tm)[0] for tm in t.index]
+        st.caption("No graded players yet.")
+        return 430
+    # Every team that played, not a top slice: showing only the best sixteen hid half the
+    # league. A team with fewer than three graded players is drawn faded rather than
+    # dropped, because its average is a thin sample, not a missing one.
+    colors = [_rgba(_team(meta, tm)[0], 1.0 if n >= 3 else 0.35) for tm, n in zip(t.index, t["n"])]
+    height = max(430, 24 * len(t) + 60)
+    league = float(t["avg"].mean())
     fig = go.Figure(go.Bar(
         x=t["avg"], y=t.index, orientation="h", marker=dict(color=colors, line=dict(width=0)),
         text=[f"{v:.0f}" for v in t["avg"]], textposition="outside", textfont=dict(color="#dfe1ea"),
         customdata=[[tm, n] for tm, n in zip(t.index, t["n"])],
         hovertemplate="<b>%{customdata[0]}</b><br>Avg grade %{x:.1f} across %{customdata[1]} players<extra></extra>"))
-    fig.update_layout(**_CHART, height=430, margin=dict(t=6, b=30, l=44, r=30), dragmode=False,
-                      clickmode="event+select", showlegend=False,
-                      xaxis=dict(**_AXIS, range=[0, 105], title=None), yaxis=dict(**_AXIS, title=None))
+    fig.add_shape(type="line", x0=league, x1=league, y0=-0.5, y1=len(t) - 0.5,
+                  line=dict(color="#5c6272", dash="dot"))
+    fig.add_annotation(x=league, y=len(t) - 0.5, text=f"league avg {league:.0f}", showarrow=False,
+                       yanchor="bottom", font=dict(color="#8a91a5", size=10))
+    fig.update_layout(**_CHART, height=height, margin=dict(t=18, b=30, l=44, r=30), dragmode=False,
+                      clickmode="event+select", showlegend=False, bargap=0.28,
+                      xaxis=dict(**_AXIS, range=[0, 105], title=None),
+                      yaxis={**_AXIS, "title": None, "tickfont": dict(size=10, color="#dfe1ea")})
     st.plotly_chart(fig, width="stretch", config=_CFG, on_select="rerun",
                     selection_mode="points", key=_K + "teams")
+    return height
 
 
-def _curve(view: pd.DataFrame) -> None:
+def _curve(view: pd.DataFrame, height: int = 430) -> None:
     import plotly.graph_objects as go
     _sec("Grade curve", "how the week's grades fell")
     letters = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F"]
@@ -445,7 +474,7 @@ def _curve(view: pd.DataFrame) -> None:
     fig = go.Figure(go.Bar(x=letters, y=counts.values, marker=dict(color=[_gc(l) for l in letters]),
                            text=counts.values, textposition="outside", textfont=dict(color="#dfe1ea"),
                            hovertemplate="%{x}: %{y} players<extra></extra>"))
-    fig.update_layout(**_CHART, height=430, margin=dict(t=6, b=30, l=30, r=10), showlegend=False,
+    fig.update_layout(**_CHART, height=height, margin=dict(t=18, b=30, l=30, r=10), showlegend=False,
                       xaxis=dict(**_AXIS, title=None), yaxis=dict(**_AXIS, title=None, showgrid=False,
                                                                   showticklabels=False))
     st.plotly_chart(fig, width="stretch", config=_CFG, key=_K + "curve")
@@ -629,9 +658,9 @@ def render() -> None:
 
     left, right = st.columns([1.3, 1], gap="large")
     with left:
-        _team_card(g, meta)
+        h = _team_card(g, meta)
     with right:
-        _curve(view)
+        _curve(view, h)          # same height, so the two charts end on the same line
 
     _table(view)
     st.divider()
