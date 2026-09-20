@@ -621,7 +621,13 @@ def run(dry_run: bool = True,
     ok, fails = nl.quality_gate(data, md)
 
     result = {"gate_passed": ok, "failures": fails, "dry_run": dry_run,
-              "configured": configured(), "posted": {}}
+              "configured": configured(), "posted": {},
+              # Both channels ride out with the result. The DraftKings block on 2026-09-20
+              # was invisible here, so a run that quietly dropped a section looked exactly
+              # like a clean one in the output a human actually reads.
+              "errors": data.get("errors") or [],
+              "degraded": data.get("degraded") or [],
+              "notes": data.get("gate_notes") or []}
     if not ok:
         result["action"] = "BLOCKED — nothing was sent"
         return result

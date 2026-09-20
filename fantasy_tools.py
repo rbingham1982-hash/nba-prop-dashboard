@@ -33,6 +33,20 @@ _cache: dict = {}
 _CACHE_TTL = 900   # seconds; slates and trending both move slowly enough
 
 
+class SourceBlocked(RuntimeError):
+    """
+    A source answered and refused us, as opposed to having nothing to say.
+
+    The distinction matters because both used to arrive here as an empty DataFrame.
+    DraftKings started returning 403 from the draftables endpoint on 2026-09-20, and the
+    September 20 issue went out with no DFS section and no error — the newsletter, the
+    gate and the dashboard all read the empty frame as "no slate posted yet", which is the
+    ordinary Tuesday-morning answer. A feed we are locked out of and a feed with nothing
+    on it look identical in the data and mean opposite things, so they have to be
+    different types by the time anything decides what to print.
+    """
+
+
 def _cached(key, fn):
     hit = _cache.get(key)
     if hit and time.time() - hit[0] < _CACHE_TTL:
@@ -50,8 +64,12 @@ def dk_draft_groups(sport: str = "MLB") -> list:
 
     def _go():
         r = requests.get(_DK_LOBBY.format(sport=sport.upper()), timeout=25, headers=_UA)
+        # An empty group list is a real answer — between seasons there are no slates. A
+        # non-200 is not an answer at all, and returning [] for it told every caller the
+        # season was over.
         if r.status_code != 200:
-            return []
+            raise SourceBlocked(f"DraftKings lobby returned HTTP {r.status_code} "
+                                f"for {sport.upper()}")
         gs = r.json().get("DraftGroups", []) or []
         return sorted(gs, key=lambda g: str(g.get("StartDateEst") or ""))
 
@@ -72,6 +90,13 @@ def dk_salaries(sport: str = "MLB", draft_group_id: int | None = None):
     def _go():
         groups = ([{"DraftGroupId": draft_group_id}] if draft_group_id
                   else dk_draft_groups(sport))
+        # Why the tally: "every group I asked refused me" and "the groups I asked are not
+        # populated yet" both ended this loop with an empty frame. The first is a broken
+        # integration and the second is the normal state of a slate hours before lock, so
+        # the loop has to remember which one it just lived through. A group that answers
+        # 200 with an empty draftables list is a genuine not-yet; only a transport error
+        # or a non-200 counts as a refusal.
+        answered, refusals = 0, []
         for g in groups:
             gid = g.get("DraftGroupId")
             if not gid:
@@ -79,10 +104,13 @@ def dk_salaries(sport: str = "MLB", draft_group_id: int | None = None):
             try:
                 r = requests.get(_DK_DRAFTABLES.format(gid=gid), timeout=25, headers=_UA)
                 if r.status_code != 200:
+                    refusals.append(f"{gid}: HTTP {r.status_code}")
                     continue
                 d = r.json().get("draftables", []) or []
-            except Exception:
+            except Exception as e:
+                refusals.append(f"{gid}: {type(e).__name__}")
                 continue
+            answered += 1
             if not d:
                 continue
             rows, seen = [], set()
@@ -103,6 +131,14 @@ def dk_salaries(sport: str = "MLB", draft_group_id: int | None = None):
                 })
             if rows:
                 return pd.DataFrame(rows)
+        # Nothing usable came back. If not one group managed to answer, we were locked
+        # out rather than early, and saying so is the difference between a caller printing
+        # "no slate posted yet" and a caller printing the truth.
+        if refusals and not answered:
+            head = "; ".join(refusals[:3])
+            more = f" (+{len(refusals) - 3} more)" if len(refusals) > 3 else ""
+            raise SourceBlocked(f"DraftKings refused every {sport.upper()} draft group "
+                                f"it was asked for — {head}{more}")
         return pd.DataFrame()
 
     return _cached(f"dk_sal_{sport}_{draft_group_id}", _go)

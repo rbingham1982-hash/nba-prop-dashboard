@@ -72,7 +72,12 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
     sections and says so.
     """
     import fantasy_tools as ft
-    out: dict = {"generated": datetime.datetime.now(), "errors": [], "in_season": False}
+    # Two channels, because they mean different things to the gate. `errors` is "something
+    # on our side is broken" and blocks publication. `degraded` is "a source we do not
+    # control would not talk to us" — the issue is still true and still worth sending, it
+    # is just missing a section, and that fact has to be printed rather than swallowed.
+    out: dict = {"generated": datetime.datetime.now(), "errors": [], "degraded": [],
+                 "in_season": False}
 
     # The week just played: every skill player graded. Only a COMPLETED week — every game
     # final, every team's stats posted — because by Friday the stats file already holds
@@ -113,10 +118,15 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["waivers"], out["waiver_stats"] = [], {}
         out["errors"].append(f"waiver board: {e}")
 
+    out["dfs_sport"] = dfs_sport
     try:
         slate = ft.dfs_slate(dfs_sport)
         out["dfs"] = [] if slate is None or slate.empty else slate.head(12).to_dict("records")
-        out["dfs_sport"] = dfs_sport
+    except ft.SourceBlocked as e:
+        # Being locked out of DraftKings costs one section. It is not a reason to withhold
+        # a report card, a waiver board and a committed NFL board that are all fine.
+        out["dfs"] = []
+        out["degraded"].append(f"{dfs_sport} DFS slate: {e}")
     except Exception as e:
         out["dfs"] = []
         out["errors"].append(f"dfs slate: {e}")
@@ -416,6 +426,14 @@ def render_markdown(data: dict) -> str:
             L.append("")
 
     dfs = data.get("dfs") or []
+    # Same reasoning as the Friday-lock note above: name the absence. A DFS section that
+    # is simply gone reads as an issue that forgot it, and the one thing a reader cannot
+    # tell from a missing table is whether anyone noticed.
+    if not dfs and any("DFS" in d for d in (data.get("degraded") or [])):
+        L += [f"## {data.get('dfs_sport','DFS')} value plays - not this issue", "",
+              "DraftKings is not serving its salary endpoint to us right now, so there is "
+              "no slate to project against. Nothing is wrong with the projections; we "
+              "cannot see the prices. The section returns when the feed does.", ""]
     if dfs:
         L += [f"## {data.get('dfs_sport','DFS')} value plays", "",
               "Projected points per $1,000 of salary. Cheap players rank high by "
@@ -430,6 +448,8 @@ def render_markdown(data: dict) -> str:
     L += ["---", "", f"*{_DISCLAIMER}*", ""]
     if data.get("errors"):
         L.append(f"<!-- sections unavailable this issue: {'; '.join(data['errors'])} -->")
+    if data.get("degraded"):
+        L.append(f"<!-- sources that refused us: {'; '.join(data['degraded'])} -->")
     return "\n".join(L)
 
 
@@ -578,7 +598,8 @@ def generate(nfl_limit: int = 16, dfs_sport: str = "MLB", out_dir: pathlib.Path 
     paths["social"].write_text(render_social(data), encoding="utf-8")
     return {"paths": {k: str(v) for k, v in paths.items()},
             "sections": {k: len(data.get(k) or []) for k in ("waivers", "dfs", "fades", "trending")},
-            "errors": data.get("errors", [])}
+            "errors": data.get("errors", []),
+            "degraded": data.get("degraded", [])}
 
 
 if __name__ == "__main__":
@@ -591,6 +612,8 @@ if __name__ == "__main__":
     print("sections:", res["sections"])
     if res["errors"]:
         print("errors:", res["errors"])
+    if res["degraded"]:
+        print("degraded:", res["degraded"])
 
 
 # ── Quality gate ────────────────────────────────────────────────────────────
@@ -639,6 +662,14 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
 
     if data.get("errors"):
         fails.append(f"a data source failed: {'; '.join(data['errors'])}")
+
+    # Deliberately NOT a failure. A refused third-party feed costs the issue one section;
+    # blocking on it would mean DraftKings can stop our newsletter by rate-limiting us,
+    # which hands an outside party a veto over a report built almost entirely from other
+    # sources. It is recorded, printed in the issue and returned by publish.run() instead.
+    if data.get("degraded"):
+        data.setdefault("gate_notes", []).extend(
+            f"published without {d}" for d in data["degraded"])
 
     waivers = data.get("waivers") or []
     dfs = data.get("dfs") or []
