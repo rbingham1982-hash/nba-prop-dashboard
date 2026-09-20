@@ -253,5 +253,258 @@
    }
   ],
   "td_added": "2026-09-10T22:04:29"
+ },
+ "2026-02": {
+  "season": 2026,
+  "week": 2,
+  "generated": "2026-09-20T07:16:06",
+  "ats": [
+   {
+    "game": "CAR @ ATL",
+    "away_team": "CAR",
+    "home_team": "ATL",
+    "spread_line": -2.5,
+    "pred_margin": 5.11,
+    "edge": 7.61,
+    "pick": "home",
+    "pick_label": "ATL +2.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "MIA @ SF",
+    "away_team": "MIA",
+    "home_team": "SF",
+    "spread_line": 13.5,
+    "pred_margin": 6.14,
+    "edge": -7.36,
+    "pick": "away",
+    "pick_label": "MIA +13.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "CIN @ HOU",
+    "away_team": "CIN",
+    "home_team": "HOU",
+    "spread_line": 2.5,
+    "pred_margin": 7.11,
+    "edge": 4.61,
+    "pick": "home",
+    "pick_label": "HOU -2.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "NO @ BAL",
+    "away_team": "NO",
+    "home_team": "BAL",
+    "spread_line": 8.5,
+    "pred_margin": 4.52,
+    "edge": -3.98,
+    "pick": "away",
+    "pick_label": "NO +8.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "JAX @ DEN",
+    "away_team": "JAX",
+    "home_team": "DEN",
+    "spread_line": 3.0,
+    "pred_margin": -0.04,
+    "edge": -3.04,
+    "pick": "away",
+    "pick_label": "JAX +3.0",
+    "outcome": null,
+    "result": null
+   }
+  ],
+  "parlay": [
+   {
+    "player": "Matthew Stafford",
+    "stat_type": "Passing TDs",
+    "line": 1.5,
+    "side": "over",
+    "american_odds": -198,
+    "model_prob": 0.7971,
+    "blended_prob": 0.637,
+    "implied_prob": 0.6204,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Darren Waller",
+    "stat_type": "Receptions",
+    "line": 2.5,
+    "side": "under",
+    "american_odds": -200,
+    "model_prob": 0.7013,
+    "blended_prob": 0.6304,
+    "implied_prob": 0.6231,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kyle Monangai",
+    "stat_type": "Receiving Yards",
+    "line": 10.5,
+    "side": "under",
+    "american_odds": -113,
+    "model_prob": 0.6797,
+    "blended_prob": 0.5169,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jaylen Warren",
+    "stat_type": "Rushing Yards",
+    "line": 43.5,
+    "side": "over",
+    "american_odds": -113,
+    "model_prob": 0.6781,
+    "blended_prob": 0.5167,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Lamar Jackson",
+    "stat_type": "Passing Yards",
+    "line": 213.5,
+    "side": "under",
+    "american_odds": -113,
+    "model_prob": 0.6437,
+    "blended_prob": 0.5135,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "td": [
+   {
+    "player": "Derrick Henry",
+    "game": "New Orleans Saints @ Baltimore Ravens",
+    "american_odds": -250,
+    "model_prob": 0.6093,
+    "fair_prob": 0.6753,
+    "blended_prob": 0.6691,
+    "edge": -0.0659,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Christian McCaffrey",
+    "game": "Miami Dolphins @ San Francisco 49ers",
+    "american_odds": -250,
+    "model_prob": 0.6094,
+    "fair_prob": 0.6753,
+    "blended_prob": 0.6691,
+    "edge": -0.0659,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Bijan Robinson",
+    "game": "Carolina Panthers @ Atlanta Falcons",
+    "american_odds": -200,
+    "model_prob": 0.4621,
+    "fair_prob": 0.6247,
+    "blended_prob": 0.6094,
+    "edge": -0.1626,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kenneth Walker III",
+    "game": "Indianapolis Colts @ Kansas City Chiefs",
+    "american_odds": -220,
+    "model_prob": 0.2442,
+    "fair_prob": 0.6467,
+    "blended_prob": 0.6089,
+    "edge": -0.4025,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kyren Williams",
+    "game": "New York Giants @ Los Angeles Rams",
+    "american_odds": -195,
+    "model_prob": 0.5132,
+    "fair_prob": 0.6188,
+    "blended_prob": 0.6088,
+    "edge": -0.1055,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Javonte Williams",
+    "game": "Washington Commanders @ Dallas Cowboys",
+    "american_odds": -180,
+    "model_prob": 0.5416,
+    "fair_prob": 0.5998,
+    "blended_prob": 0.5943,
+    "edge": -0.0581,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jonathan Taylor",
+    "game": "Indianapolis Colts @ Kansas City Chiefs",
+    "american_odds": -155,
+    "model_prob": 0.6802,
+    "fair_prob": 0.5635,
+    "blended_prob": 0.5744,
+    "edge": 0.1167,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Omarion Hampton",
+    "game": "Las Vegas Raiders @ Los Angeles Chargers",
+    "american_odds": -155,
+    "model_prob": 0.4345,
+    "fair_prob": 0.5635,
+    "blended_prob": 0.5514,
+    "edge": -0.129,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "David Montgomery",
+    "game": "Cincinnati Bengals @ Houston Texans",
+    "american_odds": -145,
+    "model_prob": 0.5596,
+    "fair_prob": 0.547,
+    "blended_prob": 0.5482,
+    "edge": 0.0126,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "D'Andre Swift",
+    "game": "Minnesota Vikings @ Chicago Bears",
+    "american_odds": -140,
+    "model_prob": 0.462,
+    "fair_prob": 0.5383,
+    "blended_prob": 0.5312,
+    "edge": -0.0763,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_price": {
+   "decimal": 15.12,
+   "american": 1412,
+   "model_prob": 0.16585,
+   "blended_prob": 0.05507,
+   "breakeven_prob": 0.06614
+  }
  }
 }
