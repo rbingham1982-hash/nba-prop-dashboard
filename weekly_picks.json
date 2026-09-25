@@ -268,8 +268,8 @@
     "edge": 7.61,
     "pick": "home",
     "pick_label": "ATL +2.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -31.0
    },
    {
     "game": "MIA @ SF",
@@ -280,8 +280,8 @@
     "edge": -7.36,
     "pick": "away",
     "pick_label": "MIA +13.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": 22.0
    },
    {
     "game": "CIN @ HOU",
@@ -292,8 +292,8 @@
     "edge": 4.61,
     "pick": "home",
     "pick_label": "HOU -2.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -14.0
    },
    {
     "game": "NO @ BAL",
@@ -304,8 +304,8 @@
     "edge": -3.98,
     "pick": "away",
     "pick_label": "NO +8.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": -7.0
    },
    {
     "game": "JAX @ DEN",
@@ -316,8 +316,8 @@
     "edge": -3.04,
     "pick": "away",
     "pick_label": "JAX +3.0",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": 7.0
    }
   ],
   "parlay": [
@@ -331,8 +331,8 @@
     "blended_prob": 0.637,
     "implied_prob": 0.6204,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 4.0
    },
    {
     "player": "Darren Waller",
@@ -344,8 +344,8 @@
     "blended_prob": 0.6304,
     "implied_prob": 0.6231,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Kyle Monangai",
@@ -357,8 +357,8 @@
     "blended_prob": 0.5169,
     "implied_prob": 0.5,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 11.0
    },
    {
     "player": "Jaylen Warren",
@@ -370,8 +370,8 @@
     "blended_prob": 0.5167,
     "implied_prob": 0.5,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 43.0
    },
    {
     "player": "Lamar Jackson",
@@ -383,8 +383,8 @@
     "blended_prob": 0.5135,
     "implied_prob": 0.5,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 235.0
    }
   ],
   "td": [
@@ -396,8 +396,8 @@
     "fair_prob": 0.6753,
     "blended_prob": 0.6691,
     "edge": -0.0659,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Christian McCaffrey",
@@ -407,8 +407,8 @@
     "fair_prob": 0.6753,
     "blended_prob": 0.6691,
     "edge": -0.0659,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Bijan Robinson",
@@ -418,8 +418,8 @@
     "fair_prob": 0.6247,
     "blended_prob": 0.6094,
     "edge": -0.1626,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Kenneth Walker III",
@@ -429,8 +429,8 @@
     "fair_prob": 0.6467,
     "blended_prob": 0.6089,
     "edge": -0.4025,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Kyren Williams",
@@ -440,8 +440,8 @@
     "fair_prob": 0.6188,
     "blended_prob": 0.6088,
     "edge": -0.1055,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Javonte Williams",
@@ -451,8 +451,8 @@
     "fair_prob": 0.5998,
     "blended_prob": 0.5943,
     "edge": -0.0581,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Jonathan Taylor",
@@ -462,8 +462,8 @@
     "fair_prob": 0.5635,
     "blended_prob": 0.5744,
     "edge": 0.1167,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Omarion Hampton",
@@ -473,8 +473,8 @@
     "fair_prob": 0.5635,
     "blended_prob": 0.5514,
     "edge": -0.129,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "David Montgomery",
@@ -484,8 +484,8 @@
     "fair_prob": 0.547,
     "blended_prob": 0.5482,
     "edge": 0.0126,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "D'Andre Swift",
@@ -495,8 +495,8 @@
     "fair_prob": 0.5383,
     "blended_prob": 0.5312,
     "edge": -0.0763,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    }
   ],
   "parlay_price": {
@@ -505,6 +505,260 @@
    "model_prob": 0.16585,
    "blended_prob": 0.05507,
    "breakeven_prob": 0.06614
+  },
+  "graded": true
+ },
+ "2026-03": {
+  "season": 2026,
+  "week": 3,
+  "generated": "2026-09-25T10:43:56",
+  "ats": [
+   {
+    "game": "CIN @ PIT",
+    "away_team": "CIN",
+    "home_team": "PIT",
+    "spread_line": -3.5,
+    "pred_margin": 3.37,
+    "edge": 6.87,
+    "pick": "home",
+    "pick_label": "PIT +3.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "KC @ MIA",
+    "away_team": "KC",
+    "home_team": "MIA",
+    "spread_line": -10.5,
+    "pred_margin": -4.42,
+    "edge": 6.08,
+    "pick": "home",
+    "pick_label": "MIA +10.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "PHI @ CHI",
+    "away_team": "PHI",
+    "home_team": "CHI",
+    "spread_line": -4.5,
+    "pred_margin": 1.52,
+    "edge": 6.02,
+    "pick": "home",
+    "pick_label": "CHI +4.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "TEN @ NYG",
+    "away_team": "TEN",
+    "home_team": "NYG",
+    "spread_line": 2.5,
+    "pred_margin": 6.07,
+    "edge": 3.57,
+    "pick": "home",
+    "pick_label": "NYG -2.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "NYJ @ DET",
+    "away_team": "NYJ",
+    "home_team": "DET",
+    "spread_line": 6.5,
+    "pred_margin": 9.92,
+    "edge": 3.42,
+    "pick": "home",
+    "pick_label": "DET -6.5",
+    "outcome": null,
+    "result": null
+   }
+  ],
+  "parlay": [
+   {
+    "player": "Malik Willis",
+    "stat_type": "Passing TDs",
+    "line": 0.5,
+    "side": "over",
+    "american_odds": -210,
+    "model_prob": 0.7147,
+    "blended_prob": 0.6401,
+    "implied_prob": 0.6324,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Justice Hill",
+    "stat_type": "Receptions",
+    "line": 2.5,
+    "side": "under",
+    "american_odds": -188,
+    "model_prob": 0.7409,
+    "blended_prob": 0.6227,
+    "implied_prob": 0.6104,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Chuba Hubbard",
+    "stat_type": "Receiving Yards",
+    "line": 15.5,
+    "side": "under",
+    "american_odds": -140,
+    "model_prob": 0.6503,
+    "blended_prob": 0.5578,
+    "implied_prob": 0.5482,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Woody Marks",
+    "stat_type": "Rushing Yards",
+    "line": 27.5,
+    "side": "over",
+    "american_odds": -114,
+    "model_prob": 0.6772,
+    "blended_prob": 0.5167,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "C.J. Stroud",
+    "stat_type": "Passing Yards",
+    "line": 243.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.672,
+    "blended_prob": 0.5162,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "td": [
+   {
+    "player": "Jahmyr Gibbs",
+    "game": "New York Jets @ Detroit Lions",
+    "american_odds": -350,
+    "model_prob": 0.6284,
+    "fair_prob": 0.7367,
+    "blended_prob": 0.7266,
+    "edge": -0.1083,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Christian McCaffrey",
+    "game": "Arizona Cardinals @ San Francisco 49ers",
+    "american_odds": -270,
+    "model_prob": 0.6094,
+    "fair_prob": 0.6912,
+    "blended_prob": 0.6835,
+    "edge": -0.0818,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Derrick Henry",
+    "game": "Baltimore Ravens @ Dallas Cowboys",
+    "american_odds": -250,
+    "model_prob": 0.6093,
+    "fair_prob": 0.6753,
+    "blended_prob": 0.6691,
+    "edge": -0.0659,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "James Cook",
+    "game": "Los Angeles Chargers @ Buffalo Bills",
+    "american_odds": -185,
+    "model_prob": 0.5462,
+    "fair_prob": 0.6063,
+    "blended_prob": 0.6007,
+    "edge": -0.0601,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kenneth Walker III",
+    "game": "Kansas City Chiefs @ Miami Dolphins",
+    "american_odds": -210,
+    "model_prob": 0.2442,
+    "fair_prob": 0.636,
+    "blended_prob": 0.5992,
+    "edge": -0.3919,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Javonte Williams",
+    "game": "Baltimore Ravens @ Dallas Cowboys",
+    "american_odds": -175,
+    "model_prob": 0.5416,
+    "fair_prob": 0.593,
+    "blended_prob": 0.5882,
+    "edge": -0.0514,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jonathan Taylor",
+    "game": "Houston Texans @ Indianapolis Colts",
+    "american_odds": -160,
+    "model_prob": 0.6802,
+    "fair_prob": 0.5713,
+    "blended_prob": 0.5815,
+    "edge": 0.1089,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "D'Andre Swift",
+    "game": "Philadelphia Eagles @ Chicago Bears",
+    "american_odds": -155,
+    "model_prob": 0.462,
+    "fair_prob": 0.5635,
+    "blended_prob": 0.5539,
+    "edge": -0.1014,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Josh Allen",
+    "game": "Los Angeles Chargers @ Buffalo Bills",
+    "american_odds": -140,
+    "model_prob": 0.5678,
+    "fair_prob": 0.5383,
+    "blended_prob": 0.5411,
+    "edge": 0.0294,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Amon-Ra St. Brown",
+    "game": "New York Jets @ Detroit Lions",
+    "american_odds": -125,
+    "model_prob": 0.4883,
+    "fair_prob": 0.5131,
+    "blended_prob": 0.5107,
+    "edge": -0.0248,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_price": {
+   "decimal": 13.661,
+   "american": 1266,
+   "model_prob": 0.15671,
+   "blended_prob": 0.0593,
+   "breakeven_prob": 0.0732
   }
  }
 }
