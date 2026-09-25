@@ -24,7 +24,7 @@
   },
   "venue": "Daikin Park",
   "pf": 102,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -51,7 +51,7 @@
   },
   "venue": "Coors Field",
   "pf": 140,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -78,7 +78,7 @@
   },
   "venue": "Yankee Stadium",
   "pf": 118,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -105,7 +105,7 @@
   },
   "venue": "Citizens Bank Park",
   "pf": 112,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -132,7 +132,7 @@
   },
   "venue": "Citizens Bank Park",
   "pf": 112,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -159,7 +159,7 @@
   },
   "venue": "Sutter Health Park",
   "pf": 120,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -186,7 +186,7 @@
   },
   "venue": "Sutter Health Park",
   "pf": 120,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -213,7 +213,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -240,7 +240,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -267,7 +267,7 @@
   },
   "venue": "Fenway Park",
   "pf": 108,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -294,7 +294,7 @@
   },
   "venue": "Coors Field",
   "pf": 140,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -321,7 +321,7 @@
   },
   "venue": "Yankee Stadium",
   "pf": 118,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -348,7 +348,7 @@
   },
   "venue": "Truist Park",
   "pf": 103,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -375,7 +375,7 @@
   },
   "venue": "Truist Park",
   "pf": 103,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -402,7 +402,7 @@
   },
   "venue": "T-Mobile Park",
   "pf": 90,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -429,7 +429,7 @@
   },
   "venue": "Coors Field",
   "pf": 140,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -456,7 +456,7 @@
   },
   "venue": "Coors Field",
   "pf": 140,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -483,7 +483,7 @@
   },
   "venue": "Kauffman Stadium",
   "pf": 88,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -510,7 +510,7 @@
   },
   "venue": "Coors Field",
   "pf": 140,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -537,7 +537,7 @@
   },
   "venue": "American Family Field",
   "pf": 105,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -564,7 +564,7 @@
   },
   "venue": "Yankee Stadium",
   "pf": 118,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -591,7 +591,7 @@
   },
   "venue": "Kauffman Stadium",
   "pf": 88,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -618,7 +618,7 @@
   },
   "venue": "Kauffman Stadium",
   "pf": 88,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -645,7 +645,7 @@
   },
   "venue": "Rogers Centre",
   "pf": 112,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -672,7 +672,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -699,7 +699,7 @@
   },
   "venue": "American Family Field",
   "pf": 105,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -726,7 +726,7 @@
   },
   "venue": "Sutter Health Park",
   "pf": 120,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -753,7 +753,7 @@
   },
   "venue": "Citizens Bank Park",
   "pf": 112,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -780,7 +780,7 @@
   },
   "venue": "T-Mobile Park",
   "pf": 90,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -807,7 +807,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -834,7 +834,7 @@
   },
   "venue": "Coors Field",
   "pf": 140,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -861,7 +861,7 @@
   },
   "venue": "Truist Park",
   "pf": 103,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -888,7 +888,7 @@
   },
   "venue": "Truist Park",
   "pf": 103,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -915,7 +915,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -942,7 +942,7 @@
   },
   "venue": "Fenway Park",
   "pf": 108,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -969,7 +969,7 @@
   },
   "venue": "Sutter Health Park",
   "pf": 120,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -996,7 +996,7 @@
   },
   "venue": "Sutter Health Park",
   "pf": 120,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1023,7 +1023,7 @@
   },
   "venue": "Kauffman Stadium",
   "pf": 88,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1050,7 +1050,7 @@
   },
   "venue": "Rogers Centre",
   "pf": 112,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1077,7 +1077,7 @@
   },
   "venue": "Rogers Centre",
   "pf": 112,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1104,7 +1104,7 @@
   },
   "venue": "Rogers Centre",
   "pf": 112,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -1131,7 +1131,7 @@
   },
   "venue": "T-Mobile Park",
   "pf": 90,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1158,7 +1158,7 @@
   },
   "venue": "Wrigley Field",
   "pf": 105,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1185,7 +1185,7 @@
   },
   "venue": "Truist Park",
   "pf": 103,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1212,7 +1212,7 @@
   },
   "venue": "Wrigley Field",
   "pf": 105,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1239,7 +1239,7 @@
   },
   "venue": "Truist Park",
   "pf": 103,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -1266,7 +1266,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1293,7 +1293,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1320,7 +1320,7 @@
   },
   "venue": "Chase Field",
   "pf": 110,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1347,7 +1347,7 @@
   },
   "venue": "Daikin Park",
   "pf": 102,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1374,7 +1374,7 @@
   },
   "venue": "Yankee Stadium",
   "pf": 118,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -1401,7 +1401,7 @@
   },
   "venue": "Yankee Stadium",
   "pf": 118,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1428,7 +1428,7 @@
   },
   "venue": "Sutter Health Park",
   "pf": 120,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -1455,7 +1455,7 @@
   },
   "venue": "Rogers Centre",
   "pf": 112,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1482,7 +1482,7 @@
   },
   "venue": "T-Mobile Park",
   "pf": 90,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1509,7 +1509,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1536,7 +1536,7 @@
   },
   "venue": "Angel Stadium",
   "pf": 99,
-  "outcome": null
+  "outcome": 1
  },
  {
   "date": "2026-07-19",
@@ -1563,7 +1563,7 @@
   },
   "venue": "Yankee Stadium",
   "pf": 118,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1590,7 +1590,7 @@
   },
   "venue": "Coors Field",
   "pf": 140,
-  "outcome": null
+  "outcome": 0
  },
  {
   "date": "2026-07-19",
@@ -1617,6 +1617,1572 @@
   },
   "venue": "Truist Park",
   "pf": 103,
+  "outcome": 0
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Kyle Schwarber",
+  "player_id": 656941,
+  "team": "PHI",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.3448,
+  "american_odds": 190,
+  "model": 0.6,
+  "blended": 0.434,
+  "edge": 0.255,
+  "k": 1.321,
+  "barrel_pct": 19.1,
+  "pitcher_barrel_pct": 10.9,
+  "slot": 2,
+  "factors": {
+   "air_pull": 1.253,
+   "pit_air": 1.22,
+   "hardhit": 1.079,
+   "platoon": 1.119,
+   "pa_f": 1.076
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Yordan Alvarez",
+  "player_id": 670541,
+  "team": "HOU",
+  "game": "MIA @ HOU",
+  "line": 0.5,
+  "market_implied": 0.3378,
+  "american_odds": 196,
+  "model": 0.219,
+  "blended": 0.296,
+  "edge": -0.119,
+  "k": 1.321,
+  "barrel_pct": 19.1,
+  "pitcher_barrel_pct": 5.3,
+  "slot": 2,
+  "factors": {
+   "air_pull": 1.243,
+   "pit_air": 0.955,
+   "hardhit": 1.081,
+   "platoon": 0.916,
+   "pa_f": 1.076
+  },
+  "venue": "Daikin Park",
+  "pf": 102,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Shohei Ohtani",
+  "player_id": 660271,
+  "team": "LAD",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.3333,
+  "american_odds": 200,
+  "model": 0.397,
+  "blended": 0.356,
+  "edge": 0.064,
+  "k": 1.321,
+  "barrel_pct": 16.9,
+  "pitcher_barrel_pct": 10.1,
+  "slot": 1,
+  "factors": {
+   "air_pull": 1.164,
+   "pit_air": 1.031,
+   "hardhit": 1.08,
+   "platoon": 0.821,
+   "pa_f": 1.099
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Ben Rice",
+  "player_id": 700250,
+  "team": "NYY",
+  "game": "PIT @ NYY",
+  "line": 0.5,
+  "market_implied": 0.303,
+  "american_odds": 230,
+  "model": 0.31,
+  "blended": 0.305,
+  "edge": 0.007,
+  "k": 1.321,
+  "barrel_pct": 15.4,
+  "pitcher_barrel_pct": 6.5,
+  "slot": 2,
+  "factors": {
+   "air_pull": 1.119,
+   "pit_air": 1.04,
+   "hardhit": 1.057,
+   "platoon": 1.3,
+   "pa_f": 1.076
+  },
+  "venue": "Yankee Stadium",
+  "pf": 118,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Trent Grisham",
+  "player_id": 663757,
+  "team": "NYY",
+  "game": "PIT @ NYY",
+  "line": 0.5,
+  "market_implied": 0.274,
+  "american_odds": 265,
+  "model": 0.181,
+  "blended": 0.241,
+  "edge": -0.093,
+  "k": 1.321,
+  "barrel_pct": 11.2,
+  "pitcher_barrel_pct": 6.5,
+  "slot": 1,
+  "factors": {
+   "air_pull": 1.115,
+   "pit_air": 1.04,
+   "hardhit": 1.053,
+   "platoon": 0.945,
+   "pa_f": 1.099
+  },
+  "venue": "Yankee Stadium",
+  "pf": 118,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Colson Montgomery",
+  "player_id": 695657,
+  "team": "CWS",
+  "game": "CWS @ TEX",
+  "line": 0.5,
+  "market_implied": 0.2632,
+  "american_odds": 280,
+  "model": 0.147,
+  "blended": 0.223,
+  "edge": -0.116,
+  "k": 1.321,
+  "barrel_pct": 13.7,
+  "pitcher_barrel_pct": 3.9,
+  "slot": 4,
+  "factors": {
+   "air_pull": 1.259,
+   "pit_air": 0.925,
+   "hardhit": 1.032,
+   "platoon": 1.3,
+   "pa_f": 1.026
+  },
+  "venue": "Globe Life Field",
+  "pf": 115,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Max Muncy",
+  "player_id": 571970,
+  "team": "LAD",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.2632,
+  "american_odds": 280,
+  "model": 0.363,
+  "blended": 0.298,
+  "edge": 0.1,
+  "k": 1.321,
+  "barrel_pct": 13.7,
+  "pitcher_barrel_pct": 10.1,
+  "slot": 4,
+  "factors": {
+   "air_pull": 1.199,
+   "pit_air": 1.031,
+   "hardhit": 1.032,
+   "platoon": 0.983,
+   "pa_f": 1.026
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Munetaka Murakami",
+  "player_id": 808959,
+  "team": "CWS",
+  "game": "CWS @ TEX",
+  "line": 0.5,
+  "market_implied": 0.2597,
+  "american_odds": 285,
+  "model": 0.145,
+  "blended": 0.22,
+  "edge": -0.115,
+  "k": 1.321,
+  "barrel_pct": 19.1,
+  "pitcher_barrel_pct": 3.9,
+  "slot": 2,
+  "factors": {
+   "air_pull": 1.28,
+   "pit_air": 0.925,
+   "hardhit": 1.106,
+   "platoon": 0.8,
+   "pa_f": 1.076
+  },
+  "venue": "Globe Life Field",
+  "pf": 115,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Pete Alonso",
+  "player_id": 624413,
+  "team": "BAL",
+  "game": "BAL @ BOS",
+  "line": 0.5,
+  "market_implied": 0.2564,
+  "american_odds": 290,
+  "model": 0.157,
+  "blended": 0.222,
+  "edge": -0.099,
+  "k": 1.321,
+  "barrel_pct": 12.4,
+  "pitcher_barrel_pct": null,
+  "slot": 2,
+  "factors": {
+   "air_pull": 1.053,
+   "pit_air": 1.0,
+   "hardhit": 1.087,
+   "platoon": 0.8,
+   "pa_f": 1.076
+  },
+  "venue": "Fenway Park",
+  "pf": 108,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Kyle Stowers",
+  "player_id": 669065,
+  "team": "MIA",
+  "game": "MIA @ HOU",
+  "line": 0.5,
+  "market_implied": 0.2439,
+  "american_odds": 310,
+  "model": 0.221,
+  "blended": 0.236,
+  "edge": -0.023,
+  "k": 1.321,
+  "barrel_pct": 11.3,
+  "pitcher_barrel_pct": 6.5,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.112,
+   "pit_air": 1.124,
+   "hardhit": 1.084,
+   "platoon": 1.225,
+   "pa_f": 1.0
+  },
+  "venue": "Daikin Park",
+  "pf": 102,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Esmerlyn Valdez",
+  "player_id": 699013,
+  "team": "PIT",
+  "game": "PIT @ NYY",
+  "line": 0.5,
+  "market_implied": 0.2439,
+  "american_odds": 310,
+  "model": 0.153,
+  "blended": 0.212,
+  "edge": -0.091,
+  "k": 1.321,
+  "barrel_pct": 28.6,
+  "pitcher_barrel_pct": 1.8,
+  "slot": 4,
+  "factors": {
+   "air_pull": 1.168,
+   "pit_air": 0.945,
+   "hardhit": 1.093,
+   "platoon": 1.3,
+   "pa_f": 1.026
+  },
+  "venue": "Yankee Stadium",
+  "pf": 118,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Miguel Vargas",
+  "player_id": 678246,
+  "team": "CWS",
+  "game": "CWS @ TEX",
+  "line": 0.5,
+  "market_implied": 0.2381,
+  "american_odds": 320,
+  "model": 0.144,
+  "blended": 0.205,
+  "edge": -0.094,
+  "k": 1.321,
+  "barrel_pct": 14.9,
+  "pitcher_barrel_pct": 3.9,
+  "slot": 3,
+  "factors": {
+   "air_pull": 1.207,
+   "pit_air": 0.925,
+   "hardhit": 1.045,
+   "platoon": 1.179,
+   "pa_f": 1.05
+  },
+  "venue": "Globe Life Field",
+  "pf": 115,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Heriberto Hernandez",
+  "player_id": 681715,
+  "team": "MIA",
+  "game": "MIA @ HOU",
+  "line": 0.5,
+  "market_implied": 0.2381,
+  "american_odds": 320,
+  "model": 0.173,
+  "blended": 0.215,
+  "edge": -0.065,
+  "k": 1.321,
+  "barrel_pct": 12.8,
+  "pitcher_barrel_pct": 6.5,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.158,
+   "pit_air": 1.124,
+   "hardhit": 1.071,
+   "platoon": 0.8,
+   "pa_f": 1.0
+  },
+  "venue": "Daikin Park",
+  "pf": 102,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Junior Caminero",
+  "player_id": 691406,
+  "team": "TB",
+  "game": "TB @ TOR",
+  "line": 0.5,
+  "market_implied": 0.2326,
+  "american_odds": 330,
+  "model": 0.383,
+  "blended": 0.285,
+  "edge": 0.15,
+  "k": 1.321,
+  "barrel_pct": 13.6,
+  "pitcher_barrel_pct": 12.7,
+  "slot": 3,
+  "factors": {
+   "air_pull": 0.955,
+   "pit_air": 1.053,
+   "hardhit": 1.072,
+   "platoon": 1.18,
+   "pa_f": 1.05
+  },
+  "venue": "Rogers Centre",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Matt Olson",
+  "player_id": 621566,
+  "team": "ATL",
+  "game": "SD @ ATL",
+  "line": 0.5,
+  "market_implied": 0.2326,
+  "american_odds": 330,
+  "model": 0.292,
+  "blended": 0.253,
+  "edge": 0.059,
+  "k": 1.321,
+  "barrel_pct": 14.0,
+  "pitcher_barrel_pct": 8.6,
+  "slot": 3,
+  "factors": {
+   "air_pull": 1.108,
+   "pit_air": 0.982,
+   "hardhit": 1.067,
+   "platoon": 1.154,
+   "pa_f": 1.05
+  },
+  "venue": "Truist Park",
+  "pf": 103,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Kody Clemens",
+  "player_id": 665019,
+  "team": "MIN",
+  "game": "MIN @ CLE",
+  "line": 0.5,
+  "market_implied": 0.2326,
+  "american_odds": 330,
+  "model": 0.273,
+  "blended": 0.247,
+  "edge": 0.04,
+  "k": 1.321,
+  "barrel_pct": 12.9,
+  "pitcher_barrel_pct": 7.9,
+  "slot": 3,
+  "factors": {
+   "air_pull": 1.142,
+   "pit_air": 0.967,
+   "hardhit": 1.042,
+   "platoon": 1.266,
+   "pa_f": 1.05
+  },
+  "venue": "Progressive Field",
+  "pf": 100,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Tyler O'Neill",
+  "player_id": 641933,
+  "team": "BAL",
+  "game": "BAL @ BOS",
+  "line": 0.5,
+  "market_implied": 0.2273,
+  "american_odds": 340,
+  "model": 0.18,
+  "blended": 0.211,
+  "edge": -0.047,
+  "k": 1.321,
+  "barrel_pct": 9.1,
+  "pitcher_barrel_pct": null,
+  "slot": 4,
+  "factors": {
+   "air_pull": 1.296,
+   "pit_air": 1.0,
+   "hardhit": 1.024,
+   "platoon": 1.144,
+   "pa_f": 1.026
+  },
+  "venue": "Fenway Park",
+  "pf": 108,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Brandon Lowe",
+  "player_id": 664040,
+  "team": "PIT",
+  "game": "PIT @ NYY",
+  "line": 0.5,
+  "market_implied": 0.2273,
+  "american_odds": 340,
+  "model": 0.044,
+  "blended": 0.163,
+  "edge": -0.183,
+  "k": 1.321,
+  "barrel_pct": 12.2,
+  "pitcher_barrel_pct": 1.8,
+  "slot": 2,
+  "factors": {
+   "air_pull": 1.195,
+   "pit_air": 0.945,
+   "hardhit": 1.042,
+   "platoon": 0.8,
+   "pa_f": 1.076
+  },
+  "venue": "Yankee Stadium",
+  "pf": 118,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Dalton Rushing",
+  "player_id": 687221,
+  "team": "LAD",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.2222,
+  "american_odds": 350,
+  "model": 0.315,
+  "blended": 0.255,
+  "edge": 0.093,
+  "k": 1.321,
+  "barrel_pct": 11.5,
+  "pitcher_barrel_pct": 10.1,
+  "slot": 9,
+  "factors": {
+   "air_pull": 1.035,
+   "pit_air": 1.031,
+   "hardhit": 1.026,
+   "platoon": 1.3,
+   "pa_f": 0.901
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Freddie Freeman",
+  "player_id": 518692,
+  "team": "LAD",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.2222,
+  "american_odds": 350,
+  "model": 0.257,
+  "blended": 0.234,
+  "edge": 0.035,
+  "k": 1.321,
+  "barrel_pct": 10.2,
+  "pitcher_barrel_pct": 10.1,
+  "slot": 3,
+  "factors": {
+   "air_pull": 0.994,
+   "pit_air": 1.031,
+   "hardhit": 1.033,
+   "platoon": 1.025,
+   "pa_f": 1.05
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Cody Bellinger",
+  "player_id": 641355,
+  "team": "NYY",
+  "game": "PIT @ NYY",
+  "line": 0.5,
+  "market_implied": 0.2222,
+  "american_odds": 350,
+  "model": 0.104,
+  "blended": 0.181,
+  "edge": -0.118,
+  "k": 1.321,
+  "barrel_pct": 6.4,
+  "pitcher_barrel_pct": 6.5,
+  "slot": 4,
+  "factors": {
+   "air_pull": 1.088,
+   "pit_air": 1.04,
+   "hardhit": 0.986,
+   "platoon": 1.07,
+   "pa_f": 1.026
+  },
+  "venue": "Yankee Stadium",
+  "pf": 118,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Manny Machado",
+  "player_id": 592518,
+  "team": "SD",
+  "game": "SD @ ATL",
+  "line": 0.5,
+  "market_implied": 0.2174,
+  "american_odds": 360,
+  "model": 0.19,
+  "blended": 0.208,
+  "edge": -0.027,
+  "k": 1.321,
+  "barrel_pct": 11.2,
+  "pitcher_barrel_pct": 6.8,
+  "slot": 3,
+  "factors": {
+   "air_pull": 1.054,
+   "pit_air": 0.909,
+   "hardhit": 1.032,
+   "platoon": 1.193,
+   "pa_f": 1.05
+  },
+  "venue": "Truist Park",
+  "pf": 103,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Jose Ramirez",
+  "player_id": 608070,
+  "team": "CLE",
+  "game": "MIN @ CLE",
+  "line": 0.5,
+  "market_implied": 0.2174,
+  "american_odds": 360,
+  "model": 0.158,
+  "blended": 0.197,
+  "edge": -0.059,
+  "k": 1.321,
+  "barrel_pct": 6.6,
+  "pitcher_barrel_pct": 9.6,
+  "slot": 2,
+  "factors": {
+   "air_pull": 1.136,
+   "pit_air": 1.058,
+   "hardhit": 1.032,
+   "platoon": 0.89,
+   "pa_f": 1.076
+  },
+  "venue": "Progressive Field",
+  "pf": 100,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Bryce Harper",
+  "player_id": 547180,
+  "team": "PHI",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.2174,
+  "american_odds": 360,
+  "model": 0.289,
+  "blended": 0.242,
+  "edge": 0.072,
+  "k": 1.321,
+  "barrel_pct": 11.2,
+  "pitcher_barrel_pct": 10.9,
+  "slot": 3,
+  "factors": {
+   "air_pull": 1.032,
+   "pit_air": 1.22,
+   "hardhit": 1.041,
+   "platoon": 0.8,
+   "pa_f": 1.05
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Jake Burger",
+  "player_id": 669394,
+  "team": "TEX",
+  "game": "CWS @ TEX",
+  "line": 0.5,
+  "market_implied": 0.2128,
+  "american_odds": 370,
+  "model": 0.249,
+  "blended": 0.225,
+  "edge": 0.036,
+  "k": 1.321,
+  "barrel_pct": 10.9,
+  "pitcher_barrel_pct": 8.7,
+  "slot": 3,
+  "factors": {
+   "air_pull": 1.049,
+   "pit_air": 0.904,
+   "hardhit": 1.047,
+   "platoon": 1.3,
+   "pa_f": 1.05
+  },
+  "venue": "Globe Life Field",
+  "pf": 115,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Wilyer Abreu",
+  "player_id": 677800,
+  "team": "BOS",
+  "game": "BAL @ BOS",
+  "line": 0.5,
+  "market_implied": 0.2,
+  "american_odds": 400,
+  "model": 0.177,
+  "blended": 0.192,
+  "edge": -0.023,
+  "k": 1.321,
+  "barrel_pct": 13.1,
+  "pitcher_barrel_pct": 8.2,
+  "slot": 3,
+  "factors": {
+   "air_pull": 1.128,
+   "pit_air": 0.894,
+   "hardhit": 1.022,
+   "platoon": 0.804,
+   "pa_f": 1.05
+  },
+  "venue": "Fenway Park",
+  "pf": 108,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Willson Contreras",
+  "player_id": 575929,
+  "team": "BOS",
+  "game": "BAL @ BOS",
+  "line": 0.5,
+  "market_implied": 0.2,
+  "american_odds": 400,
+  "model": 0.225,
+  "blended": 0.209,
+  "edge": 0.025,
+  "k": 1.321,
+  "barrel_pct": 14.7,
+  "pitcher_barrel_pct": 8.2,
+  "slot": 4,
+  "factors": {
+   "air_pull": 1.094,
+   "pit_air": 0.894,
+   "hardhit": 1.048,
+   "platoon": 0.965,
+   "pa_f": 1.026
+  },
+  "venue": "Fenway Park",
+  "pf": 108,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Kyle Manzardo",
+  "player_id": 700932,
+  "team": "CLE",
+  "game": "MIN @ CLE",
+  "line": 0.5,
+  "market_implied": 0.2,
+  "american_odds": 400,
+  "model": 0.254,
+  "blended": 0.219,
+  "edge": 0.054,
+  "k": 1.321,
+  "barrel_pct": 10.9,
+  "pitcher_barrel_pct": 9.6,
+  "slot": 6,
+  "factors": {
+   "air_pull": 1.112,
+   "pit_air": 1.058,
+   "hardhit": 1.006,
+   "platoon": 1.059,
+   "pa_f": 0.976
+  },
+  "venue": "Progressive Field",
+  "pf": 100,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Trea Turner",
+  "player_id": 607208,
+  "team": "PHI",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.2,
+  "american_odds": 400,
+  "model": 0.189,
+  "blended": 0.196,
+  "edge": -0.011,
+  "k": 1.321,
+  "barrel_pct": 6.8,
+  "pitcher_barrel_pct": 10.9,
+  "slot": 1,
+  "factors": {
+   "air_pull": 0.942,
+   "pit_air": 1.22,
+   "hardhit": 1.015,
+   "platoon": 0.869,
+   "pa_f": 1.099
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Andy Pages",
+  "player_id": 681624,
+  "team": "LAD",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.2,
+  "american_odds": 400,
+  "model": 0.219,
+  "blended": 0.207,
+  "edge": 0.019,
+  "k": 1.321,
+  "barrel_pct": 8.2,
+  "pitcher_barrel_pct": 10.1,
+  "slot": 2,
+  "factors": {
+   "air_pull": 0.984,
+   "pit_air": 1.031,
+   "hardhit": 1.03,
+   "platoon": 1.046,
+   "pa_f": 1.076
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Griffin Conine",
+  "player_id": 665052,
+  "team": "MIA",
+  "game": "MIA @ HOU",
+  "line": 0.5,
+  "market_implied": 0.2,
+  "american_odds": 400,
+  "model": 0.284,
+  "blended": 0.229,
+  "edge": 0.084,
+  "k": 1.321,
+  "barrel_pct": 16.7,
+  "pitcher_barrel_pct": 6.5,
+  "slot": null,
+  "factors": {
+   "air_pull": 0.944,
+   "pit_air": 1.124,
+   "hardhit": 1.09,
+   "platoon": 1.3,
+   "pa_f": 1.0
+  },
+  "venue": "Daikin Park",
+  "pf": 102,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Chase DeLauter",
+  "player_id": 800050,
+  "team": "CLE",
+  "game": "MIN @ CLE",
+  "line": 0.5,
+  "market_implied": 0.1923,
+  "american_odds": 420,
+  "model": 0.153,
+  "blended": 0.179,
+  "edge": -0.039,
+  "k": 1.321,
+  "barrel_pct": 6.6,
+  "pitcher_barrel_pct": 9.6,
+  "slot": 3,
+  "factors": {
+   "air_pull": 0.867,
+   "pit_air": 1.058,
+   "hardhit": 1.037,
+   "platoon": 1.147,
+   "pa_f": 1.05
+  },
+  "venue": "Progressive Field",
+  "pf": 100,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Teoscar Hernandez",
+  "player_id": 606192,
+  "team": "LAD",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.1923,
+  "american_odds": 420,
+  "model": 0.19,
+  "blended": 0.191,
+  "edge": -0.002,
+  "k": 1.321,
+  "barrel_pct": 9.7,
+  "pitcher_barrel_pct": 10.1,
+  "slot": 7,
+  "factors": {
+   "air_pull": 1.001,
+   "pit_air": 1.031,
+   "hardhit": 1.038,
+   "platoon": 0.835,
+   "pa_f": 0.95
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Spencer Jones",
+  "player_id": 682987,
+  "team": "NYY",
+  "game": "PIT @ NYY",
+  "line": 0.5,
+  "market_implied": 0.1923,
+  "american_odds": 420,
+  "model": 0.076,
+  "blended": 0.152,
+  "edge": -0.116,
+  "k": 1.321,
+  "barrel_pct": 5.1,
+  "pitcher_barrel_pct": 6.5,
+  "slot": 3,
+  "factors": {
+   "air_pull": 1.034,
+   "pit_air": 1.04,
+   "hardhit": 1.129,
+   "platoon": 0.868,
+   "pa_f": 1.05
+  },
+  "venue": "Yankee Stadium",
+  "pf": 118,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Paul Goldschmidt",
+  "player_id": 502671,
+  "team": "NYY",
+  "game": "PIT @ NYY",
+  "line": 0.5,
+  "market_implied": 0.1923,
+  "american_odds": 420,
+  "model": 0.13,
+  "blended": 0.17,
+  "edge": -0.062,
+  "k": 1.321,
+  "barrel_pct": 11.3,
+  "pitcher_barrel_pct": 6.5,
+  "slot": null,
+  "factors": {
+   "air_pull": 0.955,
+   "pit_air": 1.04,
+   "hardhit": 0.996,
+   "platoon": 0.889,
+   "pa_f": 1.0
+  },
+  "venue": "Yankee Stadium",
+  "pf": 118,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Kazuma Okamoto",
+  "player_id": 672960,
+  "team": "TOR",
+  "game": "TB @ TOR",
+  "line": 0.5,
+  "market_implied": 0.1887,
+  "american_odds": 430,
+  "model": 0.342,
+  "blended": 0.242,
+  "edge": 0.153,
+  "k": 1.321,
+  "barrel_pct": 14.0,
+  "pitcher_barrel_pct": 10.1,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.197,
+   "pit_air": 0.963,
+   "hardhit": 1.044,
+   "platoon": 1.009,
+   "pa_f": 1.0
+  },
+  "venue": "Rogers Centre",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Pete Crow-Armstrong",
+  "player_id": 691718,
+  "team": "CHC",
+  "game": "DET @ CHC",
+  "line": 0.5,
+  "market_implied": 0.1887,
+  "american_odds": 430,
+  "model": 0.194,
+  "blended": 0.191,
+  "edge": 0.005,
+  "k": 1.321,
+  "barrel_pct": 10.6,
+  "pitcher_barrel_pct": 7.3,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.192,
+   "pit_air": 0.984,
+   "hardhit": 1.051,
+   "platoon": 1.29,
+   "pa_f": 1.0
+  },
+  "venue": "Wrigley Field",
+  "pf": 105,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Michael Harris II",
+  "player_id": 671739,
+  "team": "ATL",
+  "game": "SD @ ATL",
+  "line": 0.5,
+  "market_implied": 0.1887,
+  "american_odds": 430,
+  "model": 0.199,
+  "blended": 0.192,
+  "edge": 0.01,
+  "k": 1.321,
+  "barrel_pct": 12.3,
+  "pitcher_barrel_pct": 8.6,
+  "slot": 4,
+  "factors": {
+   "air_pull": 0.93,
+   "pit_air": 0.982,
+   "hardhit": 1.067,
+   "platoon": 1.029,
+   "pa_f": 1.026
+  },
+  "venue": "Truist Park",
+  "pf": 103,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Fernando Tatis Jr.",
+  "player_id": 665487,
+  "team": "SD",
+  "game": "SD @ ATL",
+  "line": 0.5,
+  "market_implied": 0.1887,
+  "american_odds": 430,
+  "model": 0.175,
+  "blended": 0.184,
+  "edge": -0.014,
+  "k": 1.321,
+  "barrel_pct": 11.3,
+  "pitcher_barrel_pct": 6.8,
+  "slot": 1,
+  "factors": {
+   "air_pull": 0.799,
+   "pit_air": 0.909,
+   "hardhit": 1.081,
+   "platoon": 1.3,
+   "pa_f": 1.099
+  },
+  "venue": "Truist Park",
+  "pf": 103,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Royce Lewis",
+  "player_id": 668904,
+  "team": "MIN",
+  "game": "MIN @ CLE",
+  "line": 0.5,
+  "market_implied": 0.1887,
+  "american_odds": 430,
+  "model": 0.213,
+  "blended": 0.197,
+  "edge": 0.024,
+  "k": 1.321,
+  "barrel_pct": 12.7,
+  "pitcher_barrel_pct": 7.9,
+  "slot": 5,
+  "factors": {
+   "air_pull": 1.143,
+   "pit_air": 0.967,
+   "hardhit": 1.017,
+   "platoon": 1.042,
+   "pa_f": 1.0
+  },
+  "venue": "Progressive Field",
+  "pf": 100,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Christian Walker",
+  "player_id": 572233,
+  "team": "HOU",
+  "game": "MIA @ HOU",
+  "line": 0.5,
+  "market_implied": 0.1887,
+  "american_odds": 430,
+  "model": 0.122,
+  "blended": 0.165,
+  "edge": -0.067,
+  "k": 1.321,
+  "barrel_pct": 9.8,
+  "pitcher_barrel_pct": 5.3,
+  "slot": 6,
+  "factors": {
+   "air_pull": 1.052,
+   "pit_air": 0.955,
+   "hardhit": 1.021,
+   "platoon": 1.3,
+   "pa_f": 0.976
+  },
+  "venue": "Daikin Park",
+  "pf": 102,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Riley Greene",
+  "player_id": 682985,
+  "team": "DET",
+  "game": "DET @ CHC",
+  "line": 0.5,
+  "market_implied": 0.1852,
+  "american_odds": 440,
+  "model": 0.298,
+  "blended": 0.225,
+  "edge": 0.113,
+  "k": 1.321,
+  "barrel_pct": 14.3,
+  "pitcher_barrel_pct": 10.0,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.113,
+   "pit_air": 1.0,
+   "hardhit": 1.068,
+   "platoon": 0.972,
+   "pa_f": 1.0
+  },
+  "venue": "Wrigley Field",
+  "pf": 105,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Wyatt Langford",
+  "player_id": 694671,
+  "team": "TEX",
+  "game": "CWS @ TEX",
+  "line": 0.5,
+  "market_implied": 0.1818,
+  "american_odds": 450,
+  "model": 0.193,
+  "blended": 0.186,
+  "edge": 0.011,
+  "k": 1.321,
+  "barrel_pct": 8.4,
+  "pitcher_barrel_pct": 8.7,
+  "slot": 1,
+  "factors": {
+   "air_pull": 1.033,
+   "pit_air": 0.904,
+   "hardhit": 0.988,
+   "platoon": 1.3,
+   "pa_f": 1.099
+  },
+  "venue": "Globe Life Field",
+  "pf": 115,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Drake Baldwin",
+  "player_id": 686948,
+  "team": "ATL",
+  "game": "SD @ ATL",
+  "line": 0.5,
+  "market_implied": 0.1818,
+  "american_odds": 450,
+  "model": 0.21,
+  "blended": 0.192,
+  "edge": 0.028,
+  "k": 1.321,
+  "barrel_pct": 15.4,
+  "pitcher_barrel_pct": 8.6,
+  "slot": 1,
+  "factors": {
+   "air_pull": 0.878,
+   "pit_air": 0.982,
+   "hardhit": 1.069,
+   "platoon": 0.864,
+   "pa_f": 1.099
+  },
+  "venue": "Truist Park",
+  "pf": 103,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Josh Bell",
+  "player_id": 605137,
+  "team": "MIN",
+  "game": "MIN @ CLE",
+  "line": 0.5,
+  "market_implied": 0.1818,
+  "american_odds": 450,
+  "model": 0.156,
+  "blended": 0.173,
+  "edge": -0.026,
+  "k": 1.321,
+  "barrel_pct": 10.1,
+  "pitcher_barrel_pct": 7.9,
+  "slot": 4,
+  "factors": {
+   "air_pull": 1.004,
+   "pit_air": 0.967,
+   "hardhit": 1.027,
+   "platoon": 1.021,
+   "pa_f": 1.026
+  },
+  "venue": "Progressive Field",
+  "pf": 100,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Kyle Tucker",
+  "player_id": 663656,
+  "team": "LAD",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.1818,
+  "american_odds": 450,
+  "model": 0.142,
+  "blended": 0.168,
+  "edge": -0.04,
+  "k": 1.321,
+  "barrel_pct": 5.6,
+  "pitcher_barrel_pct": 10.1,
+  "slot": 6,
+  "factors": {
+   "air_pull": 1.097,
+   "pit_air": 1.031,
+   "hardhit": 0.996,
+   "platoon": 0.967,
+   "pa_f": 0.976
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Alec Bohm",
+  "player_id": 664761,
+  "team": "PHI",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.1754,
+  "american_odds": 470,
+  "model": 0.181,
+  "blended": 0.177,
+  "edge": 0.006,
+  "k": 1.321,
+  "barrel_pct": 5.3,
+  "pitcher_barrel_pct": 10.9,
+  "slot": 4,
+  "factors": {
+   "air_pull": 0.822,
+   "pit_air": 1.22,
+   "hardhit": 1.022,
+   "platoon": 1.3,
+   "pa_f": 1.026
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Derek Hill",
+  "player_id": 656537,
+  "team": "PHI",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.1754,
+  "american_odds": 470,
+  "model": 0.387,
+  "blended": 0.249,
+  "edge": 0.212,
+  "k": 1.321,
+  "barrel_pct": 11.9,
+  "pitcher_barrel_pct": 10.9,
+  "slot": 6,
+  "factors": {
+   "air_pull": 0.986,
+   "pit_air": 1.22,
+   "hardhit": 0.976,
+   "platoon": 1.3,
+   "pa_f": 0.976
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Brandon Nimmo",
+  "player_id": 607043,
+  "team": "TEX",
+  "game": "CWS @ TEX",
+  "line": 0.5,
+  "market_implied": 0.1724,
+  "american_odds": 480,
+  "model": 0.175,
+  "blended": 0.173,
+  "edge": 0.003,
+  "k": 1.321,
+  "barrel_pct": 12.5,
+  "pitcher_barrel_pct": 8.7,
+  "slot": 4,
+  "factors": {
+   "air_pull": 0.94,
+   "pit_air": 0.904,
+   "hardhit": 1.078,
+   "platoon": 0.846,
+   "pa_f": 1.026
+  },
+  "venue": "Globe Life Field",
+  "pf": 115,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Seiya Suzuki",
+  "player_id": 673548,
+  "team": "CHC",
+  "game": "DET @ CHC",
+  "line": 0.5,
+  "market_implied": 0.1724,
+  "american_odds": 480,
+  "model": 0.135,
+  "blended": 0.159,
+  "edge": -0.037,
+  "k": 1.321,
+  "barrel_pct": 9.6,
+  "pitcher_barrel_pct": 7.3,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.056,
+   "pit_air": 0.984,
+   "hardhit": 1.015,
+   "platoon": 1.121,
+   "pa_f": 1.0
+  },
+  "venue": "Wrigley Field",
+  "pf": 105,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Spencer Torkelson",
+  "player_id": 679529,
+  "team": "DET",
+  "game": "DET @ CHC",
+  "line": 0.5,
+  "market_implied": 0.1724,
+  "american_odds": 480,
+  "model": 0.352,
+  "blended": 0.235,
+  "edge": 0.18,
+  "k": 1.321,
+  "barrel_pct": 14.4,
+  "pitcher_barrel_pct": 10.0,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.235,
+   "pit_air": 1.0,
+   "hardhit": 1.022,
+   "platoon": 1.115,
+   "pa_f": 1.0
+  },
+  "venue": "Wrigley Field",
+  "pf": 105,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Austin Riley",
+  "player_id": 663586,
+  "team": "ATL",
+  "game": "SD @ ATL",
+  "line": 0.5,
+  "market_implied": 0.1724,
+  "american_odds": 480,
+  "model": 0.188,
+  "blended": 0.178,
+  "edge": 0.016,
+  "k": 1.321,
+  "barrel_pct": 11.4,
+  "pitcher_barrel_pct": 8.6,
+  "slot": 5,
+  "factors": {
+   "air_pull": 1.096,
+   "pit_air": 0.982,
+   "hardhit": 1.028,
+   "platoon": 0.939,
+   "pa_f": 1.0
+  },
+  "venue": "Truist Park",
+  "pf": 103,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Trevor Larnach",
+  "player_id": 663616,
+  "team": "MIN",
+  "game": "MIN @ CLE",
+  "line": 0.5,
+  "market_implied": 0.1724,
+  "american_odds": 480,
+  "model": 0.118,
+  "blended": 0.153,
+  "edge": -0.054,
+  "k": 1.321,
+  "barrel_pct": 7.0,
+  "pitcher_barrel_pct": 7.9,
+  "slot": 1,
+  "factors": {
+   "air_pull": 0.963,
+   "pit_air": 0.967,
+   "hardhit": 0.972,
+   "platoon": 1.115,
+   "pa_f": 1.099
+  },
+  "venue": "Progressive Field",
+  "pf": 100,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Mookie Betts",
+  "player_id": 605141,
+  "team": "LAD",
+  "game": "LAD @ PHI",
+  "line": 0.5,
+  "market_implied": 0.1724,
+  "american_odds": 480,
+  "model": 0.286,
+  "blended": 0.212,
+  "edge": 0.114,
+  "k": 1.321,
+  "barrel_pct": 8.5,
+  "pitcher_barrel_pct": 10.1,
+  "slot": 5,
+  "factors": {
+   "air_pull": 1.158,
+   "pit_air": 1.031,
+   "hardhit": 0.998,
+   "platoon": 1.3,
+   "pa_f": 1.0
+  },
+  "venue": "Citizens Bank Park",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Marcell Ozuna",
+  "player_id": 542303,
+  "team": "PIT",
+  "game": "PIT @ NYY",
+  "line": 0.5,
+  "market_implied": 0.1724,
+  "american_odds": 480,
+  "model": 0.032,
+  "blended": 0.123,
+  "edge": -0.14,
+  "k": 1.321,
+  "barrel_pct": 8.7,
+  "pitcher_barrel_pct": 1.8,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.056,
+   "pit_air": 0.945,
+   "hardhit": 0.998,
+   "platoon": 1.034,
+   "pa_f": 1.0
+  },
+  "venue": "Yankee Stadium",
+  "pf": 118,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "George Springer",
+  "player_id": 543807,
+  "team": "TOR",
+  "game": "TB @ TOR",
+  "line": 0.5,
+  "market_implied": 0.1667,
+  "american_odds": 500,
+  "model": 0.178,
+  "blended": 0.171,
+  "edge": 0.011,
+  "k": 1.321,
+  "barrel_pct": 8.0,
+  "pitcher_barrel_pct": 10.1,
+  "slot": null,
+  "factors": {
+   "air_pull": 1.026,
+   "pit_air": 0.963,
+   "hardhit": 1.01,
+   "platoon": 1.0,
+   "pa_f": 1.0
+  },
+  "venue": "Rogers Centre",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Daulton Varsho",
+  "player_id": 662139,
+  "team": "TOR",
+  "game": "TB @ TOR",
+  "line": 0.5,
+  "market_implied": 0.1667,
+  "american_odds": 500,
+  "model": 0.152,
+  "blended": 0.162,
+  "edge": -0.015,
+  "k": 1.321,
+  "barrel_pct": 6.8,
+  "pitcher_barrel_pct": 10.1,
+  "slot": null,
+  "factors": {
+   "air_pull": 0.959,
+   "pit_air": 0.963,
+   "hardhit": 0.996,
+   "platoon": 1.07,
+   "pa_f": 1.0
+  },
+  "venue": "Rogers Centre",
+  "pf": 112,
+  "outcome": null
+ },
+ {
+  "date": "2026-07-22",
+  "player": "Justin Foscue",
+  "player_id": 679822,
+  "team": "TEX",
+  "game": "CWS @ TEX",
+  "line": 0.5,
+  "market_implied": 0.1667,
+  "american_odds": 500,
+  "model": 0.259,
+  "blended": 0.199,
+  "edge": 0.092,
+  "k": 1.321,
+  "barrel_pct": 11.6,
+  "pitcher_barrel_pct": 8.7,
+  "slot": 2,
+  "factors": {
+   "air_pull": 1.032,
+   "pit_air": 0.904,
+   "hardhit": 1.019,
+   "platoon": 1.3,
+   "pa_f": 1.076
+  },
+  "venue": "Globe Life Field",
+  "pf": 115,
   "outcome": null
  }
 ]
