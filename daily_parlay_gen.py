@@ -406,7 +406,7 @@ def nfl_hit_rate(player_name, stat_type, line, odds_type="standard", implied=-1.
                                teams=ctx["teams"], priors=ctx["priors"], vol=ctx["vol"],
                                idx=ctx["idx"], dcache=ctx["dcache"], board=ctx["board"],
                                rates=ctx["rates"], cvcache=ctx["cvcache"],
-                               depth=ctx.get("depth"))
+                               depth=ctx.get("depth"), injuries=ctx.get("injuries"))
     except Exception:
         return None, 0
     if not s:
@@ -439,7 +439,7 @@ def nfl_role_flags(player_name, stat_type, line) -> list:
                                teams=ctx["teams"], priors=ctx["priors"], vol=ctx["vol"],
                                idx=ctx["idx"], dcache=ctx["dcache"], board=ctx["board"],
                                rates=ctx["rates"], cvcache=ctx["cvcache"],
-                               depth=ctx.get("depth"))
+                               depth=ctx.get("depth"), injuries=ctx.get("injuries"))
     except Exception:
         return []
     if not s:
@@ -449,6 +449,11 @@ def nfl_role_flags(player_name, stat_type, line) -> list:
         out.append("rookie, cohort projection")
     if s.get("changed_team"):
         out.append(f"new team ({s.get('team_prev')}→{s.get('team_now')})")
+    st = s.get("injury_status")
+    if st:
+        # Ruled-out players never reach a board at all, so anything flagged here is a
+        # designation the projection was discounted for rather than dropped on.
+        out.append(f"listed {str(st).lower()}")
     f = s.get("depth_factor")
     if f is not None and abs(float(f) - 1.0) >= 0.2:
         out.append(f"depth {s.get('depth_now')}, usage ×{float(f):.2f}")
