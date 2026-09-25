@@ -244,8 +244,17 @@ def _load() -> dict:
 
 
 def _save(data: dict) -> None:
+    # Compact, not pretty-printed. At 39k parlays and 106k legs the indentation was a third
+    # of the file — 66 MB against 43 MB — and GitHub hard-rejects a push over 100 MB, which
+    # this was roughly a month of MLB and WNBA slates away from hitting. Nothing reads this
+    # by eye at that size, and the whole file is re-serialised on every save, so the bytes
+    # cost a daily write and a daily parse as well as the push.
+    #
+    # This only buys time. The file still grows without bound and still gets rewritten
+    # whole; rotating it per season is the actual fix.
     global _CACHE, _CACHE_MTIME
-    LOG_PATH.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+    LOG_PATH.write_text(json.dumps(data, separators=(",", ":"), default=str),
+                        encoding="utf-8")
     _CACHE = data
     try:
         _CACHE_MTIME = LOG_PATH.stat().st_mtime
