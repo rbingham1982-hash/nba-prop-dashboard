@@ -17,8 +17,8 @@ So the ledger records, per game:
 A model can then be scored against `closing_home_prob` on games it predicted BEFORE
 that close, which is the only comparison that answers "is there edge".
 
-Deliberately a separate file from parlay_log.json: that one is already 37 MB, is rewritten
-whole on every save, and has a different lifecycle.
+Deliberately separate from the parlay log: that one outgrew a single file — 66 MB before
+it was compacted and sharded per sport and season — and has a different lifecycle.
 """
 from __future__ import annotations
 

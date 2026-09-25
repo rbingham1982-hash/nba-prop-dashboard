@@ -1,7 +1,9 @@
 """
 parlay_tracker.py — Persistent parlay logging, outcome resolution, and model calibration.
 
-Log lives at parlay_log.json next to this file.
+Log lives beside this file, one parlay_log-<SPORT>-<YEAR>.json per sport per season.
+_load() merges them into the single dict every caller expects; _save() writes back
+only the shards whose contents changed.
 Outcomes are resolved automatically via the NBA API (playergamelog) and MLB Stats API.
 Calibration factors are derived from resolved legs once CAL_MIN_SAMPLES is reached per stat.
 """
@@ -17,7 +19,33 @@ from pathlib import Path
 
 import pandas as pd
 
+# The legacy single file. Still read when present so an older working copy keeps working,
+# and removed by the first _save() once its contents have been written into shards.
 LOG_PATH = Path(__file__).parent / "parlay_log.json"
+
+# Rotation. The log is one file per sport per season, because a single file grew to 66 MB
+# and GitHub hard-rejects a push over 100 MB — and because the whole file is re-serialised
+# on every save, so a daily MLB run was rewriting every WNBA parlay ever logged.
+#
+# Sport and calendar year, not "season": a season is a fuzzy, sport-specific span that
+# crosses New Year for three of the four leagues here, and the key only has to bound file
+# size, not model a calendar. Splitting today gives MLB 26 MB, WNBA 14 MB, NFL 1.6 MB and
+# NBA 0.8 MB, each bounded by one league-year of slates rather than growing forever.
+#
+# If the daily write is still the pain point, adding month to the key is a one-line change
+# here — the loader discovers whatever shards exist and does not care how they are keyed.
+_SHARD_DIR = Path(__file__).parent
+_SHARD_GLOB = "parlay_log-*.json"
+
+
+def _shard_key(parlay: dict) -> str:
+    sport = str(parlay.get("sport") or "unknown").upper()
+    year = str(parlay.get("generated_at") or "")[:4] or "undated"
+    return f"{sport}-{year}"
+
+
+def _shard_path(key: str) -> Path:
+    return _SHARD_DIR / f"parlay_log-{key}.json"
 
 # Which model produced a parlay's predicted_prob. Bump this whenever a change alters
 # what predicted_prob *means*, so calibration stops grading a model that no longer
@@ -221,25 +249,67 @@ def _mlb_derived_batting(stat_type: str, b: dict) -> float | None:
 
 _CACHE: dict | None = None
 _CACHE_MTIME: float = 0.0
+# Serialised form of each shard as it currently sits on disk, so _save can write only the
+# shards whose contents actually changed. Keyed by shard key.
+_SHARD_TEXT: dict = {}
+
+
+def _sources() -> list:
+    """Every file the log currently lives in, legacy monolith first."""
+    files = [LOG_PATH] if LOG_PATH.exists() else []
+    return files + sorted(_SHARD_DIR.glob(_SHARD_GLOB))
+
+
+def _signature() -> float:
+    """Cheap change-detector across every source file, standing in for one mtime."""
+    total = 0.0
+    for f in _sources():
+        try:
+            total += f.stat().st_mtime
+        except Exception:
+            pass
+    return total
 
 
 def _load() -> dict:
-    global _CACHE, _CACHE_MTIME
-    try:
-        mtime = LOG_PATH.stat().st_mtime
-    except Exception:
-        mtime = 0.0
-    if _CACHE is not None and mtime == _CACHE_MTIME:
+    """
+    Every parlay across every shard, in one dict shaped exactly as the single file was.
+
+    Callers mutate what they get back and hand it to _save, which is why the merge has to
+    be lossless and ordered: roughly sixty call sites index into this list and none of them
+    know that sharding happened.
+    """
+    global _CACHE, _CACHE_MTIME, _SHARD_TEXT
+    sig = _signature()
+    if _CACHE is not None and sig == _CACHE_MTIME:
         return _CACHE
-    if LOG_PATH.exists():
+
+    # Keyed by parlay id so a legacy file left beside already-written shards cannot
+    # duplicate a parlay. Shards are read second and win, because they are what _save
+    # writes: if the two ever disagree, the shard is the newer statement.
+    merged: dict = {}
+    unkeyed: list = []
+    _SHARD_TEXT = {}
+    for f in _sources():
         try:
-            _CACHE = json.loads(LOG_PATH.read_text(encoding="utf-8"))
-            _CACHE_MTIME = mtime
-            return _CACHE
+            raw = f.read_text(encoding="utf-8")
+            block = json.loads(raw)
         except Exception:
-            pass
-    _CACHE = {"version": 1, "parlays": []}
-    _CACHE_MTIME = 0.0
+            continue
+        if f != LOG_PATH:
+            _SHARD_TEXT[f.name[len("parlay_log-"):-len(".json")]] = raw
+        for parlay in (block.get("parlays") or []):
+            pid = parlay.get("id")
+            if pid is None:
+                unkeyed.append(parlay)
+            else:
+                merged[pid] = parlay
+
+    parlays = list(merged.values()) + unkeyed
+    # Chronological, because the single file was and some readers slice by position.
+    parlays.sort(key=lambda p: str(p.get("generated_at") or ""))
+    _CACHE = {"version": 1, "parlays": parlays}
+    _CACHE_MTIME = sig
     return _CACHE
 
 
@@ -252,14 +322,32 @@ def _save(data: dict) -> None:
     #
     # This only buys time. The file still grows without bound and still gets rewritten
     # whole; rotating it per season is the actual fix.
-    global _CACHE, _CACHE_MTIME
-    LOG_PATH.write_text(json.dumps(data, separators=(",", ":"), default=str),
-                        encoding="utf-8")
+    global _CACHE, _CACHE_MTIME, _SHARD_TEXT
+    buckets: dict = {}
+    for parlay in (data.get("parlays") or []):
+        buckets.setdefault(_shard_key(parlay), []).append(parlay)
+
+    # Only the shards whose contents changed get written. That is the point of rotating:
+    # resolving a day of MLB legs should not rewrite every WNBA parlay ever logged, and on
+    # a normal run exactly one shard differs.
+    for key, rows in buckets.items():
+        text = json.dumps({"version": 1, "parlays": rows},
+                          separators=(",", ":"), default=str)
+        if _SHARD_TEXT.get(key) == text:
+            continue
+        _shard_path(key).write_text(text, encoding="utf-8")
+        _SHARD_TEXT[key] = text
+
+    # The monolith is retired only once its parlays are safely in shards, which is exactly
+    # here: everything _load merged has just been written back out under a shard key.
+    if LOG_PATH.exists():
+        try:
+            LOG_PATH.unlink()
+        except Exception:
+            pass
+
     _CACHE = data
-    try:
-        _CACHE_MTIME = LOG_PATH.stat().st_mtime
-    except Exception:
-        _CACHE_MTIME = 0.0
+    _CACHE_MTIME = _signature()
 
 
 def _parlay_id(parlay: dict, sport: str, sportsbook: str) -> str:

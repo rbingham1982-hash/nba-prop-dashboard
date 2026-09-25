@@ -36,8 +36,13 @@ def _abbr_variants(abbr):
     return out
 
 # ── Load log ───────────────────────────────────────────────────────────────────
-with open("parlay_log.json", encoding="utf-8") as f:
-    data = json.load(f)
+# Through parlay_tracker rather than opening the file, because the log is no longer one
+# file: it is sharded per sport and season, and a script that read parlay_log.json would
+# now find nothing, while one that wrote it would resurrect a monolith the loader then
+# merges back in beside the shards.
+import parlay_tracker as _pt
+
+data = _pt._load()
 parlays = data.get("parlays", [])
 
 mlb_unresolved = [
@@ -294,6 +299,6 @@ for n in sorted(by_n):
     print(f"    {n}-leg: {h}/{total}  ({h/total*100:.0f}% hit rate)")
 
 # ── Save ───────────────────────────────────────────────────────────────────────
-with open("parlay_log.json", "w", encoding="utf-8") as f:
-    json.dump(data, f, indent=2, ensure_ascii=False)
+# Writes only the shards this run actually changed, which for an MLB repair is the MLB one.
+_pt._save(data)
 print(f"\nSaved.")
