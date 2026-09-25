@@ -426,6 +426,103 @@ def _td_pool() -> list:
     return out
 
 
+# ── the wind board ─────────────────────────────────────────────────────────
+#
+# The only relationship this project has found that survived an out-of-sample test, and
+# it is in totals rather than spreads.
+#
+# Forecast wind predicts how far a game lands under its own closing total: slope -0.389
+# points per mph, SE 0.110, p=0.0004 over 736 outdoor games 2022-2025, and it replicated
+# on a clean holdout (2022-23 slope -0.401, 2024-25 slope -0.357, the holdout significant
+# on its own at p=0.021). It survives controlling for week and for the level of the total,
+# neither of which is significant beside it.
+#
+# The mechanism is legible, which is most of why it is believable. Wind suppresses scoring
+# (corr -0.159 with the actual total) and the market does move the number for it
+# (corr -0.124 with the closing total) — it simply does not move it far enough. This board
+# is the size of that under-adjustment.
+#
+# THE THRESHOLD IS PRE-REGISTERED AND IS NOT TO BE TUNED. 10 mph, fixed on 2026-09-25
+# before a single game was tracked forward. It is a round number chosen for sample size
+# and for the effect being material there (about 3.9 points), explicitly NOT the value that
+# maximised the historical hit rate — that was 11 mph, and picking it is how the first
+# version of this finding reached 64.5% on a band chosen after looking, then fell to 56.7%
+# out of sample. Moving this number after seeing results would forfeit the whole point.
+_WIND_MPH = 10.0
+
+# Points of total per mph of forecast wind, from the regression above. Published as the
+# expected adjustment, not as a bet: the CONTINUOUS effect is established, while the binary
+# under rate it implies is not — the holdout hit 56.7% against a 52.38% break-even with a
+# 95% band of 44.8%-68.1%. Showing an under record without that distinction would claim an
+# edge the data does not carry.
+_WIND_PTS_PER_MPH = -0.389
+
+
+def wind_board(season: int | None = None, week: int | None = None) -> list:
+    """
+    Outdoor games whose forecast wind clears the pre-registered threshold.
+
+    Forecast, never measured. The wind column in games.csv is populated only after kickoff,
+    which is what made the original version of this finding a look-ahead artifact — see
+    nfl_weather. A board has to run on what was knowable on Friday.
+    """
+    import nfl_weather as nw
+    if season is None or week is None:
+        season, week = current_week()
+    out = []
+    for g in upcoming(season, week):
+        if str(g.get("roof", "")).lower() in ("dome", "closed"):
+            continue
+        if g.get("total_line") is None:
+            continue
+        try:
+            wind = nw.upcoming_wind(g["home_team"], g["gameday"])
+        except Exception:
+            wind = None
+        if wind is None or float(wind) < _WIND_MPH:
+            continue
+        out.append({"game": g["game"], "home_team": g["home_team"],
+                    "away_team": g["away_team"], "total_line": float(g["total_line"]),
+                    "wind_mph": round(float(wind), 1),
+                    "expected_adj": round(float(wind) * _WIND_PTS_PER_MPH, 2),
+                    "gameday": g["gameday"]})
+    out.sort(key=lambda r: -r["wind_mph"])
+    return out
+
+
+def _grade_wind(entry: dict, sched) -> int:
+    """
+    Fill in each wind game with what the total actually did.
+
+    Two things are recorded because two different claims are in play: `residual` is the
+    continuous quantity the regression is about and the one with any power, and `outcome`
+    is the under/over result, which is what a reader will look at and what needs far more
+    games before it means anything.
+    """
+    filled = 0
+    for r in entry.get("wind", []):
+        if r.get("outcome"):
+            continue
+        m = sched[(sched["season"] == entry["season"]) & (sched["week"] == entry["week"])
+                  & (sched["home_team"] == r["home_team"])
+                  & (sched["away_team"] == r["away_team"])]
+        if m.empty:
+            continue
+        row = m.iloc[0]
+        hs, as_ = row.get("home_score"), row.get("away_score")
+        if hs is None or as_ is None or hs != hs or as_ != as_:
+            continue
+        total = float(hs) + float(as_)
+        r["actual_total"] = total
+        r["residual"] = round(total - float(r["total_line"]), 2)
+        if total == float(r["total_line"]):
+            r["outcome"] = "push"
+        else:
+            r["outcome"] = "under" if total < float(r["total_line"]) else "over"
+        filled += 1
+    return filled
+
+
 # ── the log ────────────────────────────────────────────────────────────────
 
 def _load() -> dict:
@@ -482,6 +579,10 @@ def log_picks(season: int | None = None, week: int | None = None,
     td = td if td is not None else td_board()
     receivers = (receivers if receivers is not None
                  else td_receivers(exclude=[r["player"] for r in td]))
+    try:
+        wind = wind_board(season, week)
+    except Exception:
+        wind = []
 
     entry = {
         "season": season, "week": week,
@@ -507,6 +608,8 @@ def log_picks(season: int | None = None, week: int | None = None,
                        "model_prob": r.get("model_prob"), "fair_prob": r.get("fair_prob"),
                        "blended_prob": r.get("blended_prob"), "edge": r.get("edge"),
                        "outcome": None, "actual": None} for r in receivers],
+        "wind": [{**r, "outcome": None, "actual_total": None, "residual": None}
+                 for r in wind],
     }
     if entry["parlay"]:
         entry["parlay_price"] = parlay_price(parlay)
@@ -693,6 +796,7 @@ def grade(season: int | None = None) -> dict:
         p = _grade_parlay(entry, teams)
         t = _grade_td(entry, teams)
         t += _grade_td(entry, teams, key="receivers")
+        t += _grade_wind(entry, sched)
         if a or p or t:
             weeks += 1
         ats_filled += a
@@ -723,6 +827,8 @@ def record(season: int | None = None) -> dict:
     td_expected = 0.0
     rec_w = rec_l = 0
     rec_expected = 0.0
+    wind_u = wind_o = 0
+    wind_resid = []
     parlays_hit = parlays_done = 0
     weeks = []
     for k in sorted(data):
@@ -751,6 +857,13 @@ def record(season: int | None = None) -> dict:
                             for r in e.get("receivers", [])
                             if r.get("outcome") in ("win", "loss"))
         rec_w += rw; rec_l += rl
+        for r in e.get("wind", []):
+            if r.get("outcome") == "under":
+                wind_u += 1
+            elif r.get("outcome") == "over":
+                wind_o += 1
+            if r.get("residual") is not None:
+                wind_resid.append(float(r["residual"]))
         td_w += tw; td_l += tl; td_dnp += td_
         ats_w += aw; ats_l += al; ats_p += ap
         leg_w += lw; leg_l += ll; leg_p += lp; leg_dnp += ld
@@ -784,6 +897,17 @@ def record(season: int | None = None) -> dict:
         "rec_expected_hits": round(rec_expected, 2) if (rec_w + rec_l) else None,
         "rec_expected_pct": (round(rec_expected / (rec_w + rec_l) * 100, 2)
                              if (rec_w + rec_l) else None),
+        # The wind board leads with the CONTINUOUS number, because that is the one the
+        # finding is about and the only one that will say anything this decade. The
+        # under/over record follows it, clearly second.
+        "wind_n": len(wind_resid),
+        "wind_mean_residual": (round(sum(wind_resid) / len(wind_resid), 2)
+                               if wind_resid else None),
+        "wind_expected_residual": round(_WIND_PTS_PER_MPH * _WIND_MPH, 2),
+        "wind_record": f"{wind_u}-{wind_o}",
+        "wind_under_pct": (round(wind_u / (wind_u + wind_o) * 100, 2)
+                           if (wind_u + wind_o) else None),
+        "wind_threshold": _WIND_MPH,
         "td_record": f"{td_w}-{td_l}",
         "td_pct": round(td_w / td_dec * 100, 2) if td_dec else None,
         "td_n": td_dec, "td_dnp": td_dnp,
