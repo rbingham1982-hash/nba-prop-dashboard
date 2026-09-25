@@ -43,7 +43,18 @@ android/local.properties
 # Android release keystore (contains private key — never commit)
 android/konjure-release.jks
 
-newsletter_out/
+# Generated newsletter output: markdown, HTML, social drafts and the .published-* channel
+# markers all regenerate, so they stay out.
+#
+# Written as newsletter_out/* rather than newsletter_out/ on purpose. Git does not descend
+# into an excluded DIRECTORY, so a negation for a file inside one never gets considered and
+# fails silently — excluding the contents instead is what makes the rule below work at all.
+newsletter_out/*
+
+# Cards are the exception: one that went out to a channel is a record of what was claimed
+# and when, so published cards are tracked by default instead of needing git add -f each
+# week.
+!newsletter_out/*-card-*.jpg
 
 # Fitted ATS scale/hfa — a derived cache, refits from public data on demand.
 .nfl_ats_params.json
