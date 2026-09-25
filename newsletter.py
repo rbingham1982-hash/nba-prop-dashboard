@@ -118,6 +118,22 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["waivers"], out["waiver_stats"] = [], {}
         out["errors"].append(f"waiver board: {e}")
 
+    # What these boards recommended, logged once for the week the advice is FOR, and the
+    # record of every week already played. The betting boards have had a prediction log
+    # since July; the fantasy boards published every week with no record at all.
+    try:
+        import fantasy_log as fl
+        import nfl_analysis as nfl
+        fl.grade()
+        play_season = nfl.season_for_date(out["generated"].date())
+        wk_for = nfl.upcoming_week(play_season)
+        if wk_for:
+            fl.log_week(play_season, wk_for, waivers=out.get("waivers"),
+                        sleepers=out.get("sleepers"))
+        out["fantasy_record"] = fl.record()
+    except Exception as e:
+        out["errors"].append(f"fantasy log: {e}")
+
     out["dfs_sport"] = dfs_sport
     try:
         slate = ft.dfs_slate(dfs_sport)
@@ -262,6 +278,27 @@ def render_markdown(data: dict) -> str:
                   + (f" Missed: {', '.join(miss)}." if miss else ""), "",
                   "One week of ten players says very little about calibration. A result this far "
                   "from expectation, in either direction, is mostly variance.", ""]
+
+    # The fantasy boards' own scoreboard, printed next to the betting one for the same
+    # reason: advice published every week with no record is just content.
+    fr = data.get("fantasy_record") or {}
+    if fr.get("n"):
+        L += ["## How the waiver board has done", "",
+              "Every player these boards recommended, graded against the startable line at his "
+              "position that week — the 12th-best quarterback or tight end, the 24th-best back "
+              "or receiver. A pickup is only worth making if he was worth starting, and a raw "
+              "point total says nothing without the week's own bar beside it.", "",
+              f"- **Startable:** {fr['startable']} ({fr['startable_rate']}%)"
+              + (f", {fr['dnp']} did not play." if fr.get("dnp") else ".")]
+        if fr.get("mean_proj") is not None:
+            L.append(f"- **Projection against outcome:** we projected {fr['mean_proj']} points a "
+                     f"player, they scored {fr['mean_actual']} — off by {fr['mae']} each.")
+        L.append("")
+        if fr.get("weeks"):
+            L += ["| Week | Recommended | Startable |", "|---|---:|---|"]
+            for w in fr["weeks"]:
+                L.append(f"| {w['week']} | {w['n']} | {w['startable']} |")
+            L.append("")
 
     sl = data.get("sleepers") or []
     if sl:

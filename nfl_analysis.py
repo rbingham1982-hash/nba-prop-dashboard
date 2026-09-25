@@ -126,6 +126,17 @@ def season_for_date(d) -> int:
     return d.year - 1 if d.month <= 2 else d.year
 
 
+
+def upcoming_week(season: int):
+    """The week being projected: the first with an unplayed game. None once a season ends."""
+    import nfl_game_model as gm
+    try:
+        s = gm.schedule()
+        s = s[(s["season"] == season) & s["home_score"].isna()]
+        return int(s["week"].min()) if not s.empty else None
+    except Exception:
+        return None
+
 def stat_for_game(df, player: str, stat_label: str, opponents=None, week=None):
     """
     A player's actual value of a stat for one game — the resolution lookup. Identify the game
