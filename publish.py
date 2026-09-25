@@ -162,6 +162,48 @@ def render_cards(data: dict) -> list:
             _OUT / f"{stamp}-card-report.jpg",
             footer2="Score = percentile of last season's player-weeks at his position."))
 
+    # The board we published for that week, graded — placed immediately after the report
+    # card so the recap and its consequences travel together.
+    #
+    # This card exists because the September 25 post went out as a wall of A+ grades plus
+    # next week's picks, while the 1-4 week that had just happened stayed in a markdown
+    # file on one laptop. Discord receives the headline and the cards and nothing else, so
+    # a section that lives only in the newsletter body is, in practice, unpublished. The
+    # house rule is "publish the misses too"; that only means anything if the misses ride
+    # the same channel the picks do.
+    rp = data.get("recap_picks") or {}
+    graded = [r for r in (rp.get("ats") or []) if r.get("outcome") in ("win", "loss", "push")]
+    if len(graded) >= 4:
+        rows = [(f"{r['game']}   {r['pick_label']}", str(r["outcome"]).upper())
+                for r in graded[:10]]
+
+        # The week's other two boards compress into a footer rather than sharing the rows.
+        # An outcome column is comparable across boards, but a card that silently switches
+        # from games to players halfway down is the mixed-card problem in a new costume.
+        legs = [r for r in (rp.get("parlay") or []) if r.get("outcome") in ("win", "loss")]
+        lw = sum(1 for r in legs if r["outcome"] == "win")
+        tds = [r for r in (rp.get("td") or []) if r.get("outcome") in ("win", "loss")]
+        tw = sum(1 for r in tds if r["outcome"] == "win")
+        bits = []
+        if legs:
+            bits.append(f"Parlay {lw}-{len(legs) - lw}, "
+                        + ("hit" if lw == len(legs) else "did not hit"))
+        if tds:
+            bits.append(f"touchdown board {tw}-{len(tds) - tw}")
+        f1 = "  ·  ".join(bits) or "Committed before kickoff, graded after"
+
+        # The season line carries its own yardstick. "2-8" with no break-even next to it
+        # invites the reader to supply a standard, and the standard they supply is 50%.
+        rec = data.get("picks_record") or {}
+        f2 = "Every pick was written down before kickoff."
+        if rec.get("ats_n"):
+            f2 = (f"Season {rec.get('ats_record')} ATS ({rec.get('ats_pct')}%) — "
+                  f"break-even {rec.get('ats_breakeven')}%, backtest "
+                  f"{rec.get('ats_backtest_pct')}%.")
+        out.append(render_card(
+            f"Week {rp.get('week', '?')} Results", "The board we published, graded",
+            rows, f1, _OUT / f"{stamp}-card-results.jpg", footer2=f2))
+
     # Sleepers lead the pre-season issue, so they get the first card. The right-hand
     # number is the GAP, not the projection — the card has to show the disagreement,
     # because "we like him more than the room does" is the entire claim.
