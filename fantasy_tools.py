@@ -313,7 +313,7 @@ def dfs_slate(sport: str = "MLB", draft_group_id: int | None = None):
             sub = nfl._rows_for(df, r["player"], idx)
             pid = str(sub.iloc[0].get("player_id", "")) if sub is not None else ""
             spos, order = _nfl_slot(ctx, pid, str(r.get("position") or ""))
-            mult = depth_multiplier(spos, order)
+            mult = depth_multiplier(spos, order) * _avail(ctx, pid)
             rows.append({**r.to_dict(), "proj_points": round(dk_points_nfl(proj) * mult, 2),
                          "depth_mult": mult})
     if not rows:
@@ -398,6 +398,19 @@ def _nfl_slot(ctx: dict, player_id, position: str, prof: dict | None = None):
     if now:
         return now
     return position, (prof or {}).get("depth_chart_order")
+
+
+def _avail(ctx: dict, player_id) -> float:
+    """
+    How much of a week to expect from a player on this week's injury report.
+
+    The scorer already discounts a questionable player to what he produces WHEN he plays
+    (0.87 of his norm); this is the other half, how often he plays at all — 55% across 2025
+    — which is what a fantasy projection has to price, because a week he misses scores
+    nothing. Ruled-out players never reach here: the scorer returns no projection for them.
+    """
+    import nfl_analysis as nfl
+    return nfl.injury_play_rate((ctx.get("injuries") or {}).get(str(player_id)))
 
 
 def sleeper_profiles() -> dict:
@@ -510,7 +523,7 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
         if not team:
             continue
         spos, order = _nfl_slot(ctx, sub.iloc[0].get("player_id", ""), pos, prof)
-        mult = depth_multiplier(spos, order)
+        mult = depth_multiplier(spos, order) * _avail(ctx, sub.iloc[0].get("player_id", ""))
         pts = round(pts * mult, 2)
         # Every scorable player is kept here, gates applied after the loop. The startable
         # tier below has to be ranked against the WHOLE population to mean anything, so
@@ -623,7 +636,8 @@ def start_sit(players: list) -> list:
         pos = str(sub.iloc[0].get("position", "")) if sub is not None else ""
         spos, order = _nfl_slot(ctx, pid, pos)
         out.append({"player": name,
-                    "proj_points": round(dk_points_nfl(proj) * depth_multiplier(spos, order), 2),
+                    "proj_points": round(dk_points_nfl(proj) * depth_multiplier(spos, order)
+                                         * _avail(ctx, pid), 2),
                     "source": src,
                     "note": "new team — projection rebased" if locals().get("changed") else ""})
     out.sort(key=lambda r: -(r["proj_points"] or -1))
@@ -698,7 +712,8 @@ def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
         if not proj:
             continue
         spos, order = _nfl_slot(ctx, sub.iloc[0].get("player_id", ""), pos, prof)
-        pts = round(dk_points_nfl(proj) * depth_multiplier(spos, order), 2)
+        pts = round(dk_points_nfl(proj) * depth_multiplier(spos, order)
+                    * _avail(ctx, sub.iloc[0].get("player_id", "")), 2)
         if pts < _WAIVER_FLOOR.get(pos, 5.0):
             continue
         rows.append({"player": name, "position": pos,

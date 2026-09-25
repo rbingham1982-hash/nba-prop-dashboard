@@ -126,17 +126,6 @@ def season_for_date(d) -> int:
     return d.year - 1 if d.month <= 2 else d.year
 
 
-
-def upcoming_week(season: int):
-    """The week being projected: the first with an unplayed game. None once a season ends."""
-    import nfl_game_model as gm
-    try:
-        s = gm.schedule()
-        s = s[(s["season"] == season) & s["home_score"].isna()]
-        return int(s["week"].min()) if not s.empty else None
-    except Exception:
-        return None
-
 def stat_for_game(df, player: str, stat_label: str, opponents=None, week=None):
     """
     A player's actual value of a stat for one game — the resolution lookup. Identify the game
@@ -355,7 +344,7 @@ def _depth_frame(season: int):
     return d
 
 
-def depth_context(stats_season: int, play_season: int, df) -> dict:
+def depth_context(stats_season: int, play_season: int, df, as_of=None) -> dict:
     """
     What depth_factor needs, built once: the slot table, each player's slot now, and the
     slot value of the job he held while earning his share.
@@ -372,6 +361,19 @@ def depth_context(stats_season: int, play_season: int, df) -> dict:
         hist = _depth_frame(stats_season)
         cur = hist if play_season == stats_season else _depth_frame(play_season)
 
+        # as_of rewinds the chart to how it stood on a past date, which a walk-forward
+        # backtest needs: scoring week 8 against today's depth chart would hand the model
+        # the rest of the season's role changes before they happened.
+        if as_of is not None:
+            # Converted, never re-localised: pd.Timestamp(x, tz=...) raises on an already
+            # tz-aware x, and the raise landed in the outer except, which returned {} — so a
+            # backtest ran with the depth chart silently switched off and scored identically
+            # with it "on" and "off".
+            cutoff = pd.Timestamp(as_of)
+            cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
+            cur = cur[cur["dt"] < cutoff]
+            if cur.empty:
+                return {}
         latest = cur[cur["dt"] == cur.groupby("team")["dt"].transform("max")]
         now = {}
         for pid, pos, rank in zip(latest["gsis_id"], latest["pos_abb"], latest["pos_rank"]):
@@ -449,6 +451,75 @@ def depth_factor(depth: dict | None, player_id, opp_col: str) -> float:
         return 1.0
     ratio = max(_DEPTH_CLAMP[0], min(_DEPTH_CLAMP[1], cur / earned))
     return 1.0 + _DEPTH_DAMP * (ratio - 1.0)
+
+
+_INJURY_URL = "https://github.com/nflverse/nflverse-data/releases/download/injuries/injuries_{y}.parquet"
+
+# What a designation is worth, measured over 2025's skill-position report rows:
+#
+#   status           n    played    production when he played, vs his own average
+#   Out            442      0%      —
+#   Doubtful        29      0%      —
+#   Questionable   371     55%      0.87
+#   on report, no status   81%      0.95   (no adjustment: being listed is not a status)
+#
+# Out and Doubtful are therefore not a discount, they are an absence: no projection at all.
+# Questionable is two separate facts — he plays a bit over half the time, and when he plays
+# he is ~13% below his norm — and they belong in different places. The scorer applies only
+# the second, because a prop is void if he never takes the field; the fantasy boards apply
+# the first as well, because a week he misses scores zero points.
+_INJURY_PLAY_RATE = {"Out": 0.0, "Doubtful": 0.0, "Questionable": 0.55}
+_INJURY_WHEN_PLAYING = {"Questionable": 0.87}
+
+
+def upcoming_week(season: int):
+    """The week being projected: the first with an unplayed game. None once a season ends."""
+    import nfl_game_model as gm
+    try:
+        s = gm.schedule()
+        s = s[(s["season"] == season) & s["home_score"].isna()]
+        return int(s["week"].min()) if not s.empty else None
+    except Exception:
+        return None
+
+
+def injury_context(season: int, week: int | None = None) -> dict:
+    """
+    player_id -> report status, for ONE week of the nflverse injury report.
+
+    Only the week being projected. The report is reissued weekly, so a week-1 "Out" says
+    nothing about week 2, and carrying it forward would bench players who had already
+    returned. {} until that week's report posts midweek — the normal state on a Monday or
+    Tuesday, and one that changes no projection.
+    """
+    import pandas as pd
+    if week is None:
+        week = upcoming_week(season)
+    if not week:
+        return {}
+    try:
+        d = pd.read_parquet(_INJURY_URL.format(y=season))
+    except Exception:
+        return {}
+    d = d[(d["week"] == week) & d["report_status"].notna()]
+    return {str(p): str(s) for p, s in zip(d["gsis_id"], d["report_status"]) if p}
+
+
+def injury_play_rate(status) -> float:
+    """How often a player with this designation actually plays. 1.0 when unknown."""
+    return _INJURY_PLAY_RATE.get(status, 1.0) if status else 1.0
+
+
+def injury_factor(status, mode: str = "play") -> float:
+    """
+    Multiplier for a designation. "play" is conditional on him taking the field, which is
+    what a prop needs; "expected" also prices in whether he plays at all, which is what a
+    fantasy projection needs.
+    """
+    if not status:
+        return 1.0
+    when = _INJURY_WHEN_PLAYING.get(status, 1.0)
+    return when if mode == "play" else when * injury_play_rate(status)
 
 
 def team_volume(df) -> dict:
@@ -643,7 +714,8 @@ def defense_factor(df, opponent: str, position: str, stat: str) -> float:
 def project_usage(df, player: str, stat: str, opponent: str | None = None,
                   teams: dict | None = None, priors: dict | None = None,
                   vol: dict | None = None, idx: dict | None = None,
-                  dcache: dict | None = None, depth: dict | None = None) -> dict:
+                  dcache: dict | None = None, depth: dict | None = None,
+                  injuries: dict | None = None) -> dict:
     """
     Rebased projection: the player's shrunk usage share x his CURRENT team's per-game
     volume x his shrunk efficiency, adjusted for the opponent.
@@ -674,6 +746,10 @@ def project_usage(df, player: str, stat: str, opponent: str | None = None,
     dmult = depth_factor(depth, pid, opp_col)
     opportunities *= dmult
     slot_now = (depth or {}).get("now", {}).get(pid)
+    # Conditional on him playing, which is what the props need; a ruled-out player lands on
+    # zero opportunities and drops out entirely at the check below.
+    status = (injuries or {}).get(pid)
+    opportunities *= injury_factor(status, "play")
 
     mu = opportunities if rate_col is None else opportunities * prof["rates"].get((opp_col, rate_col), 0.0)
     if opponent:
@@ -696,14 +772,15 @@ def project_usage(df, player: str, stat: str, opponent: str | None = None,
             "games": prof["games"], "opportunities": round(opportunities, 2),
             "def_factor": round(dfac, 3), "projection": round(mu, 2),
             "depth_now": f"{slot_now[0]}{slot_now[1]}" if slot_now else None,
-            "depth_factor": round(dmult, 3)}
+            "depth_factor": round(dmult, 3), "injury_status": status}
 
 
 def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None,
                      opponent: str | None = None, market_blend: float = 0.35,
                      teams: dict | None = None, priors: dict | None = None,
                      vol: dict | None = None, idx: dict | None = None,
-                     dcache: dict | None = None, depth: dict | None = None) -> dict:
+                     dcache: dict | None = None, depth: dict | None = None,
+                     injuries: dict | None = None) -> dict:
     """
     score_prop, but off the rebased projection — the Week 1-2 scorer.
 
@@ -715,7 +792,8 @@ def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None
     """
     import statistics as _st
     proj = project_usage(df, player, stat, opponent=opponent, teams=teams,
-                         priors=priors, vol=vol, idx=idx, dcache=dcache, depth=depth)
+                         priors=priors, vol=vol, idx=idx, dcache=dcache, depth=depth,
+                         injuries=injuries)
     if not proj:
         return {}
     sub = _rows_for(df, player, idx)
@@ -892,7 +970,7 @@ def score_prop_nfl(df, player: str, stat: str, line: float, american_odds=None,
                    vol: dict | None = None, idx: dict | None = None,
                    dcache: dict | None = None, board: dict | None = None,
                    rates: dict | None = None, cvcache: dict | None = None,
-                   depth: dict | None = None) -> dict:
+                   depth: dict | None = None, injuries: dict | None = None) -> dict:
     """
     The single NFL scorer. Usage model when the player has a game log, fantasy board when
     he does not.
@@ -902,9 +980,18 @@ def score_prop_nfl(df, player: str, stat: str, line: float, american_odds=None,
     result carries `source` so a board-priced leg can be told apart downstream — those are
     cohort averages, and two rookies in one tier will price identically.
     """
+    # Ruled out is an absence, not a discount (0% play rate in 2025), so it returns nothing
+    # rather than falling through to the board path, which has no injury data of its own.
+    if injuries:
+        sub = _rows_for(df, player, idx)
+        if sub is not None and len(sub):
+            st = injuries.get(str(sub.iloc[0].get("player_id", "")))
+            if st and injury_play_rate(st) == 0.0:
+                return {}
     s = score_prop_usage(df, player, stat, line, american_odds=american_odds,
                          opponent=opponent, market_blend=market_blend, teams=teams,
-                         priors=priors, vol=vol, idx=idx, dcache=dcache, depth=depth)
+                         priors=priors, vol=vol, idx=idx, dcache=dcache, depth=depth,
+                         injuries=injuries)
     if s:
         s.setdefault("source", "usage")
         return s
@@ -975,6 +1062,10 @@ def scoring_context() -> dict:
         # only last season's. Optional: an unavailable chart returns {} and every
         # projection stays exactly as it was.
         "depth": depth_context(season, play, df),
+        # The injury report for the week being projected, and only that week. Empty until
+        # the report posts midweek, which changes nothing rather than guessing.
+        "injury_week": upcoming_week(play),
+        "injuries": injury_context(play),
         "_built": time.time(),
     }
     _SCORING_CTX.clear()
@@ -985,7 +1076,7 @@ def scoring_context() -> dict:
 def scoring_kwargs(ctx: dict) -> dict:
     """The keyword arguments score_prop_nfl takes from a scoring context."""
     return {k: ctx.get(k) for k in ("teams", "priors", "vol", "idx", "dcache",
-                                    "board", "rates", "cvcache", "depth")}
+                                    "board", "rates", "cvcache", "depth", "injuries")}
 
 
 if __name__ == "__main__":
