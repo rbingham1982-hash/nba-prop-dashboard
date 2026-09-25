@@ -821,6 +821,68 @@
     "outcome": null,
     "actual": null
    }
+  ],
+  "wind": [
+   {
+    "game": "LAC @ BUF",
+    "home_team": "BUF",
+    "away_team": "LAC",
+    "total_line": 50.5,
+    "wind_mph": 15.3,
+    "expected_adj": -5.95,
+    "gameday": "2026-09-27",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "TEN @ NYG",
+    "home_team": "NYG",
+    "away_team": "TEN",
+    "total_line": 38.5,
+    "wind_mph": 14.5,
+    "expected_adj": -5.64,
+    "gameday": "2026-09-27",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "CAR @ CLE",
+    "home_team": "CLE",
+    "away_team": "CAR",
+    "total_line": 42.5,
+    "wind_mph": 12.8,
+    "expected_adj": -4.98,
+    "gameday": "2026-09-27",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "SEA @ WAS",
+    "home_team": "WAS",
+    "away_team": "SEA",
+    "total_line": 40.5,
+    "wind_mph": 10.8,
+    "expected_adj": -4.2,
+    "gameday": "2026-09-27",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "CIN @ PIT",
+    "home_team": "PIT",
+    "away_team": "CIN",
+    "total_line": 42.5,
+    "wind_mph": 10.7,
+    "expected_adj": -4.16,
+    "gameday": "2026-09-27",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   }
   ]
  }
 }
