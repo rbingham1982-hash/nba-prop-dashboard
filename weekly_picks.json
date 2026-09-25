@@ -759,6 +759,68 @@
    "model_prob": 0.15671,
    "blended_prob": 0.0593,
    "breakeven_prob": 0.0732
-  }
+  },
+  "receivers": [
+   {
+    "player": "Davante Adams",
+    "game": "Los Angeles Rams @ Denver Broncos",
+    "position": "WR",
+    "american_odds": 105,
+    "model_prob": 0.6321,
+    "fair_prob": 0.454,
+    "blended_prob": 0.4707,
+    "edge": 0.1781,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jaxon Smith-Njigba",
+    "game": "Seattle Seahawks @ Washington Commanders",
+    "position": "WR",
+    "american_odds": 100,
+    "model_prob": 0.462,
+    "fair_prob": 0.4647,
+    "blended_prob": 0.4645,
+    "edge": -0.0027,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Rashee Rice",
+    "game": "Kansas City Chiefs @ Miami Dolphins",
+    "position": "WR",
+    "american_odds": 115,
+    "model_prob": 0.4513,
+    "fair_prob": 0.434,
+    "blended_prob": 0.4356,
+    "edge": 0.0172,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Ja'Marr Chase",
+    "game": "Cincinnati Bengals @ Pittsburgh Steelers",
+    "position": "WR",
+    "american_odds": 115,
+    "model_prob": 0.4114,
+    "fair_prob": 0.434,
+    "blended_prob": 0.4319,
+    "edge": -0.0226,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Mark Andrews",
+    "game": "Baltimore Ravens @ Dallas Cowboys",
+    "position": "TE",
+    "american_odds": 115,
+    "model_prob": 0.2738,
+    "fair_prob": 0.434,
+    "blended_prob": 0.419,
+    "edge": -0.1602,
+    "outcome": null,
+    "actual": null
+   }
+  ]
  }
 }

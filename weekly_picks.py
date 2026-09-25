@@ -283,7 +283,50 @@ def parlay_price(legs: list) -> dict:
 # ── the touchdown board ────────────────────────────────────────────────────
 
 def td_board(n: int = 10) -> list:
+    """The most likely scorers, whoever they are. See _td_pool for the pricing."""
+    return _td_pool()[:n]
+
+
+# Receivers never reach td_board: it is ranked by probability, and goal-line carries
+# concentrate into one or two backs while red-zone targets spread across four to six
+# receivers, so a lead back outranks every receiver in the league. Both graded boards so
+# far were ten running backs out of ten.
+#
+# That leaves half the model untested. td_board prices p_rec for all 319 players in the
+# market and combines it with p_rush, but the receiving term has never once been the
+# dominant one in a published pick. It ships in production and is graded only through the
+# pass-catching backs it nudges.
+#
+# Tracked separately rather than mixed into the board, because mixing would quietly lower
+# the hit rate of a card captioned "most likely" — the best receiver this week blends to
+# 51% against the best back at 73%. This slate converges faster than the main board, too:
+# receiver prices are where the model and the market disagree most (Adams +18%, Lamb -19%,
+# Andrews -16%), and disagreements settle a question that coin flips do not.
+_RECEIVING = ("WR", "TE")
+
+
+def td_receivers(n: int = 5, exclude=()) -> list:
     """
+    The most likely receiving scorers, as a board in their own right.
+
+    `exclude` drops anyone already on the main board. Occasionally a receiver does outrank
+    the backs — Amon-Ra St. Brown blended 51% in week 3 — and logging him twice would grade
+    the same prediction in two places and test nothing the main board had not already
+    covered. The slate exists to reach the players the ranking never gets to.
+    """
+    skip = set(exclude or ())
+    return [r for r in _td_pool()
+            if r.get("position") in _RECEIVING and r["player"] not in skip][:n]
+
+
+_POOL_CACHE: list | None = None
+
+
+def _td_pool() -> list:
+    """
+    Every player in the anytime-TD market, priced. Cached for the process, because both
+    boards read it and the pass costs two model calls for each of ~300 players.
+
     Most likely touchdown scorers this week, model against book.
 
     The model probability is EXACT under the assumptions, not an approximation worth
@@ -311,6 +354,10 @@ def td_board(n: int = 10) -> list:
     import daily_parlay_gen as dg
     import parlay_model as pm
     import parlay_tracker
+
+    global _POOL_CACHE
+    if _POOL_CACHE is not None:
+        return _POOL_CACHE
 
     raw = pm.fetch_fanduel_anytime_td()
     if raw is None or raw.empty:
@@ -357,9 +404,26 @@ def td_board(n: int = 10) -> list:
             "start_time": str(r["start_time"]),
         })
 
+    # Position, so the receiving slate can be cut out of the same pass. Looked up from the
+    # scoring frame rather than the book, which does not label the market.
+    try:
+        import nfl_analysis as nfl
+        df = nfl.scoring_context()["df"]
+        pos = {}
+        for _, row in df.drop_duplicates("player_display_name").iterrows():
+            nm = row.get("player_display_name")
+            if nm:
+                pos[nm] = row.get("position")
+                pos.setdefault(nfl._name_key(nm), row.get("position"))
+        for r in out:
+            r["position"] = pos.get(r["player"]) or pos.get(nfl._name_key(r["player"]))
+    except Exception:
+        pass
+
     # Ranked by what we believe, not by disagreement — the same discipline as the parlay.
     out.sort(key=lambda r: -r["blended_prob"])
-    return out[:n]
+    _POOL_CACHE = out
+    return out
 
 
 # ── the log ────────────────────────────────────────────────────────────────
@@ -388,8 +452,8 @@ def locked_today(today=None) -> bool:
 
 def log_picks(season: int | None = None, week: int | None = None,
               ats: list | None = None, parlay: list | None = None,
-              td: list | None = None, overwrite: bool = False,
-              force: bool = False) -> dict:
+              td: list | None = None, receivers: list | None = None,
+              overwrite: bool = False, force: bool = False) -> dict:
     """
     Record a week's picks, once, and not before Friday.
 
@@ -411,11 +475,13 @@ def log_picks(season: int | None = None, week: int | None = None,
         return data[k]
     if not (force or locked_today()):
         return {"season": season, "week": week, "ats": [], "parlay": [], "td": [],
-                "locked": False, "locks_on": "Friday"}
+                "receivers": [], "locked": False, "locks_on": "Friday"}
 
     ats = ats if ats is not None else ats_board(season, week)
     parlay = parlay if parlay is not None else parlay_legs()
     td = td if td is not None else td_board()
+    receivers = (receivers if receivers is not None
+                 else td_receivers(exclude=[r["player"] for r in td]))
 
     entry = {
         "season": season, "week": week,
@@ -435,6 +501,12 @@ def log_picks(season: int | None = None, week: int | None = None,
                 "model_prob": r.get("model_prob"), "fair_prob": r.get("fair_prob"),
                 "blended_prob": r.get("blended_prob"), "edge": r.get("edge"),
                 "outcome": None, "actual": None} for r in td],
+        "receivers": [{"player": r["player"], "game": r.get("game", ""),
+                       "position": r.get("position"),
+                       "american_odds": r.get("american_odds"),
+                       "model_prob": r.get("model_prob"), "fair_prob": r.get("fair_prob"),
+                       "blended_prob": r.get("blended_prob"), "edge": r.get("edge"),
+                       "outcome": None, "actual": None} for r in receivers],
     }
     if entry["parlay"]:
         entry["parlay_price"] = parlay_price(parlay)
@@ -559,7 +631,7 @@ def _grade_parlay(entry: dict, teams: set | None) -> int:
     return filled
 
 
-def _grade_td(entry: dict, teams: set | None) -> int:
+def _grade_td(entry: dict, teams: set | None, key: str = "td") -> int:
     """
     Did he score a rushing or receiving touchdown that week.
 
@@ -568,7 +640,7 @@ def _grade_td(entry: dict, teams: set | None) -> int:
     parlay leg: he did not lose a prediction about whether he would score.
     """
     import nfl_analysis as nfl
-    pending = [r for r in entry.get("td", []) if not r.get("outcome")]
+    pending = [r for r in entry.get(key, []) if not r.get("outcome")]
     if not pending:
         return 0
     wk = _week_stats(entry, teams)
@@ -620,6 +692,7 @@ def grade(season: int | None = None) -> dict:
         teams = _week_teams(entry, full)
         p = _grade_parlay(entry, teams)
         t = _grade_td(entry, teams)
+        t += _grade_td(entry, teams, key="receivers")
         if a or p or t:
             weeks += 1
         ats_filled += a
@@ -648,6 +721,8 @@ def record(season: int | None = None) -> dict:
     leg_w = leg_l = leg_p = leg_dnp = 0
     td_w = td_l = td_dnp = 0
     td_expected = 0.0
+    rec_w = rec_l = 0
+    rec_expected = 0.0
     parlays_hit = parlays_done = 0
     weeks = []
     for k in sorted(data):
@@ -670,6 +745,12 @@ def record(season: int | None = None) -> dict:
         # the board look overconfident for a reason that has nothing to do with the model.
         td_expected += sum(float(r.get("blended_prob") or 0)
                            for r in e.get("td", []) if r.get("outcome") in ("win", "loss"))
+        rw = sum(1 for r in e.get("receivers", []) if r.get("outcome") == "win")
+        rl = sum(1 for r in e.get("receivers", []) if r.get("outcome") == "loss")
+        rec_expected += sum(float(r.get("blended_prob") or 0)
+                            for r in e.get("receivers", [])
+                            if r.get("outcome") in ("win", "loss"))
+        rec_w += rw; rec_l += rl
         td_w += tw; td_l += tl; td_dnp += td_
         ats_w += aw; ats_l += al; ats_p += ap
         leg_w += lw; leg_l += ll; leg_p += lp; leg_dnp += ld
@@ -694,6 +775,14 @@ def record(season: int | None = None) -> dict:
         "leg_pct": round(leg_w / leg_dec * 100, 2) if leg_dec else None,
         "leg_n": leg_dec, "legs_dnp": leg_dnp,
         "parlays_hit": parlays_hit, "parlays_settled": parlays_done,
+        # The receiving slate, kept apart from the main board on purpose: it is a test of
+        # the model's other half, not a second helping of the same one.
+        "rec_record": f"{rec_w}-{rec_l}",
+        "rec_pct": round(rec_w / (rec_w + rec_l) * 100, 2) if (rec_w + rec_l) else None,
+        "rec_n": rec_w + rec_l,
+        "rec_expected_hits": round(rec_expected, 2) if (rec_w + rec_l) else None,
+        "rec_expected_pct": (round(rec_expected / (rec_w + rec_l) * 100, 2)
+                             if (rec_w + rec_l) else None),
         "td_record": f"{td_w}-{td_l}",
         "td_pct": round(td_w / td_dec * 100, 2) if td_dec else None,
         "td_n": td_dec, "td_dnp": td_dnp,
