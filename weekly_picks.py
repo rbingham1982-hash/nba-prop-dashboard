@@ -761,7 +761,8 @@ def record(season: int | None = None) -> dict:
                 parlays_hit += 1
         weeks.append({"week": k, "ats": f"{aw}-{al}" + (f"-{ap}" if ap else ""),
                       "legs": f"{lw}-{ll}" + (f" ({ld} dnp)" if ld else ""),
-                      "td": f"{tw}-{tl}" if (tw or tl) else "—"})
+                      "td": f"{tw}-{tl}" if (tw or tl) else "—",
+                      "rec": f"{rw}-{rl}" if (rw or rl) else "—"})
     ats_dec = ats_w + ats_l
     leg_dec = leg_w + leg_l
     td_dec = td_w + td_l

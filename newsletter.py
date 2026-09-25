@@ -162,6 +162,7 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["parlay"] = entry.get("parlay") or []
         out["parlay_price"] = entry.get("parlay_price") or {}
         out["td"] = entry.get("td") or []
+        out["receivers"] = entry.get("receivers") or []
         out["picks_locked"] = entry.get("locked", True)
         out["picks_lock_day"] = entry.get("locks_on", "Friday")
         out["picks_record"] = wp.record()
@@ -429,6 +430,34 @@ def render_markdown(data: dict) -> str:
                      f"{float(r.get('model_prob', 0)):.0%} |")
         L.append("")
 
+    # The receiving slate, printed as its own board rather than folded into the one above.
+    #
+    # The touchdown board ranks by probability, and a lead back outranks every receiver in
+    # the league — both graded boards were ten running backs out of ten. So the receiving
+    # half of the model, which prices every one of these players and feeds every
+    # pass-catching back's number, had never been graded on its own. This is that test,
+    # and it is kept separate because mixing it in would quietly lower the hit rate of a
+    # board captioned "most likely" without telling anyone.
+    rcv = data.get("receivers") or []
+    if rcv:
+        L += [f"## Receiving touchdown slate — Week {data.get('week', '?')}", "",
+              "The five most likely receiving scorers who did not make the board above. "
+              "Lower probabilities than the backs, by construction: goal-line carries "
+              "concentrate into one or two players while red-zone targets spread across "
+              "four to six, and the market prices it that way too.", "",
+              "This is tracked to test the half of the model the main board never "
+              "reaches, so it is graded separately and is not a second helping of the "
+              "same prediction.", "",
+              "| Player | Game | Odds | Book | Model |", "|---|---|---:|---:|---:|"]
+        for r in rcv:
+            L.append(f"| {r['player']}"
+                     + (f" ({r['position']})" if r.get("position") else "")
+                     + f" | {r.get('game', '')} | "
+                     f"{int(r.get('american_odds', 0)):+d} | "
+                     f"{float(r.get('fair_prob', 0)):.0%} | "
+                     f"{float(r.get('model_prob', 0)):.0%} |")
+        L.append("")
+
     # The running record. This exists so the boards above can be checked rather than
     # taken on trust, and it prints even when it is unflattering — especially then. A
     # published prediction with no scoreboard is just content.
@@ -453,13 +482,21 @@ def render_markdown(data: dict) -> str:
                      f"{rec['td_expected_pct']}% expected from the published "
                      f"probabilities"
                      + (f", {rec['td_dnp']} did not play." if rec.get("td_dnp") else "."))
+        if rec.get("rec_n"):
+            # Reported against its own expected rate for the same reason the touchdown
+            # board is, and kept on a separate line because it is a test of a different
+            # part of the model, not more evidence about the same part.
+            L.append(f"- **Receiving slate:** {rec['rec_record']} ({rec['rec_pct']}%) "
+                     f"over {rec['rec_n']} graded players, against "
+                     f"{rec['rec_expected_pct']}% expected.")
         if rec.get("parlays_settled"):
             L.append(f"- **Parlays:** {rec['parlays_hit']} of {rec['parlays_settled']} hit.")
         L.append("")
         if rec.get("weeks"):
-            L += ["| Week | ATS | Legs | TDs |", "|---|---|---|---|"]
+            L += ["| Week | ATS | Legs | TDs | Rec |", "|---|---|---|---|---|"]
             for w in rec["weeks"]:
-                L.append(f"| {w['week']} | {w['ats']} | {w['legs']} | {w.get('td', '—')} |")
+                L.append(f"| {w['week']} | {w['ats']} | {w['legs']} | "
+                         f"{w.get('td', '—')} | {w.get('rec', '—')} |")
             L.append("")
 
     dfs = data.get("dfs") or []
