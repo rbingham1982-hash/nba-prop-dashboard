@@ -181,6 +181,65 @@ def dk_points_nfl(proj: dict) -> float:
         + proj.get("Receiving TDs", 0) * DK_NFL["rec_td"], 2)
 
 
+# Half the engine, half the player's own average, which is what the walk-forward
+# comparison says to ship.
+#
+# fantasy_eval on 2025, 3,965 player-weeks: the engine posted MAE 4.69 against 4.68 for
+# averaging a player's own points, p=0.566 — indistinguishable. Worse, bucketed by how far
+# the two diverged, the engine LOST as the gap widened: at a 4-8 point disagreement its MAE
+# was 6.74 against the average's 5.61. A usage model whose confident departures are its
+# worst predictions is not adding usage information, it is adding noise.
+#
+# The half-and-half blend beat both parents on MAE, rank correlation and top-K hit at once
+# (4.65 / 0.543 / 0.519, p=0.017 against the average). That is the ordinary result for two
+# noisy estimates of one quantity: the blend wins by shrinking the large errors, which here
+# are the engine's.
+#
+# 0.5 is not fitted. It is the weight that was tested, and fitting a weight on the same
+# season that chose the method is how a backtest starts flattering itself.
+_BLEND_W = 0.5
+
+
+def _season_ppr(ctx: dict) -> dict:
+    """
+    player_id -> his mean PPR per game, over the same frame the engine projects from.
+
+    The same frame matters. The engine currently fits on 2025 because 2026 has too few
+    weeks to project from, so the honest counterpart is his 2025 average, not his two
+    games of 2026 — that is the pairing the backtest measured. When scoring_context
+    switches to the current season, this follows it without a change here.
+    """
+    df = ctx.get("df")
+    if df is None or getattr(df, "empty", True) or "fantasy_points_ppr" not in df.columns:
+        return {}
+    g = df.groupby("player_id")["fantasy_points_ppr"].mean()
+    return {str(k): float(v) for k, v in g.items() if v == v}
+
+
+def blend_points(engine_pts: float, player_id, means: dict) -> float:
+    """
+    Blend, or fall back to the engine alone when there is no average to blend with.
+
+    A rookie or a player with no games in the fitted season has no counterpart, and the
+    engine is all there is. That is also the population the backtest could say least about.
+
+    Applied BEFORE the depth-chart and availability multipliers, because both parents
+    describe what a player does in the role his history was built in, while those
+    multipliers discount for the role he holds now. A 2025 average earned as a starter
+    should still be cut if he is a backup today.
+
+    One asymmetry, left in deliberately: nflverse fantasy_points_ppr subtracts for
+    interceptions and fumbles and the projection does not model them, so the average runs
+    slightly below a turnover-free projection and the blend pulls quarterbacks down a
+    little. The backtest measured through exactly this and the blend still won, so
+    correcting it here would be tuning past what was verified.
+    """
+    m = means.get(str(player_id))
+    if m is None:
+        return engine_pts
+    return _BLEND_W * float(engine_pts) + (1.0 - _BLEND_W) * m
+
+
 # ── Sleeper: the crowd ──────────────────────────────────────────────────────
 
 def sleeper_players() -> dict:
@@ -296,6 +355,7 @@ def dfs_slate(sport: str = "MLB", draft_group_id: int | None = None):
         ctx = nfl.scoring_context()
         df, idx = ctx["df"], ctx["idx"]
         kw = nfl.scoring_kwargs(ctx)
+        _means = _season_ppr(ctx)
         for _, r in sal.iterrows():
             proj = {}
             for stat in nfl._USAGE_MODEL:
@@ -314,7 +374,8 @@ def dfs_slate(sport: str = "MLB", draft_group_id: int | None = None):
             pid = str(sub.iloc[0].get("player_id", "")) if sub is not None else ""
             spos, order = _nfl_slot(ctx, pid, str(r.get("position") or ""))
             mult = depth_multiplier(spos, order) * _avail(ctx, pid)
-            rows.append({**r.to_dict(), "proj_points": round(dk_points_nfl(proj) * mult, 2),
+            base = blend_points(dk_points_nfl(proj), pid, _means)
+            rows.append({**r.to_dict(), "proj_points": round(base * mult, 2),
                          "depth_mult": mult})
     if not rows:
         return pd.DataFrame()
@@ -488,6 +549,7 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
     ctx = nfl.scoring_context()
     df, idx, teams = ctx["df"], ctx["idx"], ctx["teams"]
     kw = nfl.scoring_kwargs(ctx)
+    _means = _season_ppr(ctx)
 
     adds = {p["name"]: p["count"] for p in sleeper_trending("add", limit=200)}
     drops = {p["name"]: p["count"] for p in sleeper_trending("drop", limit=200)}
@@ -510,7 +572,7 @@ def waiver_board(limit: int = 40, min_rank: int = 150, with_stats: bool = False)
                 proj[stat] = s.get("projection", 0)
         if not proj:
             continue
-        pts = dk_points_nfl(proj)
+        pts = blend_points(dk_points_nfl(proj), sub.iloc[0].get("player_id", ""), _means)
         if pts <= 0:
             continue
         # Discount to the workload his depth-chart slot actually implies.
@@ -614,6 +676,7 @@ def start_sit(players: list) -> list:
     ctx = nfl.scoring_context()
     df, idx, teams = ctx["df"], ctx["idx"], ctx["teams"]
     kw = nfl.scoring_kwargs(ctx)
+    _means = _season_ppr(ctx)
 
     out = []
     for name in players:
@@ -636,7 +699,8 @@ def start_sit(players: list) -> list:
         pos = str(sub.iloc[0].get("position", "")) if sub is not None else ""
         spos, order = _nfl_slot(ctx, pid, pos)
         out.append({"player": name,
-                    "proj_points": round(dk_points_nfl(proj) * depth_multiplier(spos, order)
+                    "proj_points": round(blend_points(dk_points_nfl(proj), pid, _means)
+                                         * depth_multiplier(spos, order)
                                          * _avail(ctx, pid), 2),
                     "source": src,
                     "note": "new team — projection rebased" if locals().get("changed") else ""})
@@ -677,6 +741,7 @@ def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
     ctx = nfl.scoring_context()
     df, idx, teams = ctx["df"], ctx["idx"], ctx["teams"]
     kw = nfl.scoring_kwargs(ctx)
+    _means = _season_ppr(ctx)
 
     sp = sleeper_profiles()
 
@@ -712,8 +777,9 @@ def sleepers(limit: int = 24, min_rank: int = 60, max_rank: int = 400) -> list:
         if not proj:
             continue
         spos, order = _nfl_slot(ctx, sub.iloc[0].get("player_id", ""), pos, prof)
-        pts = round(dk_points_nfl(proj) * depth_multiplier(spos, order)
-                    * _avail(ctx, sub.iloc[0].get("player_id", "")), 2)
+        _pid = sub.iloc[0].get("player_id", "")
+        pts = round(blend_points(dk_points_nfl(proj), _pid, _means)
+                    * depth_multiplier(spos, order) * _avail(ctx, _pid), 2)
         if pts < _WAIVER_FLOOR.get(pos, 5.0):
             continue
         rows.append({"player": name, "position": pos,
