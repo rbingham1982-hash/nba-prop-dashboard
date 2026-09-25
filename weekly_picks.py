@@ -304,19 +304,50 @@ def td_board(n: int = 10) -> list:
 # Andrews -16%), and disagreements settle a question that coin flips do not.
 _RECEIVING = ("WR", "TE")
 
+# Ranked by DISAGREEMENT, which is the opposite of every published board here and is
+# deliberate: this one is a measurement, not a publication.
+#
+# Week 3 was selected by blended probability, the rule the parlay board uses, and that was
+# close to the worst possible choice for a test. The blend weight is 0.11, so a large
+# disagreement barely moves the ranking — selecting on it fills the slate with rows where
+# the model and the book already agree, which cannot discriminate between them. Week 3's
+# five were Smith-Njigba at -0%, Rice +2% and Chase -2%, three rows guaranteed to settle
+# nothing, while Tee Higgins at +19%, CeeDee Lamb at -19% and Rashod Bateman at -24% fell
+# just below the line.
+#
+# The parlay board bans this rule for the opposite and equally correct reason: it goes out
+# to readers as a prediction, and ranking a published board by the model's largest
+# contradictions of the market publishes its largest errors. Nothing here reaches a reader.
+# The slate exists to find out whether p_rec knows anything, and only the rows where it
+# says something different can answer that.
+#
+# The usual objection does not apply. On props, a large edge has always been a stale role
+# or a player who was not going to play — but on the anytime-TD market the disagreements
+# have MORE history behind them than the agreements, 12-17 games against 3-6, because the
+# rows where the model has little to say are the ones that default toward the market. The
+# floor below is insurance rather than a fix for an observed problem.
+_MIN_RECEIVER_SAMPLE = 8
+
 
 def td_receivers(n: int = 5, exclude=()) -> list:
     """
-    The most likely receiving scorers, as a board in their own right.
+    The receiving scorers the model most disagrees with the book about.
 
     `exclude` drops anyone already on the main board. Occasionally a receiver does outrank
     the backs — Amon-Ra St. Brown blended 51% in week 3 — and logging him twice would grade
     the same prediction in two places and test nothing the main board had not already
     covered. The slate exists to reach the players the ranking never gets to.
+
+    Both directions are kept, so the board tests the model where it is high on a player and
+    where it fades one. A slate of only its enthusiasms would grade half a question.
     """
     skip = set(exclude or ())
-    return [r for r in _td_pool()
-            if r.get("position") in _RECEIVING and r["player"] not in skip][:n]
+    pool = [r for r in _td_pool()
+            if r.get("position") in _RECEIVING
+            and r["player"] not in skip
+            and int(r.get("sample_n") or 0) >= _MIN_RECEIVER_SAMPLE]
+    pool.sort(key=lambda r: -abs(float(r.get("edge") or 0)))
+    return pool[:n]
 
 
 _POOL_CACHE: list | None = None
@@ -602,6 +633,10 @@ def log_picks(season: int | None = None, week: int | None = None,
                 "model_prob": r.get("model_prob"), "fair_prob": r.get("fair_prob"),
                 "blended_prob": r.get("blended_prob"), "edge": r.get("edge"),
                 "outcome": None, "actual": None} for r in td],
+        # Which rule cut the slate, because week 3 was selected by blended probability and
+        # everything after it by disagreement. Those are different experiments and a record
+        # that silently pools them would be comparing two things and calling it one.
+        "receivers_rule": "edge",
         "receivers": [{"player": r["player"], "game": r.get("game", ""),
                        "position": r.get("position"),
                        "american_odds": r.get("american_odds"),
