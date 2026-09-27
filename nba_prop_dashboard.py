@@ -9118,13 +9118,45 @@ elif sport == "🏈 NFL":
         elif _plegs:
             import pandas as _pd
             _w = parlay_tracker.get_market_blend(sport="NFL")
-            # One row per prop: whichever side the model likes more. Edge is the shipped
-            # (market-blended) probability minus FanDuel's de-vigged price for that side,
-            # the same number the builder's EV is made of.
+
+            # Trust in the model DECAYS as it departs from the market, reaching zero at the
+            # gap where it was measured to become the worse forecast.
+            #
+            # A flat weight with a hard cut at NFL_MAX_MODEL_GAP did not remove the
+            # selection problem, it relocated it: edge was w×gap, the board was sorted by
+            # it, so the top was whatever sat just under the cut. Measured on the live
+            # board, all twenty top rows fell between 0.190 and 0.199 against a 0.20 cap,
+            # every one showing the same 1.6% edge. A row at 0.199 is not meaningfully
+            # different from one at 0.201, and the cap exists precisely because rows out
+            # there are the model's errors.
+            #
+            # w × gap × (1 − gap/cap) says the same thing without the cliff. It is zero at
+            # no disagreement (nothing to say), zero at the cap (the market is better by
+            # then), and peaks in between — so the board leads with moderate disagreements
+            # rather than boundary cases. Same shape the parlay board arrived at when it
+            # stopped ranking legs by edge.
+            # Second factor: how much history the projection rests on. Without it the
+            # score is a function of the gap alone, so the board simply piled up wherever
+            # that function peaked — the boundary before, the 10-point gap after. Sample
+            # size is real information and breaks the tie on something that matters: a
+            # ten-point disagreement behind seventeen games is not the same claim as the
+            # same gap behind four. n/(n+8), with 8 about half an NFL season, which is
+            # where a usage estimate starts to settle. Stated, not fitted.
+            _N_HALF = 8.0
+
+            def _nfl_trust(_gap, _n):
+                _cap = float(_gen.NFL_MAX_MODEL_GAP)
+                if _gap <= 0 or _gap >= _cap:
+                    return 0.0
+                _conf = float(_n) / (float(_n) + _N_HALF) if _n else 0.0
+                return _w * (1.0 - _gap / _cap) * _conf
+
+            # One row per prop: whichever side the model likes more.
             _best = {}
             for _l in _plegs:
                 _imp = float(_l["implied_prob"])
-                _edge = _w * (float(_l["hit_rate"]) - _imp)
+                _raw = float(_l["hit_rate"]) - _imp
+                _edge = _nfl_trust(abs(_raw), _l.get("sample_n") or 0) * _raw
                 _k = (_l["player_name"], _l["stat_type"], _l["line_score"])
                 if _k not in _best or _edge > _best[_k][1]:
                     _best[_k] = (_l, _edge)
@@ -9149,7 +9181,11 @@ elif sport == "🏈 NFL":
                              and int(_l["american_odds"]) > 0 else str(_l.get("american_odds", "—"))),
                     "Model %": round(_l["hit_rate"] * 100, 1),
                     "Market %": round(float(_l["implied_prob"]) * 100, 1),
-                    "Edge %": round(_e * 100, 1),
+                    # Both shown: Gap is the raw disagreement, Edge is what survives the
+                    # trust taper. Printing only the second hides how far out a row sits.
+                    "Gap": round((float(_l["hit_rate"]) - float(_l["implied_prob"])) * 100, 1),
+                    "N": int(_l.get("sample_n") or 0),
+                    "Edge %": round(_e * 100, 2),
                     "Flags": ", ".join(_gen.nfl_role_flags(_l["player_name"], _l["stat_type"],
                                                             _l["line_score"])),
                 } for _l, _e in _items])
@@ -9159,8 +9195,11 @@ elif sport == "🏈 NFL":
             else:
                 st.info("No prop is within the model's trust range of the market.")
             st.caption(f"{len(_main)} props ranked, one row each on the side the model prefers · "
-                       f"top 30 by edge. Market % is FanDuel's de-vigged price; edge is after the NFL "
-                       f"market blend ({_w:.0%} model), the same number the parlay builder uses. "
+                       f"top 30. **Gap** is the raw disagreement; **Edge %** is what survives a "
+                       f"trust weight that starts at the NFL market blend ({_w:.0%} model) and "
+                       f"decays to zero at a {_gen.NFL_MAX_MODEL_GAP:.0%} gap, where the model was "
+                       f"measured to become the worse forecast. Ranking on raw edge instead put "
+                       f"the board's whole top row against that boundary. "
                        "Flags mark projections built on last season's role: a new team, a thin "
                        "sample, or a rookie's draft cohort. Still gated by the same honest-CLV "
                        "discipline as the other sports.")
