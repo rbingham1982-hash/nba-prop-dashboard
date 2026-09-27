@@ -72,6 +72,26 @@ def _shard_path(key: str) -> Path:
 # for leg overconfidence. Both change what predicted numbers mean → new epoch.
 _MODEL_EPOCH = "blend"
 
+# Per sport, because a scorer change rarely touches all four. NFL props moved to
+# "projblend" on 2026-09-27: daily_parlay_gen now asks nfl_analysis to blend the usage
+# projection half-and-half with a recency mean before it becomes a probability, so an NFL
+# predicted_prob means something different from here on. Touchdown counts are excluded
+# inside the scorer, where the engine orders better — see nfl_analysis._NO_RECENCY_BLEND.
+#
+# stat_eval is the evidence: over 11,350 player-week-stat rows the blend beats a recency
+# mean by 0.114 MAE at p=0.0000, while the engine alone is indistinguishable from it.
+#
+# Kept per sport rather than bumped globally on purpose. A single epoch string would have
+# orphaned 18,209 MLB and 10,974 WNBA parlays from calibration for a change that touched
+# neither — those sports are scored by parlay_model and did not move. Retiring history is
+# the right call only for the sport whose numbers actually changed meaning.
+_MODEL_EPOCH_BY_SPORT = {"NFL": "projblend"}
+
+
+def model_epoch(sport) -> str:
+    """The epoch a parlay of this sport is being predicted under."""
+    return _MODEL_EPOCH_BY_SPORT.get(str(sport or "").upper(), _MODEL_EPOCH)
+
 CAL_MIN_SAMPLES = 15          # minimum weighted resolved legs per stat before calibration kicks in
 CAL_MAX_FACTOR = 1.35         # clamp calibration multiplier upper bound
 CAL_MIN_FACTOR = 0.05         # allow deep deflation for stats like RBI/HR that rarely hit
@@ -464,7 +484,7 @@ def log_parlays(
             "payout":           parlay.get("payout"),
             # Which model produced predicted_prob. Calibration grades a model against
             # its own predictions; without this it grades whatever came before too.
-            "model_epoch":      _MODEL_EPOCH,
+            "model_epoch":      model_epoch(sport),
             # EV on the calibrated probability, and whether it clears zero. Losers are
             # logged too — they are the training data — but only the recommended ones
             # are worth betting.
@@ -577,7 +597,8 @@ def log_tracking_legs(legs: list, sport: str, sportsbook: str,
         data["parlays"].append({
             "id": pid, "sport": sport, "sportsbook": sportsbook, "kind": "tracking",
             "generated_at": now.isoformat(timespec="seconds"), "iso_week": week,
-            "predicted_prob": hr, "payout": round(dec, 3), "model_epoch": _MODEL_EPOCH,
+            "predicted_prob": hr, "payout": round(dec, 3),
+            "model_epoch": model_epoch(sport),
             "ev": round(hr * dec - 1, 4), "recommended": False, "parlay_hit": None,
             "min_lead_hours": lh, "experiment": ("early" if lh is not None and lh >= EARLY_LEAD_HOURS
                                                  else "late" if lh is not None else "unknown"),
@@ -2095,7 +2116,9 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
                # market; its overconfidence is not this model's overconfidence, and
                # applying it on top of corrected legs deflates twice — which is how the
                # board came to report that every parlay on it loses.
-               and p.get("model_epoch") == _MODEL_EPOCH]
+               # Compared per sport: a parlay is current if it matches the epoch ITS
+               # sport is on, not a single global string.
+               and p.get("model_epoch") == model_epoch(p.get("sport"))]
     if not parlays:
         return {}
 
@@ -2138,7 +2161,14 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
 # Epochs whose legs carry an honest de-vigged implied_prob — the pool the blend
 # weight and correlation penalty are measured on. Pre-devig legs pinned implied
 # at 0.50 and would poison both fits.
-_MARKET_EPOCHS = ("devig", "blend")
+#
+# This gate is about the PRICE, not the projection, which is why "projblend" belongs here
+# beside "blend". The NFL projection change altered what predicted_prob means — that is
+# what the per-sport epoch in get_parlay_calibration retires — but it did not touch how
+# implied_prob is de-vigged. Leaving projblend out would have quietly dropped every new
+# NFL leg from the market-blend fit and from CLV, which is the one measurement that
+# converges fast enough to be worth having.
+_MARKET_EPOCHS = ("devig", "blend", "projblend")
 
 MB_PRIOR_WEIGHT   = 0.35   # prior blend weight (model share) before data speaks
 MB_PRIOR_STRENGTH = 150.0  # weighted legs the prior counts as — small samples move slowly
