@@ -107,6 +107,53 @@ def hit_rate(log: list, stat: str, line: float) -> dict:
             "over": over, "values": vals}
 
 
+def walk_forward_contexts(season: int, df=None) -> dict:
+    """
+    week -> the scoring context a projection for that week could legitimately have used.
+
+    Each week's context is built from the weeks BEFORE it and nothing else, which is the
+    whole point: a projection that has seen the week it projects is not a projection. The
+    contexts do not depend on which player is being scored, so building them once and
+    reusing them across players is what makes a per-player walk-forward affordable — about
+    half a second per week, against thirty milliseconds to score a player once built.
+    """
+    df = df if df is not None else get_season(season)[1]
+    out = {}
+    for w in sorted(int(x) for x in df["week"].unique()):
+        prior = df[df["week"] < w]
+        if prior.empty:
+            continue
+        out[w] = {"df": prior, "idx": player_index(prior),
+                  "priors": position_priors(prior), "vol": team_volume(prior),
+                  "rates": league_rates(prior)}
+    return out
+
+
+def walk_forward_projection(season: int, player: str, stat: str,
+                            contexts: dict | None = None) -> dict:
+    """
+    week -> what the usage engine would have projected for this player and stat.
+
+    The depth-chart and availability multipliers are deliberately NOT applied. They belong
+    to roster construction — fantasy_tools puts them on top when it turns a projection into
+    a waiver or DFS recommendation — and folding them in here would mean a player's stat
+    projection moved because of where he sits on a depth chart rather than because of
+    anything about his production. What this returns is the usage model's own number.
+    """
+    contexts = contexts if contexts is not None else walk_forward_contexts(season)
+    out = {}
+    for w, c in contexts.items():
+        try:
+            s = score_prop_nfl(c["df"], player, stat, 0.5, priors=c["priors"],
+                               vol=c["vol"], idx=c["idx"], rates=c["rates"],
+                               dcache={}, cvcache={})
+        except Exception:
+            s = None
+        if s and s.get("projection") is not None:
+            out[int(w)] = round(float(s["projection"]), 1)
+    return out
+
+
 def project(log: list, stat: str, recent_n: int = 5) -> float | None:
     """
     Next-game projection: recency-weighted mean (last recent_n games weighted 2×). Simple and

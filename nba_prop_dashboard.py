@@ -8883,13 +8883,34 @@ elif sport == "🏈 NFL":
                     return {int(r["week"]): (r["grade"], float(r["score"]))
                             for _, r in g.iterrows()}
 
+                # The usage engine's own walk-forward number, beside the tab's simpler
+                # recency mean. Two projections of the same thing, so the table can show
+                # which one was actually closer instead of asserting that the more
+                # elaborate model is better.
+                @st.cache_resource(show_spinner=False)
+                def _nfl_wf_contexts(season):
+                    return _nfla.walk_forward_contexts(season)
+
+                @st.cache_data(ttl=3600, show_spinner=False)
+                def _nfl_engine_proj(season, player, stat):
+                    try:
+                        return _nfla.walk_forward_projection(
+                            season, player, stat, _nfl_wf_contexts(season))
+                    except Exception:
+                        return {}
+
                 _grades = _nfl_player_grades(_season, _player)
-                _rows, _beat, _dec, _errs = [], 0, 0, []
+                with st.spinner("Rebuilding the engine's weekly projections…"):
+                    _eng = _nfl_engine_proj(_season, _player, _stat)
+
+                _rows, _beat, _dec = [], 0, 0
+                _errs, _eerrs, _rwin, _ewin = [], [], 0, 0
                 for _i, _g in enumerate(_log):
                     # Only the games before this one. A projection that has seen the week
                     # it is projecting is not a projection.
                     _prior = _log[:_i]
                     _pj = _nfla.project(_prior, _stat) if _prior else None
+                    _en = _eng.get(int(_g["week"]))
                     _act = _g[_stat]
                     _gr = _grades.get(int(_g["week"]))
                     _d = None if _pj is None else round(_act - _pj, 1)
@@ -8898,8 +8919,16 @@ elif sport == "🏈 NFL":
                         _errs.append(abs(_d))
                         if _act > _pj:
                             _beat += 1
+                    if _en is not None:
+                        _eerrs.append(abs(_act - _en))
+                    # Only weeks where BOTH produced a number can say which was closer.
+                    if _pj is not None and _en is not None:
+                        if abs(_act - _pj) < abs(_act - _en):
+                            _rwin += 1
+                        elif abs(_act - _en) < abs(_act - _pj):
+                            _ewin += 1
                     _rows.append({"Wk": _g["week"], "Opp": _g["opp"], _stat: _act,
-                                  "Proj": _pj, "Δ": _d,
+                                  "Proj": _pj, "Engine": _en, "Δ": _d,
                                   "Beat": ("—" if _pj is None else ("✓" if _act > _pj else "✗")),
                                   "Grade": _gr[0] if _gr else "—",
                                   "Score": _gr[1] if _gr else None})
@@ -8910,26 +8939,38 @@ elif sport == "🏈 NFL":
                     st.caption("No game log for this player yet, so there is nothing to "
                                "score a projection against.")
                     _rows = []
-                _b1, _b2, _b3 = st.columns(3)
+                _b1, _b2, _b3, _b4 = st.columns(4)
                 _b1.metric("Beat projection", f"{_beat}/{_dec}" if _dec else "—",
                            f"{_beat/_dec*100:.0f}%" if _dec else None, delta_color="off")
-                _b2.metric("Avg miss", f"{sum(_errs)/len(_errs):.1f}" if _errs else "—",
+                _b2.metric("Avg miss · recency",
+                           f"{sum(_errs)/len(_errs):.1f}" if _errs else "—",
                            f"{_stat.lower()}", delta_color="off")
-                _b3.metric("Graded weeks", len(_grades) or "—",
+                _b3.metric("Avg miss · engine",
+                           f"{sum(_eerrs)/len(_eerrs):.1f}" if _eerrs else "—",
+                           (f"closer {_ewin}-{_rwin}" if (_ewin or _rwin) else None),
+                           delta_color="off")
+                _b4.metric("Graded weeks", len(_grades) or "—",
                            "A-range: %d" % sum(1 for g in _grades.values()
                                                if g[0].startswith("A")) if _grades else None,
                            delta_color="off")
 
                 if _rows:
                     st.dataframe(
-                        _pd.DataFrame(_rows).astype({"Proj": "Float64", "Δ": "Float64",
-                                                     "Score": "Float64"}),
+                        _pd.DataFrame(_rows).astype({"Proj": "Float64", "Engine": "Float64",
+                                                     "Δ": "Float64", "Score": "Float64"}),
                         width="stretch", hide_index=True,
                         height=min(430, 40 + 34 * len(_rows)))
                 st.caption(
                     "**Proj** is what this tab's projection would have said going into that week — "
                     "built only from earlier games, so the column is a record rather than a "
                     "retrofit. Week 1 is blank because there was nothing to project from. "
+                    "**Engine** is the usage model's walk-forward number for the same week — "
+                    "the projection engine the waiver and DFS boards run on, scoring from "
+                    "opportunity rather than from the player's own recent output. It is blank "
+                    "until he has enough games behind him for the model to fit, and it carries "
+                    "no depth-chart or availability discount: those belong to roster "
+                    "construction, not to a stat projection. The delta beside Avg miss says "
+                    "which of the two landed closer, week for week. "
                     "**Grade** scores how he played that week against every player-week at his "
                     "position in the reference season, so it can disagree with Beat: clearing a "
                     "soft number in a poor game is common, and so is missing a demanding one in "
