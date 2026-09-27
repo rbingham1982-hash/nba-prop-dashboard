@@ -243,6 +243,19 @@ def grade_week(season: int, week: int, ref_season: int | None = None):
     d = d[(d["week"] == week) & d["qualified"]]
     if d.empty:
         return pd.DataFrame()
+    return _grade_rows(d, ref).sort_values("score", ascending=False).reset_index(drop=True)
+
+
+def _grade_rows(d, ref: dict):
+    """
+    Grade an already-filtered block of qualified player-weeks.
+
+    Split out of grade_week so a single player's whole season can be graded in one pass.
+    That is only sound because the z-scores are taken against a REFERENCE SEASON rather
+    than against the other players in the same week — a grade does not depend on who else
+    is in the frame, so slicing by player gives the same numbers as slicing by week.
+    """
+    import pandas as pd
     zs = _zscores(d, ref)
     comp = _composite(zs, d["position"])
     rows = []
@@ -253,6 +266,7 @@ def grade_week(season: int, week: int, ref_season: int | None = None):
             continue
         score = _pct(rp["composite"], float(comp[i]))
         row = {"player": r["player_display_name"], "player_id": r.get("player_id"),
+               "week": int(r["week"]),
                "position": pos, "team": r["team"], "opponent": r.get("opponent_team", ""),
                "score": round(score, 1), "grade": letter(score)}
         for c in _COMPONENTS:
@@ -263,7 +277,25 @@ def grade_week(season: int, week: int, ref_season: int | None = None):
         row["work"] = int(r["work"])
         row["headshot"] = r.get("headshot_url") if isinstance(r.get("headshot_url"), str) else None
         rows.append(row)
-    return pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True)
+    return pd.DataFrame(rows)
+
+
+def player_grades(season: int, player: str, ref_season: int | None = None):
+    """
+    Every graded week for one player, earliest first.
+
+    Weeks where he fell below _MIN_WORK are absent rather than zero: a receiver who ran
+    three routes did not have a bad week, he had no week, and grading him on it would put
+    an F next to a player nobody started.
+    """
+    import pandas as pd
+    ref_season = ref_season or season - 1
+    ref = reference(ref_season)
+    d = components(_frame(season))
+    d = d[(d["player_display_name"] == player) & d["qualified"]]
+    if d.empty:
+        return pd.DataFrame()
+    return _grade_rows(d, ref).sort_values("week").reset_index(drop=True)
 
 
 def weeks_available(season: int) -> list:

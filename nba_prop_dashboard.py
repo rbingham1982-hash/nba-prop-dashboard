@@ -8859,6 +8859,89 @@ elif sport == "🏈 NFL":
                 st.caption("Projection is a recency-weighted mean (last 5 games ×2). A matchup/pace-adjusted "
                            "model model is a later refinement; live prop scoring is in the Edge Finder tab.")
 
+                # ══ Did we call it, and how did he actually play ══
+                #
+                # Two different questions sitting side by side on purpose. "Beat" is the
+                # projection's scoreboard — walk-forward, so the number in each row is what
+                # the tab would have shown BEFORE that game, never after. "Grade" is how he
+                # played, scored against every player-week of the reference season at his
+                # position, which is a separate matter: a receiver can clear a soft
+                # projection in a poor game, or miss a demanding one in a good game, and
+                # the pair is more informative than either alone.
+                st.markdown("---")
+                st.markdown("**Projection vs reality, week by week**")
+
+                @st.cache_data(ttl=3600, show_spinner=False)
+                def _nfl_player_grades(season, player):
+                    import nfl_grades as _ng
+                    try:
+                        g = _ng.player_grades(season, player)
+                    except Exception:
+                        return {}
+                    if g is None or g.empty:
+                        return {}
+                    return {int(r["week"]): (r["grade"], float(r["score"]))
+                            for _, r in g.iterrows()}
+
+                _grades = _nfl_player_grades(_season, _player)
+                _rows, _beat, _dec, _errs = [], 0, 0, []
+                for _i, _g in enumerate(_log):
+                    # Only the games before this one. A projection that has seen the week
+                    # it is projecting is not a projection.
+                    _prior = _log[:_i]
+                    _pj = _nfla.project(_prior, _stat) if _prior else None
+                    _act = _g[_stat]
+                    _gr = _grades.get(int(_g["week"]))
+                    _d = None if _pj is None else round(_act - _pj, 1)
+                    if _pj is not None:
+                        _dec += 1
+                        _errs.append(abs(_d))
+                        if _act > _pj:
+                            _beat += 1
+                    _rows.append({"Wk": _g["week"], "Opp": _g["opp"], _stat: _act,
+                                  "Proj": _pj, "Δ": _d,
+                                  "Beat": ("—" if _pj is None else ("✓" if _act > _pj else "✗")),
+                                  "Grade": _gr[0] if _gr else "—",
+                                  "Score": _gr[1] if _gr else None})
+
+                if not _rows:
+                    # A player with no game log reaches here on an empty list, and the
+                    # astype below would raise KeyError on columns that were never built.
+                    st.caption("No game log for this player yet, so there is nothing to "
+                               "score a projection against.")
+                    _rows = []
+                _b1, _b2, _b3 = st.columns(3)
+                _b1.metric("Beat projection", f"{_beat}/{_dec}" if _dec else "—",
+                           f"{_beat/_dec*100:.0f}%" if _dec else None, delta_color="off")
+                _b2.metric("Avg miss", f"{sum(_errs)/len(_errs):.1f}" if _errs else "—",
+                           f"{_stat.lower()}", delta_color="off")
+                _b3.metric("Graded weeks", len(_grades) or "—",
+                           "A-range: %d" % sum(1 for g in _grades.values()
+                                               if g[0].startswith("A")) if _grades else None,
+                           delta_color="off")
+
+                if _rows:
+                    st.dataframe(
+                        _pd.DataFrame(_rows).astype({"Proj": "Float64", "Δ": "Float64",
+                                                     "Score": "Float64"}),
+                        width="stretch", hide_index=True,
+                        height=min(430, 40 + 34 * len(_rows)))
+                st.caption(
+                    "**Proj** is what this tab's projection would have said going into that week — "
+                    "built only from earlier games, so the column is a record rather than a "
+                    "retrofit. Week 1 is blank because there was nothing to project from. "
+                    "**Grade** scores how he played that week against every player-week at his "
+                    "position in the reference season, so it can disagree with Beat: clearing a "
+                    "soft number in a poor game is common, and so is missing a demanding one in "
+                    "a good game. Weeks where he fell below the usage floor are ungraded rather "
+                    "than zero. "
+                    "Read **Avg miss** for accuracy, not the beat rate. A recency-weighted mean "
+                    "gets beaten most weeks by anyone whose season trended upward — his early "
+                    "games hold the projection down while his later ones clear it — and beaten "
+                    "rarely by anyone fading. A beat rate near 50% means the projection is "
+                    "centred; far from it says more about the player's trajectory than about "
+                    "whether the number was any good.")
+
     with _nfl_tab_bet:
         st.markdown(
             "<div style='margin:0.2rem 0 0.9rem;'>"
