@@ -822,12 +822,35 @@ def project_usage(df, player: str, stat: str, opponent: str | None = None,
             "depth_factor": round(dmult, 3), "injury_status": status}
 
 
+# Weight on the usage engine when a caller asks for the recency blend. Half and half,
+# measured not fitted — see stat_eval, which found the blend beats a recency mean by 0.114
+# MAE at p=0.0000 over 11,350 player-week-stat rows, while the engine alone is
+# indistinguishable from it (p=0.257).
+_RECENCY_BLEND_W = 0.5
+
+# Touchdown counts are excluded from the blend on evidence, not taste. Over 5,237
+# player-weeks the three methods are identical on error (all p > 0.23), but the engine
+# ORDERS players markedly better — rank correlation 0.281 against 0.243 for a recency mean,
+# with the blend at 0.274 in between. A touchdown board ranks; degrading the ordering to
+# chase an error difference that does not exist would be a straight loss. Mechanically it
+# figures: a per-game touchdown count is nearly binary, so both means land on almost the
+# same number and all the information is in whose opportunity is bigger.
+_NO_RECENCY_BLEND = {"Passing TDs", "Rushing TDs", "Receiving TDs"}
+
+
+def _recency_mean(vals: list, recent_n: int = 5) -> float:
+    """Last `recent_n` games weighted 2x against the full mean. The tab's projection."""
+    recent = vals[-recent_n:]
+    return (2.0 * (sum(recent) / len(recent)) + 1.0 * (sum(vals) / len(vals))) / 3.0
+
+
 def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None,
                      opponent: str | None = None, market_blend: float = 0.35,
                      teams: dict | None = None, priors: dict | None = None,
                      vol: dict | None = None, idx: dict | None = None,
                      dcache: dict | None = None, depth: dict | None = None,
-                     injuries: dict | None = None) -> dict:
+                     injuries: dict | None = None,
+                     blend_recency: bool = False) -> dict:
     """
     score_prop, but off the rebased projection — the Week 1-2 scorer.
 
@@ -852,11 +875,23 @@ def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None
     raw_mu = sum(vals) / len(vals)
     raw_sigma = _st.pstdev(vals) if len(vals) > 1 else max(raw_mu * 0.5, 1.0)
     mu = proj["projection"]
+    # Opt-in, and deliberately NOT the default. fantasy_tools already blends at the PPR
+    # level when it turns a projection into a board, so blending here as well would blend
+    # the same player twice. The props scorer prices one stat line and has no PPR step, so
+    # this is where its blend belongs.
+    if blend_recency and stat not in _NO_RECENCY_BLEND and vals:
+        mu = _RECENCY_BLEND_W * mu + (1.0 - _RECENCY_BLEND_W) * _recency_mean(vals)
     sigma = (raw_sigma * (mu / raw_mu)) if raw_mu > 0 else raw_sigma
     sigma = max(sigma, 0.35 * max(mu, 0.5))
 
     model_over = round(_over_prob(stat, line, mu, sigma), 4)
     out = dict(proj)
+    if blend_recency and mu != proj["projection"]:
+        # Both kept: `projection` is what priced the leg, `projection_engine` is what the
+        # usage model said on its own, so a row can be read back later to see which part
+        # of it moved.
+        out["projection_engine"] = proj["projection"]
+        out["projection"] = round(float(mu), 2)
     out.update({"line": float(line), "sigma": round(sigma, 2), "model_over": model_over,
                 "hit_rate_hist": round(sum(1 for v in vals if v > line) / len(vals), 3),
                 "n": len(vals)})
@@ -1017,7 +1052,8 @@ def score_prop_nfl(df, player: str, stat: str, line: float, american_odds=None,
                    vol: dict | None = None, idx: dict | None = None,
                    dcache: dict | None = None, board: dict | None = None,
                    rates: dict | None = None, cvcache: dict | None = None,
-                   depth: dict | None = None, injuries: dict | None = None) -> dict:
+                   depth: dict | None = None, injuries: dict | None = None,
+                   blend_recency: bool = False) -> dict:
     """
     The single NFL scorer. Usage model when the player has a game log, fantasy board when
     he does not.
@@ -1038,7 +1074,7 @@ def score_prop_nfl(df, player: str, stat: str, line: float, american_odds=None,
     s = score_prop_usage(df, player, stat, line, american_odds=american_odds,
                          opponent=opponent, market_blend=market_blend, teams=teams,
                          priors=priors, vol=vol, idx=idx, dcache=dcache, depth=depth,
-                         injuries=injuries)
+                         injuries=injuries, blend_recency=blend_recency)
     if s:
         s.setdefault("source", "usage")
         return s
