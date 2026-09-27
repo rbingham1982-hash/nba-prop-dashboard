@@ -5118,6 +5118,23 @@ def _fallback_wnba_legs(stat_types: list = None, cal: dict = None) -> list:
     return legs
 
 
+# Each sport's page lives in its own KEYED container, so switching sports replaces the
+# subtree rather than diffing against it. Without a key Streamlit left the previous
+# sport's elements mounted below the new page — dimmed, but still there and still
+# scrollable. The NBA draft board, its news feed and its platform-features grid sat
+# permanently under the NFL page, which is what "remnants of other pages" was.
+#
+# Opened by protocol instead of a `with` block deliberately. The body is the whole
+# if/elif chain below, and indenting 4,200 lines to fit under a `with` would also indent
+# 36 triple-quoted strings, where four leading spaces can turn markdown into a code
+# block. __enter__/__exit__ is what `with` does anyway; the matching exit is the last
+# statement in this file.
+_PAGE_KEYS = {"🏀 NBA": "nba", "🏀 WNBA": "wnba", "⚾ MLB": "mlb",
+              "🏈 NFL": "nfl", "🏆 Fantasy": "fantasy"}
+_page_box = st.container(key=f"page_{_PAGE_KEYS.get(sport, 'other')}")
+_page_box.__enter__()
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ══════════════  NBA  ════════════════════════════════════════════════════════
 # ══════════════════════════════════════════════════════════════════════════════
@@ -9058,26 +9075,44 @@ elif sport == "🏈 NFL":
 
         # ── Live FanDuel props, scored & ranked by edge ──────────────────────
         st.markdown("**Live FanDuel props**")
-        _fd_nfl = None
-        try:
-            with st.spinner("Checking FanDuel for posted NFL props…"):
-                _fd_nfl = _pmnfl.fetch_fanduel("nfl")
-        except Exception:
-            _fd_nfl = None
+        # Fetched AND scored behind one cache. Uncached, this ran on every rerun of the
+        # NFL page — Streamlit executes every tab body, not just the visible one — so
+        # changing a player on the Player Analysis tab paid 6.8s to fetch FanDuel and
+        # 39.7s to score 908 props before anything redrew. That 46s is what left the
+        # previous sport's page on screen, dimmed, long enough to look like breakage.
+        #
+        # Five minutes, because prop lines move near kickoff and a board quoting a price
+        # from half an hour ago is worse than a slow one. The pair is cached together so
+        # the board and the parlay builder below can never disagree about a leg.
+        @st.cache_data(ttl=300, show_spinner=False)
+        def _nfl_live_props():
+            import daily_parlay_gen as _g
+            try:
+                raw = _pmnfl.fetch_fanduel("nfl")
+            except Exception as _fe:
+                return None, [], f"fetch: {_fe}"
+            if raw is None or raw.empty:
+                return raw, [], None
+            try:
+                legs = _g.score_legs(raw, {}, _g.NFL_STAT_TYPES, _g.nfl_hit_rate,
+                                     min_sample=_g.MIN_SAMPLE.get("NFL", 3))
+            except Exception as _se:
+                return raw, [], str(_se)
+            return raw, legs, None
+
+        # Imported out here, not inside a branch. The scoring block that used to carry
+        # this import moved into the cached function above, and _gen is still read by the
+        # board and the parlay builder further down.
+        import daily_parlay_gen as _gen
+
+        with st.spinner("Checking FanDuel and scoring NFL props…"):
+            _fd_nfl, _plegs_cached, _pcache_err = _nfl_live_props()
         # Scored once, here, and reused by the parlay builder below, so the board and the
         # builder price every leg identically. The fetcher returns BOTH sides of every
         # two-way market; this board used to ignore `side` and score each row as an OVER,
         # so every prop appeared twice and the under row set the over probability
         # against the under's price, which is a meaningless edge.
-        _plegs, _pscore_err = [], None
-        if _fd_nfl is not None and not _fd_nfl.empty:
-            import daily_parlay_gen as _gen
-            try:
-                with st.spinner("Scoring NFL props…"):
-                    _plegs = _gen.score_legs(_fd_nfl, {}, _gen.NFL_STAT_TYPES, _gen.nfl_hit_rate,
-                                             min_sample=_gen.MIN_SAMPLE.get("NFL", 3))
-            except Exception as _se:
-                _pscore_err = _se
+        _plegs, _pscore_err = _plegs_cached, _pcache_err
         if _pscore_err is not None:
             st.error(f"Couldn't score NFL props: {_pscore_err}")
         elif _plegs:
@@ -9153,7 +9188,6 @@ elif sport == "🏈 NFL":
         elif _fd_nfl is None or _fd_nfl.empty:
             st.caption("Needs posted props — the builder runs off the live FanDuel board above.")
         else:
-            import daily_parlay_gen as _gen
             _pc1, _pc2, _pc3 = st.columns([1, 1, 1.4])
             with _pc1:
                 _pmin = st.slider("Min legs", 2, 5, 2, key="nfl_p_min")
@@ -9360,3 +9394,8 @@ elif sport == "🏆 Fantasy":
                            "start/sit call disagreed with the waiver ranking, one of "
                            "them would be wrong.")
 
+
+# Closes the per-sport container opened above the sport chain. Not in a finally: if the
+# page raised, Streamlit has already ended the run and drawn the error, and an unclosed
+# container costs nothing on a run that produced no further elements.
+_page_box.__exit__(None, None, None)
