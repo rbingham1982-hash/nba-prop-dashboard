@@ -9318,9 +9318,22 @@ elif sport == "🏈 NFL":
             with _e3:
                 _bstat = st.selectbox("Stat", _nflb.POS_STATS.get(_bppos, list(_nflb.PROP_STATS.keys())),
                                       key="nfl_bet_stat")
+            # Default the line to the player's own projection, the way the Player Analysis
+            # tab does. A flat 50.0 is wrong for every market here: it asked whether a
+            # receiver would catch 50 passes, which scored 0% and printed an -18.3 point
+            # "edge" that was an artefact of the default rather than anything about the
+            # player.
+            #
+            # The key carries the player and stat because Streamlit only applies `value` on
+            # a widget's FIRST render — with a fixed key the box would keep the number from
+            # whichever selection happened to load first.
+            _blog = _nflb.game_log(_bwk, _bplayer) if _bplayer else []
+            _bproj = _nflb.project(_blog, _bstat) if (_blog and _bstat) else None
+            _bdefault = max(round((_bproj or 1) * 2) / 2 - 0.5, 0.5) if _bproj else 0.5
             _o1, _o2 = st.columns(2)
             with _o1:
-                _bline = st.number_input("Book line", value=50.0, step=0.5, key="nfl_bet_line")
+                _bline = st.number_input("Book line", value=float(_bdefault), step=0.5,
+                                         key=f"nfl_bet_line_{_bplayer}_{_bstat}")
             with _o2:
                 _bodds = st.number_input("Odds (American)", value=-110, step=5, key="nfl_bet_odds")
             if _bplayer and _bstat:
