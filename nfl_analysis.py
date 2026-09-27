@@ -66,6 +66,28 @@ def latest_season_with_data(guess: int | None = None) -> int:
     return y - 1
 
 
+def seasons_with_data(back: int = 3) -> list:
+    """
+    Seasons that have ANY regular-season rows, newest first.
+
+    Deliberately a lower bar than latest_season_with_data, which demands six weeks before
+    it will PROJECT from a season. Whose roster a player is on is not a projection: three
+    weeks answers it exactly, and falling back a year to answer it is how the Player
+    Analysis tab spent September showing Geno Smith on Las Vegas.
+    """
+    import pandas as pd
+    y = datetime.datetime.now().year
+    out = []
+    for cand in range(y, y - back, -1):
+        try:
+            df = pd.read_parquet(_WEEKLY.format(y=cand))
+            if not df[df["season_type"] == "REG"].empty:
+                out.append(cand)
+        except Exception:
+            continue
+    return out
+
+
 def get_season(season: int | None = None):
     """Cached weekly frame for a season (resolved to the latest available if None)."""
     s = season or latest_season_with_data()
@@ -82,6 +104,38 @@ def players_on_team(df, team: str) -> list:
     order = (sub.groupby(["player_display_name", "position"])
                 .size().reset_index(name="g").sort_values("g", ascending=False))
     return [(r["player_display_name"], r["position"]) for _, r in order.iterrows()]
+
+
+def roster_teams_and_players(df, target_season: int | None = None):
+    """
+    (teams, {team: [(player, position), ...]}) using TODAY's rosters over a history frame.
+
+    For the surfaces that price or project a player who is playing now off whatever
+    history exists. players_on_team reads the team off the history frame itself, which is
+    correct for "show me the 2025 season" and wrong for "who is on the Jets" — through
+    September it put Geno Smith on Las Vegas, because that is where he played last year.
+
+    Falls back to the frame's own teams if the roster feed is unavailable, since a stale
+    roster is better than an empty selector.
+    """
+    target_season = target_season or season_for_date(datetime.date.today())
+    try:
+        roster = current_teams(target_season)
+    except Exception:
+        roster = {}
+    if not roster:
+        return teams_in(df), {t: players_on_team(df, t) for t in teams_in(df)}
+    sub = df[df["position"].isin(["QB", "RB", "WR", "TE"])]
+    counts = sub.groupby(["player_id", "player_display_name", "position"]).size()
+    by_team: dict = {}
+    for (pid, name, pos), g in counts.items():
+        team = roster.get(str(pid))
+        if not team:
+            continue
+        by_team.setdefault(team, []).append((name, pos, int(g)))
+    for t in by_team:
+        by_team[t] = [(n, p) for n, p, _ in sorted(by_team[t], key=lambda r: -r[2])]
+    return sorted(by_team), by_team
 
 
 def game_log(df, player: str) -> list:

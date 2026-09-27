@@ -2374,7 +2374,7 @@ def _grouped_tabs(groups: list, key_prefix: str = "tabs"):
     not) the frontend keeps a phantom stale tab — dimmed leftover content from
     the previous sport that never clears. Distinct keys force a clean remount.
     """
-    outer = st.tabs([name for name, _children in groups])
+    outer = st.tabs([name for name, _children in groups], key=f"{key_prefix}_outer_tabs")
     flat = []
     for container, (_name, children) in zip(outer, groups):
         if not children:
@@ -4485,7 +4485,7 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                 "Flat P&L ($)":      _roi["flat_series"],
                 "Kelly Bankroll ($)": _roi["kelly_series"],
             }, index=_roi["dates"])
-            _tabs_roi = st.tabs(["Flat Bet P&L", "Kelly Bankroll"])
+            _tabs_roi = st.tabs(["Flat Bet P&L", "Kelly Bankroll"], key="roi_tabs")
             with _tabs_roi[0]:
                 st.line_chart(_chart_data[["Flat P&L ($)"]], height=200)
             with _tabs_roi[1]:
@@ -7164,7 +7164,7 @@ elif sport == "⚾ MLB":
             unsafe_allow_html=True,
         )
         import mlb_insights as _mi
-        _hb1, _hb2 = st.tabs(["Today's Board", "Player Profile"])
+        _hb1, _hb2 = st.tabs(["Today's Board", "Player Profile"], key="hr_board_tabs")
 
         with _hb1:
             st.caption("Lineups post ~3-4h before first pitch; the board is empty until then. "
@@ -8657,7 +8657,8 @@ elif sport == "⚾ MLB":
         </p>""", unsafe_allow_html=True)
 elif sport == "🏈 NFL":
     _nfl_tab_hub, _nfl_tab_analyze, _nfl_tab_bet, _nfl_tab_track, _nfl_tab_board = st.tabs(
-        ["🏠 Week Hub", "🔬 Player Analysis", "💰 Edge Finder", "📈 Track", "📊 Draft Board"])
+        ["🏠 Week Hub", "🔬 Player Analysis", "💰 Edge Finder", "📈 Track", "📊 Draft Board"],
+        key="nfl_top_tabs")
 
     with _nfl_tab_hub:
         # ══ NFL — Week Hub: the in-season landing view, rendered by nfl_hub (player grades
@@ -8765,9 +8766,23 @@ elif sport == "🏈 NFL":
         def _nfl_weekly(season=None):
             return _nfla.get_season(season)
 
+        @st.cache_data(ttl=86400, show_spinner=False)
+        def _nfl_seasons():
+            return _nfla.seasons_with_data()
+
+        # Default to the season being PLAYED, not the last one complete enough to project
+        # from. Those are different questions and conflating them put players on the teams
+        # they left: the tab needed six weeks of 2026 before it would show 2026 at all, so
+        # through September it answered "who is on the Jets" with last year's roster.
+        try:
+            _season_opts = _nfl_seasons() or [_nfla.latest_season_with_data()]
+        except Exception:
+            _season_opts = [_nfla.latest_season_with_data()]
+        _season_pick = st.radio("Season", _season_opts, horizontal=True,
+                                key="nfl_an_season", label_visibility="collapsed")
         try:
             with st.spinner("Loading NFL weekly data from nflverse…"):
-                _season, _wk = _nfl_weekly()
+                _season, _wk = _nfl_weekly(_season_pick)
         except Exception as _e:
             _season, _wk = None, None
             st.error(f"Couldn't load NFL weekly data: {_e}")
@@ -8775,8 +8790,14 @@ elif sport == "🏈 NFL":
         if _wk is None or _wk.empty:
             st.info("NFL weekly data unavailable right now — the nflverse source didn't return data.")
         else:
-            st.caption(f"Season {_season} · {len(_wk)} regular-season player-weeks. "
-                       "(Falls back to the latest completed season until 2026 Week 1 is played.)")
+            _nweeks = int(_wk["week"].nunique()) if len(_wk) else 0
+            st.caption(
+                f"Season {_season} · {_nweeks} weeks · {len(_wk):,} regular-season "
+                f"player-weeks. Rosters and team lists are this season's, so a player "
+                f"appears under the team he plays for now."
+                + ("  A partial season is a thin base for a projection — switch to the "
+                   "prior season for a fuller history, remembering its rosters are that "
+                   "season's." if _nweeks < _nfla._MIN_WEEKS_FOR_SEASON else ""))
             _q1, _q2, _q3 = st.columns([1, 1.5, 1.4])
             with _q1:
                 _team = st.selectbox("Team", _nfla.teams_in(_wk), key="nfl_an_team")
@@ -8905,6 +8926,9 @@ elif sport == "🏈 NFL":
 
                 _rows, _beat, _dec = [], 0, 0
                 _errs, _eerrs, _rwin, _ewin = [], [], 0, 0
+                _errs_solo = []          # recency over its own weeks, for when the
+                                         # engine has none — early in a season it needs
+                                         # three games before it will say anything.
                 for _i, _g in enumerate(_log):
                     # Only the games before this one. A projection that has seen the week
                     # it is projecting is not a projection.
@@ -8916,6 +8940,7 @@ elif sport == "🏈 NFL":
                     _d = None if _pj is None else round(_act - _pj, 1)
                     if _pj is not None:
                         _dec += 1
+                        _errs_solo.append(abs(_d))
                         if _act > _pj:
                             _beat += 1
                     # Both average misses are accumulated ONLY over weeks where both
@@ -8945,13 +8970,19 @@ elif sport == "🏈 NFL":
                 _b1, _b2, _b3, _b4 = st.columns(4)
                 _b1.metric("Beat projection", f"{_beat}/{_dec}" if _dec else "—",
                            f"{_beat/_dec*100:.0f}%" if _dec else None, delta_color="off")
+                # Paired when both methods have weeks in common; otherwise recency on
+                # its own, said so plainly rather than shown as a blank.
+                _paired = bool(_errs)
                 _b2.metric("Avg miss · recency",
-                           f"{sum(_errs)/len(_errs):.1f}" if _errs else "—",
-                           f"over {len(_errs)} shared weeks" if _errs else None,
+                           f"{sum(_errs)/len(_errs):.1f}" if _paired
+                           else (f"{sum(_errs_solo)/len(_errs_solo):.1f}" if _errs_solo else "—"),
+                           (f"over {len(_errs)} shared weeks" if _paired
+                            else (f"over {len(_errs_solo)} weeks" if _errs_solo else None)),
                            delta_color="off")
                 _b3.metric("Avg miss · engine",
                            f"{sum(_eerrs)/len(_eerrs):.1f}" if _eerrs else "—",
-                           (f"closer {_ewin}-{_rwin}" if (_ewin or _rwin) else None),
+                           (f"closer {_ewin}-{_rwin}" if (_ewin or _rwin)
+                            else ("needs 3 games" if not _eerrs else None)),
                            delta_color="off")
                 _b4.metric("Graded weeks", len(_grades) or "—",
                            "A-range: %d" % sum(1 for g in _grades.values()
@@ -9176,10 +9207,19 @@ elif sport == "🏈 NFL":
         if _bwk is None or _bwk.empty:
             st.caption("NFL data unavailable right now.")
         else:
+            # Rosters as they are NOW over whatever history the scorer has. This tab
+            # prices a prop for a player taking the field this week, so the team he is on
+            # is today's fact while the form behind the number is last season's — reading
+            # the team off the history frame instead put Geno Smith under Las Vegas.
+            @st.cache_data(ttl=3600, show_spinner=False)
+            def _nfl_bet_rosters(season):
+                return _nflb.roster_teams_and_players(_nfl_bet_weekly()[1])
+
+            _bteams, _bby = _nfl_bet_rosters(_bseason)
             _e1, _e2, _e3 = st.columns([1, 1.5, 1.3])
             with _e1:
-                _bteam = st.selectbox("Team", _nflb.teams_in(_bwk), key="nfl_bet_team")
-            _bplist = _nflb.players_on_team(_bwk, _bteam)
+                _bteam = st.selectbox("Team", _bteams, key="nfl_bet_team")
+            _bplist = _bby.get(_bteam, [])
             with _e2:
                 _bpnames = [f"{n}  ·  {p}" for n, p in _bplist]
                 _bpsel = st.selectbox("Player", _bpnames, key="nfl_bet_player") if _bpnames else None
@@ -9245,7 +9285,7 @@ elif sport == "🏆 Fantasy":
         unsafe_allow_html=True,
     )
     import fantasy_tools as _ft
-    _f1, _f2, _f3 = st.tabs(["Daily DFS", "Waiver Board", "Start / Sit"])
+    _f1, _f2, _f3 = st.tabs(["Daily DFS", "Waiver Board", "Start / Sit"], key="fantasy_tabs")
 
     with _f1:
         _sport = st.radio("Slate", ["MLB", "NFL"], horizontal=True,
