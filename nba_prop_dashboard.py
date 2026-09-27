@@ -8990,11 +8990,22 @@ elif sport == "🏈 NFL":
                            delta_color="off")
 
                 if _rows:
-                    st.dataframe(
-                        _pd.DataFrame(_rows).astype({"Proj": "Float64", "Engine": "Float64",
-                                                     "Δ": "Float64", "Score": "Float64"}),
-                        width="stretch", hide_index=True,
-                        height=min(430, 40 + 34 * len(_rows)))
+                    # Formatted to strings rather than left as nullable floats. Streamlit
+                    # prints a pandas <NA> as the literal text "None", and week 1 has no
+                    # projection by construction — a column of "None" reads as breakage
+                    # rather than as "there was nothing to project from". Whole columns are
+                    # converted, never a mix, because a numeric column with one string in
+                    # it is what made st.dataframe throw ArrowInvalid on the splits table.
+                    _disp = _pd.DataFrame(_rows)
+                    for _c, _fmt in (("Proj", "{:.1f}"), ("Engine", "{:.1f}"),
+                                     ("Δ", "{:+.1f}"), ("Score", "{:.0f}")):
+                        # pd.isna, not `v is None`: DataFrame() turns a None in an
+                        # otherwise-numeric column into NaN, which is not None and formats
+                        # as the string "nan".
+                        _disp[_c] = [("—" if _pd.isna(v) else _fmt.format(float(v)))
+                                     for v in _disp[_c]]
+                    st.dataframe(_disp, width="stretch", hide_index=True,
+                                 height=min(430, 40 + 34 * len(_rows)))
                 st.caption(
                     "**Proj** is what this tab's projection would have said going into that week — "
                     "built only from earlier games, so the column is a record rather than a "
