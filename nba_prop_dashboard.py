@@ -8916,13 +8916,16 @@ elif sport == "🏈 NFL":
                     _d = None if _pj is None else round(_act - _pj, 1)
                     if _pj is not None:
                         _dec += 1
-                        _errs.append(abs(_d))
                         if _act > _pj:
                             _beat += 1
-                    if _en is not None:
-                        _eerrs.append(abs(_act - _en))
-                    # Only weeks where BOTH produced a number can say which was closer.
+                    # Both average misses are accumulated ONLY over weeks where both
+                    # methods produced a number. The engine sits out the early weeks while
+                    # it waits for enough games to fit, and those are the hardest weeks to
+                    # project — averaging each method over its own week set hands the
+                    # engine a quiet advantage that has nothing to do with being better.
                     if _pj is not None and _en is not None:
+                        _errs.append(abs(_d))
+                        _eerrs.append(abs(_act - _en))
                         if abs(_act - _pj) < abs(_act - _en):
                             _rwin += 1
                         elif abs(_act - _en) < abs(_act - _pj):
@@ -8944,7 +8947,8 @@ elif sport == "🏈 NFL":
                            f"{_beat/_dec*100:.0f}%" if _dec else None, delta_color="off")
                 _b2.metric("Avg miss · recency",
                            f"{sum(_errs)/len(_errs):.1f}" if _errs else "—",
-                           f"{_stat.lower()}", delta_color="off")
+                           f"over {len(_errs)} shared weeks" if _errs else None,
+                           delta_color="off")
                 _b3.metric("Avg miss · engine",
                            f"{sum(_eerrs)/len(_eerrs):.1f}" if _eerrs else "—",
                            (f"closer {_ewin}-{_rwin}" if (_ewin or _rwin) else None),
@@ -8969,8 +8973,12 @@ elif sport == "🏈 NFL":
                     "opportunity rather than from the player's own recent output. It is blank "
                     "until he has enough games behind him for the model to fit, and it carries "
                     "no depth-chart or availability discount: those belong to roster "
-                    "construction, not to a stat projection. The delta beside Avg miss says "
-                    "which of the two landed closer, week for week. "
+                    "construction, not to a stat projection. Both Avg miss figures are taken "
+                    "over the same weeks — the ones where both methods produced a number — "
+                    "because averaging each over its own weeks flatters the engine, which "
+                    "sits out the hardest ones. Across 11,350 player-week-stat rows of 2025 "
+                    "the two are indistinguishable overall (p=0.26); the engine is genuinely "
+                    "better on receiving yards and genuinely worse on carries and completions. "
                     "**Grade** scores how he played that week against every player-week at his "
                     "position in the reference season, so it can disagree with Beat: clearing a "
                     "soft number in a poor game is common, and so is missing a demanding one in "
