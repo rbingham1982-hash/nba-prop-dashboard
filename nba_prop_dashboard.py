@@ -9141,7 +9141,12 @@ elif sport == "🏈 NFL":
             def _nfl_board_df(_items):
                 return _pd.DataFrame([{
                     "Player": _l["player_name"], "Game": _l["game_label"], "Stat": _l["stat_type"],
-                    "Side": _l["side"].title(), "Line": _l["line_score"], "Odds": _l["american_odds"],
+                    "Side": _l["side"].title(), "Line": _l["line_score"],
+                    # Signed, the way a book prints them. Rendering the raw int showed
+                    # +102 as "102", which on a betting board reads as a short favourite
+                    # rather than a plus-money price. The NBA board has always signed it.
+                    "Odds": (f"+{_l['american_odds']}" if _l.get("american_odds") is not None
+                             and int(_l["american_odds"]) > 0 else str(_l.get("american_odds", "—"))),
                     "Model %": round(_l["hit_rate"] * 100, 1),
                     "Market %": round(float(_l["implied_prob"]) * 100, 1),
                     "Edge %": round(_e * 100, 1),
