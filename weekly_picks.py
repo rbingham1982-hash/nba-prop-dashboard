@@ -521,6 +521,53 @@ def wind_board(season: int | None = None, week: int | None = None) -> list:
     return out
 
 
+def note_wind_update(season: int | None = None, week: int | None = None) -> dict:
+    """
+    Record what the forecast says NOW, beside what it said when the board was cut.
+
+    Adds fields; it never touches `wind_mph`, `expected_adj` or `total_line`, because those
+    three are the prediction and the prediction does not move. What moves is the weather
+    forecast, and a board built on a forecast has to be readable later against how wrong
+    that forecast turned out to be.
+
+    This is not bookkeeping for its own sake. nfl_weather exists because forecasts
+    systematically understate gusty days, and week 3 showed the other half of that problem:
+    TEN @ NYG was logged at 14.5mph and read 9.9mph on Sunday morning — a game that would
+    not have qualified at all under the 10mph threshold had the board been cut two days
+    later. It stays on the board and gets graded, because a prediction is what was
+    committed to with the information available. But a residual from a game whose wind
+    never materialised means something different from one that blew as forecast, and only
+    a record that kept both numbers can tell them apart.
+    """
+    import datetime
+    import nfl_weather as nw
+    if season is None or week is None:
+        season, week = current_week()
+    data = _load()
+    entry = data.get(_key(season, week))
+    if not entry or not entry.get("wind"):
+        return {"updated": 0}
+    stamp = datetime.datetime.now().isoformat(timespec="seconds")
+    n = 0
+    for r in entry["wind"]:
+        try:
+            now = nw.upcoming_wind(r["home_team"], r["gameday"])
+        except Exception:
+            now = None
+        if now is None:
+            continue
+        r["wind_latest"] = round(float(now), 1)
+        r["wind_latest_at"] = stamp
+        r["wind_drift"] = round(float(now) - float(r["wind_mph"]), 1)
+        # Flagged rather than removed. The board is what it was.
+        r["below_threshold_now"] = bool(float(now) < _WIND_MPH)
+        n += 1
+    _save(data)
+    return {"updated": n, "at": stamp,
+            "below_threshold_now": [r["game"] for r in entry["wind"]
+                                    if r.get("below_threshold_now")]}
+
+
 def _grade_wind(entry: dict, sched) -> int:
     """
     Fill in each wind game with what the total actually did.

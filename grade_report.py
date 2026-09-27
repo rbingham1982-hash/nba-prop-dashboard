@@ -123,7 +123,21 @@ def _wind(entry: dict) -> list:
                  f"expected {float(r.get('expected_adj') or 0):+6.2f}  "
                  f"actual {str(r.get('actual_total') or '—'):>5}  "
                  f"residual {('%+.2f' % r['residual']) if r.get('residual') is not None else '—':>7}  "
-                 f"{str(r.get('outcome') or 'pending')}")
+                 f"{str(r.get('outcome') or 'pending')}"
+                 + (f"   [forecast drifted {r['wind_drift']:+.1f} to "
+                    f"{r['wind_latest']:.1f}mph"
+                    + ("; would NOT qualify now]" if r.get("below_threshold_now") else "]")
+                    if r.get("wind_latest") is not None else ""))
+    drifted = [r for r in rows if r.get("below_threshold_now")]
+    if drifted:
+        # Said out loud because a residual from a game whose wind never arrived means
+        # something different from one that blew as forecast, and the board cannot be
+        # read as a clean draw when a row stopped qualifying after it was committed.
+        L.append("")
+        L.append(f"    {len(drifted)} game(s) fell below the threshold after the board "
+                 f"was cut: {', '.join(r['game'] for r in drifted)}")
+        L.append("    They stay graded — the board is what was committed to — but read "
+                 "them knowing the wind did not show up.")
     if graded:
         mean = sum(float(r["residual"]) for r in graded) / len(graded)
         exp = sum(float(r.get("expected_adj") or 0) for r in graded) / len(graded)

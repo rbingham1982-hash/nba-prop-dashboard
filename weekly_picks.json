@@ -833,7 +833,11 @@
     "gameday": "2026-09-27",
     "outcome": null,
     "actual_total": null,
-    "residual": null
+    "residual": null,
+    "wind_latest": 13.5,
+    "wind_latest_at": "2026-09-27T09:32:02",
+    "wind_drift": -1.8,
+    "below_threshold_now": false
    },
    {
     "game": "TEN @ NYG",
@@ -845,7 +849,11 @@
     "gameday": "2026-09-27",
     "outcome": null,
     "actual_total": null,
-    "residual": null
+    "residual": null,
+    "wind_latest": 9.9,
+    "wind_latest_at": "2026-09-27T09:32:02",
+    "wind_drift": -4.6,
+    "below_threshold_now": true
    },
    {
     "game": "CAR @ CLE",
@@ -857,7 +865,11 @@
     "gameday": "2026-09-27",
     "outcome": null,
     "actual_total": null,
-    "residual": null
+    "residual": null,
+    "wind_latest": 12.8,
+    "wind_latest_at": "2026-09-27T09:32:02",
+    "wind_drift": 0.0,
+    "below_threshold_now": false
    },
    {
     "game": "SEA @ WAS",
@@ -869,7 +881,11 @@
     "gameday": "2026-09-27",
     "outcome": null,
     "actual_total": null,
-    "residual": null
+    "residual": null,
+    "wind_latest": 11.9,
+    "wind_latest_at": "2026-09-27T09:32:02",
+    "wind_drift": 1.1,
+    "below_threshold_now": false
    },
    {
     "game": "CIN @ PIT",
@@ -881,7 +897,11 @@
     "gameday": "2026-09-27",
     "outcome": null,
     "actual_total": null,
-    "residual": null
+    "residual": null,
+    "wind_latest": 13.0,
+    "wind_latest_at": "2026-09-27T09:32:02",
+    "wind_drift": 2.3,
+    "below_threshold_now": false
    }
   ],
   "receivers_rule": "blended"
