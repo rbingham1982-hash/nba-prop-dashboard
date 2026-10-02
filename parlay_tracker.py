@@ -1419,20 +1419,31 @@ def _resolve_wnba_legs() -> int:
         if not pid:
             continue
 
-        # Fetch current WNBA season game log (try newest season first)
+        # Regular season AND playoffs. Fetching only the regular season voided every
+        # playoff leg as a DNP: 765 of September 2026's 843 voids were playoff games the
+        # player was in (Ionescu 13 pts at MIN 09-27, voided).
+        #
+        # `complete` records whether every current-season request came back. A DNP
+        # verdict is only sound against a complete log — when the 2026 call timed out,
+        # the 2025 log alone was non-empty, the game was "missing", and 61 August legs
+        # the player did play were voided.
         df = pd.DataFrame()
+        complete = True
         for season in ("2026", "2025"):
-            try:
-                _time.sleep(0.6)
-                logs = _pgl.PlayerGameLog(
-                    player_id=pid, season=season,
-                    season_type_all_star="Regular Season",
-                    league_id_nullable="10", timeout=15,
-                ).get_data_frames()[0]
-                if not logs.empty:
-                    df = logs if df.empty else pd.concat([df, logs], ignore_index=True)
-            except Exception:
-                continue
+            for stype in ("Regular Season", "Playoffs"):
+                try:
+                    _time.sleep(0.6)
+                    logs = _pgl.PlayerGameLog(
+                        player_id=pid, season=season,
+                        season_type_all_star=stype,
+                        league_id_nullable="10", timeout=15,
+                    ).get_data_frames()[0]
+                    if not logs.empty:
+                        df = logs if df.empty else pd.concat([df, logs], ignore_index=True)
+                except Exception:
+                    if season == "2026":
+                        complete = False
+                    continue
         if df.empty:
             continue
 
@@ -1449,8 +1460,9 @@ def _resolve_wnba_legs() -> int:
                 row = _find_game_in_log(df, target, leg.get("game_label", ""))
             if row is None:
                 # The season log loaded and this game isn't in it. Once the game is old
-                # enough that can only be a DNP, which is a void, not a pending leg.
-                if _did_not_play(leg):
+                # enough that can only be a DNP, which is a void, not a pending leg —
+                # provided the log is complete; otherwise retry next pass.
+                if complete and _did_not_play(leg):
                     leg["outcome"] = "void"
                     resolved_count += 1
                 continue
