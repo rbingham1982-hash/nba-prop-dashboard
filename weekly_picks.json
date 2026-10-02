@@ -522,8 +522,8 @@
     "edge": 6.87,
     "pick": "home",
     "pick_label": "PIT +3.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 3.0
    },
    {
     "game": "KC @ MIA",
@@ -534,8 +534,8 @@
     "edge": 6.08,
     "pick": "home",
     "pick_label": "MIA +10.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -14.0
    },
    {
     "game": "PHI @ CHI",
@@ -546,8 +546,8 @@
     "edge": 6.02,
     "pick": "home",
     "pick_label": "CHI +4.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 20.0
    },
    {
     "game": "TEN @ NYG",
@@ -558,8 +558,8 @@
     "edge": 3.57,
     "pick": "home",
     "pick_label": "NYG -2.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 5.0
    },
    {
     "game": "NYJ @ DET",
@@ -570,8 +570,8 @@
     "edge": 3.42,
     "pick": "home",
     "pick_label": "DET -6.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 7.0
    }
   ],
   "parlay": [
@@ -585,8 +585,8 @@
     "blended_prob": 0.6401,
     "implied_prob": 0.6324,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Justice Hill",
@@ -598,8 +598,8 @@
     "blended_prob": 0.6227,
     "implied_prob": 0.6104,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Chuba Hubbard",
@@ -611,8 +611,8 @@
     "blended_prob": 0.5578,
     "implied_prob": 0.5482,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 28.0
    },
    {
     "player": "Woody Marks",
@@ -624,8 +624,8 @@
     "blended_prob": 0.5167,
     "implied_prob": 0.5,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 15.0
    },
    {
     "player": "C.J. Stroud",
@@ -637,8 +637,8 @@
     "blended_prob": 0.5162,
     "implied_prob": 0.5,
     "team": "",
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 167.0
    }
   ],
   "td": [
@@ -650,8 +650,8 @@
     "fair_prob": 0.7367,
     "blended_prob": 0.7266,
     "edge": -0.1083,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    },
    {
     "player": "Christian McCaffrey",
@@ -661,8 +661,8 @@
     "fair_prob": 0.6912,
     "blended_prob": 0.6835,
     "edge": -0.0818,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Derrick Henry",
@@ -672,8 +672,8 @@
     "fair_prob": 0.6753,
     "blended_prob": 0.6691,
     "edge": -0.0659,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "James Cook",
@@ -683,8 +683,8 @@
     "fair_prob": 0.6063,
     "blended_prob": 0.6007,
     "edge": -0.0601,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Kenneth Walker III",
@@ -694,8 +694,8 @@
     "fair_prob": 0.636,
     "blended_prob": 0.5992,
     "edge": -0.3919,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Javonte Williams",
@@ -705,8 +705,8 @@
     "fair_prob": 0.593,
     "blended_prob": 0.5882,
     "edge": -0.0514,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Jonathan Taylor",
@@ -716,8 +716,8 @@
     "fair_prob": 0.5713,
     "blended_prob": 0.5815,
     "edge": 0.1089,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "D'Andre Swift",
@@ -727,8 +727,8 @@
     "fair_prob": 0.5635,
     "blended_prob": 0.5539,
     "edge": -0.1014,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Josh Allen",
@@ -738,8 +738,8 @@
     "fair_prob": 0.5383,
     "blended_prob": 0.5411,
     "edge": 0.0294,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Amon-Ra St. Brown",
@@ -749,8 +749,8 @@
     "fair_prob": 0.5131,
     "blended_prob": 0.5107,
     "edge": -0.0248,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    }
   ],
   "parlay_price": {
@@ -770,8 +770,8 @@
     "fair_prob": 0.454,
     "blended_prob": 0.4707,
     "edge": 0.1781,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Jaxon Smith-Njigba",
@@ -782,8 +782,8 @@
     "fair_prob": 0.4647,
     "blended_prob": 0.4645,
     "edge": -0.0027,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Rashee Rice",
@@ -794,8 +794,8 @@
     "fair_prob": 0.434,
     "blended_prob": 0.4356,
     "edge": 0.0172,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Ja'Marr Chase",
@@ -806,8 +806,8 @@
     "fair_prob": 0.434,
     "blended_prob": 0.4319,
     "edge": -0.0226,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Mark Andrews",
@@ -818,8 +818,8 @@
     "fair_prob": 0.434,
     "blended_prob": 0.419,
     "edge": -0.1602,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    }
   ],
   "wind": [
@@ -831,9 +831,9 @@
     "wind_mph": 15.3,
     "expected_adj": -5.95,
     "gameday": "2026-09-27",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null,
+    "outcome": "under",
+    "actual_total": 40.0,
+    "residual": -10.5,
     "wind_latest": 13.5,
     "wind_latest_at": "2026-09-27T09:32:02",
     "wind_drift": -1.8,
@@ -847,9 +847,9 @@
     "wind_mph": 14.5,
     "expected_adj": -5.64,
     "gameday": "2026-09-27",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null,
+    "outcome": "under",
+    "actual_total": 19.0,
+    "residual": -19.5,
     "wind_latest": 9.9,
     "wind_latest_at": "2026-09-27T09:32:02",
     "wind_drift": -4.6,
@@ -863,9 +863,9 @@
     "wind_mph": 12.8,
     "expected_adj": -4.98,
     "gameday": "2026-09-27",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null,
+    "outcome": "under",
+    "actual_total": 39.0,
+    "residual": -3.5,
     "wind_latest": 12.8,
     "wind_latest_at": "2026-09-27T09:32:02",
     "wind_drift": 0.0,
@@ -879,9 +879,9 @@
     "wind_mph": 10.8,
     "expected_adj": -4.2,
     "gameday": "2026-09-27",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null,
+    "outcome": "over",
+    "actual_total": 64.0,
+    "residual": 23.5,
     "wind_latest": 11.9,
     "wind_latest_at": "2026-09-27T09:32:02",
     "wind_drift": 1.1,
@@ -895,15 +895,370 @@
     "wind_mph": 10.7,
     "expected_adj": -4.16,
     "gameday": "2026-09-27",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null,
+    "outcome": "over",
+    "actual_total": 57.0,
+    "residual": 14.5,
     "wind_latest": 13.0,
     "wind_latest_at": "2026-09-27T09:32:02",
     "wind_drift": 2.3,
     "below_threshold_now": false
    }
   ],
-  "receivers_rule": "blended"
+  "receivers_rule": "blended",
+  "graded": true
+ },
+ "2026-04": {
+  "season": 2026,
+  "week": 4,
+  "generated": "2026-10-02T14:48:16",
+  "ats": [
+   {
+    "game": "JAX @ CIN",
+    "away_team": "JAX",
+    "home_team": "CIN",
+    "spread_line": 2.5,
+    "pred_margin": -4.79,
+    "edge": -7.29,
+    "pick": "away",
+    "pick_label": "JAX +2.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "NYJ @ CHI",
+    "away_team": "NYJ",
+    "home_team": "CHI",
+    "spread_line": 3.5,
+    "pred_margin": 10.4,
+    "edge": 6.9,
+    "pick": "home",
+    "pick_label": "CHI -3.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "ARI @ NYG",
+    "away_team": "ARI",
+    "home_team": "NYG",
+    "spread_line": -2.5,
+    "pred_margin": 2.6,
+    "edge": 5.1,
+    "pick": "home",
+    "pick_label": "NYG +2.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "GB @ TB",
+    "away_team": "GB",
+    "home_team": "TB",
+    "spread_line": -3.5,
+    "pred_margin": 0.77,
+    "edge": 4.27,
+    "pick": "home",
+    "pick_label": "TB +3.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "MIA @ MIN",
+    "away_team": "MIA",
+    "home_team": "MIN",
+    "spread_line": 10.5,
+    "pred_margin": 6.34,
+    "edge": -4.16,
+    "pick": "away",
+    "pick_label": "MIA +10.5",
+    "outcome": null,
+    "result": null
+   }
+  ],
+  "parlay": [
+   {
+    "player": "Jalen Hurts",
+    "stat_type": "Passing TDs",
+    "line": 0.5,
+    "side": "over",
+    "american_odds": -240,
+    "model_prob": 0.7882,
+    "blended_prob": 0.6698,
+    "implied_prob": 0.6592,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jonnu Smith",
+    "stat_type": "Receptions",
+    "line": 0.5,
+    "side": "over",
+    "american_odds": -225,
+    "model_prob": 0.8078,
+    "blended_prob": 0.6596,
+    "implied_prob": 0.6464,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Chuba Hubbard",
+    "stat_type": "Receiving Yards",
+    "line": 18.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.6783,
+    "blended_prob": 0.5146,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Patrick Mahomes",
+    "stat_type": "Rushing Yards",
+    "line": 15.5,
+    "side": "over",
+    "american_odds": -114,
+    "model_prob": 0.6661,
+    "blended_prob": 0.5136,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Geno Smith",
+    "stat_type": "Passing Yards",
+    "line": 227.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.6604,
+    "blended_prob": 0.5132,
+    "implied_prob": 0.5,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "td": [
+   {
+    "player": "Jahmyr Gibbs",
+    "game": "Detroit Lions @ Carolina Panthers",
+    "american_odds": -340,
+    "model_prob": 0.6284,
+    "fair_prob": 0.732,
+    "blended_prob": 0.7235,
+    "edge": -0.1035,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jonathan Taylor",
+    "game": "Indianapolis Colts @ Washington Commanders",
+    "american_odds": -320,
+    "model_prob": 0.6802,
+    "fair_prob": 0.7217,
+    "blended_prob": 0.7183,
+    "edge": -0.0416,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Derrick Henry",
+    "game": "Tennessee Titans @ Baltimore Ravens",
+    "american_odds": -220,
+    "model_prob": 0.6093,
+    "fair_prob": 0.6467,
+    "blended_prob": 0.6436,
+    "edge": -0.0374,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Bijan Robinson",
+    "game": "Atlanta Falcons @ New Orleans Saints",
+    "american_odds": -220,
+    "model_prob": 0.4621,
+    "fair_prob": 0.6467,
+    "blended_prob": 0.6316,
+    "edge": -0.1846,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Christian McCaffrey",
+    "game": "Denver Broncos @ San Francisco 49ers",
+    "american_odds": -195,
+    "model_prob": 0.6094,
+    "fair_prob": 0.6188,
+    "blended_prob": 0.618,
+    "edge": -0.0094,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Chase Brown",
+    "game": "Jacksonville Jaguars @ Cincinnati Bengals",
+    "american_odds": -165,
+    "model_prob": 0.4512,
+    "fair_prob": 0.5788,
+    "blended_prob": 0.5683,
+    "edge": -0.1276,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kenneth Walker III",
+    "game": "Kansas City Chiefs @ Las Vegas Raiders",
+    "american_odds": -170,
+    "model_prob": 0.2442,
+    "fair_prob": 0.586,
+    "blended_prob": 0.558,
+    "edge": -0.3418,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "David Montgomery",
+    "game": "Dallas Cowboys @ Houston Texans",
+    "american_odds": -150,
+    "model_prob": 0.5596,
+    "fair_prob": 0.5554,
+    "blended_prob": 0.5558,
+    "edge": 0.0042,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Aaron Jones",
+    "game": "Miami Dolphins @ Minnesota Vikings",
+    "american_odds": -160,
+    "model_prob": 0.2443,
+    "fair_prob": 0.5713,
+    "blended_prob": 0.5444,
+    "edge": -0.327,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Cam Skattebo",
+    "game": "Arizona Cardinals @ New York Giants",
+    "american_odds": -140,
+    "model_prob": 0.5852,
+    "fair_prob": 0.5383,
+    "blended_prob": 0.5422,
+    "edge": 0.0469,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "receivers_rule": "edge",
+  "receivers": [
+   {
+    "player": "Matthew Golden",
+    "game": "Green Bay Packers @ Tampa Bay Buccaneers",
+    "position": "WR",
+    "american_odds": 210,
+    "model_prob": 0.0488,
+    "fair_prob": 0.3094,
+    "blended_prob": 0.288,
+    "edge": -0.2606,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Quentin Johnston",
+    "game": "Los Angeles Chargers @ Seattle Seahawks",
+    "position": "WR",
+    "american_odds": 290,
+    "model_prob": 0.478,
+    "fair_prob": 0.2483,
+    "blended_prob": 0.2671,
+    "edge": 0.2297,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Tory Horton",
+    "game": "Los Angeles Chargers @ Seattle Seahawks",
+    "position": "WR",
+    "american_odds": 800,
+    "model_prob": 0.3229,
+    "fair_prob": 0.1068,
+    "blended_prob": 0.1245,
+    "edge": 0.2161,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Colby Parkinson",
+    "game": "Los Angeles Rams @ Philadelphia Eagles",
+    "position": "TE",
+    "american_odds": 310,
+    "model_prob": 0.4401,
+    "fair_prob": 0.236,
+    "blended_prob": 0.2528,
+    "edge": 0.2041,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Davante Adams",
+    "game": "Los Angeles Rams @ Philadelphia Eagles",
+    "position": "WR",
+    "american_odds": 115,
+    "model_prob": 0.6321,
+    "fair_prob": 0.434,
+    "blended_prob": 0.4503,
+    "edge": 0.1981,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "wind": [
+   {
+    "game": "ARI @ NYG",
+    "home_team": "NYG",
+    "away_team": "ARI",
+    "total_line": 44.5,
+    "wind_mph": 10.9,
+    "expected_adj": -4.24,
+    "gameday": "2026-10-04",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "LA @ PHI",
+    "home_team": "PHI",
+    "away_team": "LA",
+    "total_line": 42.5,
+    "wind_mph": 10.3,
+    "expected_adj": -4.01,
+    "gameday": "2026-10-04",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "GB @ TB",
+    "home_team": "TB",
+    "away_team": "GB",
+    "total_line": 39.5,
+    "wind_mph": 10.2,
+    "expected_adj": -3.97,
+    "gameday": "2026-10-04",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   }
+  ],
+  "parlay_price": {
+   "decimal": 13.536,
+   "american": 1254,
+   "model_prob": 0.18998,
+   "blended_prob": 0.05992,
+   "breakeven_prob": 0.07388
+  }
  }
 }
