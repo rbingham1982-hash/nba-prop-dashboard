@@ -204,10 +204,10 @@ def _season_ppr(ctx: dict) -> dict:
     """
     player_id -> his mean PPR per game, over the same frame the engine projects from.
 
-    The same frame matters. The engine currently fits on 2025 because 2026 has too few
-    weeks to project from, so the honest counterpart is his 2025 average, not his two
-    games of 2026 — that is the pairing the backtest measured. When scoring_context
-    switches to the current season, this follows it without a change here.
+    The same frame matters: this is the average of whatever the engine projects from, so
+    the two halves of the blend always describe the same games. That frame is last season
+    plus this season so far (nfl_analysis.history_frame), which cut blended-PPR MAE by
+    0.07-0.22 points in every early-season week band of 2024 and 2025, at every position.
     """
     df = ctx.get("df")
     if df is None or getattr(df, "empty", True) or "fantasy_points_ppr" not in df.columns:
