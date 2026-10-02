@@ -280,6 +280,50 @@ def parlay_price(legs: list) -> dict:
             "breakeven_prob": round(1.0 / dec, 5) if dec else None}
 
 
+def clears_breakeven(price: dict) -> bool:
+    """
+    Whether a parlay is worth publishing as a prediction: its blended probability reaches
+    the probability its payout needs.
+
+    Weeks 2, 3 and 4 all fell short (5.5% vs 6.6%, 5.9% vs 7.3%, 6.0% vs 7.4%) — the
+    board was publishing a bet its own numbers priced as a loser. Below the bar the legs
+    are still logged and graded as `parlay_withheld`, so whether the gate was right gets
+    measured instead of assumed.
+    """
+    bp, be = price.get("blended_prob"), price.get("breakeven_prob")
+    return bp is not None and be is not None and float(bp) >= float(be)
+
+
+# Legs in the touchdown parlay. Three, because the weeks-1-3 lookback put the top three
+# at 27-33% blended — a parlay a reader can picture hitting — where five falls to ~10%.
+_TD_PARLAY_LEGS = 3
+
+
+def td_parlay(td: list, n: int = _TD_PARLAY_LEGS) -> list:
+    """
+    The n most likely scorers from the touchdown board, one per game.
+
+    One per game, because two scorers from the same game are not independent — teammates
+    split the same red-zone trips, opponents trade them — and the product of their prices
+    would misstate the parlay either way.
+
+    This is NOT gated on break-even, and that is not an oversight. The touchdown blend sits
+    on the de-vigged market price, so after FanDuel's margin it lands below break-even
+    every week by construction. It is published as what it is — the market's likeliest
+    scorers, combined — and the card says so; it is never described as an edge.
+    """
+    out, games = [], set()
+    for r in td:
+        g = r.get("game") or ""
+        if g in games or r.get("american_odds") is None or not r.get("blended_prob"):
+            continue
+        games.add(g)
+        out.append(r)
+        if len(out) >= n:
+            break
+    return out if len(out) == n else []
+
+
 # ── the touchdown board ────────────────────────────────────────────────────
 
 def td_board(n: int = 10) -> list:
@@ -662,6 +706,19 @@ def log_picks(season: int | None = None, week: int | None = None,
     except Exception:
         wind = []
 
+    price = parlay_price(parlay) if parlay else {}
+    withheld = bool(parlay) and not clears_breakeven(price)
+
+    def _legs(rows):
+        return [{"player": r["player_name"], "stat_type": r["stat_type"],
+                 "line": r["line_score"], "side": r["side"],
+                 "american_odds": r.get("american_odds"),
+                 "model_prob": r.get("model_prob"), "blended_prob": r.get("blended_prob"),
+                 "implied_prob": r.get("implied_prob"), "team": r.get("team", ""),
+                 "outcome": None, "actual": None} for r in rows]
+
+    tdp = td_parlay(td)
+
     entry = {
         "season": season, "week": week,
         "generated": datetime.datetime.now().isoformat(timespec="seconds"),
@@ -669,12 +726,7 @@ def log_picks(season: int | None = None, week: int | None = None,
                  "spread_line": r["spread_line"], "pred_margin": r["pred_margin"],
                  "edge": r["edge"], "pick": r["pick"], "pick_label": r["pick_label"],
                  "outcome": None, "result": None} for r in ats],
-        "parlay": [{"player": r["player_name"], "stat_type": r["stat_type"],
-                    "line": r["line_score"], "side": r["side"],
-                    "american_odds": r.get("american_odds"),
-                    "model_prob": r.get("model_prob"), "blended_prob": r.get("blended_prob"),
-                    "implied_prob": r.get("implied_prob"), "team": r.get("team", ""),
-                    "outcome": None, "actual": None} for r in parlay],
+        "parlay": [] if withheld else _legs(parlay),
         "td": [{"player": r["player"], "game": r.get("game", ""),
                 "american_odds": r.get("american_odds"),
                 "model_prob": r.get("model_prob"), "fair_prob": r.get("fair_prob"),
@@ -693,8 +745,19 @@ def log_picks(season: int | None = None, week: int | None = None,
         "wind": [{**r, "outcome": None, "actual_total": None, "residual": None}
                  for r in wind],
     }
-    if entry["parlay"]:
-        entry["parlay_price"] = parlay_price(parlay)
+    # Marks a week logged under the break-even gate, so the newsletter's quality check
+    # does not fail weeks 1-4, which were published before it existed.
+    entry["parlay_gate"] = True
+    if withheld:
+        entry["parlay_withheld"] = _legs(parlay)
+        entry["parlay_withheld_price"] = price
+    elif entry["parlay"]:
+        entry["parlay_price"] = price
+    # Names and prices only; the outcomes are the touchdown board's own, read back in
+    # td_parlay_result, so the two can never disagree about whether a player scored.
+    if tdp:
+        entry["td_parlay"] = [r["player"] for r in tdp]
+        entry["td_parlay_price"] = parlay_price(tdp)
     data[k] = entry
     _save(data)
     return entry
@@ -759,7 +822,7 @@ def _week_stats(entry: dict, teams: set | None):
     return wk
 
 
-def _grade_parlay(entry: dict, teams: set | None) -> int:
+def _grade_parlay(entry: dict, teams: set | None, key: str = "parlay") -> int:
     """
     Fill in parlay leg outcomes from the weekly stat frame.
 
@@ -770,7 +833,7 @@ def _grade_parlay(entry: dict, teams: set | None) -> int:
     """
     import nfl_analysis as nfl
     filled = 0
-    pending = [r for r in entry.get("parlay", []) if not r.get("outcome")]
+    pending = [r for r in entry.get(key, []) if not r.get("outcome")]
     if not pending:
         return 0
     wk = _week_stats(entry, teams)
@@ -876,6 +939,7 @@ def grade(season: int | None = None) -> dict:
         a = _grade_ats(entry, sched)
         teams = _week_teams(entry, full)
         p = _grade_parlay(entry, teams)
+        p += _grade_parlay(entry, teams, key="parlay_withheld")
         t = _grade_td(entry, teams)
         t += _grade_td(entry, teams, key="receivers")
         t += _grade_wind(entry, sched)
@@ -886,11 +950,29 @@ def grade(season: int | None = None) -> dict:
         td_filled += t
         entry["graded"] = (all(r.get("outcome") for r in entry.get("ats", []))
                            and all(r.get("outcome") for r in entry.get("parlay", []))
+                           and all(r.get("outcome") for r in entry.get("parlay_withheld", []))
                            and all(r.get("outcome") for r in entry.get("td", [])))
     if ats_filled or parlay_filled or td_filled:
         _save(data)
     return {"weeks": weeks, "ats_filled": ats_filled, "parlay_filled": parlay_filled,
             "td_filled": td_filled}
+
+
+def _parlay_result(legs: list) -> str | None:
+    """"hit", "miss", or None while any leg is ungraded. A dnp or push leg is no action."""
+    if not legs or not all(r.get("outcome") for r in legs):
+        return None
+    if any(r.get("outcome") == "loss" for r in legs):
+        return "miss"
+    return "hit" if any(r.get("outcome") == "win" for r in legs) else None
+
+
+def td_parlay_result(entry: dict) -> str | None:
+    """The touchdown parlay's result, read from the touchdown board's own graded rows."""
+    names = entry.get("td_parlay") or []
+    by = {r["player"]: r for r in entry.get("td", [])}
+    legs = [by[n] for n in names if n in by]
+    return _parlay_result(legs) if len(legs) == len(names) else None
 
 
 def record(season: int | None = None) -> dict:
@@ -912,6 +994,9 @@ def record(season: int | None = None) -> dict:
     wind_u = wind_o = 0
     wind_resid = []
     parlays_hit = parlays_done = 0
+    withheld_hit = withheld_done = 0
+    tdp_hit = tdp_done = 0
+    tdp_units = 0.0
     weeks = []
     for k in sorted(data):
         e = data[k]
@@ -954,6 +1039,18 @@ def record(season: int | None = None) -> dict:
             parlays_done += 1
             if all(r.get("outcome") in ("win", "push") for r in legs):
                 parlays_hit += 1
+        wres = _parlay_result(e.get("parlay_withheld", []))
+        if wres:
+            withheld_done += 1
+            withheld_hit += wres == "hit"
+        tres = td_parlay_result(e)
+        if tres:
+            tdp_done += 1
+            tdp_hit += tres == "hit"
+            # One unit at the published price. A dnp leg would shorten the real payout;
+            # the published price is kept because that is what the card told the reader.
+            dec = float((e.get("td_parlay_price") or {}).get("decimal") or 0)
+            tdp_units += (dec - 1.0) if tres == "hit" else -1.0
         weeks.append({"week": k, "ats": f"{aw}-{al}" + (f"-{ap}" if ap else ""),
                       "legs": f"{lw}-{ll}" + (f" ({ld} dnp)" if ld else ""),
                       "td": f"{tw}-{tl}" if (tw or tl) else "—",
@@ -971,6 +1068,11 @@ def record(season: int | None = None) -> dict:
         "leg_pct": round(leg_w / leg_dec * 100, 2) if leg_dec else None,
         "leg_n": leg_dec, "legs_dnp": leg_dnp,
         "parlays_hit": parlays_hit, "parlays_settled": parlays_done,
+        # Parlays the break-even gate held back, graded anyway. If these hit more often
+        # than the published ones, the gate is wrong and the record will say so.
+        "withheld_hit": withheld_hit, "withheld_settled": withheld_done,
+        "td_parlay_hit": tdp_hit, "td_parlay_settled": tdp_done,
+        "td_parlay_units": round(tdp_units, 2),
         # The receiving slate, kept apart from the main board on purpose: it is a test of
         # the model's other half, not a second helping of the same one.
         "rec_record": f"{rec_w}-{rec_l}",

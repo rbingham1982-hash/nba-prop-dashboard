@@ -161,7 +161,12 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["ats"] = entry.get("ats") or []
         out["parlay"] = entry.get("parlay") or []
         out["parlay_price"] = entry.get("parlay_price") or {}
+        out["parlay_withheld_price"] = entry.get("parlay_withheld_price") or {}
+        out["parlay_gate"] = bool(entry.get("parlay_gate"))
         out["td"] = entry.get("td") or []
+        _by = {r["player"]: r for r in out["td"]}
+        out["td_parlay"] = [_by[n] for n in (entry.get("td_parlay") or []) if n in _by]
+        out["td_parlay_price"] = entry.get("td_parlay_price") or {}
         out["receivers"] = entry.get("receivers") or []
         out["picks_locked"] = entry.get("locked", True)
         out["picks_lock_day"] = entry.get("locks_on", "Friday")
@@ -269,6 +274,22 @@ def render_markdown(data: dict) -> str:
             L.append("")
             if any(l.get("outcome") == "loss" for l in rp["parlay"]):
                 L += ["The parlay did not hit — it needed every leg.", ""]
+        held = [l for l in (rp.get("parlay_withheld") or []) if l.get("outcome") in ("win", "loss")]
+        if held:
+            hw = sum(1 for l in held if l["outcome"] == "win")
+            L += [f"**The parlay we held back** (below break-even) went {hw}-{len(held) - hw} "
+                  f"on its legs — {'it would have hit' if hw == len(held) else 'it would not have hit'}. "
+                  "Graded anyway, so the gate is tested rather than trusted.", ""]
+        try:
+            import weekly_picks as _wp
+            tres = _wp.td_parlay_result(rp)
+        except Exception:
+            tres = None
+        if tres:
+            tp = rp.get("td_parlay_price") or {}
+            L += [f"**Touchdown parlay** ({', '.join(rp.get('td_parlay') or [])}): "
+                  f"{'hit' if tres == 'hit' else 'did not hit'}"
+                  + (f" at {int(tp['american']):+d}." if tp.get("american") else "."), ""]
         tds = [r for r in (rp.get("td") or []) if r.get("outcome") in ("win", "loss")]
         if tds:
             hit = [r["player"] for r in tds if r["outcome"] == "win"]
@@ -412,6 +433,15 @@ def render_markdown(data: dict) -> str:
                      f"A five-leg parlay is a longshot by construction.")
             L.append("")
 
+    held = data.get("parlay_withheld_price") or {}
+    if not legs and held:
+        L += ["## No five-leg parlay this week", "",
+              f"The best five legs priced at **{float(held.get('blended_prob', 0)):.2%}** "
+              f"against **{float(held.get('breakeven_prob', 0)):.2%}** needed to break even at "
+              f"{int(held.get('american', 0)):+d}. A parlay our own numbers price as a loser "
+              "is not one we publish. The legs are still logged and graded, so whether "
+              "holding it back was right shows up in the record.", ""]
+
     td = data.get("td") or []
     if td:
         L += [f"## Touchdown scorers — Week {data.get('week', '?')}", "",
@@ -429,6 +459,23 @@ def render_markdown(data: dict) -> str:
                      f"{float(r.get('fair_prob', 0)):.0%} | "
                      f"{float(r.get('model_prob', 0)):.0%} |")
         L.append("")
+
+    tdp = data.get("td_parlay") or []
+    tpp = data.get("td_parlay_price") or {}
+    if tdp and tpp:
+        L += [f"## Touchdown parlay — the top {len(tdp)}", "",
+              "The likeliest scorers on the board, no two from the same game, combined. These "
+              "probabilities are the market's own, so this is the most likely touchdown "
+              "parlay, not a mispriced one.", "",
+              "| Player | Game | Odds | Chance |", "|---|---|---:|---:|"]
+        for r in tdp:
+            L.append(f"| {r['player']} | {r.get('game', '')} | "
+                     f"{int(r.get('american_odds', 0)):+d} | "
+                     f"{float(r.get('blended_prob', 0)):.0%} |")
+        L += ["", f"Combined: **{int(tpp.get('american', 0)):+d}**, about "
+              f"**{float(tpp.get('blended_prob', 0)):.0%}** to hit against "
+              f"**{float(tpp.get('breakeven_prob', 0)):.0%}** needed to break even. "
+              "The gap is the book's margin.", ""]
 
     # The receiving slate, printed as its own board rather than folded into the one above.
     #
@@ -491,6 +538,13 @@ def render_markdown(data: dict) -> str:
                      f"{rec['rec_expected_pct']}% expected.")
         if rec.get("parlays_settled"):
             L.append(f"- **Parlays:** {rec['parlays_hit']} of {rec['parlays_settled']} hit.")
+        if rec.get("withheld_settled"):
+            L.append(f"- **Parlays held back at the break-even gate:** "
+                     f"{rec['withheld_hit']} of {rec['withheld_settled']} would have hit.")
+        if rec.get("td_parlay_settled"):
+            L.append(f"- **Touchdown parlay:** {rec['td_parlay_hit']} of "
+                     f"{rec['td_parlay_settled']} hit, {rec['td_parlay_units']:+.2f} units "
+                     "at the published price.")
         L.append("")
         if rec.get("weeks"):
             L += ["| Week | ATS | Legs | TDs | Rec |", "|---|---|---|---|---|"]
@@ -826,6 +880,18 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
             if mp is not None and bp is not None and float(mp) < float(bp) - 1e-9:
                 fails.append(f"parlay leg {l.get('player')} blends ABOVE the raw model "
                              f"probability — the blend is backwards")
+
+    # A published parlay must clear the break-even gate. log_picks enforces it; this
+    # catches a board assembled some other way.
+    price = data.get("parlay_price") or {}
+    if (data.get("parlay_gate") and legs and price
+            and float(price.get("blended_prob") or 0) < float(price.get("breakeven_prob") or 0)):
+        fails.append("parlay is published below break-even — the gate was bypassed")
+
+    # The touchdown parlay is one scorer per game, or its price misstates the odds.
+    tdp = data.get("td_parlay") or []
+    if tdp and len({r.get("game") for r in tdp}) != len(tdp):
+        fails.append("touchdown parlay has two scorers from one game")
 
     # The touchdown board is a list of probabilities, so the checks are that they are
     # probabilities and that the blend sits where a blend has to sit — between the two

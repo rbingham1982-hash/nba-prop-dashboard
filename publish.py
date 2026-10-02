@@ -190,6 +190,13 @@ def render_cards(data: dict) -> list:
                         + ("hit" if lw == len(legs) else "did not hit"))
         if tds:
             bits.append(f"touchdown board {tw}-{len(tds) - tw}")
+        try:
+            import weekly_picks as _wp
+            tres = _wp.td_parlay_result(rp)
+        except Exception:
+            tres = None
+        if tres:
+            bits.append(f"TD parlay {'hit' if tres == 'hit' else 'missed'}")
         f1 = "  ·  ".join(bits) or "Committed before kickoff, graded after"
 
         # The season line carries its own yardstick. "2-8" with no break-even next to it
@@ -298,6 +305,28 @@ def render_cards(data: dict) -> list:
             "Chance of a rushing or receiving TD, model blended with the market",
             _OUT / f"{stamp}-card-td.jpg",
             footer2="Passing TDs excluded. Rookies are where the model is least certain."))
+
+    # The touchdown parlay. Its probabilities are the market's, so the card says so and
+    # prints the break-even beside the chance — the gap between them is the book's margin.
+    # When the five-leg parlay was held back at the gate, this card carries that notice:
+    # Discord gets cards only, and a parlay that silently vanishes reads as a skipped week.
+    tdp = data.get("td_parlay") or []
+    tpp = data.get("td_parlay_price") or {}
+    if tdp and tpp:
+        wk = f"Week {data['week']}" if data.get("week") else when
+        rows = [(r["player"], f"{int(r['american_odds']):+d}") for r in tdp]
+        foot = (f"Top scorers, one per game  ·  {int(tpp.get('american', 0)):+d}  ·  "
+                f"{float(tpp.get('blended_prob', 0)):.0%} to hit")
+        held = data.get("parlay_withheld_price") or {}
+        if held and not (data.get("parlay") or []):
+            f2 = (f"5-leg parlay held back: {float(held.get('blended_prob', 0)):.1%} vs "
+                  f"{float(held.get('breakeven_prob', 0)):.1%} needed.")
+        else:
+            f2 = (f"Needs {float(tpp.get('breakeven_prob', 0)):.0%} to break even. "
+                  "Market odds, not an edge.")
+        out.append(render_card(
+            "Touchdown Parlay", wk, rows, foot,
+            _OUT / f"{stamp}-card-td-parlay.jpg", footer2=f2))
 
     dfs = data.get("dfs") or []
     if len(dfs) >= 6:
