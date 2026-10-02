@@ -85,7 +85,22 @@ _MODEL_EPOCH = "blend"
 # orphaned 18,209 MLB and 10,974 WNBA parlays from calibration for a change that touched
 # neither — those sports are scored by parlay_model and did not move. Retiring history is
 # the right call only for the sport whose numbers actually changed meaning.
-_MODEL_EPOCH_BY_SPORT = {"NFL": "projblend"}
+#
+# "histgamma" on 2026-10-02, two changes at once. The scorer projects from last season plus
+# this season's games (nfl_analysis.history_frame) instead of last season alone until week
+# 7, and rushing/receiving yards price off a gamma rather than a normal
+# (nfl_analysis._GAMMA_STATS). Both move every NFL predicted_prob.
+_MODEL_EPOCH_BY_SPORT = {"NFL": "histgamma"}
+
+# Per-stat calibration is deliberately NOT epoch-filtered (see get_calibration), but a
+# factor that existed to undo a distribution's error has to restart when the distribution
+# changes. The NFL yardage factors were 0.872 (receiving) and 0.904 (rushing): exactly the
+# normal's inflated overs, deflated. Kept on top of the gamma they would deflate a second
+# time — Swift o14.5 receiving yards 58% -> 46% from the gamma, -> 40% with the old factor.
+# So these buckets count only legs scored under the named epoch; until 15 weighted legs
+# resolve they sit at 1.0, which is where the walk-forward test put the gamma.
+_CAL_RESTART = {("NFL", "Receiving Yards"): "histgamma",
+                ("NFL", "Rushing Yards"): "histgamma"}
 
 
 def model_epoch(sport) -> str:
@@ -1885,6 +1900,9 @@ def get_calibration(sport: str | None = None) -> dict:
                 continue  # same prop, reused in another parlay — one observation
             seen_props.add(key)
             stat = _cal_key(leg)
+            restart = _CAL_RESTART.get((parlay.get("sport"), stat))
+            if restart and parlay.get("model_epoch") != restart:
+                continue
             mp = _leg_model_prob(leg)          # raw scorer output, not the shipped price
             if mp is None:
                 continue
@@ -2180,7 +2198,7 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
 # implied_prob is de-vigged. Leaving projblend out would have quietly dropped every new
 # NFL leg from the market-blend fit and from CLV, which is the one measurement that
 # converges fast enough to be worth having.
-_MARKET_EPOCHS = ("devig", "blend", "projblend")
+_MARKET_EPOCHS = ("devig", "blend", "projblend", "histgamma")
 
 MB_PRIOR_WEIGHT   = 0.35   # prior blend weight (model share) before data speaks
 MB_PRIOR_STRENGTH = 150.0  # weighted legs the prior counts as — small samples move slowly

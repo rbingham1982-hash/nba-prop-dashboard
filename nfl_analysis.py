@@ -282,10 +282,73 @@ def _poisson_sf(line: float, mu: float) -> float:
     return max(0.0, min(1.0, 1.0 - cdf))
 
 
+# Yardage that piles up in a few long plays: most games land under the average and a
+# breakaway drags the mean up. A normal with the same mean and sigma is symmetric, so at a
+# line near the projection it says ~50% over when 36-41% of RB receiving-yard lines went
+# over. A gamma with the SAME mean and sigma — nothing fitted — puts the mass where it is.
+#
+# Walk-forward, weeks 2-17 of 2024 and 2025, live scorer setup, Brier of P(over) against
+# the normal (negative = better), lines at the projection and +/- half a sigma:
+#
+#     RB Receiving Yards   -0.0145  p<0.0001      WR Receiving Yards   -0.0122  p<0.0001
+#     RB Rushing Yards     -0.0119  p<0.0001      TE Receiving Yards   -0.0051  p=0.0001
+#     QB Rushing Yards     -0.0066  p=0.014       QB Passing Yards     +0.0030  WORSE
+#
+# Passing yards stay normal: a QB's volume is steady enough that the symmetric fit is the
+# better one. A lognormal (better tails, wrong body) and an empirical per-position shape
+# were tried too; the gamma beat both on every rushing and receiving market but QB rushing.
+_GAMMA_STATS = {"Rushing Yards", "Receiving Yards"}
+
+
+def _gamma_sf(x: float, mu: float, sigma: float) -> float:
+    """
+    P(X > x) for a gamma with mean mu and sd sigma: the regularized upper incomplete gamma
+    Q(k, x/theta). Series below k+1, continued fraction above (Numerical Recipes gammq) —
+    standard library only, since the deployed app does not ship scipy.
+    """
+    import math
+    if mu <= 0 or sigma <= 0:
+        return 0.0
+    if x <= 0:
+        return 1.0
+    k = (mu / sigma) ** 2
+    z = x * mu / sigma ** 2
+    lead = -z + k * math.log(z) - math.lgamma(k)
+    if z < k + 1.0:
+        term = total = 1.0 / k
+        a = k
+        for _ in range(500):
+            a += 1.0
+            term *= z / a
+            total += term
+            if abs(term) < abs(total) * 1e-12:
+                break
+        return max(0.0, min(1.0, 1.0 - total * math.exp(lead)))
+    tiny = 1e-300
+    b = z + 1.0 - k
+    c, dd = 1.0 / tiny, 1.0 / b
+    h = dd
+    for i in range(1, 500):
+        an = -i * (i - k)
+        b += 2.0
+        dd = an * dd + b
+        dd = tiny if abs(dd) < tiny else dd
+        c = b + an / c
+        c = tiny if abs(c) < tiny else c
+        dd = 1.0 / dd
+        step = dd * c
+        h *= step
+        if abs(step - 1.0) < 1e-12:
+            break
+    return max(0.0, min(1.0, math.exp(lead) * h))
+
+
 def _over_prob(stat: str, line: float, mu: float, sigma: float) -> float:
     """Probability of going over, from whichever distribution actually fits the market."""
     if stat in _COUNT_STATS:
         return _poisson_sf(line, mu)
+    if stat in _GAMMA_STATS and mu > 0 and sigma > 0:
+        return _gamma_sf(line, mu, sigma)
     return 1 - _norm_cdf(line, mu, sigma)
 
 
