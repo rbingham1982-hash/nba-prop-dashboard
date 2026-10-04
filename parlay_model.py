@@ -1550,8 +1550,21 @@ def _nba_hit_rate(player_name: str, stat_type: str, line: float, odds_type: str 
         return 0.5, 0
     _cur, _prev = nba_season_strings()
     df = get_gamelogs(pid, (_cur,))
-    if df.empty:
-        df = get_gamelogs(pid, (_prev,))
+    # Last season's regular season sits in front of this season's games until this season
+    # alone fills every window the scorer reads (last 30 for the frequency, last 15 for
+    # minutes). It used to switch to this season after ONE game, so an opening-week prop
+    # was priced off one to four games: nba_eval measured that at Brier 0.303 in 2025-26
+    # and 0.311 in 2024-25 — worse than a coin flip's 0.250 — against 0.239 with last
+    # season in front. At 5-14 games it is 0.2467 -> 0.2409 and 0.2460 -> 0.2405 (both
+    # p<0.001); from 15+ games the two are identical. Regular season only, the population
+    # the harness measured.
+    _n_cur = int((df["SEASON_TYPE"] == "Regular Season").sum()) if (
+        not df.empty and "SEASON_TYPE" in df.columns) else len(df)
+    if _n_cur < 30:
+        prev = get_gamelogs(pid, (_prev,))
+        if not prev.empty and "SEASON_TYPE" in prev.columns:
+            prev = prev[prev["SEASON_TYPE"] == "Regular Season"]
+        df = prev if df.empty else (pd.concat([prev, df], ignore_index=True) if not prev.empty else df)
     if df.empty:
         return 0.5, 0
     if col in ("PRA", "PA", "PR", "RA", "FS"):
