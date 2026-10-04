@@ -1080,22 +1080,33 @@ def _find_game_in_log(df: pd.DataFrame, target_date: date,
 
 
 def _fetch_player_gamelog(player_id: int) -> pd.DataFrame:
-    """Fetch game log for current NBA season, trying Playoffs then Regular Season."""
+    """
+    Every game a player logged this season and last: regular season, play-in and playoffs.
+
+    This used to read ("Playoffs", then "Regular Season") for a hard-coded "2025-26" and
+    return the FIRST non-empty log. Two failures in one. From October 2026 no 2026-27 game
+    could be found at all, so every leg of the new season would have sat pending until it
+    abandoned. And once a player had a playoff game, his regular-season log was never read,
+    so a late-regular-season leg could not find its game — the cousin of the WNBA bug that
+    voided 765 playoff legs. Last season is kept for legs that straddle the turn of the
+    season; _find_game_in_log matches on date and teams, so the extra rows cost nothing.
+    """
+    import parlay_model as pm
     from nba_api.stats.endpoints import playergamelog
-    for season_type in ("Playoffs", "Regular Season"):
-        try:
-            _time.sleep(0.6)
-            gl = playergamelog.PlayerGameLog(
-                player_id=player_id,
-                season="2025-26",
-                season_type_all_star=season_type,
-            )
-            df = gl.get_data_frames()[0]
+    frames = []
+    for season in pm.nba_season_strings():
+        for season_type in ("Regular Season", "PlayIn", "Playoffs"):
+            try:
+                _time.sleep(0.6)
+                df = playergamelog.PlayerGameLog(
+                    player_id=player_id, season=season,
+                    season_type_all_star=season_type, timeout=15,
+                ).get_data_frames()[0]
+            except Exception:
+                continue
             if not df.empty:
-                return df
-        except Exception:
-            continue
-    return pd.DataFrame()
+                frames.append(df)
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
 def resolve_nba_legs() -> int:
