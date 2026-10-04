@@ -804,6 +804,17 @@ def resolve_pending():
     except Exception:
         pass
 
+    # The NBA Hub's tip-off table reads a running log of opening tips. Only games not yet
+    # logged are fetched, so a normal night is a few requests; the budget caps a long
+    # catch-up after missed runs, and the rest is picked up the next day.
+    try:
+        import nba_tips
+        n = nba_tips.update(budget_s=180)
+        if n:
+            print(f"  Tip-off log: {n} new game(s)")
+    except Exception as e:
+        print(f"  Tip-off log update failed ({e}) — the hub shows the last logged night.")
+
 
 def warn_if_stale(now):
     """Flag a missed run: if the last logged parlay predates STALE_RUN_HOURS, a day was skipped."""

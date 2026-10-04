@@ -2081,13 +2081,15 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
     ]
     legs = []
 
-    # Pre-warm 2024-25 gamelogs in parallel (complete season, fast, no rate-limit risk).
-    # We fetch 2024-25 only here — hit rate is computed inline using the same df,
-    # so we never trigger a slow 2025-26 API call in the fallback path.
+    # Last season and this one, in date order, so "the last 20 games" runs across the turn
+    # of the season instead of stopping at it. This read 2024-25 alone — two seasons stale
+    # by October 2026 — and the scorer's own rule is now last season in front of this one
+    # (see parlay_model._nba_hit_rate and nba_eval).
+    _fb_seasons = tuple(reversed(_pm.nba_season_strings()))
     _fb_ids = [(p, get_player_id(p)) for p in TOP]
     _fb_ids = [(p, pid) for p, pid in _fb_ids if pid]
     with ThreadPoolExecutor(max_workers=5) as _fb_ex:
-        _fb_futs = [_fb_ex.submit(get_gamelogs, pid, ("2024-25",)) for _, pid in _fb_ids]
+        _fb_futs = [_fb_ex.submit(get_gamelogs, pid, _fb_seasons) for _, pid in _fb_ids]
         for _ff in _fb_futs:
             try:
                 _ff.result(timeout=30)
@@ -2098,8 +2100,7 @@ def _fallback_nba_legs(stat_types: list = None) -> list:
         pid = get_player_id(player)
         if not pid:
             continue
-        # Use 2024-25 directly — it's pre-warmed and complete. Avoids slow 2025-26 API call.
-        df = get_gamelogs(pid, ("2024-25",))
+        df = get_gamelogs(pid, _fb_seasons)      # pre-warmed above
         if df.empty:
             continue
         for stat in stat_types:
@@ -2474,13 +2475,24 @@ def simulate_bets(df):
 def get_team_first_basket_history(team_abbr, num_games=20):
     """Pull first basket data via ESPN play-by-play (no nba_api PBP calls needed)."""
     _HDR = {"User-Agent": "Mozilla/5.0"}
+    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_abbr}/schedule"
+
+    def _done(params):
+        js = requests.get(url, params=params, timeout=8, headers=_HDR).json()
+        evs = [e for e in js.get("events", [])
+               if e.get("competitions", [{}])[0].get("status", {}).get("type", {}).get("completed", False)]
+        return evs, (js.get("requestedSeason") or js.get("season") or {}).get("year")
+
+    # ESPN's schedule is the CURRENT season only, and it rolls over before the season
+    # starts: on 2026-10-02 it returned 2026-27 with zero completed games, so this tab —
+    # tip-off win rates included — was empty, and for the first weeks of a season it would
+    # rest on a handful of games. Fill from last season up to num_games, the same rule the
+    # props scorer and the fantasy boards now follow.
     try:
-        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_abbr}/schedule"
-        events = requests.get(url, timeout=8, headers=_HDR).json().get("events", [])
-        completed = [
-            e for e in events
-            if e.get("competitions", [{}])[0].get("status", {}).get("type", {}).get("completed", False)
-        ]
+        completed, year = _done({})
+        if len(completed) < num_games and year:
+            prev, _ = _done({"season": int(year) - 1})
+            completed += prev
         completed = sorted(completed, key=lambda e: e.get("date", ""), reverse=True)[:num_games]
     except Exception:
         return pd.DataFrame()
@@ -3986,7 +3998,15 @@ PP_STAT_MAP = {
     "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
     "PRA": "Pts+Rebs+Asts", "3PM": "3-PT Made",
 }
-SEASONS = ["2022-23", "2023-24", "2024-25", "2025-26"]
+# Built from the date, not typed in: the hard-coded list stopped at 2025-26, so from
+# October 2026 the analysis tabs could not show a single game of the season being played.
+_NBA_CUR, _NBA_PREV = _pm.nba_season_strings()
+SEASONS = [f"{y}-{str(y + 1)[-2:]}" for y in range(int(_NBA_CUR[:4]) - 3, int(_NBA_CUR[:4]) + 1)]
+# Last season in front of this one until about the 30-game mark, the same rule the props
+# scorer follows (nba_eval: one to four games of history priced worse than a coin flip).
+_NBA_DEFAULT_SEASONS = ([_NBA_PREV, _NBA_CUR]
+                        if datetime.now().month not in (12, 1, 2, 3, 4, 5, 6)
+                        else [_NBA_CUR])
 
 # ── Chart palette ───────────────────────────────────────────────────────────
 # Validated against this dashboard's own dark chart surface (#191c23), not a generic
@@ -5154,14 +5174,19 @@ if sport == "🏀 NBA":
         del st.query_params["ticker_sport"]
         st.rerun()
 
+    # Laid out to mirror the NFL tab: a nightly Hub lands, analysis and betting tools follow,
+    # and the draft board moves to the end now that drafts are done. Every existing page
+    # body is unchanged — only where it sits.
     _nba_tabs_iter = _grouped_tabs([
-        ("Home",    []),
-        ("Analyze", ["Player Stats", "Opponent Breakdown", "vs. Opponent"]),
-        ("Bet",     ["Bet Simulation", "First Basket", "Sportsbook", "Parlays"]),
-        *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
-        ("About",   ["Daily Blog", "Disclaimer"]),
+        ("🏠 Hub",             []),
+        ("🔬 Player Analysis", ["Player Stats", "Opponent Breakdown", "vs. Opponent",
+                               "Bet Simulation", "First Basket"]),
+        ("💰 Edge Finder",     ["Sportsbook", "Parlays"]),
+        *( [("📈 Track", ["Accuracy"])] if _IS_LOCAL else [] ),
+        ("📊 Draft Board",     []),
+        ("About",             ["Daily Blog", "Disclaimer"]),
     ], key_prefix="nba")
-    tab_home        = next(_nba_tabs_iter)
+    tab_hub         = next(_nba_tabs_iter)
     tab_stats       = next(_nba_tabs_iter)
     tab_opp         = next(_nba_tabs_iter)
     tab_vs_opp_nba  = next(_nba_tabs_iter)
@@ -5170,27 +5195,28 @@ if sport == "🏀 NBA":
     tab_pp          = next(_nba_tabs_iter)
     tab_parlays     = next(_nba_tabs_iter)
     tab_accuracy_nba = next(_nba_tabs_iter) if _IS_LOCAL else None
+    tab_home        = next(_nba_tabs_iter)      # the draft board, formerly the landing view
     tab_blog        = next(_nba_tabs_iter)
     tab_disc        = next(_nba_tabs_iter)
 
-    # ── HOME ──────────────────────────────────────────────────────────────────
-    with tab_home:
-        if st.session_state.pop("_nba_ptw_nav", False):
-            components.html(
-                "<script>setTimeout(function(){"
-                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
-                "if(t.length>1)t[1].click();"
-                "},150);</script>",
-                height=0,
-            )
+    # ── HUB ───────────────────────────────────────────────────────────────────
+    with tab_hub:
+        # A ticker click lands on vs. Opponent. Tabs are found by LABEL: this clicked the
+        # fourth [role=tab] on the page, which was vs. Opponent while the tabs were flat and
+        # silently became an outer tab once they were grouped.
         if st.session_state.pop("_nav_vs_nba", False):
             components.html(
-                "<script>setTimeout(function(){"
-                "var t=window.parent.document.querySelectorAll('[role=\"tab\"]');"
-                "if(t[3])t[3].click();"
-                "},300);</script>",
+                "<script>function c(l){var t=[...window.parent.document.querySelectorAll('[role=\"tab\"]')]"
+                ".find(e=>e.innerText.trim().endsWith(l));if(t)t.click();}"
+                "setTimeout(function(){c('Player Analysis');"
+                "setTimeout(function(){c('vs. Opponent');},250);},300);</script>",
                 height=0,
             )
+        import nba_hub as _nba_hub
+        _nba_hub.render()
+
+    # ── DRAFT BOARD ───────────────────────────────────────────────────────────
+    with tab_home:
         # ── 2026-27 Fantasy Draft Board (9-category value) ────────────────────
         _mode = st.radio("Board mode", ["2026-27 Projection", "2025-26 Actuals"],
                          horizontal=True, label_visibility="collapsed")
@@ -5342,7 +5368,7 @@ if sport == "🏀 NBA":
             if player_name:
                 nba_player_card(player_name, team_code)
             section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=["2025-26"], key="ps_seasons")
+            seasons = st.multiselect("Seasons", SEASONS, default=_NBA_DEFAULT_SEASONS, key="ps_seasons")
             prop_type = st.selectbox("Prop Type", list(STAT_MAP.keys()), key="ps_prop")
             line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ps_line")
             rolling_window = st.slider("Rolling Window", 1, 10, 5, key="ps_roll")
@@ -5526,7 +5552,7 @@ if sport == "🏀 NBA":
             if player_name:
                 nba_player_card(player_name, team_code)
             section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=["2025-26"], key="ob_seasons")
+            seasons = st.multiselect("Seasons", SEASONS, default=_NBA_DEFAULT_SEASONS, key="ob_seasons")
             line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ob_line")
             prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="ob_prop")
 
@@ -5573,7 +5599,7 @@ if sport == "🏀 NBA":
             nvo_ctrl, nvo_main = st.columns([1, 2.8])
             with nvo_ctrl:
                 section("Today's Games")
-                nvo_seasons = st.multiselect("Seasons", SEASONS, default=["2025-26"], key="nvo_seasons")
+                nvo_seasons = st.multiselect("Seasons", SEASONS, default=_NBA_DEFAULT_SEASONS, key="nvo_seasons")
                 game_opts = [f"{g['away']} @ {g['home']}" for g in _nba_today_sched]
                 nvo_game_label = st.selectbox("Select Game", game_opts, key="nvo_game")
                 nvo_game = next(g for g in _nba_today_sched if f"{g['away']} @ {g['home']}" == nvo_game_label)
@@ -5685,7 +5711,7 @@ if sport == "🏀 NBA":
             if player_name:
                 nba_player_card(player_name, team_code)
             section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=["2025-26"], key="sim_seasons")
+            seasons = st.multiselect("Seasons", SEASONS, default=_NBA_DEFAULT_SEASONS, key="sim_seasons")
             line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="sim_line")
             prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="sim_prop")
 
@@ -6078,7 +6104,7 @@ if sport == "🏀 NBA":
         st.markdown("""
         <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
         Builds optimized PrizePicks parlays using today's NBA lines and historical hit rates
-        (last 30 games, 2024-25 &amp; 2025-26 seasons). <strong style='color:var(--text-primary)'>Safe Parlays</strong>
+        (last 30 games, last season in front of this one until it fills). <strong style='color:var(--text-primary)'>Safe Parlays</strong>
         maximize probability of hitting. <strong style='color:#f59e0b;'>Value Parlays</strong>
         maximize expected value (probability × payout).
         </p>
@@ -6215,7 +6241,7 @@ if sport == "🏀 NBA":
                 _warm_ids = [(n, p) for n, p in _warm_ids if p]
                 _warm_prog = st.progress(0, text=f"Loading {len(_warm_ids)} player histories…")
                 with ThreadPoolExecutor(max_workers=3) as _wex:
-                    _wfutures = {_wex.submit(get_gamelogs, pid, ("2025-26",)): name for name, pid in _warm_ids}
+                    _wfutures = {_wex.submit(get_gamelogs, pid, (_NBA_CUR,)): name for name, pid in _warm_ids}
                     _wdone = 0
                     for _wf in as_completed(_wfutures, timeout=120):
                         _wdone += 1
