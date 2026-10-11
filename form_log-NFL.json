@@ -4816,5 +4816,27 @@
   "logged_at": "2026-10-11T14:12:33",
   "outcome": null,
   "actual": null
+ },
+ "tre harris|Receiving Yards|53.5|36132645": {
+  "player": "Tre Harris",
+  "stat": "Receiving Yards",
+  "line": 53.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 53.0,
+  "last5": [
+   28.0,
+   20.0,
+   53.0,
+   76.0,
+   60.0
+  ],
+  "game": "DEN @ LAC",
+  "start_time": "2026-10-11T20:06:00.000Z",
+  "game_day": "2026-10-11",
+  "logged_at": "2026-10-11T14:34:50",
+  "outcome": null,
+  "actual": null
  }
 }
