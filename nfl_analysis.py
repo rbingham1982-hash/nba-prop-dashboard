@@ -783,6 +783,32 @@ def _log_from_rows(sub) -> list:
     return out
 
 
+# How fast this season's share overtakes the two-season average, as a pseudo-count in games:
+# the current season gets weight n_cur / (n_cur + K). None switches it off. history_frame
+# puts last season's games at negative weeks, and usage_profile used to average them in at
+# full weight, so a receiver whose role grew this year kept last year's share: against
+# FanDuel's WR receiving-yards lines (2026-10-11) the projection's targets correlated +0.365
+# with actual targets, this-season-only +0.543.
+_CUR_SEASON_K = None
+
+_TEAM_WEEK_CACHE: dict = {}
+
+
+def _team_week_totals(df) -> dict:
+    """{(team, week): {opp_col: team total}} for one frame, computed once per frame."""
+    key = (id(df), len(df))
+    hit = _TEAM_WEEK_CACHE.get(key)
+    if hit is not None:
+        return hit
+    cols = [c for c in ("attempts", "targets", "carries") if c in df.columns]
+    g = df.groupby(["team", "week"])[cols].sum()
+    out = {k: dict(zip(cols, v)) for k, v in zip(g.index, g.to_numpy())}
+    if len(_TEAM_WEEK_CACHE) > 8:
+        _TEAM_WEEK_CACHE.clear()
+    _TEAM_WEEK_CACHE[key] = out
+    return out
+
+
 def usage_profile(df, player: str, priors: dict | None = None, vol: dict | None = None,
                   idx: dict | None = None) -> dict:
     """
@@ -828,6 +854,11 @@ def usage_profile(df, player: str, priors: dict | None = None, vol: dict | None 
         except Exception:
             wopr_adj = None
 
+    # This season's games, when the frame also holds last season's (negative weeks).
+    cur = sub[sub["week"] > 0] if "week" in sub.columns else sub.iloc[0:0]
+    n_cur = len(cur)
+    tw = _team_week_totals(df) if (_CUR_SEASON_K is not None and 0 < n_cur < n) else None
+
     shares, rates = {}, {}
     for opp_col in ("attempts", "targets", "carries"):
         team_pg = (vol.get(team) or {}).get(opp_col, 0.0)
@@ -837,6 +868,16 @@ def usage_profile(df, player: str, priors: dict | None = None, vol: dict | None 
         # league median (most rostered players see none of the work) but zero — an
         # unproven player is assumed marginal until the sample says otherwise.
         share = share if n >= _SHARE_MIN_GAMES else share * (n / _SHARE_MIN_GAMES)
+        if tw is not None:
+            # His share of his team's work in the games he played this season, blended in
+            # as the season accumulates. Measured against the team's totals in those same
+            # games, so a bye or a missed game does not dilute it.
+            team_tot = sum((tw.get((t, wk)) or {}).get(opp_col, 0.0)
+                           for t, wk in zip(cur["team"], cur["week"]))
+            if team_tot > 0:
+                share_cur = float(cur[opp_col].sum()) / team_tot
+                wc = n_cur / (n_cur + _CUR_SEASON_K)
+                share = wc * share_cur + (1.0 - wc) * share
         if opp_col == "targets" and wopr_adj is not None and 0.4 < wopr_adj < 2.5:
             share = share * (0.5 + 0.5 * wopr_adj)
         shares[opp_col] = share
@@ -965,6 +1006,28 @@ _PROP_SIGMA_INFLATE = 1.5
 _NO_RECENCY_BLEND = {"Passing TDs", "Rushing TDs", "Receiving TDs"}
 
 
+# Touchdown calibration. Each route's expected touchdowns mu becomes f[pos, route] * mu**b
+# before the Poisson turns it into a probability. Walk-forward over 2024 and 2025 (8,295
+# RB/WR/TE games with 3+ prior games), the raw model was calibrated overall but too sure of
+# its top picks: said 40-50% -> scored 31% (2025), each week's top ten said 59% -> 50%; and
+# it priced TE receiving low (said 12-14%, scored 16-17%). b < 1 pulls the big rates in, f
+# sets each position's level. Fit on 2025 it improved held-out 2024 (log loss 0.4661 ->
+# 0.4617), fit on 2024 it improved 2025 (0.4585 -> 0.4542); these values are the pooled
+# fit. Passing TDs are not covered: a quarterback's throws were not part of the fit.
+_TD_CAL_B = 0.7
+_TD_CAL_F = {("RB", "Rushing TDs"): 0.7336, ("RB", "Receiving TDs"): 0.5589,
+             ("WR", "Rushing TDs"): 0.2216, ("WR", "Receiving TDs"): 0.6419,
+             ("TE", "Rushing TDs"): 0.4836, ("TE", "Receiving TDs"): 0.7379}
+
+
+def _td_calibrated_mu(stat: str, position: str, mu: float) -> float:
+    """Expected touchdowns after the calibration above; unchanged outside its coverage."""
+    f = _TD_CAL_F.get((str(position), stat))
+    if f is None or mu <= 0:
+        return mu
+    return f * mu ** _TD_CAL_B
+
+
 def _recency_mean(vals: list, recent_n: int = 5) -> float:
     """Last `recent_n` games weighted 2x against the full mean. The tab's projection."""
     recent = vals[-recent_n:]
@@ -1011,7 +1074,7 @@ def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None
     sigma = (raw_sigma * (mu / raw_mu)) if raw_mu > 0 else raw_sigma
     sigma = max(sigma, 0.35 * max(mu, 0.5)) * _PROP_SIGMA_INFLATE
 
-    model_over = round(_over_prob(stat, line, mu, sigma), 4)
+    model_over = round(_over_prob(stat, line, _td_calibrated_mu(stat, proj["position"], mu), sigma), 4)
     out = dict(proj)
     if blend_recency and mu != proj["projection"]:
         # Both kept: `projection` is what priced the leg, `projection_engine` is what the
@@ -1159,7 +1222,7 @@ def score_prop_board(df, player: str, stat: str, line: float, american_odds=None
         return {}
 
     sigma = max(mu * stat_cv(df, pos, stat, cache=cvcache), 0.35 * max(mu, 0.5)) * _PROP_SIGMA_INFLATE
-    model_over = round(_over_prob(stat, line, mu, sigma), 4)
+    model_over = round(_over_prob(stat, line, _td_calibrated_mu(stat, pos, mu), sigma), 4)
     out = {"player": player, "stat": stat, "line": float(line), "position": pos,
            "team_now": row.get("_team", ""), "source": "board",
            "rookie": bool(row.get("_rookie")), "projection": round(mu, 2),
