@@ -21,11 +21,16 @@ Data sources, all public and unauthenticated:
 """
 from __future__ import annotations
 
+import io
 import time
 
 _UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0"}
 _DK_LOBBY = "https://www.draftkings.com/lobby/getcontests?sport={sport}"
-_DK_DRAFTABLES = "https://api.draftkings.com/draftgroups/v1/draftgroups/{gid}/draftables"
+# The salary CSV the DraftKings lineup page offers for download. The JSON draftables
+# endpoint (api.draftkings.com/draftgroups/v1/.../draftables) has answered "Access Denied"
+# since 2026-09-20; this one still answered on 2026-10-11 with the same fields.
+_DK_CSV = ("https://www.draftkings.com/lineup/getavailableplayerscsv"
+           "?contestTypeId={ctid}&draftGroupId={gid}")
 _SLEEPER_PLAYERS = "https://api.sleeper.app/v1/players/nfl"
 _SLEEPER_TRENDING = "https://api.sleeper.app/v1/players/nfl/trending/{kind}?lookback_hours={hours}&limit={limit}"
 
@@ -88,8 +93,15 @@ def dk_salaries(sport: str = "MLB", draft_group_id: int | None = None):
     import requests
 
     def _go():
-        groups = ([{"DraftGroupId": draft_group_id}] if draft_group_id
-                  else dk_draft_groups(sport))
+        # The CSV needs the group's contest type, which only the lobby knows.
+        groups = dk_draft_groups(sport)
+        if draft_group_id:
+            groups = [g for g in groups if g.get("DraftGroupId") == draft_group_id] or                      [{"DraftGroupId": draft_group_id}]
+        else:
+            # Multi-game slates first. A single-game Showdown group often starts soonest,
+            # and its salaries are on a different scale (the captain costs 1.5x), so value
+            # per dollar from it does not compare with a classic slate's.
+            groups = sorted(groups, key=lambda g: int(g.get("GameCount") or 0) < 2)
         # Why the tally: "every group I asked refused me" and "the groups I asked are not
         # populated yet" both ended this loop with an empty frame. The first is a broken
         # integration and the second is the normal state of a slate hours before lock, so
@@ -98,34 +110,42 @@ def dk_salaries(sport: str = "MLB", draft_group_id: int | None = None):
         # or a non-200 counts as a refusal.
         answered, refusals = 0, []
         for g in groups:
-            gid = g.get("DraftGroupId")
+            gid, ctid = g.get("DraftGroupId"), g.get("ContestTypeId")
             if not gid:
                 continue
+            if not ctid:
+                refusals.append(f"{gid}: no contest type in the lobby")
+                continue
             try:
-                r = requests.get(_DK_DRAFTABLES.format(gid=gid), timeout=25, headers=_UA)
-                if r.status_code != 200:
+                r = requests.get(_DK_CSV.format(ctid=ctid, gid=gid), timeout=25, headers=_UA)
+                if r.status_code != 200 or "csv" not in (r.headers.get("content-type") or ""):
                     refusals.append(f"{gid}: HTTP {r.status_code}")
                     continue
-                d = r.json().get("draftables", []) or []
+                text = r.content.decode("utf-8-sig")
+                d = pd.read_csv(io.StringIO(text)) if text.strip() else pd.DataFrame()
             except Exception as e:
                 refusals.append(f"{gid}: {type(e).__name__}")
                 continue
             answered += 1
-            if not d:
+            if d.empty:
                 continue
             rows, seen = [], set()
-            for x in d:
-                name = x.get("displayName")
+            for x in d.to_dict("records"):
+                name = x.get("Name")
+                # Players with no game ("-", team FA) are roster filler, not slate options.
                 # One player appears once per roster slot they are eligible for; the
                 # salary is the same, so keep the first and drop the duplicates.
-                if not name or name in seen:
+                # Showdown lists each player twice, as CPT at 1.5x and as FLEX; keep FLEX.
+                if (not isinstance(name, str) or name in seen
+                        or str(x.get("Game Info", "-")).strip() == "-"
+                        or str(x.get("Roster Position", "")).upper().startswith("CPT")):
                     continue
                 seen.add(name)
                 rows.append({
                     "player": name,
-                    "position": x.get("position"),
-                    "team": x.get("teamAbbreviation"),
-                    "salary": x.get("salary"),
+                    "position": x.get("Position"),
+                    "team": x.get("TeamAbbrev"),
+                    "salary": int(x.get("Salary") or 0),
                     "draft_group": gid,
                     "start": g.get("StartDateEst"),
                 })
