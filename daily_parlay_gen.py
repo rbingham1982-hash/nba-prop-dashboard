@@ -842,6 +842,16 @@ def run_favorite_signal(sports, month: int) -> None:
                   f"— at last price {rec['at_last_price']}, pending {rec['pending']}")
         except Exception as e:
             print(f"  Favourite signal {sport.upper()} failed ({e}) — retried next run.")
+    # The three-point-luck test (threes_signal) is NBA-only and reads stats.nba.com, so it
+    # rides along with whichever runner has NBA, the home machine.
+    if "nba" in sports and seasons.get("nba"):
+        try:
+            import threes_signal
+            r = threes_signal.run()
+            print(f"  Threes signal NBA: graded {r['graded']}, tracking {r['tracked']} "
+                  f"— {threes_signal.record()}")
+        except Exception as e:
+            print(f"  Threes signal NBA failed ({e}) — retried next run.")
 
 
 def _last_parlay(sports) -> datetime | None:
