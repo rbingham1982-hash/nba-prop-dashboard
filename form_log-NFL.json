@@ -4772,5 +4772,49 @@
   "logged_at": "2026-10-11T10:44:49",
   "outcome": null,
   "actual": null
+ },
+ "oronde gadsden|Receiving Yards|32.5|36132645": {
+  "player": "Oronde Gadsden",
+  "stat": "Receiving Yards",
+  "line": 32.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 23.0,
+  "last5": [
+   23.0,
+   32.0,
+   18.0,
+   0.0,
+   36.0
+  ],
+  "game": "DEN @ LAC",
+  "start_time": "2026-10-11T20:06:00.000Z",
+  "game_day": "2026-10-11",
+  "logged_at": "2026-10-11T14:12:33",
+  "outcome": null,
+  "actual": null
+ },
+ "keaton mitchell|Receiving Yards|11.5|36132645": {
+  "player": "Keaton Mitchell",
+  "stat": "Receiving Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5354,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   15.0,
+   -5.0,
+   24.0
+  ],
+  "game": "DEN @ LAC",
+  "start_time": "2026-10-11T20:06:00.000Z",
+  "game_day": "2026-10-11",
+  "logged_at": "2026-10-11T14:12:33",
+  "outcome": null,
+  "actual": null
  }
 }

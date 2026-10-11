@@ -1573,9 +1573,9 @@
     "wind_mph": 10.8,
     "expected_adj": -4.2,
     "gameday": "2026-10-11",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 36.0,
+    "residual": -5.5
    },
    {
     "game": "IND @ PIT",
@@ -1688,6 +1688,7 @@
    "model_prob": 0.24376,
    "blended_prob": 0.28729,
    "breakeven_prob": 0.3513
-  }
+  },
+  "graded": false
  }
 }

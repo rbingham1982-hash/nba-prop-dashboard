@@ -1,0 +1,26 @@
+{
+ "DET @ ARI|2026-10-11T20:26": {
+  "label": "DET @ ARI",
+  "home_name": "Arizona Cardinals",
+  "away_name": "Detroit Lions",
+  "start_time": "2026-10-11T20:26:00.000Z",
+  "first_seen": "2026-10-11T14:12:34",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6806,
+   "odds": -245,
+   "home_odds": 200,
+   "away_odds": -245
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6806,
+   "odds": -245,
+   "home_odds": 200,
+   "away_odds": -245
+  },
+  "last_seen": "2026-10-11T14:12:34"
+ }
+}
