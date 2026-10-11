@@ -789,7 +789,13 @@ def _log_from_rows(sub) -> list:
 # full weight, so a receiver whose role grew this year kept last year's share: against
 # FanDuel's WR receiving-yards lines (2026-10-11) the projection's targets correlated +0.365
 # with actual targets, this-season-only +0.543.
-_CUR_SEASON_K = None
+#
+# Walk-forward with the live scorer over 2024 and 2025 (21,512 player-week-stat lines, QB/RB/
+# WR/TE), every stat improved in both seasons, and K=2 beat 4 and 8 everywhere: overall MAE
+# -0.246 +/- 0.034 (2024) and -0.214 +/- 0.026 (2025); WR receiving yards -0.28/-0.27, RB
+# rushing yards -0.36/-0.45, QB passing yards -2.3/-1.2. Smaller K was not tried; the trend
+# says it may help further, and that is the next check, not a guess to ship.
+_CUR_SEASON_K = 2
 
 _TEAM_WEEK_CACHE: dict = {}
 
