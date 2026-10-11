@@ -9090,8 +9090,8 @@ elif sport == "🏈 NFL":
             "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
             "NFL Edge Finder &nbsp;·&nbsp; Model vs Market</div>"
             "<div style='font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;'>"
-            "Model probability (projection + game-to-game variance) vs the book's implied, blended and "
-            "ranked by edge. Live props populate near kickoff; the manual check works now.</div></div>",
+            "FanDuel's props ranked by the market's own probability, with our projection beside it "
+            "for information. Live props populate near kickoff; the manual check works now.</div></div>",
             unsafe_allow_html=True,
         )
         import nfl_analysis as _nflb
@@ -9150,103 +9150,58 @@ elif sport == "🏈 NFL":
         if _pscore_err is not None:
             st.error(f"Couldn't score NFL props: {_pscore_err}")
         elif _plegs:
+            # Ranked by the MARKET since 2026-10-11. The board used to rank by a trust-tapered
+            # edge, w x gap x (1 - gap/cap) x n/(n+8), with w the fitted market blend. Graded
+            # on 886 NFL props, the projection behind "Model %" scored a Brier of 0.284
+            # against the market's 0.248 (0.25 is a coin flip): props it called 60-70% hit
+            # 41%, and those it put 10-20 points above the market came in 9.9 points below
+            # the price. get_market_blend now gives the model zero weight, so every edge is
+            # zero and that ranking would order nothing. What the board can honestly rank is
+            # the market's own probability; the projection stays beside it as information.
             import pandas as _pd
-            _w = parlay_tracker.get_market_blend(sport="NFL")
-
-            # Trust in the model DECAYS as it departs from the market, reaching zero at the
-            # gap where it was measured to become the worse forecast.
-            #
-            # A flat weight with a hard cut at NFL_MAX_MODEL_GAP did not remove the
-            # selection problem, it relocated it: edge was w×gap, the board was sorted by
-            # it, so the top was whatever sat just under the cut. Measured on the live
-            # board, all twenty top rows fell between 0.190 and 0.199 against a 0.20 cap,
-            # every one showing the same 1.6% edge. A row at 0.199 is not meaningfully
-            # different from one at 0.201, and the cap exists precisely because rows out
-            # there are the model's errors.
-            #
-            # w × gap × (1 − gap/cap) says the same thing without the cliff. It is zero at
-            # no disagreement (nothing to say), zero at the cap (the market is better by
-            # then), and peaks in between — so the board leads with moderate disagreements
-            # rather than boundary cases. Same shape the parlay board arrived at when it
-            # stopped ranking legs by edge.
-            # Second factor: how much history the projection rests on. Without it the
-            # score is a function of the gap alone, so the board simply piled up wherever
-            # that function peaked — the boundary before, the 10-point gap after. Sample
-            # size is real information and breaks the tie on something that matters: a
-            # ten-point disagreement behind seventeen games is not the same claim as the
-            # same gap behind four. n/(n+8), with 8 about half an NFL season, which is
-            # where a usage estimate starts to settle. Stated, not fitted.
-            _N_HALF = 8.0
-
-            def _nfl_trust(_gap, _n):
-                _cap = float(_gen.NFL_MAX_MODEL_GAP)
-                if _gap <= 0 or _gap >= _cap:
-                    return 0.0
-                _conf = float(_n) / (float(_n) + _N_HALF) if _n else 0.0
-                return _w * (1.0 - _gap / _cap) * _conf
-
-            # One row per prop: whichever side the model likes more.
+            # One row per prop: the side the market favours.
             _best = {}
             for _l in _plegs:
-                _imp = float(_l["implied_prob"])
-                _raw = float(_l["hit_rate"]) - _imp
-                _edge = _nfl_trust(abs(_raw), _l.get("sample_n") or 0) * _raw
-                _k = (_l["player_name"], _l["stat_type"], _l["line_score"])
-                if _k not in _best or _edge > _best[_k][1]:
-                    _best[_k] = (_l, _edge)
-            _scored = sorted(_best.values(), key=lambda t: t[1], reverse=True)
-            # Edge grows with the model-market gap, so ranking by it put the model's biggest
-            # blind spots on top: new teams, demotions, new starters the usage model cannot
-            # see. Past NFL_MAX_MODEL_GAP the model is the worse forecast (see its comment),
-            # so those rows leave the ranking and are listed apart for what they are.
-            _main, _wide = [], []
-            for _t in _scored:
-                _gap = abs(float(_t[0]["hit_rate"]) - float(_t[0]["implied_prob"]))
-                (_wide if _gap >= _gen.NFL_MAX_MODEL_GAP else _main).append(_t)
+                _k = (_l["player_name"], _l["stat_type"], _l["line_score"], _l.get("game_label"))
+                if _k not in _best or float(_l["implied_prob"]) > float(_best[_k]["implied_prob"]):
+                    _best[_k] = _l
+            _rows = sorted(_best.values(), key=lambda l: -float(l["implied_prob"]))
 
             def _nfl_board_df(_items):
                 return _pd.DataFrame([{
                     "Player": _l["player_name"], "Game": _l["game_label"], "Stat": _l["stat_type"],
                     "Side": _l["side"].title(), "Line": _l["line_score"],
-                    # Signed, the way a book prints them. Rendering the raw int showed
-                    # +102 as "102", which on a betting board reads as a short favourite
-                    # rather than a plus-money price. The NBA board has always signed it.
+                    # Signed, the way a book prints them.
                     "Odds": (f"+{_l['american_odds']}" if _l.get("american_odds") is not None
                              and int(_l["american_odds"]) > 0 else str(_l.get("american_odds", "—"))),
-                    "Model %": round(_l["hit_rate"] * 100, 1),
                     "Market %": round(float(_l["implied_prob"]) * 100, 1),
-                    # Both shown: Gap is the raw disagreement, Edge is what survives the
-                    # trust taper. Printing only the second hides how far out a row sits.
+                    "Projection %": round(_l["hit_rate"] * 100, 1),
                     "Gap": round((float(_l["hit_rate"]) - float(_l["implied_prob"])) * 100, 1),
                     "N": int(_l.get("sample_n") or 0),
-                    "Edge %": round(_e * 100, 2),
                     "Flags": ", ".join(_gen.nfl_role_flags(_l["player_name"], _l["stat_type"],
                                                             _l["line_score"])),
-                } for _l, _e in _items])
+                } for _l in _items])
 
-            if _main:
-                st.dataframe(_nfl_board_df(_main[:30]), width="stretch", hide_index=True)
-            else:
-                st.info("No prop is within the model's trust range of the market.")
-            st.caption(f"{len(_main)} props ranked, one row each on the side the model prefers · "
-                       f"top 30. **Gap** is the raw disagreement; **Edge %** is what survives a "
-                       f"trust weight that starts at the NFL market blend ({_w:.0%} model) and "
-                       f"decays to zero at a {_gen.NFL_MAX_MODEL_GAP:.0%} gap, where the model was "
-                       f"measured to become the worse forecast. Ranking on raw edge instead put "
-                       f"the board's whole top row against that boundary. "
-                       "Flags mark projections built on last season's role: a new team, a thin "
-                       "sample, or a rookie's draft cohort. Still gated by the same honest-CLV "
-                       "discipline as the other sports.")
-            if _wide:
-                _wide.sort(key=lambda t: abs(float(t[0]["hit_rate"]) - float(t[0]["implied_prob"])),
-                           reverse=True)
-                with st.expander(f"Model {_gen.NFL_MAX_MODEL_GAP:.0%}+ away from the market — "
-                                 f"{len(_wide)} props, not ranked as edges"):
-                    st.caption("A gap this wide usually means the model is missing something the "
-                               "book has priced, most often a role change since last season. On "
-                               "graded MLB/WNBA legs the market was the better forecast at this "
-                               "range. Sorted by gap, widest first.")
-                    st.dataframe(_nfl_board_df(_wide[:60]), width="stretch", hide_index=True)
+            st.dataframe(_nfl_board_df(_rows[:40]), width="stretch", hide_index=True)
+            st.caption(
+                f"{len(_rows)} props, one row each on the side the market favours, ranked by "
+                "**Market %** — FanDuel's price with the margin removed (and overs shaded for the "
+                "extra margin the book puts on them). **Projection %** is our usage projection "
+                "turned into a probability. It is not a price and not an edge: graded on 886 NFL "
+                "props it was a worse forecast than the market (and than a coin flip), and larger "
+                "**Gap**s did not realize better. Flags mark projections built on last season's "
+                "role: a new team, a thin sample, or a rookie's draft cohort.")
+            _far = sorted((l for l in _rows
+                           if abs(float(l["hit_rate"]) - float(l["implied_prob"]))
+                           >= _gen.NFL_MAX_MODEL_GAP),
+                          key=lambda l: -abs(float(l["hit_rate"]) - float(l["implied_prob"])))
+            if _far:
+                with st.expander(f"Projection {_gen.NFL_MAX_MODEL_GAP:.0%}+ away from the market — "
+                                 f"{len(_far)} props"):
+                    st.caption("A gap this wide usually means the projection is missing something "
+                               "the book has priced, most often a role change since last season. "
+                               "Useful for spotting stale roles; not a list of bets.")
+                    st.dataframe(_nfl_board_df(_far[:60]), width="stretch", hide_index=True)
         elif _fd_nfl is not None and not _fd_nfl.empty:
             st.info("Props posted but none scored (games already under way, no projection for "
                     "the player, or unmapped markets).")
