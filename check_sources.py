@@ -54,7 +54,7 @@ def _fd_page(sport: str):
     return True, f"HTTP 200, {games} games listed"
 
 
-for _s in ("nfl", "nba", "mlb"):
+for _s in ("nfl", "nba", "mlb", "wnba"):
     probe(f"FanDuel page [{_s}]")(lambda s=_s: _fd_page(s))
 
 
@@ -74,6 +74,47 @@ def _nba():
                                      season_type_all_star="Regular Season",
                                      timeout=60).get_data_frames()[0]
     return len(df) > 0, f"{len(df)} player-game rows"
+
+
+@probe("stats.nba.com WNBA players (league 10)")
+def _wnba():
+    # WNBA grading and game logs go through the same host as the NBA, via league_id 10.
+    from nba_api.stats.endpoints import commonallplayers
+    df = commonallplayers.CommonAllPlayers(is_only_current_season=1, league_id="10",
+                                           timeout=60).get_data_frames()[0]
+    return len(df) > 0, f"{len(df)} players"
+
+
+@probe("MLB statsapi schedule")
+def _mlb():
+    import statsapi
+    games = statsapi.schedule(start_date="09/01/2026", end_date="09/07/2026", sportId=1)
+    return len(games) > 0, f"{len(games)} games"
+
+
+@probe("MLB statsapi boxscore", required=False)
+def _mlb_box():
+    r = requests.get("https://statsapi.mlb.com/api/v1/schedule",
+                     params={"sportId": 1, "date": "2026-09-05"}, timeout=20)
+    gid = r.json()["dates"][0]["games"][0]["gamePk"]
+    b = requests.get(f"https://statsapi.mlb.com/api/v1/game/{gid}/boxscore", timeout=20)
+    return b.status_code == 200, f"HTTP {b.status_code}"
+
+
+@probe("ESPN scoreboard (game grading)")
+def _espn():
+    r = requests.get("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
+                     timeout=15)
+    return r.status_code == 200, f"HTTP {r.status_code}, {len(r.json().get('events', []))} events"
+
+
+@probe("cdn.nba.com scoreboard (a possible NBA fallback)", required=False)
+def _nba_cdn():
+    r = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json",
+                     headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.nba.com/",
+                              "Origin": "https://www.nba.com"},
+                     timeout=15)
+    return r.status_code == 200, f"HTTP {r.status_code}"
 
 
 @probe("nflverse weekly parquet")

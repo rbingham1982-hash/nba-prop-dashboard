@@ -18,6 +18,6 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install what the probes import
-        run: pip install requests pandas pyarrow numpy nba_api==1.11.4
+        run: pip install requests pandas pyarrow numpy nba_api==1.11.4 mlb-statsapi==1.9.0
       - name: Probe sources
         run: python check_sources.py
