@@ -273,6 +273,106 @@ def record(sport: str) -> dict:
     return out
 
 
+# ── the parlay ────────────────────────────────────────────────────────────────────────────
+#
+# Built from the logged legs by a rule fixed on 2026-10-11, before any of them graded:
+#
+#   * One parlay per sport per game day, PARLAY_LEGS legs.
+#   * The legs are that day's logged form-unders with the highest de-vigged probability,
+#     at most one per game (FanDuel does not combine props from one game outside a
+#     same-game parlay, and two legs from one game are not independent).
+#   * Only legs logged before the earliest selected game starts, so the ticket could
+#     actually have been placed at the prices recorded.
+#   * Payout is the product of the legs' decimal odds. A void leg drops out and the rest
+#     pay on their own, which is how FanDuel settles a parlay with a void leg.
+#
+# Derived, never stored: the parlay is a pure function of form_log, so it cannot drift from
+# the legs it is made of, and re-deriving it after a fix cannot rewrite its history.
+
+PARLAY_LEGS = 3
+
+
+def _decimal(american: int) -> float:
+    return 1 + (american / 100 if american > 0 else 100 / abs(american))
+
+
+def _start(row):
+    try:
+        return datetime.datetime.fromisoformat(str(row["start_time"]).replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def _logged_utc(row):
+    t = datetime.datetime.fromisoformat(row["logged_at"])
+    # logged_at is the runner's local wall clock (America/Chicago on both runners).
+    return t.astimezone(datetime.timezone.utc) if t.tzinfo else t.astimezone().astimezone(datetime.timezone.utc)
+
+
+def build_parlay(rows: list) -> list:
+    """The rule's legs, from one day's logged rows. [] when the day cannot fill a ticket."""
+    pool = sorted((r for r in rows if _start(r) is not None),
+                  key=lambda r: (-float(r["fair_prob"]), r["logged_at"]))
+    picked, games = [], set()
+    for r in pool:
+        if r["game"] in games:
+            continue
+        trial = picked + [r]
+        first = min(_start(x) for x in trial)
+        if any(_logged_utc(x) >= first for x in trial):
+            continue                       # could not have been on one ticket in time
+        picked, games = trial, games | {r["game"]}
+        if len(picked) == PARLAY_LEGS:
+            return picked
+    return []
+
+
+def parlays(sport: str) -> list:
+    """Every day's rule parlay with its price and, once settled, its result."""
+    by_day: dict = {}
+    for r in _load(sport).values():
+        by_day.setdefault(r["game_day"], []).append(r)
+    out = []
+    for day in sorted(by_day):
+        legs = build_parlay(by_day[day])
+        if not legs:
+            continue
+        live = [l for l in legs if l.get("outcome") != "void"]
+        price = math.prod(_decimal(int(l["american_odds"])) for l in live) if live else 1.0
+        fair = math.prod(float(l["fair_prob"]) for l in live) if live else 1.0
+        outs = [l.get("outcome") for l in live]
+        if any(o == "loss" for o in outs):
+            result = "loss"
+        elif not live:
+            result = "void"
+        elif all(o == "win" for o in outs):
+            result = "win"
+        else:
+            result = None                  # still pending
+        out.append({"day": day, "legs": legs, "decimal": round(price, 3),
+                    "american": round((price - 1) * 100) if price >= 2 else round(-100 / (price - 1)),
+                    "fair_prob": round(fair, 4), "breakeven": round(1 / price, 4),
+                    "result": result})
+    return out
+
+
+def parlay_record(sport: str) -> dict:
+    """The rule parlay's running result in money: one unit per ticket."""
+    ps = parlays(sport)
+    done = [p for p in ps if p["result"] in ("win", "loss")]
+    out = {"tickets": len(done), "pending": sum(1 for p in ps if p["result"] is None)}
+    if not done:
+        return out
+    rets = [(p["decimal"] - 1) if p["result"] == "win" else -1.0 for p in done]
+    mean = sum(rets) / len(rets)
+    sd = statistics.pstdev(rets) if len(rets) > 1 else 0.0
+    out.update({"hits": sum(1 for p in done if p["result"] == "win"),
+                "roi_pct": round(100 * mean, 1),
+                "roi_se_pct": round(100 * sd / math.sqrt(len(rets)), 1),
+                "units": round(sum(rets), 2)})
+    return out
+
+
 if __name__ == "__main__":
     import sys
     sys.stdout.reconfigure(encoding="utf-8")

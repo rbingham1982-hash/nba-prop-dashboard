@@ -9241,6 +9241,28 @@ elif sport == "🏈 NFL":
                            "last 5 games is below the line. It beat the de-vigged price in NFL "
                            "(+5.2 ± 2.4 points) and in WNBA, where it was never fit (+3.7 ± 1.1), but "
                            "the margin may take that back. Unproven until the record says otherwise.")
+                # The rule parlay: derived from the logged legs, never picked by hand.
+                _fpar = _fsig.parlays("nfl")
+                _fprec = _fsig.parlay_record("nfl")
+                if _fpar:
+                    _latest = _fpar[-1]
+                    _res = {"win": "won", "loss": "lost", "void": "void", None: "pending"}[_latest["result"]]
+                    st.markdown(f"**Form-under parlay · {_latest['day']}** — "
+                                f"{_latest['american']:+d}, {_latest['fair_prob']:.1%} at market prices "
+                                f"against {_latest['breakeven']:.1%} to break even · {_res}")
+                    st.dataframe(_pd.DataFrame([{
+                        "Player": l["player"], "Game": l["game"], "Stat": l["stat"], "Under": l["line"],
+                        "Odds": f"{int(l['american_odds']):+d}", "Market %": round(100 * l["fair_prob"], 1),
+                        "Last-5 median": l["med5"], "Result": l.get("outcome") or "pending",
+                    } for l in _latest["legs"]]), width="stretch", hide_index=True)
+                    if _fprec.get("tickets"):
+                        st.caption(f"Parlay record: {_fprec['hits']} of {_fprec['tickets']} hit, "
+                                   f"{_fprec['units']:+.2f} units, return {_fprec['roi_pct']:+.1f}% ± "
+                                   f"{_fprec['roi_se_pct']}%.")
+                    st.caption("Fixed rule: each game day, the three logged form-unders with the "
+                               "highest market probability, one per game, all logged before the "
+                               "first of them kicks off. At market prices it sits below break-even "
+                               "by design; it only pays if the recent-form edge is real.")
                 if _fu:
                     st.dataframe(_pd.DataFrame([{
                         "Player": l["player_name"], "Game": l["game_label"], "Stat": l["stat_type"],

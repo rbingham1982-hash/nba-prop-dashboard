@@ -814,7 +814,7 @@ def run_form_signal(sports, month: int) -> None:
         try:
             r = form_signal.run(sport)
             print(f"  Form signal {sport.upper()}: graded {r['graded']}, logged {r['logged']} "
-                  f"— record {form_signal.record(sport)}")
+                  f"— record {form_signal.record(sport)}, parlay {form_signal.parlay_record(sport)}")
         except Exception as e:
             print(f"  Form signal {sport.upper()} failed ({e}) — retried next run.")
 
