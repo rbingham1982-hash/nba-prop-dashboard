@@ -243,6 +243,18 @@ def log_picks(slate: datetime.date | None = None, legs: list | None = None,
         entry["parlay_withheld_price"] = price
     elif parlay:
         entry["parlay_price"] = price
+    # The form-under test parlay for this slate, frozen with the board so the published legs
+    # and the graded record are the same three. Logged first: this runs when the newsletter
+    # is built, often before the home runner's first afternoon pass has seen tonight's props.
+    # Optional: the board saves without it.
+    try:
+        import form_signal
+        form_signal.log("nba")
+        t = form_signal.ticket("nba", slate.isoformat())
+        if t:
+            entry["form_parlay"] = t
+    except Exception:
+        pass
     data[k] = entry
     _save(data)
     return entry
@@ -317,7 +329,18 @@ def record() -> dict:
     legs_w = legs_l = sc_w = sc_l = 0
     sc_exp = 0.0
     par_hit = par_done = wh_hit = wh_done = 0
+    fp_hit = fp_done = 0
+    fp_units = 0.0
     for e in data.values():
+        if e.get("form_parlay"):
+            try:
+                import form_signal
+                fr = form_signal.ticket_result("nba", e["form_parlay"])
+            except Exception:
+                fr = {"result": None}
+            if fr["result"] in ("win", "loss"):
+                fp_done += 1; fp_hit += fr["result"] == "win"
+                fp_units += (fr["decimal"] - 1.0) if fr["result"] == "win" else -1.0
         for r in e.get("parlay", []):
             legs_w += r.get("outcome") == "win"; legs_l += r.get("outcome") == "loss"
         for r in e.get("scorers", []):
@@ -333,6 +356,8 @@ def record() -> dict:
     n = sc_w + sc_l
     return {"leg_record": f"{legs_w}-{legs_l}", "parlays_hit": par_hit, "parlays_settled": par_done,
             "withheld_hit": wh_hit, "withheld_settled": wh_done,
+            "form_parlay_hit": fp_hit, "form_parlay_settled": fp_done,
+            "form_parlay_units": round(fp_units, 2),
             "scorer_record": f"{sc_w}-{sc_l}", "scorer_n": n,
             "scorer_expected_pct": round(100 * sc_exp / n, 1) if n else None,
             "scorer_pct": round(100 * sc_w / n, 1) if n else None}

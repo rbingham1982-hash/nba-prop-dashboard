@@ -133,6 +133,16 @@ def render_card(title: str, subtitle: str, rows: list, footer: str,
     return path
 
 
+def _leg_label(player: str, tail: str) -> str:
+    """'Player  tail', with the first name cut to an initial when render_card's 30-character
+    row would otherwise drop the stat ('Shai Gilgeous-Alexander  u4.5' lost 'Reb')."""
+    label = f"{player}  {tail}"
+    if len(label) > 30 and " " in player:
+        first, rest = player.split(" ", 1)
+        label = f"{first[0]}. {rest}  {tail}"
+    return label
+
+
 def render_cards(data: dict) -> list:
     """
     One card per POSITION for the waiver board, plus one for DFS.
@@ -343,7 +353,7 @@ def render_cards(data: dict) -> list:
         wk = f"Week {data['week']}" if data.get("week") else when
         short = {"Receiving Yards": "Rec Yds", "Rushing Yards": "Rush Yds",
                  "Passing Yards": "Pass Yds", "Passing TDs": "Pass TDs", "Receptions": "Rec"}
-        rows = [(f"{l['player']}  u{float(l['line']):g} {short.get(l['stat'], l['stat'])}",
+        rows = [(_leg_label(l["player"], f"u{float(l['line']):g} {short.get(l['stat'], l['stat'])}"),
                  f"{int(l['american_odds']):+d}") for l in fp["legs"]]
         out.append(render_card(
             "Form-Under Parlay", f"{wk}  ·  a live test", rows,
@@ -381,6 +391,16 @@ def render_cards(data: dict) -> list:
             "NBA Scorer Board", nb.get("slate", ""), rows,
             "The slate's highest points lines",
             _OUT / f"{stamp}-card-nba-scorers.jpg", footer2=f2))
+    nfp = nb.get("form_parlay") or {}
+    if nfp.get("legs"):
+        rows = [(_leg_label(l["player"], f"u{float(l['line']):g} {nshort.get(l['stat'], l['stat'])}"),
+                 f"{int(l['american_odds']):+d}") for l in nfp["legs"]]
+        out.append(render_card(
+            "NBA Form-Under Parlay", f"{nfp['day']}  ·  a live test", rows,
+            f"{int(nfp['american']):+d}  ·  {float(nfp['fair_prob']):.0%} at market odds  ·  "
+            f"needs {float(nfp['breakeven']):.0%}",
+            _OUT / f"{stamp}-card-nba-form-parlay.jpg",
+            footer2="Unders where the last-5 median is below the line. Unproven."))
 
     dfs = data.get("dfs") or []
     if len(dfs) >= 6:

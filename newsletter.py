@@ -196,6 +196,11 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
                                      or entry.get("scorers")) else {}
         out["nba_last"] = logged[prior[-1]] if prior else {}
         out["nba_record"] = nwp.record()
+        try:
+            import form_signal
+            out["nba_form_record"] = form_signal.record("nba")
+        except Exception:
+            out["nba_form_record"] = {}
     except Exception as e:
         out["nba_board"], out["nba_last"], out["nba_record"] = {}, {}, {}
         out["degraded"].append(f"NBA board: {e}")
@@ -623,9 +628,9 @@ def render_markdown(data: dict) -> str:
                    if r.get("outcome") in ("win", "loss")]
     if nb or graded_last:
         L += ["## NBA — the weekly board", "",
-              "One night's slate, written down before tip-off. Probabilities are blended against the "
-              "book; the parlay is ranked by how likely it is, not by disagreement, and only "
-              "published when it clears break-even.", ""]
+              "One night's slate, written down before tip-off. Probabilities are the book's own "
+              "with its margin removed; the parlay is ranked by how likely it is, not by "
+              "disagreement, and only published when it clears break-even.", ""]
     if graded_last:
         sw = sum(1 for r in nl_.get("scorers", []) if r.get("outcome") == "win")
         sn = sum(1 for r in nl_.get("scorers", []) if r.get("outcome") in ("win", "loss"))
@@ -637,6 +642,14 @@ def render_markdown(data: dict) -> str:
         if ln:
             bits.append(f"parlay legs {lw}-{ln - lw}"
                         + (" — the parlay hit" if lw == ln else " — the parlay did not hit"))
+        if nl_.get("form_parlay"):
+            try:
+                import form_signal as _fs
+                fres = _fs.ticket_result("nba", nl_["form_parlay"])["result"]
+            except Exception:
+                fres = None
+            if fres in ("win", "loss"):
+                bits.append("the form-under parlay " + ("hit" if fres == "win" else "did not hit"))
         L += [f"**Last week ({nl_.get('slate', '')}):** " + ", ".join(bits) + ".", ""]
     if nb.get("parlay"):
         p = nb.get("parlay_price") or {}
@@ -658,11 +671,32 @@ def render_markdown(data: dict) -> str:
             L.append(f"| {r['player']} | {r.get('game', '')} | {float(r['line']):g} | "
                      f"{int(r['american_odds']):+d} | {float(r['blended_prob']):.0%} |")
         L.append("")
+    nfp = nb.get("form_parlay") or {}
+    if nfp.get("legs"):
+        L += [f"**Form-under parlay — {nfp['day']}** (a live test): the same rule as the NFL one, "
+              "unders where a player's median over his last five games sits below the line, the "
+              "three likeliest one per game.", "",
+              "| Player | Game | Under | Last 5 (median) | Odds | Market |", "|---|---|---|---:|---:|---:|"]
+        for l in nfp["legs"]:
+            L.append(f"| {l['player']} | {l.get('game', '')} | {float(l['line']):g} {l['stat']} | "
+                     f"{float(l['med5']):g} | {int(l['american_odds']):+d} | {float(l['fair_prob']):.0%} |")
+        L += ["", f"Combined **{int(nfp['american']):+d}**: **{float(nfp['fair_prob']):.0%}** at the "
+              f"market's own probabilities against **{float(nfp['breakeven']):.0%}** needed. Below "
+              "break-even on the market's numbers by design; it pays only if recent form counts for "
+              "more than the price says.", ""]
+        nfr = data.get("nba_form_record") or {}
+        if nfr.get("n"):
+            L += [f"*Every qualifying NBA under so far: {nfr['wins']}-{nfr['n'] - nfr['wins']} "
+                  f"({nfr['win_pct']}% against {nfr['breakeven_pct']}% needed), return "
+                  f"{nfr['roi_pct']:+.1f}% ± {nfr['roi_se_pct']}% over {nfr['n']} graded.*", ""]
     if nr.get("scorer_n") or nr.get("parlays_settled"):
         L += [f"*NBA season so far: scorer board {nr['scorer_record']}"
               + (f" against {nr['scorer_expected_pct']}% expected" if nr.get("scorer_n") else "")
               + f"; parlays {nr['parlays_hit']} of {nr['parlays_settled']}"
-              + f"; held back {nr['withheld_hit']} of {nr['withheld_settled']} would have hit.*", ""]
+              + f"; held back {nr['withheld_hit']} of {nr['withheld_settled']} would have hit"
+              + (f"; form-under parlay {nr['form_parlay_hit']} of {nr['form_parlay_settled']}, "
+                 f"{nr['form_parlay_units']:+.2f} units" if nr.get("form_parlay_settled") else "")
+              + ".*", ""]
 
     dfs = data.get("dfs") or []
     # Same reasoning as the Friday-lock note above: name the absence. A DFS section that
