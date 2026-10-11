@@ -9159,6 +9159,22 @@ elif sport == "🏈 NFL":
             # zero and that ranking would order nothing. What the board can honestly rank is
             # the market's own probability; the projection stays beside it as information.
             import pandas as _pd
+            import form_signal as _fsig
+
+            # Recent form, for the column and for the live test below. An hour's cache: the
+            # history only changes when a week of games lands.
+            @st.cache_data(ttl=3600, show_spinner=False)
+            def _nfl_form_hist():
+                return _fsig._nfl_history()[0]
+            try:
+                _fhist = _nfl_form_hist()
+            except Exception:
+                _fhist = {}
+
+            def _med5(_l):
+                _v = _fsig._prior_values("nfl", _fhist, _l["player_name"], _l["stat_type"], None)
+                return _fsig.statistics.median(_v[-5:]) if len(_v) >= _fsig._MIN_GAMES else None
+
             # One row per prop: the side the market favours.
             _best = {}
             for _l in _plegs:
@@ -9178,6 +9194,7 @@ elif sport == "🏈 NFL":
                     "Projection %": round(_l["hit_rate"] * 100, 1),
                     "Gap": round((float(_l["hit_rate"]) - float(_l["implied_prob"])) * 100, 1),
                     "N": int(_l.get("sample_n") or 0),
+                    "Last-5 median": _med5(_l),
                     "Flags": ", ".join(_gen.nfl_role_flags(_l["player_name"], _l["stat_type"],
                                                             _l["line_score"])),
                 } for _l in _items])
@@ -9202,6 +9219,37 @@ elif sport == "🏈 NFL":
                                "the book has priced, most often a role change since last season. "
                                "Useful for spotting stale roles; not a list of bets.")
                     st.dataframe(_nfl_board_df(_far[:60]), width="stretch", hide_index=True)
+
+            # The one rule that beat the de-vigged price in two sports: the under when recent
+            # form sits below the line (form_signal). It is being tested live at the odds
+            # actually quoted, so it is shown as a test with its running record, not as picks.
+            _fu = [l for l in _plegs if l.get("side") == "under"]
+            _fu = [(l, _med5(l)) for l in _fu]
+            _fu = sorted(((l, m) for l, m in _fu if m is not None and m < float(l["line_score"])),
+                         key=lambda t: (float(t[0]["line_score"]) - t[1]) / max(float(t[0]["line_score"]), 1.0),
+                         reverse=True)
+            _frec = _fsig.record("nfl")
+            with st.expander(f"Recent-form unders — live test · {len(_fu)} qualifying now"):
+                if _frec.get("n"):
+                    st.caption(f"Record so far: {_frec['wins']}-{_frec['n'] - _frec['wins']} "
+                               f"({_frec['win_pct']}% against {_frec['breakeven_pct']}% needed at the "
+                               f"odds taken), return {_frec['roi_pct']:+.1f}% ± {_frec['roi_se_pct']}% "
+                               f"on {_frec['n']} graded · {_frec['pending']} pending.")
+                else:
+                    st.caption(f"No graded results yet · {_frec.get('pending', 0)} logged and pending.")
+                st.caption("Rule, fixed in advance: take the under when the median of the player's "
+                           "last 5 games is below the line. It beat the de-vigged price in NFL "
+                           "(+5.2 ± 2.4 points) and in WNBA, where it was never fit (+3.7 ± 1.1), but "
+                           "the margin may take that back. Unproven until the record says otherwise.")
+                if _fu:
+                    st.dataframe(_pd.DataFrame([{
+                        "Player": l["player_name"], "Game": l["game_label"], "Stat": l["stat_type"],
+                        "Under": l["line_score"],
+                        "Odds": (f"+{l['american_odds']}" if int(l["american_odds"]) > 0
+                                 else str(l["american_odds"])),
+                        "Market %": round(float(l["implied_prob"]) * 100, 1),
+                        "Last-5 median": m,
+                    } for l, m in _fu[:40]]), width="stretch", hide_index=True)
         elif _fd_nfl is not None and not _fd_nfl.empty:
             st.info("Props posted but none scored (games already under way, no projection for "
                     "the player, or unmapped markets).")

@@ -795,6 +795,30 @@ def parse_sports(argv) -> tuple:
     return tuple(s for s in ALL_SPORTS if s in asked)
 
 
+def run_form_signal(sports, month: int) -> None:
+    """
+    Grade and extend the recent-form-unders test (form_signal) for this run's sports.
+
+    Runs on every firing, snapshot passes included: props post through the week (NFL) and
+    through the afternoon (NBA), and a prop can only be logged at a price while it is on
+    the board. Only NFL and NBA have a history source; MLB and WNBA are not part of it.
+    """
+    try:
+        import form_signal
+    except Exception as e:
+        print(f"  Form signal unavailable ({e}).")
+        return
+    for sport, in_season in (("nfl", month >= 9 or month <= 2), ("nba", month >= 10 or month <= 6)):
+        if sport not in sports or not in_season:
+            continue
+        try:
+            r = form_signal.run(sport)
+            print(f"  Form signal {sport.upper()}: graded {r['graded']}, logged {r['logged']} "
+                  f"— record {form_signal.record(sport)}")
+        except Exception as e:
+            print(f"  Form signal {sport.upper()} failed ({e}) — retried next run.")
+
+
 def _last_parlay(sports) -> datetime | None:
     """Newest parlay among this run's sports — the other runner's boards are not ours."""
     stamps = [parlay_tracker.last_parlay_time(s.upper()) for s in sports]
@@ -1087,6 +1111,7 @@ def main():
     if already_ran_today(now, sports) and not force:
         print("  Already generated today — catch-up firing, snapshotting prices only.")
         snapshot_only_pass(month, sports)
+        run_form_signal(sports, month)
         return
 
     warn_if_stale(now, sports)
@@ -1121,6 +1146,8 @@ def main():
         total += run_sport("nfl",  "NFL",  9, NFL_STAT_TYPES,  nfl_hit_rate)
     else:
         print("\n  NFL: off-season — skipping.")
+
+    run_form_signal(sports, month)
 
     print(f"\n{'='*62}")
     print(f"  Total parlays logged: {total}")
