@@ -1,10 +1,10 @@
 """Render the two Instagram cards for Sunday's slate."""
 import sys, pathlib
-sys.path.insert(0, r"C:\Users\rbing\nba-prop-dashboard")
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
 sys.stdout.reconfigure(encoding="utf-8")
 from PIL import Image, ImageDraw, ImageFont
 
-OUT = pathlib.Path(r"C:\Users\rbing\nba-prop-dashboard\newsletter_out")
+OUT = pathlib.Path(__file__).parent / "newsletter_out"
 OUT.mkdir(exist_ok=True)
 W, H = 1080, 1350
 BG, PANEL = (13, 18, 28), (20, 27, 40)

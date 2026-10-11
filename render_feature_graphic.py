@@ -1,8 +1,9 @@
 from playwright.sync_api import sync_playwright
 import os
 
-HTML_PATH = os.path.abspath(r"C:\Users\rbing\nba-prop-dashboard\feature_graphic.html")
-OUT_PATH  = r"C:\Users\rbing\nba-prop-dashboard\screenshots\feature_graphic_1024x500.png"
+_HERE = os.path.dirname(os.path.abspath(__file__))
+HTML_PATH = os.path.join(_HERE, "feature_graphic.html")
+OUT_PATH  = os.path.join(_HERE, "screenshots", "feature_graphic_1024x500.png")
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True, args=["--disable-gpu"])

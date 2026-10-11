@@ -1,7 +1,8 @@
+import os
 from playwright.sync_api import sync_playwright
 
 APP_URL = "https://nba-prop-dashboard-dhmu5b4fonzesfkydqwznu.streamlit.app/"
-OUT = r"C:\Users\rbing\nba-prop-dashboard\screenshots"
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "screenshots")
 
 APP_FRAME_URL = "/~/+/"  # Streamlit app content lives in this iframe
 
