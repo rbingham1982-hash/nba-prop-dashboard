@@ -703,6 +703,15 @@ _FD_MLB_ABBR = {
 }
 _FD_UNMAPPED: set = set()   # cores seen but not mapped — reported once per run
 
+# Markets we have looked at and chosen not to price, so they stop being reported as
+# unmapped. The report exists to catch a market we cannot name; one we can name but have
+# no model for is a decision, and repeating it every run hides the next real gap.
+#
+# RUSHING_+_RECEIVING_YARDS (decided 2026-10-11): the NFL scorer projects each stat as
+# opportunity x efficiency (carries x yards per carry), and a sum of two such stats is
+# not that shape. Pricing it means a new projection plus a stat_eval run before it ships.
+_FD_IGNORED = {"RUSHING_+_RECEIVING_YARDS"}
+
 
 # ── FanDuel API ────────────────────────────────────────────────────────────
 
@@ -1107,7 +1116,8 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
             core = match.group("core")
             stat = core_map.get(core)
             if not stat:
-                _FD_UNMAPPED.add(core)
+                if core not in _FD_IGNORED:
+                    _FD_UNMAPPED.add(core)
                 continue
 
             over = under = None
