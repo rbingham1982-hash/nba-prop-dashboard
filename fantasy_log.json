@@ -117,10 +117,10 @@
     "position": "WR",
     "team": "LV",
     "proj": 10.83,
-    "actual": null,
-    "bar": null,
-    "beat_bar": null,
-    "outcome": null
+    "actual": 8.3,
+    "bar": 15.0,
+    "beat_bar": false,
+    "outcome": "graded"
    },
    {
     "kind": "waiver",
@@ -128,10 +128,10 @@
     "position": "TE",
     "team": "PHI",
     "proj": 10.42,
-    "actual": null,
-    "bar": null,
-    "beat_bar": null,
-    "outcome": null
+    "actual": 1.9,
+    "bar": 12.7,
+    "beat_bar": false,
+    "outcome": "graded"
    },
    {
     "kind": "waiver",
@@ -139,10 +139,10 @@
     "position": "WR",
     "team": "KC",
     "proj": 10.38,
-    "actual": null,
-    "bar": null,
-    "beat_bar": null,
-    "outcome": null
+    "actual": 4.2,
+    "bar": 15.0,
+    "beat_bar": false,
+    "outcome": "graded"
    },
    {
     "kind": "waiver",
@@ -150,10 +150,10 @@
     "position": "WR",
     "team": "PHI",
     "proj": 10.27,
-    "actual": null,
-    "bar": null,
-    "beat_bar": null,
-    "outcome": null
+    "actual": 5.2,
+    "bar": 15.0,
+    "beat_bar": false,
+    "outcome": "graded"
    },
    {
     "kind": "waiver",
@@ -161,10 +161,10 @@
     "position": "WR",
     "team": "HOU",
     "proj": 9.93,
-    "actual": null,
-    "bar": null,
-    "beat_bar": null,
-    "outcome": null
+    "actual": 8.5,
+    "bar": 15.0,
+    "beat_bar": false,
+    "outcome": "graded"
    },
    {
     "kind": "waiver",
@@ -172,10 +172,10 @@
     "position": "TE",
     "team": "MIA",
     "proj": 9.72,
-    "actual": null,
-    "bar": null,
-    "beat_bar": null,
-    "outcome": null
+    "actual": 10.5,
+    "bar": 12.7,
+    "beat_bar": false,
+    "outcome": "graded"
    },
    {
     "kind": "waiver",
@@ -185,9 +185,168 @@
     "proj": 9.05,
     "actual": null,
     "bar": null,
-    "beat_bar": null,
-    "outcome": null
+    "beat_bar": false,
+    "outcome": "dnp"
    },
+   {
+    "kind": "waiver",
+    "player": "Albert Okwuegbunam",
+    "position": "TE",
+    "team": "LV",
+    "proj": 8.6,
+    "actual": null,
+    "bar": null,
+    "beat_bar": false,
+    "outcome": "dnp"
+   },
+   {
+    "kind": "waiver",
+    "player": "Charlie Kolar",
+    "position": "TE",
+    "team": "LAC",
+    "proj": 7.82,
+    "actual": null,
+    "bar": null,
+    "beat_bar": false,
+    "outcome": "dnp"
+   },
+   {
+    "kind": "waiver",
+    "player": "Jawhar Jordan",
+    "position": "RB",
+    "team": "HOU",
+    "proj": 7.48,
+    "actual": null,
+    "bar": null,
+    "beat_bar": false,
+    "outcome": "dnp"
+   }
+  ],
+  "graded": true
+ },
+ "2026-04": {
+  "season": 2026,
+  "week": 4,
+  "generated": "2026-10-02T14:46:36",
+  "recs": [
+   {
+    "kind": "waiver",
+    "player": "Tre Tucker",
+    "position": "WR",
+    "team": "LV",
+    "proj": 10.17,
+    "actual": 8.4,
+    "bar": 14.6,
+    "beat_bar": false,
+    "outcome": "graded"
+   },
+   {
+    "kind": "waiver",
+    "player": "Rashid Shaheed",
+    "position": "WR",
+    "team": "SEA",
+    "proj": 9.14,
+    "actual": 12.3,
+    "bar": 14.6,
+    "beat_bar": false,
+    "outcome": "graded"
+   },
+   {
+    "kind": "waiver",
+    "player": "Jaylen Wright",
+    "position": "RB",
+    "team": "MIA",
+    "proj": 8.7,
+    "actual": 0.7,
+    "bar": 13.0,
+    "beat_bar": false,
+    "outcome": "graded"
+   },
+   {
+    "kind": "waiver",
+    "player": "Albert Okwuegbunam",
+    "position": "TE",
+    "team": "LV",
+    "proj": 8.6,
+    "actual": null,
+    "bar": null,
+    "beat_bar": false,
+    "outcome": "dnp"
+   },
+   {
+    "kind": "waiver",
+    "player": "Devaughn Vele",
+    "position": "WR",
+    "team": "NO",
+    "proj": 8.42,
+    "actual": 17.4,
+    "bar": 14.6,
+    "beat_bar": true,
+    "outcome": "graded"
+   },
+   {
+    "kind": "waiver",
+    "player": "Greg Dulcich",
+    "position": "TE",
+    "team": "MIA",
+    "proj": 8.35,
+    "actual": null,
+    "bar": null,
+    "beat_bar": false,
+    "outcome": "dnp"
+   },
+   {
+    "kind": "waiver",
+    "player": "Dontayvion Wicks",
+    "position": "WR",
+    "team": "PHI",
+    "proj": 8.05,
+    "actual": 4.8,
+    "bar": 14.6,
+    "beat_bar": false,
+    "outcome": "graded"
+   },
+   {
+    "kind": "waiver",
+    "player": "Jawhar Jordan",
+    "position": "RB",
+    "team": "HOU",
+    "proj": 7.45,
+    "actual": null,
+    "bar": null,
+    "beat_bar": false,
+    "outcome": "dnp"
+   },
+   {
+    "kind": "waiver",
+    "player": "Evan Engram",
+    "position": "TE",
+    "team": "DEN",
+    "proj": 6.59,
+    "actual": 1.6,
+    "bar": 11.7,
+    "beat_bar": false,
+    "outcome": "graded"
+   },
+   {
+    "kind": "waiver",
+    "player": "Darnell Washington",
+    "position": "TE",
+    "team": "PIT",
+    "proj": 6.49,
+    "actual": 11.7,
+    "bar": 11.7,
+    "beat_bar": true,
+    "outcome": "graded"
+   }
+  ],
+  "graded": true
+ },
+ "2026-05": {
+  "season": 2026,
+  "week": 5,
+  "generated": "2026-10-11T08:26:08",
+  "recs": [
    {
     "kind": "waiver",
     "player": "Albert Okwuegbunam",
@@ -201,10 +360,54 @@
    },
    {
     "kind": "waiver",
-    "player": "Charlie Kolar",
+    "player": "Xavier Hutchinson",
+    "position": "WR",
+    "team": "HOU",
+    "proj": 8.43,
+    "actual": null,
+    "bar": null,
+    "beat_bar": null,
+    "outcome": null
+   },
+   {
+    "kind": "waiver",
+    "player": "Mike Gesicki",
     "position": "TE",
-    "team": "LAC",
-    "proj": 7.82,
+    "team": "CIN",
+    "proj": 8.27,
+    "actual": null,
+    "bar": null,
+    "beat_bar": null,
+    "outcome": null
+   },
+   {
+    "kind": "waiver",
+    "player": "Roman Wilson",
+    "position": "WR",
+    "team": "PIT",
+    "proj": 8.17,
+    "actual": null,
+    "bar": null,
+    "beat_bar": null,
+    "outcome": null
+   },
+   {
+    "kind": "waiver",
+    "player": "Malik Washington",
+    "position": "WR",
+    "team": "MIA",
+    "proj": 8.09,
+    "actual": null,
+    "bar": null,
+    "beat_bar": null,
+    "outcome": null
+   },
+   {
+    "kind": "waiver",
+    "player": "Greg Dulcich",
+    "position": "TE",
+    "team": "MIA",
+    "proj": 8.01,
     "actual": null,
     "bar": null,
     "beat_bar": null,
@@ -215,7 +418,29 @@
     "player": "Jawhar Jordan",
     "position": "RB",
     "team": "HOU",
-    "proj": 7.48,
+    "proj": 7.45,
+    "actual": null,
+    "bar": null,
+    "beat_bar": null,
+    "outcome": null
+   },
+   {
+    "kind": "waiver",
+    "player": "DeMario Douglas",
+    "position": "WR",
+    "team": "NE",
+    "proj": 7.36,
+    "actual": null,
+    "bar": null,
+    "beat_bar": null,
+    "outcome": null
+   },
+   {
+    "kind": "waiver",
+    "player": "Darnell Washington",
+    "position": "TE",
+    "team": "PIT",
+    "proj": 6.67,
     "actual": null,
     "bar": null,
     "beat_bar": null,
