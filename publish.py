@@ -320,7 +320,7 @@ def render_cards(data: dict) -> list:
         rows = [(r["player"], f"{float(r['blended_prob']):.0%}") for r in td[:10]]
         out.append(render_card(
             "Touchdown Scorers", wk, rows,
-            "Chance of a rushing or receiving TD, model blended with the market",
+            "Chance of a rushing or receiving TD, by our model",
             _OUT / f"{stamp}-card-td.jpg",
             footer2="Passing TDs excluded. Rookies are where the model is least certain."))
 
@@ -333,15 +333,15 @@ def render_cards(data: dict) -> list:
     if tdp and tpp:
         wk = f"Week {data['week']}" if data.get("week") else when
         rows = [(r["player"], f"{int(r['american_odds']):+d}") for r in tdp]
-        foot = (f"Top scorers, one per game  ·  {int(tpp.get('american', 0)):+d}  ·  "
-                f"{float(tpp.get('blended_prob', 0)):.0%} to hit")
+        foot = (f"Our top scorers, one per game  ·  {int(tpp.get('american', 0)):+d}  ·  "
+                f"{float(tpp.get('blended_prob', 0)):.0%} by our model")
         held = data.get("parlay_withheld_price") or {}
         if held and not (data.get("parlay") or []):
             f2 = (f"5-leg parlay held back: {float(held.get('blended_prob', 0)):.1%} vs "
                   f"{float(held.get('breakeven_prob', 0)):.1%} needed.")
         else:
-            f2 = (f"Needs {float(tpp.get('breakeven_prob', 0)):.0%} to break even. "
-                  "Market odds, not an edge.")
+            f2 = (f"Needs {float(tpp.get('breakeven_prob', 0)):.0%} to break even"
+                  + (f"; the book says {float(tpp['fair_prob']):.0%}." if tpp.get("fair_prob") else "."))
         out.append(render_card(
             "Touchdown Parlay", wk, rows, foot,
             _OUT / f"{stamp}-card-td-parlay.jpg", footer2=f2))

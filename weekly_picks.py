@@ -274,15 +274,17 @@ def _depth_lookup() -> dict:
 
 def parlay_price(legs: list) -> dict:
     """Combined American odds and both probabilities for a set of legs."""
-    dec, model, blended = 1.0, 1.0, 1.0
+    dec, model, blended, fair = 1.0, 1.0, 1.0, 1.0
     for lg in legs:
         o = int(lg.get("american_odds", -110))
         dec *= (1 + o / 100.0) if o > 0 else (1 + 100.0 / abs(o))
         model *= float(lg.get("model_prob", 0))
         blended *= float(lg.get("blended_prob", 0))
+        fair *= float(lg.get("fair_prob") or lg.get("implied_prob") or 0)
     american = (round((dec - 1) * 100) if dec >= 2 else round(-100 / (dec - 1))) if dec > 1 else 0
     return {"decimal": round(dec, 3), "american": int(american),
             "model_prob": round(model, 5), "blended_prob": round(blended, 5),
+            "fair_prob": round(fair, 5),
             "breakeven_prob": round(1.0 / dec, 5) if dec else None}
 
 
@@ -313,10 +315,10 @@ def td_parlay(td: list, n: int = _TD_PARLAY_LEGS) -> list:
     split the same red-zone trips, opponents trade them — and the product of their prices
     would misstate the parlay either way.
 
-    This is NOT gated on break-even, and that is not an oversight. The touchdown blend sits
-    on the de-vigged market price, so after FanDuel's margin it lands below break-even
-    every week by construction. It is published as what it is — the market's likeliest
-    scorers, combined — and the card says so; it is never described as an edge.
+    This is NOT gated on break-even, and that is not an oversight. It is published as what
+    it is — our model's likeliest scorers, combined, with the book's own probability printed
+    beside ours — and never described as an edge: the model has not been shown to beat the
+    book on touchdowns.
     """
     out, games = [], set()
     for r in td:
@@ -471,7 +473,14 @@ def _td_pool() -> list:
 
         implied = float(r["implied_prob"])
         fair = pm.devig_one_sided(implied, sport="nfl")
-        blended = mkt_w * model + (1.0 - mkt_w) * fair
+        # The touchdown boards publish OUR number (user's decision, 2026-10-11): the
+        # calibrated model (nfl_analysis._td_calibrated_mu), with the book's de-vigged price
+        # printed beside it. Everything downstream reads blended_prob as "the probability we
+        # publish and rank by", so that is where the model goes. Unlike the props, the TD
+        # model was shown to carry real information against base rates (walk-forward 2025
+        # Brier 0.1443 vs 0.1550) and is calibrated by position; it has not been shown to
+        # beat the book, and the newsletter says so.
+        blended = model
         out.append({
             "player": name, "game": r["game_label"],
             "american_odds": int(r["american_odds"]),
@@ -501,7 +510,7 @@ def _td_pool() -> list:
     except Exception:
         pass
 
-    # Ranked by what we believe, not by disagreement — the same discipline as the parlay.
+    # Ranked by our calibrated model: most likely to score by our numbers.
     out.sort(key=lambda r: -r["blended_prob"])
     _POOL_CACHE = out
     return out
@@ -768,6 +777,9 @@ def log_picks(season: int | None = None, week: int | None = None,
     if tdp:
         entry["td_parlay"] = [r["player"] for r in tdp]
         entry["td_parlay_price"] = parlay_price(tdp)
+    # Which number ranked the touchdown board: "market" through week 5, "model" (the
+    # calibrated TD model) from week 6. Different predictions; the record must not pool them.
+    entry["td_rule"] = "model"
     # The form-under test parlay for the week's main slate, frozen now from the legs
     # form_signal has logged so far, so the published card and the graded record are the
     # same three legs. Optional: the board saves without it.

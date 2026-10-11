@@ -485,13 +485,15 @@ def render_markdown(data: dict) -> str:
     td = data.get("td") or []
     if td:
         L += [f"## Touchdown scorers — Week {data.get('week', '?')}", "",
-              "Most likely to find the end zone, rushing or receiving. Passing touchdowns "
-              "are excluded: a quarterback who throws one has not scored one.", "",
-              "The model prices rushing and receiving touchdowns as Poisson counts, so a "
-              "player fails to score only if both come up zero — "
-              "`P = 1 - (1 - P_rush)(1 - P_rec)`. **Book** is FanDuel's price with the "
-              "margin stripped out; where the two disagree sharply it is usually a rookie, "
-              "whose usage the model has the least history to project.", "",
+              "Most likely to find the end zone by our numbers, rushing or receiving. Passing "
+              "touchdowns are excluded: a quarterback who throws one has not scored one.", "",
+              "**Model** is ours: each player's share of his team's carries and targets, his "
+              "touchdown rate per touch, and his team's volume, priced as Poisson counts so he "
+              "fails to score only if both come up zero — `P = 1 - (1 - P_rush)(1 - P_rec)` — "
+              "then calibrated by position against the last two seasons. **Book** is FanDuel's "
+              "price with the margin stripped out. The board is ranked by Model; the two have "
+              "not been shown to differ in accuracy over a full season, so where they disagree "
+              "sharply, read it as a question rather than an answer.", "",
               "| Player | Game | Odds | Book | Model |", "|---|---|---:|---:|---:|"]
         for r in td[:12]:
             L.append(f"| {r['player']} | {r.get('game', '')} | "
@@ -504,18 +506,21 @@ def render_markdown(data: dict) -> str:
     tpp = data.get("td_parlay_price") or {}
     if tdp and tpp:
         L += [f"## Touchdown parlay — the top {len(tdp)}", "",
-              "The likeliest scorers on the board, no two from the same game, combined. These "
-              "probabilities are the market's own, so this is the most likely touchdown "
-              "parlay, not a mispriced one.", "",
-              "| Player | Game | Odds | Chance |", "|---|---|---:|---:|"]
+              "Our three likeliest scorers, no two from the same game, combined. **Chance** is "
+              "our model; **Book** is FanDuel's own probability with the margin removed.", "",
+              "| Player | Game | Odds | Book | Chance |", "|---|---|---:|---:|---:|"]
         for r in tdp:
             L.append(f"| {r['player']} | {r.get('game', '')} | "
                      f"{int(r.get('american_odds', 0)):+d} | "
+                     f"{float(r.get('fair_prob', 0)):.0%} | "
                      f"{float(r.get('blended_prob', 0)):.0%} |")
-        L += ["", f"Combined: **{int(tpp.get('american', 0)):+d}**, about "
-              f"**{float(tpp.get('blended_prob', 0)):.0%}** to hit against "
-              f"**{float(tpp.get('breakeven_prob', 0)):.0%}** needed to break even. "
-              "The gap is the book's margin.", ""]
+        book = (f"; the book's own numbers say **{float(tpp['fair_prob']):.0%}**"
+                if tpp.get("fair_prob") else "")
+        L += ["", f"Combined: **{int(tpp.get('american', 0)):+d}**. Our model puts it at "
+              f"**{float(tpp.get('blended_prob', 0)):.0%}** against **"
+              f"{float(tpp.get('breakeven_prob', 0)):.0%}** needed to break even{book}. "
+              "Where ours is higher, that is our model disagreeing with the book, not a "
+              "proven advantage.", ""]
 
     # The form-under test parlay. Framed as what it is: a live test of one rule, priced
     # below break-even at the market's own probabilities, which only pays if the rule
