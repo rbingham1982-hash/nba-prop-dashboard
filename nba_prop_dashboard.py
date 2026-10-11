@@ -2338,12 +2338,17 @@ def _parlay_card_html(parlay: dict, kind: str = "safe") -> str:
     # EV here is on the calibrated probability, so a negative number means the model
     # itself expects this bet to lose. Say so on the card rather than leaving the reader
     # to notice the minus sign.
+    #
+    # Never a recommendation, though. Graded on 2026-10-11, legs in the parlays this flag
+    # marked came in 6.2 points (MLB) and 9 points (NFL) below their own prices — the
+    # worst-performing group in the log. A "+EV" that has not survived a held-out test is
+    # an arithmetic result, and the badge says so.
     recommended = parlay.get("recommended", parlay["ev"] > 0)
     if recommended:
-        rec_badge = "<span class='pl-rec'>✓ +EV</span>"
+        rec_badge = "<span class='pl-rec'>+EV on paper · unproven</span>"
         card_extra = " pl-card-rec"
     else:
-        rec_badge = "<span class='pl-norec'>−EV · not recommended</span>"
+        rec_badge = "<span class='pl-norec'>−EV</span>"
         card_extra = " pl-card-norec"
     return (
         f"<div class='pl-card pl-card-{kind}{card_extra}'>"
@@ -2394,12 +2399,11 @@ def _render_parlay_pair(safe: list, value: list, key: str, sport: str | None = N
                         safe_empty: str = "Not enough legs with sufficient historical data. Try adding more stat types.",
                         value_empty: str = "No additional value parlays found beyond safe parlays."):
     """
-    Render the safe/value columns behind one recommended-only toggle.
+    Render the safe/value columns behind one above-break-even toggle.
 
-    The +EV badge alone left a recommendation findable only by eye — with a hundred
-    parlays on the board you scroll and squint at badges. The toggle is what turns the
-    flag into a decision, and it is the only control on this page that changes what you
-    would actually bet, so it defaults to on whenever there is anything to recommend.
+    The toggle used to read "Recommended only" and default to on. Since 2026-10-11 it is
+    off by default and named for what it filters: the parlays it kept were the worst in
+    the graded log (see _parlay_card_html), so it is a view, not advice.
     """
     rec_total = sum(1 for p in safe + value if p.get("recommended"))
     total = len(safe) + len(value)
@@ -2416,15 +2420,17 @@ def _render_parlay_pair(safe: list, value: list, key: str, sport: str | None = N
             tone = "pl-summary-good" if rec_total else "pl-summary-none"
             basis = ("calibrated model" if _pcal_live
                      else "leg-calibrated model (no parlay-level calibration yet)")
-            msg = (f"<strong>{rec_total}</strong> of {total} parlays are positive-EV "
-                   f"on the {basis}"
+            msg = (f"<strong>{rec_total}</strong> of {total} parlays price above break-even "
+                   f"on the {basis} — the model has not beaten the market out of sample, "
+                   f"so treat that as arithmetic, not an edge"
                    if rec_total else
                    f"None of {total} parlays clear break-even on the {basis}")
             st.markdown(f"<p class='pl-summary {tone}'>{msg}</p>", unsafe_allow_html=True)
     with _hc2:
-        only_rec = st.toggle("Recommended only", value=bool(rec_total),
+        only_rec = st.toggle("Above break-even only", value=False,
                              key=f"rec_only_{key}",
-                             help="Hide parlays the calibrated model expects to lose.")
+                             help="Hide parlays the model prices below break-even. Not a "
+                                  "recommendation: the model has no demonstrated edge.")
 
     if only_rec:
         safe = [p for p in safe if p.get("recommended")]
@@ -2437,7 +2443,7 @@ def _render_parlay_pair(safe: list, value: list, key: str, sport: str | None = N
             for _p in safe:
                 st.markdown(_parlay_card_html(_p, "safe"), unsafe_allow_html=True)
         else:
-            st.caption("No recommended safe parlays — untick the filter to see the rest."
+            st.caption("No safe parlays above break-even — untick the filter to see the rest."
                        if only_rec else safe_empty)
     with _cv:
         st.markdown(f"<p class='pl-section-label'>{value_label}</p>", unsafe_allow_html=True)
@@ -2445,7 +2451,7 @@ def _render_parlay_pair(safe: list, value: list, key: str, sport: str | None = N
             for _p in value:
                 st.markdown(_parlay_card_html(_p, "value"), unsafe_allow_html=True)
         else:
-            st.caption("No recommended value parlays — untick the filter to see the rest."
+            st.caption("No value parlays above break-even — untick the filter to see the rest."
                        if only_rec else value_empty)
 
 
@@ -4251,19 +4257,19 @@ def _render_accuracy_tab(sport_filter: str) -> None:
         st.markdown(
             f"<div style='border:1px solid rgba(34,197,94,.45);background:rgba(34,197,94,.10);"
             f"border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1rem;'>"
-            f"<div style='font-weight:700;color:#22c55e;font-size:0.95rem;'>🔔 Strong-edge pocket day "
-            f"— {len(_alert['plays'])} play(s) clear the bar</div>"
+            f"<div style='font-weight:700;color:#22c55e;font-size:0.95rem;'>Large model disagreements "
+            f"— {len(_alert['plays'])} pocket prop(s) past the bar</div>"
             f"<div style='font-size:0.76rem;color:var(--text-muted);margin:0.2rem 0 0.4rem;'>"
             f"Pocket-market straight bets with ≥{_alert['min_edge']*100:.0f}% model edge at "
-            f"≥{_alert['min_odds']:+d} odds. Still not real edge until the paper-trade verdict says so — "
-            f"but these are the only days worth a look.</div>{_rows}</div>",
+            f"≥{_alert['min_odds']:+d} odds. Not an edge: graded through 2026-10-11, model-vs-market "
+            f"disagreements did not realize better than the price in any sport.</div>{_rows}</div>",
             unsafe_allow_html=True,
         )
     else:
         st.caption(
-            f"🔕 No strong-edge pocket day ({_alert['n_pocket']} pocket props scanned; none clear "
-            f"≥{_alert['min_edge']*100:.0f}% edge at ≥{_alert['min_odds']:+d}). Dry board — the "
-            "disciplined move is to skip. This flags the good days automatically."
+            f"No large model disagreements ({_alert['n_pocket']} pocket props scanned; none past "
+            f"≥{_alert['min_edge']*100:.0f}% at ≥{_alert['min_odds']:+d}). Disagreements have not "
+            "realized better than the price, so this is a curiosity, not a signal."
         )
 
     _cur_week = datetime.now().strftime("%G-W%V")
@@ -4850,12 +4856,12 @@ def _render_accuracy_tab(sport_filter: str) -> None:
                    if p.get("iso_week") == _sel_week and p.get("sport") == sport_filter]
     if _wk_parlays:
         # An expander per parlay is O(thousands) on a busy week (2000+ parlays) and stalls the
-        # whole tab. Render the recommended parlays only, capped and sorted best-first, and note
+        # whole tab. Render the above-break-even parlays only, capped and sorted best-first, and note
         # the full count — the log is for spot-checking, not scrolling thousands of rows.
         _rec_wk = [p for p in _wk_parlays if p.get("recommended")]
         _show_wk = sorted(_rec_wk or _wk_parlays, key=lambda p: (p.get("ev") or 0), reverse=True)[:50]
         st.caption(f"{len(_wk_parlays)} parlays logged this week · showing top {len(_show_wk)} "
-                   f"{'recommended ' if _rec_wk else ''}by EV.")
+                   f"{'above break-even ' if _rec_wk else ''}by EV.")
         for _wp in _show_wk:
             _hit_icon = ("✅ Hit" if _wp["parlay_hit"] is True
                          else ("❌ Miss" if _wp["parlay_hit"] is False else "⏳ Pending"))
@@ -9302,7 +9308,7 @@ elif sport == "🏈 NFL":
                     for _p in _pool[:5]:
                         _mk = len({_l["stat_type"] for _l in _p["legs"]})
                         _fm = len({_fam.get(_l["stat_type"], "?") for _l in _p["legs"]})
-                        _rec = "✅ +EV" if _p.get("recommended") else "—"
+                        _rec = "+EV (paper)" if _p.get("recommended") else "—"
                         with st.expander(
                             f"{_p['n']} legs · {_p['payout']:.1f}x · {_p['prob']*100:.1f}% "
                             f"· EV {_p['ev']:+.3f} {_rec} · {_mk} markets / {_fm} families"):

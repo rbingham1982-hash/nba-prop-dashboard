@@ -1,7 +1,8 @@
 """
-Daily strong-edge pocket-day alert. Scans today's logged pocket-market props (K's + WNBA
-reb/ast) and reports any that clear both a strong-edge bar and an odds floor — the only days
-worth a straight bet. Writes to logs/pocket_alert.log. Safe to run manually or on a schedule
+Daily pocket-market disagreement report. Scans today's logged pocket-market props (K's +
+WNBA reb/ast) and lists any where the model disagrees with the price past a bar and an odds
+floor. Not a betting signal: graded on 2026-10-11, model-vs-market disagreements did not
+realize better than the price in any sport, and these markets came in at or below theirs. Writes to logs/pocket_alert.log. Safe to run manually or on a schedule
 (after the daily parlay builder, so today's slate is already logged).
 """
 import os
@@ -29,14 +30,14 @@ if a.get("n_openers"):
 if _skipped:
     lines.append(f"  filtered out: {', '.join(_skipped)}")
 if a["qualifies"]:
-    lines.append(f"  ** STRONG-EDGE DAY ** {len(a['plays'])} qualifying play(s):")
+    lines.append(f"  {len(a['plays'])} large model disagreement(s) — unproven, not a bet:")
     for p in a["plays"]:
         _lh = p.get("lead_hours")
         _in = f"in {_lh:.1f}h" if _lh is not None else "start unknown"
         lines.append(f"    {p['edge']*100:+5.1f}% edge  {p['player']:<22} {p['stat']:<10} "
                      f"o{p['line']} ({p['odds']:+d}) {p['book']:<9} {p['game']:<12} {_in}")
 else:
-    lines.append("  no qualifying plays — dry board, skip today.")
+    lines.append("  no large disagreements today.")
 
 report = "\n".join(lines)
 print(report)
