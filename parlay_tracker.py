@@ -10,6 +10,7 @@ Calibration factors are derived from resolved legs once CAL_MIN_SAMPLES is reach
 
 import json
 import hashlib
+import os
 import re
 import time as _time
 import unicodedata
@@ -46,6 +47,28 @@ def _shard_key(parlay: dict) -> str:
 
 def _shard_path(key: str) -> Path:
     return _SHARD_DIR / f"parlay_log-{key}.json"
+
+
+# Sports whose shards this machine must not write. Since 2026-10-11 the MLB and NFL
+# shards belong to the GitHub Actions runner; the home PC sets
+# KONJURE_READONLY_SPORTS=MLB,NFL so its dashboard (price snapshots on every fetch, the
+# Resolve Outcomes button, parlay logging) cannot dirty them. A dirty cloud-owned shard
+# makes run_home_board.ps1 stand down, which stalls the NBA/WNBA sync until someone
+# notices. Unset everywhere else, so the cloud and Streamlit Cloud write as before.
+#
+# The untracked file .readonly_sports (same comma list) does the same job and is what the
+# home PC actually uses: an environment variable only reaches processes started after it
+# was set, and the dashboard wrapper and scheduled tasks outlive any one change.
+def _readonly_sports() -> set:
+    raw = os.environ.get("KONJURE_READONLY_SPORTS", "")
+    f = Path(__file__).with_name(".readonly_sports")
+    if not raw and f.exists():
+        raw = f.read_text(encoding="utf-8")
+    return {s.strip().upper() for s in raw.split(",") if s.strip()}
+
+
+_READONLY_SPORTS = _readonly_sports()
+_readonly_warned: set = set()
 
 # Which model produced a parlay's predicted_prob. Bump this whenever a change alters
 # what predicted_prob *means*, so calibration stops grading a model that no longer
@@ -366,6 +389,12 @@ def _save(data: dict) -> None:
     # resolving a day of MLB legs should not rewrite every WNBA parlay ever logged, and on
     # a normal run exactly one shard differs.
     for key, rows in buckets.items():
+        if key.split("-")[0] in _READONLY_SPORTS:
+            if key not in _readonly_warned:
+                _readonly_warned.add(key)
+                print(f"  parlay_tracker: not writing {_shard_path(key).name} — "
+                      f"{key.split('-')[0]} is read-only here (KONJURE_READONLY_SPORTS).")
+            continue
         text = json.dumps({"version": 1, "parlays": rows},
                           separators=(",", ":"), default=str)
         if _SHARD_TEXT.get(key) == text:

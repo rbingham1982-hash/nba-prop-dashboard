@@ -58,3 +58,6 @@ newsletter_out/*
 
 # Fitted ATS scale/hfa — a derived cache, refits from public data on demand.
 .nfl_ats_params.json
+
+# Per-machine: sports whose parlay shards this machine must not write (see parlay_tracker)
+.readonly_sports
