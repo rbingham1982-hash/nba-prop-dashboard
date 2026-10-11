@@ -1,0 +1,82 @@
+# The MLB + NFL half of the daily parlay run. NBA and WNBA stay on the home machine,
+# because stats.nba.com does not answer GitHub's runners (check-sources.yml).
+#
+# This runner owns parlay_log-MLB-*.json, parlay_log-NFL-*.json and game_log.json and
+# commits nothing else; the home runner owns the NBA/WNBA shards, tip_log.json and
+# nba_weekly_picks.json. Disjoint files are what let both push without conflicts.
+#
+# Cron is UTC. The hours are chosen so every firing lands on the same Chicago calendar
+# day in both CDT and CST: 19-23 + 0-4 UTC is 14:00-23:00 CDT and 13:00-22:00 CST. A
+# firing at 05 UTC would be midnight CDT and build tomorrow's board at 00:00, the exact
+# bug parlay-runner scheduling had at home. GitHub can start a scheduled run late or drop
+# one under load; the hourly repeats and already_ran_today() absorb that.
+name: daily board
+
+on:
+  schedule:
+    - cron: "0 19-23 * * *"   # daily window, first half
+    - cron: "0 0-4 * * *"     # daily window, second half (still the same Chicago day)
+    - cron: "0 14 * * 0"      # Sunday early: 09:00 CDT, board up before the noon kickoffs
+    - cron: "30 18 * * 0"     # Sunday late, forced: prices the late games off current lines
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Run with --force (build a board even if one exists today)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+# One at a time: two runs racing would both rewrite the same shards.
+concurrency:
+  group: daily-board
+  cancel-in-progress: false
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      TZ: America/Chicago        # the generator's "today" is a Chicago day, not UTC
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Run MLB + NFL
+        run: |
+          FORCE=""
+          if [ "${{ github.event.schedule }}" = "30 18 * * 0" ] || [ "${{ inputs.force }}" = "true" ]; then
+            FORCE="--force"
+          fi
+          python daily_parlay_gen.py --sports mlb,nfl $FORCE
+
+      - name: Commit this runner's logs
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- 'parlay_log-MLB-*.json' 'parlay_log-NFL-*.json' game_log.json
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git commit -q -m "chore: cloud board run $(date '+%Y-%m-%d %H:%M %Z')"
+          # Drop anything else the run touched: other files belong to the home runner.
+          git restore .
+          for i in 1 2 3; do
+            git pull --rebase -q && git push -q && exit 0
+            sleep $((i * 15))
+          done
+          echo "Push failed after three tries."
+          exit 1
