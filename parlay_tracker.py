@@ -95,6 +95,12 @@ _readonly_warned: set = set()
 # for leg overconfidence. Both change what predicted numbers mean → new epoch.
 _MODEL_EPOCH = "blend"
 
+# "market" on 2026-10-11, every sport at once, for two changes that move what a shipped
+# probability means: get_market_blend now returns 0.0 (publish the market) unless the
+# model beats it out of sample, and FanDuel two-way overs are shaded down by the measured
+# over-margin (parlay_model.FD_OVER_SHADE). Legs from earlier epochs are quoted in their
+# own, unshaded units by update_market_snapshots, so CLV never mixes the two.
+
 # Per sport, because a scorer change rarely touches all four. NFL props moved to
 # "projblend" on 2026-09-27: daily_parlay_gen now asks nfl_analysis to blend the usage
 # projection half-and-half with a recency mean before it becomes a probability, so an NFL
@@ -113,7 +119,7 @@ _MODEL_EPOCH = "blend"
 # this season's games (nfl_analysis.history_frame) instead of last season alone until week
 # 7, and rushing/receiving yards price off a gamma rather than a normal
 # (nfl_analysis._GAMMA_STATS). Both move every NFL predicted_prob.
-_MODEL_EPOCH_BY_SPORT = {"NFL": "histgamma"}
+_MODEL_EPOCH_BY_SPORT = {"NFL": "market", "MLB": "market", "WNBA": "market", "NBA": "market"}
 
 # Per-stat calibration is deliberately NOT epoch-filtered (see get_calibration), but a
 # factor that existed to undo a distribution's error has to restart when the distribution
@@ -122,8 +128,10 @@ _MODEL_EPOCH_BY_SPORT = {"NFL": "histgamma"}
 # time — Swift o14.5 receiving yards 58% -> 46% from the gamma, -> 40% with the old factor.
 # So these buckets count only legs scored under the named epoch; until 15 weighted legs
 # resolve they sit at 1.0, which is where the walk-forward test put the gamma.
-_CAL_RESTART = {("NFL", "Receiving Yards"): "histgamma",
-                ("NFL", "Rushing Yards"): "histgamma"}
+# Epochs whose legs were scored by the gamma; "market" kept the gamma and changed only
+# the blend and the de-vig, so it counts toward the restarted buckets too.
+_CAL_RESTART = {("NFL", "Receiving Yards"): ("histgamma", "market"),
+                ("NFL", "Rushing Yards"): ("histgamma", "market")}
 
 
 def model_epoch(sport) -> str:
@@ -1947,7 +1955,7 @@ def get_calibration(sport: str | None = None) -> dict:
             seen_props.add(key)
             stat = _cal_key(leg)
             restart = _CAL_RESTART.get((parlay.get("sport"), stat))
-            if restart and parlay.get("model_epoch") != restart:
+            if restart and parlay.get("model_epoch") not in restart:
                 continue
             mp = _leg_model_prob(leg)          # raw scorer output, not the shipped price
             if mp is None:
@@ -2244,7 +2252,7 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
 # implied_prob is de-vigged. Leaving projblend out would have quietly dropped every new
 # NFL leg from the market-blend fit and from CLV, which is the one measurement that
 # converges fast enough to be worth having.
-_MARKET_EPOCHS = ("devig", "blend", "projblend", "histgamma")
+_MARKET_EPOCHS = ("devig", "blend", "projblend", "histgamma", "market")
 
 # The prior is the MARKET (0.0), not a 35% model share. On 2026-10-11 the shipped weights
 # were MLB 0.115, WNBA 0.257, NFL 0.11 and NBA 0.35 (no data at all), while the blends
@@ -2464,11 +2472,18 @@ def _snapshot_keys(row, book: str) -> list:
     this, and it was stamping FanDuel's de-vigged two-way price onto 709 Underdog and
     PrizePicks legs whose entry prices come off a pick'em ladder. Those two numbers do
     not belong in the same subtraction.
+
+    The side is part of the key too, since 2026-10-11. From fd253e9 (2026-08-23) the
+    FanDuel fetch emits the under right after the over under the same player, stat, line
+    and game, so the under's price overwrote the over's in the quote table and every over
+    leg on a two-way market was stamped with the UNDER's closing price — a close near
+    1 - entry, read as a large adverse move. repair_flipped_closes() fixes the history.
     """
     keys = []
     try:
         base = (book, str(row.get("player_name", "")).lower(),
-                str(row.get("stat_type", "")), float(row.get("line_score", 0)))
+                str(row.get("stat_type", "")), float(row.get("line_score", 0)),
+                str(row.get("side") or "over").lower())
     except (TypeError, ValueError):
         return keys
     gid = str(row.get("game_id") or "").strip()
@@ -2506,8 +2521,10 @@ def update_market_snapshots(props_df, sport: str) -> int:
         if implied is None:
             continue
         book = str(r.get("sportsbook") or "").strip()
+        shade = r.get("fair_shade")
+        shade = float(shade) if shade is not None and shade == shade else 0.0
         for key in _snapshot_keys(r, book):
-            quotes[key] = (float(implied), r.get("american_odds"))
+            quotes[key] = (float(implied), r.get("american_odds"), shade)
     if not quotes:
         return 0
     data = _load()
@@ -2528,7 +2545,11 @@ def update_market_snapshots(props_df, sport: str) -> int:
                     break
             if q is None:
                 continue
-            implied, odds = q
+            implied, odds, shade = q
+            # A leg logged before the over-shade carries an unshaded entry price, so its
+            # close has to be quoted the same way or CLV reads the correction as movement.
+            if shade and p.get("model_epoch") != "market":
+                implied = round(implied + shade, 4)
             if leg.get("closing_implied") != implied or leg.get("closing_odds") != odds:
                 leg["closing_implied"] = implied
                 leg["closing_odds"] = odds
@@ -2545,6 +2566,8 @@ def update_market_snapshots(props_df, sport: str) -> int:
                 # Which book quoted it. Needed once every book snapshots its own legs:
                 # the audit below can no longer infer the source from "not FanDuel".
                 leg["closing_book"] = book
+                # Stamped under the side-aware key: repair_flipped_closes must not touch it.
+                leg["closing_side_keyed"] = True
                 updated += 1
     if updated:
         _save(data)
@@ -2691,6 +2714,56 @@ def apply_lineup_check(max_hours: float = LINEUP_CHECK_WINDOW_H) -> dict:
         except Exception:
             pass
     _save(data)
+    return counts
+
+
+# Two-way FanDuel markets, the only ones that ever emitted an under row: every over/under
+# prop in the basketball and football leagues, and pitcher strikeouts in MLB (the rest of
+# MLB is one-sided milestones, which never had an under to collide with).
+_TWO_WAY_MLB = {"Pitcher Strikeouts"}
+_UNDER_ROWS_SINCE = "2026-08-23T12:24:41"     # fd253e9, "score both sides of two-way markets"
+
+
+def repair_flipped_closes(sports=None) -> dict:
+    """
+    Undo the over/under key collision in stored closes. Returns counts. Idempotent.
+
+    From fd253e9 until the side joined _snapshot_keys, an over leg on a two-way FanDuel
+    market was stamped with the under's de-vigged price. The two sides of a two-way de-vig
+    sum to exactly 1, so the over's own close is 1 - the stored number. closing_odds were
+    the under's odds and cannot be recovered, so they are dropped. A stored close that sits
+    nearer the entry than its complement is left alone: that leg was snapshotted while the
+    market was one-sided, and there was no under to collide with.
+    """
+    data = _load()
+    counts = {"repaired": 0, "left": 0}
+    for p in data["parlays"]:
+        sport = str(p.get("sport") or "").upper()
+        if sports is not None and sport.lower() not in sports:
+            continue
+        if p.get("sportsbook") != "FanDuel":
+            continue
+        for leg in p["legs"]:
+            ci, entry = leg.get("closing_implied"), leg.get("implied_prob")
+            if (ci is None or not entry or leg.get("closing_repaired")
+                    or leg.get("closing_side_keyed")):
+                continue
+            if str(leg.get("side") or "over").lower() != "over":
+                continue
+            if sport == "MLB" and leg.get("stat_type") not in _TWO_WAY_MLB:
+                continue
+            if str(leg.get("closing_seen_at") or "") < _UNDER_ROWS_SINCE:
+                continue
+            ci, entry = float(ci), float(entry)
+            if abs(ci - entry) < abs((1.0 - ci) - entry):
+                counts["left"] += 1
+                continue
+            leg["closing_implied"] = round(1.0 - ci, 4)
+            leg.pop("closing_odds", None)
+            leg["closing_repaired"] = True
+            counts["repaired"] += 1
+    if counts["repaired"]:
+        _save(data)
     return counts
 
 

@@ -517,6 +517,29 @@ def devig_two_way(implied_over: float, implied_under: float | None) -> float:
     return implied_over / total
 
 
+# How far proportional de-vigging overstates a FanDuel over, in probability points, per
+# sport. Proportional de-vig assumes the margin is split evenly between the sides; the
+# book loads more of it onto the over, which is the side the public takes. Measured
+# 2026-10-11 on graded two-way FanDuel props the model did not select (tracking legs):
+#   WNBA overs hit 46.7% against 49.3% implied, -2.5 +/- 0.8 points (n=3,799)
+#   NFL  overs hit 47.1% against 49.5% implied, -2.5 +/- 1.8 points (n=748)
+#   MLB  two-way overs (strikeouts) -0.2 +/- 2.1 (n=570): no correction
+# NBA borrows the WNBA figure until its own legs grade; re-measure it by December. The
+# under gets the shade back, so the pair still sums to 1. Once applied, tracking legs
+# measured against the corrected price should come out near zero — that is the check.
+FD_OVER_SHADE = {"wnba": 0.025, "nba": 0.025, "nfl": 0.025}
+
+
+def fd_fair_pair(sport: str, imp_over: float, imp_under: float | None) -> tuple:
+    """(fair over, fair under) for a FanDuel two-way prop; under is None if not quoted."""
+    over = devig_two_way(imp_over, imp_under)
+    if imp_under is None:
+        return over, None
+    shade = FD_OVER_SHADE.get(str(sport).lower(), 0.0)
+    over = min(0.99, max(0.01, over - shade))
+    return over, 1.0 - over
+
+
 # ── FanDuel public sportsbook API (no key, unofficial) ──────────────────────
 # FanDuel's own web client calls these endpoints with a public app key, so no
 # signup or quota applies. Unlike Underdog it quotes *both* sides of every prop,
@@ -1147,12 +1170,17 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
                 au = _fd_american(under)
                 if au is not None:
                     imp_under = american_to_implied(au)
+            fair_over, fair_under = fd_fair_pair(sport, imp_over, imp_under)
+            # The shift applied on top of proportional de-vig (0 when one-sided or MLB),
+            # carried so update_market_snapshots can quote legs logged before the
+            # correction in their own units.
+            shade = round(devig_two_way(imp_over, imp_under) - fair_over, 4)
 
             rows.append({
                 "player_name": player, "team": "", "stat_type": stat,
                 "line_score": line, "odds_type": "standard",
                 "american_odds": american,
-                "implied_prob": round(devig_two_way(imp_over, imp_under), 4),
+                "implied_prob": round(fair_over, 4), "fair_shade": shade,
                 "game_id": str(ev_id), "game_label": label,
                 "start_time": start, "sportsbook": "FanDuel",
                 "side": "over",
@@ -1174,9 +1202,9 @@ def _fd_parse_event(sport, core_map, ev_id, ev):
                     "player_name": player, "team": "", "stat_type": stat,
                     "line_score": line, "odds_type": "standard",
                     "american_odds": au,
-                    # devig_two_way normalises by the same total either way, so the two
-                    # sides sum to exactly 1 and the model can work purely in over-space.
-                    "implied_prob": round(devig_two_way(imp_under, imp_over), 4),
+                    # fd_fair_pair returns the complement, so the two sides sum to exactly
+                    # 1 and the model can work purely in over-space.
+                    "implied_prob": round(fair_under, 4), "fair_shade": -shade,
                     "game_id": str(ev_id), "game_label": label,
                     "start_time": start, "sportsbook": "FanDuel",
                     "side": "under",
