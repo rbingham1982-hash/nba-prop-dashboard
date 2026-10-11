@@ -191,8 +191,8 @@ def parlay_legs(n: int = 5) -> list:
     if not legs:
         return []
 
-    # The blend weight this project is allowed to use for a sport with no resolved history.
-    mkt_w = 0.11
+    # The blend weight for a sport with no resolved history: the market's own price.
+    mkt_w = 0.0
     try:
         fitted = parlay_tracker.get_market_blend(sport="NFL")
         if fitted is not None and parlay_tracker.get_calibration(sport="NFL"):
@@ -209,7 +209,12 @@ def parlay_legs(n: int = 5) -> list:
             continue
         blended = mkt_w * float(model) + (1.0 - mkt_w) * float(imp)
         edge = float(model) - float(imp)
-        if not (_MIN_EDGE <= edge <= _MAX_EDGE):
+        # The edge band only means something while the model carries weight. With the
+        # blend at the market (get_market_blend, 2026-10-11) it would select the legs the
+        # model disagrees with — which graded 2-5 points below their prices — and rank
+        # them by a probability the model no longer touches. So: no band, and the parlay
+        # is the market's own most likely legs.
+        if mkt_w > 0 and not (_MIN_EDGE <= edge <= _MAX_EDGE):
             continue
         d = depths.get(lg["player_name"])
         if d is not None and d > _MAX_DEPTH:
@@ -229,6 +234,7 @@ def parlay_legs(n: int = 5) -> list:
     # anything. The edge band stays as a filter: a leg the book likes more than we do is
     # not our pick, and a leg we like far more than the book is a stale role.
     scored.sort(key=lambda r: -r["blended_prob"])
+    parlay_legs.rule = "band" if mkt_w > 0 else "market"
     out, used_cat, used_player = [], set(), set()
     for r in scored:
         cat = r["stat_type"]
@@ -352,7 +358,7 @@ _RECEIVING = ("WR", "TE")
 # deliberate: this one is a measurement, not a publication.
 #
 # Week 3 was selected by blended probability, the rule the parlay board uses, and that was
-# close to the worst possible choice for a test. The blend weight is 0.11, so a large
+# close to the worst possible choice for a test. The blend weight was 0.11, so a large
 # disagreement barely moves the ranking — selecting on it fills the slate with rows where
 # the model and the book already agree, which cannot discriminate between them. Week 3's
 # five were Smith-Njigba at -0%, Rice +2% and Chase -2%, three rows guaranteed to settle
@@ -444,7 +450,7 @@ def _td_pool() -> list:
     if raw.empty:
         return []
 
-    mkt_w = 0.11
+    mkt_w = 0.0
     try:
         fitted = parlay_tracker.get_market_blend(sport="NFL")
         if fitted is not None and parlay_tracker.get_calibration(sport="NFL"):
@@ -748,6 +754,10 @@ def log_picks(season: int | None = None, week: int | None = None,
     # Marks a week logged under the break-even gate, so the newsletter's quality check
     # does not fail weeks 1-4, which were published before it existed.
     entry["parlay_gate"] = True
+    # Which rule picked the legs: "band" (model disagreement 4-18 points, weeks 1-5) or
+    # "market" (the market's most likely legs, from week 6). Different experiments; the
+    # record must not pool them silently.
+    entry["parlay_rule"] = getattr(parlay_legs, "rule", "band")
     if withheld:
         entry["parlay_withheld"] = _legs(parlay)
         entry["parlay_withheld_price"] = price

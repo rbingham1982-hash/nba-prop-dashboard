@@ -632,10 +632,11 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
     # exactly the ones where noise runs favourable, and 75 of 75 parlays price as positive
     # EV. That is a cherry-picking artifact, not an edge.
     #
-    # MLB's fitted weight is 0.107 after thousands of resolved legs. Until NFL has its own
-    # fit, it uses the same floor rather than three times the trust on zero evidence.
+    # MLB's fitted weight was 0.107 after thousands of resolved legs; since 2026-10-11 no
+    # sport's weight survives the walk-forward test in get_market_blend, so a sport with no
+    # graded history gets the market too rather than trust on zero evidence.
     if mkt_w is not None and not parlay_tracker.get_calibration(sport=sport_label):
-        floor = 0.11
+        floor = 0.0
         if mkt_w > floor:
             print(f"  ! No resolved history for {sport_label} — capping blend "
                   f"{mkt_w} -> {floor} until the model has been graded.")
@@ -750,10 +751,10 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
         print(f"    Logged {s} safe + {v} value parlays.")
         if rec:
             best = max(rec, key=lambda p: p["ev"])
-            print(f"    RECOMMENDED (positive EV): {len(rec)} of {len(safe) + len(value)} "
+            print(f"    Above break-even on paper (unproven, not advice): {len(rec)} of {len(safe) + len(value)} "
                   f"— pick counts {sizes}, best EV {best['ev']:+.3f} on a {best['n']}-leg.")
         else:
-            print(f"    RECOMMENDED: none — no positive-EV parlay on the board today.")
+            print(f"    Above break-even: none today.")
         total += s + v
 
     if pm._FD_UNMAPPED:

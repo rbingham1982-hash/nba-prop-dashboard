@@ -2246,9 +2246,15 @@ def get_parlay_calibration(sport: str | None = None) -> dict:
 # converges fast enough to be worth having.
 _MARKET_EPOCHS = ("devig", "blend", "projblend", "histgamma")
 
-MB_PRIOR_WEIGHT   = 0.35   # prior blend weight (model share) before data speaks
+# The prior is the MARKET (0.0), not a 35% model share. On 2026-10-11 the shipped weights
+# were MLB 0.115, WNBA 0.257, NFL 0.11 and NBA 0.35 (no data at all), while the blends
+# improved held-out Brier by +0.00007, +0.00020 and 0.00000 — the prior and the in-sample
+# fit were what kept the model in, and the legs it then selected realized 2-5 points below
+# their price. A model now has to earn weight out of sample (MB_OOS_Z) before it gets any.
+MB_PRIOR_WEIGHT   = 0.0    # prior blend weight (model share) before data speaks
 MB_PRIOR_STRENGTH = 150.0  # weighted legs the prior counts as — small samples move slowly
 MB_MAX_WEIGHT     = 0.70   # never trust the model more than this over the market
+MB_OOS_Z          = 2.0    # held-out Brier gain must clear this many standard errors
 
 
 def _market_legs(sport: str | None):
@@ -2296,18 +2302,38 @@ def get_market_blend(sport: str | None = None) -> float:
     shrunk toward MB_PRIOR_WEIGHT by MB_PRIOR_STRENGTH pseudo-legs so a thin
     sample can't slam the weight to an extreme. First audit (2026-07-19,
     n=243): WNBA fit 0.00 — the market alone beat every blend — MLB fit 0.25.
+
+    Since 2026-10-11 the weight must also survive a walk-forward test: fit on the older
+    half of the resolved legs, score the newer half, and keep the model only if its gain
+    over the market there clears MB_OOS_Z standard errors. Otherwise the answer is 0.0 —
+    publish the market's own probability. An in-sample grid search over thousands of legs
+    always finds some small positive weight; that is fitting noise, not information.
     """
     legs = _market_legs(sport)
     wsum = sum(w for *_, w in legs)
     if wsum <= 0:
         return MB_PRIOR_WEIGHT
-    best_lam, best_brier = MB_PRIOR_WEIGHT, None
-    for i in range(21):
-        lam = i / 20.0
-        brier = sum(w * (lam * mp + (1 - lam) * ip - y) ** 2
-                    for mp, ip, y, w in legs) / wsum
-        if best_brier is None or brier < best_brier:
-            best_lam, best_brier = lam, brier
+
+    def _fit(rows):
+        ws = sum(w for *_, w in rows)
+        return min((i / 20.0 for i in range(21)),
+                   key=lambda lam: sum(w * (lam * mp + (1 - lam) * ip - y) ** 2
+                                       for mp, ip, y, w in rows) / ws)
+
+    # _market_legs is chronological (parlays come out of _load sorted by generated_at).
+    half = len(legs) // 2
+    old, new = legs[:half], legs[half:]
+    if len(old) < 100 or len(new) < 100:
+        return MB_PRIOR_WEIGHT
+    lam_old = _fit(old)
+    gains = [(ip - y) ** 2 - (lam_old * mp + (1 - lam_old) * ip - y) ** 2
+             for mp, ip, y, _w in new]
+    mean = sum(gains) / len(gains)
+    var = sum((g - mean) ** 2 for g in gains) / max(1, len(gains) - 1)
+    if lam_old == 0 or mean <= MB_OOS_Z * (var / len(gains)) ** 0.5:
+        return 0.0
+
+    best_lam = _fit(legs)
     lam = (wsum * best_lam + MB_PRIOR_STRENGTH * MB_PRIOR_WEIGHT) / (wsum + MB_PRIOR_STRENGTH)
     return round(min(MB_MAX_WEIGHT, max(0.0, lam)), 3)
 

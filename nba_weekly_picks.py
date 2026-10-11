@@ -98,7 +98,7 @@ def _save(d: dict) -> None:
 # ── pricing ─────────────────────────────────────────────────────────────────
 
 def _market_weight() -> float:
-    """The weight on the model in the published blend; 0.11 until NBA calibration exists."""
+    """The weight on the model in the published blend; the market (0.0) until it is earned."""
     try:
         import parlay_tracker
         w = parlay_tracker.get_market_blend(sport="NBA")
@@ -106,7 +106,7 @@ def _market_weight() -> float:
             return float(w)
     except Exception:
         pass
-    return 0.11
+    return 0.0
 
 
 def slate_legs(slate: datetime.date) -> list:
@@ -153,8 +153,11 @@ def slate_legs(slate: datetime.date) -> list:
 
 
 def parlay_legs(legs: list, n: int = _PARLAY_LEGS) -> list:
-    """Most likely first, one per category and per player, inside the edge band."""
-    pool = sorted((l for l in legs if _MIN_EDGE <= l["edge"] <= _MAX_EDGE),
+    """Most likely first, one per category and per player; inside the edge band only while
+    the model carries weight (see weekly_picks.parlay_legs for why)."""
+    banded = _market_weight() > 0
+    parlay_legs.rule = "band" if banded else "market"
+    pool = sorted((l for l in legs if not banded or _MIN_EDGE <= l["edge"] <= _MAX_EDGE),
                   key=lambda l: -l["blended_prob"])
     out, cats, players = [], set(), set()
     for l in pool:
@@ -232,6 +235,7 @@ def log_picks(slate: datetime.date | None = None, legs: list | None = None,
     entry = {"week": k, "slate": slate.isoformat(),
              "generated": datetime.datetime.now().isoformat(timespec="seconds"),
              "model_weight": _market_weight(),
+             "parlay_rule": getattr(parlay_legs, "rule", "band"),
              "parlay": [] if withheld else [_row(l) for l in parlay],
              "scorers": [_row(l) for l in scorer_board(legs)]}
     if withheld:
