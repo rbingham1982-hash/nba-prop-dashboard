@@ -945,6 +945,16 @@ def project_usage(df, player: str, stat: str, opponent: str | None = None,
 # indistinguishable from it (p=0.257).
 _RECENCY_BLEND_W = 0.5
 
+# How much wider the props scorer's spread is than a player's game-to-game spread alone.
+# sigma held only how much a player varies week to week, not how wrong the projection
+# itself can be (role changes, backups starting, thin samples), so a coin-flip
+# disagreement with the line printed as 90%+. Against FanDuel's own lines (nfl_prop_eval,
+# 2026-10-11) the realized SD of (actual - mu)/sigma was 1.54; x1.5 was the best Brier
+# when fit on weeks 1-3 and again on held-out weeks 4-5 (0.2692 -> 0.2625). It does not
+# make the projection beat the market (0.2489 there); it makes it stop overclaiming.
+# Count stats are Poisson and carry no sigma, so they are untouched.
+_PROP_SIGMA_INFLATE = 1.5
+
 # Touchdown counts are excluded from the blend on evidence, not taste. Over 5,237
 # player-weeks the three methods are identical on error (all p > 0.23), but the engine
 # ORDERS players markedly better — rank correlation 0.281 against 0.243 for a recency mean,
@@ -999,7 +1009,7 @@ def score_prop_usage(df, player: str, stat: str, line: float, american_odds=None
     if blend_recency and stat not in _NO_RECENCY_BLEND and vals:
         mu = _RECENCY_BLEND_W * mu + (1.0 - _RECENCY_BLEND_W) * _recency_mean(vals)
     sigma = (raw_sigma * (mu / raw_mu)) if raw_mu > 0 else raw_sigma
-    sigma = max(sigma, 0.35 * max(mu, 0.5))
+    sigma = max(sigma, 0.35 * max(mu, 0.5)) * _PROP_SIGMA_INFLATE
 
     model_over = round(_over_prob(stat, line, mu, sigma), 4)
     out = dict(proj)
@@ -1148,7 +1158,7 @@ def score_prop_board(df, player: str, stat: str, line: float, american_odds=None
     if mu <= 0:
         return {}
 
-    sigma = max(mu * stat_cv(df, pos, stat, cache=cvcache), 0.35 * max(mu, 0.5))
+    sigma = max(mu * stat_cv(df, pos, stat, cache=cvcache), 0.35 * max(mu, 0.5)) * _PROP_SIGMA_INFLATE
     model_over = round(_over_prob(stat, line, mu, sigma), 4)
     out = {"player": player, "stat": stat, "line": float(line), "position": pos,
            "team_now": row.get("_team", ""), "source": "board",
