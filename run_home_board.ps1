@@ -3,7 +3,7 @@
 # stats.nba.com does not answer cloud addresses, so these two leagues stay on this
 # machine while .github/workflows/daily-board.yml runs MLB and NFL on GitHub. This side
 # owns the NBA/WNBA shards, tip_log.json and nba_weekly_picks.json and commits nothing
-# else; the cloud owns the MLB/NFL shards and game_log.json.
+# else; the cloud owns the MLB/NFL shards, game_log.json and weekly_picks.json.
 #
 # The sync is careful because this is also the working copy you edit in:
 #   * it only syncs on main, so a run never commits to a feature branch;
@@ -26,7 +26,7 @@ function Say($msg) {
 }
 
 $owned = @("parlay_log-NBA-*.json", "parlay_log-WNBA-*.json", "tip_log.json", "nba_weekly_picks.json")
-$cloudOwned = @("parlay_log-MLB-*.json", "parlay_log-NFL-*.json", "game_log.json")
+$cloudOwned = @("parlay_log-MLB-*.json", "parlay_log-NFL-*.json", "game_log.json", "weekly_picks.json")
 
 function Test-CanSync {
     $branch = (git rev-parse --abbrev-ref HEAD).Trim()
