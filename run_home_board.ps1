@@ -25,8 +25,8 @@ function Say($msg) {
     Add-Content -Path $log -Value $line -Encoding utf8
 }
 
-$owned = @("parlay_log-NBA-*.json", "parlay_log-WNBA-*.json", "tip_log.json", "nba_weekly_picks.json", "form_log-NBA.json")
-$cloudOwned = @("parlay_log-MLB-*.json", "parlay_log-NFL-*.json", "game_log.json", "weekly_picks.json", "form_log-NFL.json")
+$owned = @("parlay_log-NBA-*.json", "parlay_log-WNBA-*.json", "tip_log.json", "nba_weekly_picks.json", "form_log-NBA.json", "favorite_log-NBA.json", "favorite_log-WNBA.json")
+$cloudOwned = @("parlay_log-MLB-*.json", "parlay_log-NFL-*.json", "game_log.json", "weekly_picks.json", "form_log-NFL.json", "favorite_log-NFL.json", "favorite_log-MLB.json")
 
 function Test-CanSync {
     $branch = (git rev-parse --abbrev-ref HEAD).Trim()

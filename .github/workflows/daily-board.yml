@@ -2,9 +2,10 @@
 # because stats.nba.com does not answer GitHub's runners (check-sources.yml).
 #
 # This runner owns parlay_log-MLB-*.json, parlay_log-NFL-*.json, game_log.json,
-# weekly_picks.json (the NFL weekly board) and form_log-NFL.json, and commits nothing
-# else; the home runner owns the NBA/WNBA shards, tip_log.json, nba_weekly_picks.json and
-# form_log-NBA.json. Disjoint files are what let both push without conflicts.
+# weekly_picks.json (the NFL weekly board), form_log-NFL.json and favorite_log-{NFL,MLB}.json,
+# and commits nothing else; the home runner owns the NBA/WNBA shards, tip_log.json,
+# nba_weekly_picks.json, form_log-NBA.json and favorite_log-{NBA,WNBA}.json. Disjoint files
+# are what let both push without conflicts.
 #
 # Cron is UTC. The hours are chosen so every firing lands on the same Chicago calendar
 # day in both CDT and CST: 19-23 + 0-4 UTC is 14:00-23:00 CDT and 13:00-22:00 CST. A
@@ -92,7 +93,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Only files that exist: form_log-NFL.json appears with the first qualifying prop,
           # and git add fails outright on a path that matches nothing.
-          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json game_log.json weekly_picks.json form_log-NFL.json; do
+          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json game_log.json weekly_picks.json form_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json; do
             if [ -e "$f" ]; then git add -- "$f"; fi
           done
           if git diff --cached --quiet; then

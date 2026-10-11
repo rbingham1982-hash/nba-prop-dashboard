@@ -819,6 +819,31 @@ def run_form_signal(sports, month: int) -> None:
             print(f"  Form signal {sport.upper()} failed ({e}) — retried next run.")
 
 
+def run_favorite_signal(sports, month: int) -> None:
+    """
+    Grade and extend the heavy-favourite moneyline test (favorite_signal) for this run's
+    sports. Every firing, snapshot passes included: the rule bets the LAST price before the
+    start, so the hourly passes are what keep that price current.
+    """
+    try:
+        import favorite_signal
+    except Exception as e:
+        print(f"  Favourite signal unavailable ({e}).")
+        return
+    seasons = {"nfl": month >= 9 or month <= 2, "nba": month >= 10 or month <= 6,
+               "mlb": 3 <= month <= 11, "wnba": 5 <= month <= 10}
+    for sport in sports:
+        if not seasons.get(sport):
+            continue
+        try:
+            r = favorite_signal.run(sport)
+            rec = favorite_signal.record(sport)
+            print(f"  Favourite signal {sport.upper()}: graded {r['graded']}, tracking {r['tracked']} "
+                  f"— at last price {rec['at_last_price']}, pending {rec['pending']}")
+        except Exception as e:
+            print(f"  Favourite signal {sport.upper()} failed ({e}) — retried next run.")
+
+
 def _last_parlay(sports) -> datetime | None:
     """Newest parlay among this run's sports — the other runner's boards are not ours."""
     stamps = [parlay_tracker.last_parlay_time(s.upper()) for s in sports]
@@ -1112,6 +1137,7 @@ def main():
         print("  Already generated today — catch-up firing, snapshotting prices only.")
         snapshot_only_pass(month, sports)
         run_form_signal(sports, month)
+        run_favorite_signal(sports, month)
         return
 
     warn_if_stale(now, sports)
@@ -1148,6 +1174,7 @@ def main():
         print("\n  NFL: off-season — skipping.")
 
     run_form_signal(sports, month)
+    run_favorite_signal(sports, month)
 
     print(f"\n{'='*62}")
     print(f"  Total parlays logged: {total}")
