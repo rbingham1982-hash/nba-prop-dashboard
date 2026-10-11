@@ -1,0 +1,23 @@
+# Can a GitHub-hosted runner reach FanDuel, stats.nba.com and nflverse?
+# Manual trigger only, read-only: it probes the sources and writes nothing back.
+name: check sources
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install what the probes import
+        run: pip install requests pandas pyarrow numpy nba_api==1.11.4
+      - name: Probe sources
+        run: python check_sources.py
