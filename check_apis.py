@@ -1,7 +1,19 @@
 import requests, json, os, sys
 sys.stdout.reconfigure(encoding='utf-8')
 
-ODDS_API_KEY = "3810f18fda845575c1185b2a0bc55405"
+def _odds_api_key() -> str:
+    """The Odds API key from the environment or .streamlit/secrets.toml — never from source."""
+    import os, pathlib, tomllib
+    k = os.environ.get("ODDS_API_KEY", "")
+    p = pathlib.Path(__file__).with_name(".streamlit") / "secrets.toml"
+    if not k and p.exists():
+        k = tomllib.loads(p.read_text(encoding="utf-8")).get("ODDS_API_KEY", "")
+    if not k:
+        sys.exit("ODDS_API_KEY is not set (environment or .streamlit/secrets.toml).")
+    return k
+
+
+ODDS_API_KEY = _odds_api_key()
 
 # ── PrizePicks NBA ────────────────────────────────────────────────────────────
 print("=== PrizePicks NBA (league_id=7) ===")

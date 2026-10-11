@@ -1867,7 +1867,9 @@ _TOA_MLB_MARKET_MAP = {
     "pitcher_earned_runs": "Earned Runs Allowed",
 }
 
-_ODDS_API_KEY_DEFAULT = "3810f18fda845575c1185b2a0bc55405"
+# No fallback key in source: the repo is public. Unset means the tab shows its
+# "requires an Odds API key" message instead of spending someone else's quota.
+_ODDS_API_KEY_DEFAULT = ""
 
 def _get_odds_api_key() -> str:
     try:
@@ -2451,7 +2453,7 @@ def get_real_time_line(player_name, market="points"):
     try:
         api_key = st.secrets["ODDS_API_KEY"]
     except Exception:
-        api_key = os.environ.get("ODDS_API_KEY", "132d657e987feea06b1b91a21116d4a0")
+        api_key = os.environ.get("ODDS_API_KEY", "")
     try:
         url = "https://api.sportsgameodds.com/v2/events"
         headers = {"X-API-Key": api_key}
