@@ -328,6 +328,36 @@ def render_cards(data: dict) -> list:
             "Touchdown Parlay", wk, rows, foot,
             _OUT / f"{stamp}-card-td-parlay.jpg", footer2=f2))
 
+    # The weekly NBA board. Same rules as the NFL cards: blended probabilities only, the
+    # break-even beside every parlay price, and a held-back parlay announced on the card
+    # that does go out rather than silently missing.
+    nb = data.get("nba_board") or {}
+    nshort = {"Pts+Rebs+Asts": "PRA", "3-PT Made": "3PM", "Rebounds": "Reb", "Assists": "Ast",
+              "Points": "Pts"}
+    _np = nb.get("parlay_price") or {}
+    if (len(nb.get("parlay") or []) >= 3
+            and float(_np.get("blended_prob") or 0) >= float(_np.get("breakeven_prob") or 1)):
+        p = _np
+        rows = [(f"{r['player']}  ·  {nshort.get(r['stat_type'], r['stat_type'])}",
+                 f"{r['side'].upper()} {float(r['line']):g}") for r in nb["parlay"]]
+        out.append(render_card(
+            f"NBA {len(rows)}-Leg Parlay", nb.get("slate", ""), rows,
+            f"{int(p.get('american', 0)):+d}  ·  {float(p.get('blended_prob', 0)):.1%} to hit",
+            _OUT / f"{stamp}-card-nba-parlay.jpg",
+            footer2=f"Needs {float(p.get('breakeven_prob', 0)):.1%} to break even. Cleared the gate."))
+    if len(nb.get("scorers") or []) >= 4:
+        rows = [(f"{r['player']}  o{float(r['line']):g}", f"{float(r['blended_prob']):.0%}")
+                for r in nb["scorers"][:10]]
+        held = nb.get("parlay_withheld_price") or {}
+        f2 = ("Chance of the over, model blended with the market."
+              if not nb.get("parlay_withheld") else
+              f"NBA parlay held back: {float(held.get('blended_prob', 0)):.1%} vs "
+              f"{float(held.get('breakeven_prob', 0)):.1%} needed.")
+        out.append(render_card(
+            "NBA Scorer Board", nb.get("slate", ""), rows,
+            "The slate's highest points lines",
+            _OUT / f"{stamp}-card-nba-scorers.jpg", footer2=f2))
+
     dfs = data.get("dfs") or []
     if len(dfs) >= 6:
         # Both numbers, and the projection first. Stripped to a card, a lone value figure

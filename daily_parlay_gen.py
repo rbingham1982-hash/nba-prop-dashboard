@@ -815,6 +815,17 @@ def resolve_pending():
     except Exception as e:
         print(f"  Tip-off log update failed ({e}) — the hub shows the last logged night.")
 
+    # Grade the weekly NBA board once its night is in the league log. Locking it is the
+    # newsletter's job, run by hand in daylight when the night's props are actually posted;
+    # this run is at midnight, before most of them are.
+    try:
+        import nba_weekly_picks
+        n = nba_weekly_picks.grade()
+        if n:
+            print(f"  NBA weekly board: graded {n} row(s)")
+    except Exception as e:
+        print(f"  NBA weekly board grading failed ({e}) — retried next run.")
+
 
 def warn_if_stale(now):
     """Flag a missed run: if the last logged parlay predates STALE_RUN_HOURS, a day was skipped."""

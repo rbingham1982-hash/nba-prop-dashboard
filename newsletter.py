@@ -176,6 +176,23 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["picks_record"] = {}
         out["errors"].append(f"weekly picks: {e}")
 
+    # The weekly NBA board, read back from its own log the same way. Degraded rather than
+    # an error when it fails: FanDuel or stats.nba.com going quiet is a source we do not
+    # control, and the NFL issue is still worth sending without it.
+    try:
+        import nba_weekly_picks as nwp
+        nwp.grade()
+        entry = nwp.log_picks()
+        logged = nwp._load()
+        prior = [k for k in sorted(logged) if k < entry.get("week", "")]
+        out["nba_board"] = entry if (entry.get("parlay") or entry.get("parlay_withheld")
+                                     or entry.get("scorers")) else {}
+        out["nba_last"] = logged[prior[-1]] if prior else {}
+        out["nba_record"] = nwp.record()
+    except Exception as e:
+        out["nba_board"], out["nba_last"], out["nba_record"] = {}, {}, {}
+        out["degraded"].append(f"NBA board: {e}")
+
     try:
         adds = ft.sleeper_trending("add", limit=12)
         out["trending"] = adds
@@ -553,6 +570,52 @@ def render_markdown(data: dict) -> str:
                          f"{w.get('td', '—')} | {w.get('rec', '—')} |")
             L.append("")
 
+    nb, nl_, nr = data.get("nba_board") or {}, data.get("nba_last") or {}, data.get("nba_record") or {}
+    graded_last = [r for r in (nl_.get("parlay", []) + nl_.get("scorers", []))
+                   if r.get("outcome") in ("win", "loss")]
+    if nb or graded_last:
+        L += ["## NBA — the weekly board", "",
+              "One night's slate, locked before tip-off. Probabilities are blended against the "
+              "book; the parlay is ranked by how likely it is, not by disagreement, and only "
+              "published when it clears break-even.", ""]
+    if graded_last:
+        sw = sum(1 for r in nl_.get("scorers", []) if r.get("outcome") == "win")
+        sn = sum(1 for r in nl_.get("scorers", []) if r.get("outcome") in ("win", "loss"))
+        lw = sum(1 for r in nl_.get("parlay", []) if r.get("outcome") == "win")
+        ln = sum(1 for r in nl_.get("parlay", []) if r.get("outcome") in ("win", "loss"))
+        bits = []
+        if sn:
+            bits.append(f"scorer board {sw}-{sn - sw}")
+        if ln:
+            bits.append(f"parlay legs {lw}-{ln - lw}"
+                        + (" — the parlay hit" if lw == ln else " — the parlay did not hit"))
+        L += [f"**Last week ({nl_.get('slate', '')}):** " + ", ".join(bits) + ".", ""]
+    if nb.get("parlay"):
+        p = nb.get("parlay_price") or {}
+        L += [f"**Props parlay — {nb.get('slate', '')}**", "",
+              "| Player | Pick | Odds | Chance |", "|---|---|---:|---:|"]
+        for r in nb["parlay"]:
+            L.append(f"| {r['player']} | {r['side'].upper()} {float(r['line']):g} {r['stat_type']} | "
+                     f"{int(r['american_odds']):+d} | {float(r['blended_prob']):.0%} |")
+        L += ["", f"Combined **{int(p.get('american', 0)):+d}**, {float(p.get('blended_prob', 0)):.2%} "
+              f"against {float(p.get('breakeven_prob', 0)):.2%} to break even.", ""]
+    elif nb.get("parlay_withheld"):
+        p = nb.get("parlay_withheld_price") or {}
+        L += [f"**No NBA parlay this week.** The best legs priced at {float(p.get('blended_prob', 0)):.2%} "
+              f"against {float(p.get('breakeven_prob', 0)):.2%} needed. Logged and graded anyway.", ""]
+    if nb.get("scorers"):
+        L += [f"**Scorer board — {nb.get('slate', '')}**: the slate's highest points lines and the "
+              "chance of the over.", "", "| Player | Game | Line | Odds | Over |", "|---|---|---:|---:|---:|"]
+        for r in nb["scorers"]:
+            L.append(f"| {r['player']} | {r.get('game', '')} | {float(r['line']):g} | "
+                     f"{int(r['american_odds']):+d} | {float(r['blended_prob']):.0%} |")
+        L.append("")
+    if nr.get("scorer_n") or nr.get("parlays_settled"):
+        L += [f"*NBA season so far: scorer board {nr['scorer_record']}"
+              + (f" against {nr['scorer_expected_pct']}% expected" if nr.get("scorer_n") else "")
+              + f"; parlays {nr['parlays_hit']} of {nr['parlays_settled']}"
+              + f"; held back {nr['withheld_hit']} of {nr['withheld_settled']} would have hit.*", ""]
+
     dfs = data.get("dfs") or []
     # Same reasoning as the Friday-lock note above: name the absence. A DFS section that
     # is simply gone reads as an issue that forgot it, and the one thing a reader cannot
@@ -887,6 +950,12 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
     if (data.get("parlay_gate") and legs and price
             and float(price.get("blended_prob") or 0) < float(price.get("breakeven_prob") or 0)):
         fails.append("parlay is published below break-even — the gate was bypassed")
+
+    nb = data.get("nba_board") or {}
+    nbp = nb.get("parlay_price") or {}
+    if (nb.get("parlay") and nbp
+            and float(nbp.get("blended_prob") or 0) < float(nbp.get("breakeven_prob") or 0)):
+        fails.append("NBA parlay is published below break-even — the gate was bypassed")
 
     # The touchdown parlay is one scorer per game, or its price misstates the odds.
     tdp = data.get("td_parlay") or []
