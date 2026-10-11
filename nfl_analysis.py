@@ -797,6 +797,15 @@ def _log_from_rows(sub) -> list:
 # says it may help further, and that is the next check, not a guess to ship.
 _CUR_SEASON_K = 2
 
+# Weight of WOPR in the target share, by position (0 = plain target share). WOPR credits
+# deep targets, which pushed WR target shares up: walk-forward 2024 and 2025 (live scorer,
+# _CUR_SEASON_K=2), WR targets were over-projected +0.16/+0.28 per game with it and
+# -0.08/+0.06 without, and WR receiving-yards MAE fell 0.396 +/- 0.069 and 0.451 +/- 0.065
+# when it was dropped. For RBs and TEs it helps (dropping it cost RB yards +0.32/+0.46 and
+# TE yards +0.13/+0.07), so they keep the original half weight.
+_WOPR_W = {"WR": 0.0}
+_WOPR_W_DEFAULT = 0.5
+
 _TEAM_WEEK_CACHE: dict = {}
 
 
@@ -885,7 +894,8 @@ def usage_profile(df, player: str, priors: dict | None = None, vol: dict | None 
                 wc = n_cur / (n_cur + _CUR_SEASON_K)
                 share = wc * share_cur + (1.0 - wc) * share
         if opp_col == "targets" and wopr_adj is not None and 0.4 < wopr_adj < 2.5:
-            share = share * (0.5 + 0.5 * wopr_adj)
+            ww = _WOPR_W.get(pos, _WOPR_W_DEFAULT) if isinstance(_WOPR_W, dict) else _WOPR_W
+            share = share * ((1.0 - ww) + ww * wopr_adj)
         shares[opp_col] = share
 
     for _stat, (opp_col, rate_col, k) in _USAGE_MODEL.items():
@@ -1020,10 +1030,16 @@ _NO_RECENCY_BLEND = {"Passing TDs", "Rushing TDs", "Receiving TDs"}
 # sets each position's level. Fit on 2025 it improved held-out 2024 (log loss 0.4661 ->
 # 0.4617), fit on 2024 it improved 2025 (0.4585 -> 0.4542); these values are the pooled
 # fit. Passing TDs are not covered: a quarterback's throws were not part of the fit.
+#
+# QB rushing touchdowns were added the same way once the touchdown board started ranking by
+# this model and a quarterback (Josh Allen, raw 69%) led it: over 1,022 QB games the raw
+# rates above 50% scored 55% in 2024 but 39% in 2025. Same b; f fit on one season improved
+# the other (log loss 0.3706 -> 0.3699 on 2024, 0.3679 -> 0.3613 on 2025); pooled value.
 _TD_CAL_B = 0.7
 _TD_CAL_F = {("RB", "Rushing TDs"): 0.7336, ("RB", "Receiving TDs"): 0.5589,
              ("WR", "Rushing TDs"): 0.2216, ("WR", "Receiving TDs"): 0.6419,
-             ("TE", "Rushing TDs"): 0.4836, ("TE", "Receiving TDs"): 0.7379}
+             ("TE", "Rushing TDs"): 0.4836, ("TE", "Receiving TDs"): 0.7379,
+             ("QB", "Rushing TDs"): 0.5863}
 
 
 def _td_calibrated_mu(stat: str, position: str, mu: float) -> float:
