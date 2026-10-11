@@ -58,9 +58,18 @@ def season_log(season: str, season_type: str = "Regular Season"):
     if hit and time.time() - hit[0] < _LOG_TTL:
         return hit[1]
     from nba_api.stats.endpoints import leaguegamelog
-    df = leaguegamelog.LeagueGameLog(season=season, player_or_team_abbreviation="P",
-                                     season_type_all_star=season_type,
-                                     timeout=60).get_data_frames()[0]
+    # stats.nba.com stalls often enough that one read timeout should not blank the Hub or
+    # skip a night's grading; three tries, then let the caller handle the failure.
+    for attempt in range(3):
+        try:
+            df = leaguegamelog.LeagueGameLog(season=season, player_or_team_abbreviation="P",
+                                             season_type_all_star=season_type,
+                                             timeout=45).get_data_frames()[0]
+            break
+        except Exception:
+            if attempt == 2:
+                raise
+            time.sleep(4.0 * (attempt + 1))
     df["date"] = pd.to_datetime(df["GAME_DATE"])
     df["MIN"] = pd.to_numeric(df["MIN"], errors="coerce").fillna(0.0)
     df = df.sort_values(["date", "GAME_ID"]).reset_index(drop=True)
