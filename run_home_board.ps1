@@ -19,7 +19,9 @@ $log = Join-Path $PSScriptRoot "logs\home_board_sync.log"
 New-Item -ItemType Directory -Force (Split-Path $log) | Out-Null
 function Say($msg) {
     $line = "{0:yyyy-MM-dd HH:mm}  {1}" -f (Get-Date), $msg
-    Write-Output $line
+    # Write-Host, not Write-Output: inside Test-CanSync, output joins the return value, and
+    # ("sync skipped...", $false) is a non-empty array, which PowerShell treats as true.
+    Write-Host $line
     Add-Content -Path $log -Value $line -Encoding utf8
 }
 
