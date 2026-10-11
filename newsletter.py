@@ -575,7 +575,7 @@ def render_markdown(data: dict) -> str:
                    if r.get("outcome") in ("win", "loss")]
     if nb or graded_last:
         L += ["## NBA — the weekly board", "",
-              "One night's slate, locked before tip-off. Probabilities are blended against the "
+              "One night's slate, written down before tip-off. Probabilities are blended against the "
               "book; the parlay is ranked by how likely it is, not by disagreement, and only "
               "published when it clears break-even.", ""]
     if graded_last:
