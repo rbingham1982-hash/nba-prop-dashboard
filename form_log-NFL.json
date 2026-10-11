@@ -4838,5 +4838,71 @@
   "logged_at": "2026-10-11T14:34:50",
   "outcome": null,
   "actual": null
+ },
+ "tyler huntley|Passing Yards|178.5|36132648": {
+  "player": "Tyler Huntley",
+  "stat": "Passing Yards",
+  "line": 178.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 65.0,
+  "last5": [
+   186.0,
+   0.0,
+   65.0,
+   107.0,
+   63.0
+  ],
+  "game": "BAL @ ATL",
+  "start_time": "2026-10-12T00:21:00.000Z",
+  "game_day": "2026-10-11",
+  "logged_at": "2026-10-11T17:46:08",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler huntley|Rushing Yards|30.5|36132648": {
+  "player": "Tyler Huntley",
+  "stat": "Rushing Yards",
+  "line": 30.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 16.0,
+  "last5": [
+   53.0,
+   -3.0,
+   2.0,
+   60.0,
+   16.0
+  ],
+  "game": "BAL @ ATL",
+  "start_time": "2026-10-12T00:21:00.000Z",
+  "game_day": "2026-10-11",
+  "logged_at": "2026-10-11T17:46:08",
+  "outcome": null,
+  "actual": null
+ },
+ "bijan robinson|Rushing Yards|86.5|36132648": {
+  "player": "Bijan Robinson",
+  "stat": "Rushing Yards",
+  "line": 86.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 83.0,
+  "last5": [
+   33.0,
+   83.0,
+   72.0,
+   194.0,
+   145.0
+  ],
+  "game": "BAL @ ATL",
+  "start_time": "2026-10-12T00:21:00.000Z",
+  "game_day": "2026-10-11",
+  "logged_at": "2026-10-11T17:46:08",
+  "outcome": null,
+  "actual": null
  }
 }
