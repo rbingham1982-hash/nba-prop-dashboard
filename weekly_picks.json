@@ -1312,8 +1312,8 @@
     "edge": -3.5,
     "pick": "away",
     "pick_label": "NYG +3.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 0.0
    },
    {
     "game": "DEN @ LAC",
@@ -1525,9 +1525,9 @@
     "wind_mph": 15.2,
     "expected_adj": -5.91,
     "gameday": "2026-10-11",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 54.0,
+    "residual": 12.5
    },
    {
     "game": "CLE @ NYJ",
