@@ -125,6 +125,7 @@ def slate_legs(slate: datetime.date) -> list:
     raw = raw[raw["stat_type"].isin(_STATS)]
     raw = raw[raw["start_time"].map(_local_date) == slate]
     raw = raw[~raw["start_time"].map(dg._has_started)]
+    slate_legs.games = set(raw["game_label"].astype(str))
     w = _market_weight()
     out, cache = [], {}
     for _, r in raw.iterrows():
@@ -212,7 +213,17 @@ def log_picks(slate: datetime.date | None = None, legs: list | None = None,
     if not force and season_type() not in _LIVE_SEASON_TYPES:
         return {"week": k, "parlay": [], "scorers": [], "locked": False,
                 "note": "preseason — the board starts with the regular season"}
-    legs = legs if legs is not None else slate_legs(slate)
+    if legs is None:
+        legs = slate_legs(slate)
+        # A player whose game log does not load is dropped from the pool without a word,
+        # so a stats.nba.com blip at lock time can take a whole game off the board (a
+        # preview on 2026-10-11 lost OKC @ SAS that way, then had it back a minute later).
+        # A board missing a game is a different prediction, so do not save it; the next
+        # run inside the Friday-Sunday window tries again.
+        missing = sorted(getattr(slate_legs, "games", set()) - {l["game"] for l in legs})
+        if missing and not force:
+            return {"week": k, "parlay": [], "scorers": [], "locked": False,
+                    "note": f"no priced legs for {', '.join(missing)} — not saved, retried next run"}
     if not legs:
         return {"week": k, "parlay": [], "scorers": [], "locked": False, "note": "no games on this slate"}
     parlay = parlay_legs(legs)
