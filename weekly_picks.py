@@ -768,6 +768,19 @@ def log_picks(season: int | None = None, week: int | None = None,
     if tdp:
         entry["td_parlay"] = [r["player"] for r in tdp]
         entry["td_parlay_price"] = parlay_price(tdp)
+    # The form-under test parlay for the week's main slate, frozen now from the legs
+    # form_signal has logged so far, so the published card and the graded record are the
+    # same three legs. Optional: the board saves without it.
+    try:
+        import collections
+        import form_signal
+        days = collections.Counter(g["gameday"] for g in upcoming(season, week))
+        if days:
+            t = form_signal.ticket("nfl", days.most_common(1)[0][0])
+            if t:
+                entry["form_parlay"] = t
+    except Exception:
+        pass
     data[k] = entry
     _save(data)
     return entry
@@ -1007,6 +1020,8 @@ def record(season: int | None = None) -> dict:
     withheld_hit = withheld_done = 0
     tdp_hit = tdp_done = 0
     tdp_units = 0.0
+    fp_hit = fp_done = 0
+    fp_units = 0.0
     weeks = []
     for k in sorted(data):
         e = data[k]
@@ -1061,6 +1076,17 @@ def record(season: int | None = None) -> dict:
             # the published price is kept because that is what the card told the reader.
             dec = float((e.get("td_parlay_price") or {}).get("decimal") or 0)
             tdp_units += (dec - 1.0) if tres == "hit" else -1.0
+        if e.get("form_parlay"):
+            try:
+                import form_signal
+                fr = form_signal.ticket_result("nfl", e["form_parlay"])
+            except Exception:
+                fr = {"result": None}
+            if fr["result"] in ("win", "loss"):
+                fp_done += 1
+                fp_hit += fr["result"] == "win"
+                # One unit, settled at what the legs actually paid (a void leg drops out).
+                fp_units += (fr["decimal"] - 1.0) if fr["result"] == "win" else -1.0
         weeks.append({"week": k, "ats": f"{aw}-{al}" + (f"-{ap}" if ap else ""),
                       "legs": f"{lw}-{ll}" + (f" ({ld} dnp)" if ld else ""),
                       "td": f"{tw}-{tl}" if (tw or tl) else "—",
@@ -1083,6 +1109,8 @@ def record(season: int | None = None) -> dict:
         "withheld_hit": withheld_hit, "withheld_settled": withheld_done,
         "td_parlay_hit": tdp_hit, "td_parlay_settled": tdp_done,
         "td_parlay_units": round(tdp_units, 2),
+        "form_parlay_hit": fp_hit, "form_parlay_settled": fp_done,
+        "form_parlay_units": round(fp_units, 2),
         # The receiving slate, kept apart from the main board on purpose: it is a test of
         # the model's other half, not a second helping of the same one.
         "rec_record": f"{rec_w}-{rec_l}",

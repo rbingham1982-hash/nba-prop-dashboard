@@ -373,6 +373,51 @@ def parlay_record(sport: str) -> dict:
     return out
 
 
+# ── the published ticket ──────────────────────────────────────────────────────────────────
+#
+# The newsletter goes out once a week, so its ticket cannot be the live derivation above:
+# legs logged after the issue could change which three the rule picks, and a published
+# card would then disagree with the record. weekly_picks.log_picks freezes the rule's
+# answer at the moment the week's board is saved — same rule, legs logged so far — and
+# ticket_result grades exactly those legs from form_log.
+
+def ticket(sport: str, day) -> dict:
+    """The rule's ticket for one game day from the legs logged so far; {} if it cannot fill."""
+    data = _load(sport)
+    day = str(day)
+    rows = [{**r, "key": k} for k, r in data.items() if r.get("game_day") == day]
+    legs = build_parlay(rows)
+    if not legs:
+        return {}
+    dec = math.prod(_decimal(int(l["american_odds"])) for l in legs)
+    fair = math.prod(float(l["fair_prob"]) for l in legs)
+    return {"day": day, "keys": [l["key"] for l in legs],
+            "legs": [{f: l.get(f) for f in ("player", "stat", "line", "american_odds", "fair_prob",
+                                            "med5", "game", "start_time")} for l in legs],
+            "decimal": round(dec, 3),
+            "american": round((dec - 1) * 100) if dec >= 2 else round(-100 / (dec - 1)),
+            "fair_prob": round(fair, 4), "breakeven": round(1 / dec, 4),
+            "frozen_at": datetime.datetime.now().isoformat(timespec="seconds")}
+
+
+def ticket_result(sport: str, t: dict) -> dict:
+    """{"result": win|loss|void|None, "decimal": settled payout}, graded from form_log."""
+    data = _load(sport)
+    rows = [data.get(k) for k in (t or {}).get("keys", [])]
+    if not rows or any(r is None for r in rows):
+        return {"result": None}
+    live = [r for r in rows if r.get("outcome") != "void"]
+    outs = [r.get("outcome") for r in live]
+    if any(o == "loss" for o in outs):
+        return {"result": "loss", "decimal": 0.0}
+    if not live:
+        return {"result": "void", "decimal": 1.0}
+    if all(o == "win" for o in outs):
+        return {"result": "win",
+                "decimal": round(math.prod(_decimal(int(r["american_odds"])) for r in live), 3)}
+    return {"result": None}
+
+
 if __name__ == "__main__":
     import sys
     sys.stdout.reconfigure(encoding="utf-8")

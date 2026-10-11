@@ -197,6 +197,14 @@ def render_cards(data: dict) -> list:
             tres = None
         if tres:
             bits.append(f"TD parlay {'hit' if tres == 'hit' else 'missed'}")
+        if rp.get("form_parlay"):
+            try:
+                import form_signal as _fs
+                fres = _fs.ticket_result("nfl", rp["form_parlay"])["result"]
+            except Exception:
+                fres = None
+            if fres in ("win", "loss"):
+                bits.append(f"Form parlay {'hit' if fres == 'win' else 'missed'}")
         f1 = "  ·  ".join(bits) or "Committed before kickoff, graded after"
 
         # The season line carries its own yardstick. "2-8" with no break-even next to it
@@ -327,6 +335,22 @@ def render_cards(data: dict) -> list:
         out.append(render_card(
             "Touchdown Parlay", wk, rows, foot,
             _OUT / f"{stamp}-card-td-parlay.jpg", footer2=f2))
+
+    # The form-under test parlay. Discord gets cards only, so a section that lived only in
+    # the markdown would never be seen; the card carries the same caveat the text does.
+    fp = data.get("form_parlay") or {}
+    if fp.get("legs"):
+        wk = f"Week {data['week']}" if data.get("week") else when
+        short = {"Receiving Yards": "Rec Yds", "Rushing Yards": "Rush Yds",
+                 "Passing Yards": "Pass Yds", "Passing TDs": "Pass TDs", "Receptions": "Rec"}
+        rows = [(f"{l['player']}  u{float(l['line']):g} {short.get(l['stat'], l['stat'])}",
+                 f"{int(l['american_odds']):+d}") for l in fp["legs"]]
+        out.append(render_card(
+            "Form-Under Parlay", f"{wk}  ·  a live test", rows,
+            f"{int(fp['american']):+d}  ·  {float(fp['fair_prob']):.0%} at market odds  ·  "
+            f"needs {float(fp['breakeven']):.0%}",
+            _OUT / f"{stamp}-card-form-parlay.jpg",
+            footer2="Unders where the last-5 median is below the line. Unproven."))
 
     # The weekly NBA board. Same rules as the NFL cards: blended probabilities only, the
     # break-even beside every parlay price, and a held-back parlay announced on the card

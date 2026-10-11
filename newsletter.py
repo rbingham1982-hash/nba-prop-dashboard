@@ -168,9 +168,16 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
         out["td_parlay"] = [_by[n] for n in (entry.get("td_parlay") or []) if n in _by]
         out["td_parlay_price"] = entry.get("td_parlay_price") or {}
         out["receivers"] = entry.get("receivers") or []
+        out["form_parlay"] = entry.get("form_parlay") or {}
         out["picks_locked"] = entry.get("locked", True)
         out["picks_lock_day"] = entry.get("locks_on", "Friday")
         out["picks_record"] = wp.record()
+        try:
+            import form_signal
+            out["form_record"] = form_signal.record("nfl")
+        except Exception as e:
+            out["form_record"] = {}
+            out["degraded"].append(f"form signal: {e}")
     except Exception as e:
         out["ats"], out["parlay"], out["parlay_price"] = [], [], {}
         out["picks_record"] = {}
@@ -307,6 +314,17 @@ def render_markdown(data: dict) -> str:
             L += [f"**Touchdown parlay** ({', '.join(rp.get('td_parlay') or [])}): "
                   f"{'hit' if tres == 'hit' else 'did not hit'}"
                   + (f" at {int(tp['american']):+d}." if tp.get("american") else "."), ""]
+        fp = rp.get("form_parlay") or {}
+        if fp:
+            try:
+                import form_signal as _fs
+                fres = _fs.ticket_result("nfl", fp)["result"]
+            except Exception:
+                fres = None
+            if fres in ("win", "loss", "void"):
+                L += [f"**Form-under parlay** ({', '.join(l['player'] for l in fp['legs'])}): "
+                      + {"win": "hit", "loss": "did not hit", "void": "voided"}[fres]
+                      + f" at {int(fp['american']):+d}.", ""]
         tds = [r for r in (rp.get("td") or []) if r.get("outcome") in ("win", "loss")]
         if tds:
             hit = [r["player"] for r in tds if r["outcome"] == "win"]
@@ -494,6 +512,33 @@ def render_markdown(data: dict) -> str:
               f"**{float(tpp.get('breakeven_prob', 0)):.0%}** needed to break even. "
               "The gap is the book's margin.", ""]
 
+    # The form-under test parlay. Framed as what it is: a live test of one rule, priced
+    # below break-even at the market's own probabilities, which only pays if the rule
+    # knows something the price does not. Its legs were frozen when the board was saved.
+    fp = data.get("form_parlay") or {}
+    if fp.get("legs"):
+        L += ["## The form-under parlay — a live test", "",
+              "Every week we test one rule in public: take the under when a player's median "
+              "over his last five games sits below the line. Checked against past lines it beat "
+              "the market's own probabilities in two sports, but by about what the book's margin "
+              "takes back, so whether it pays is still open. This is the rule's parlay for the "
+              "main slate: its three likeliest legs, one per game, written down before kickoff.", "",
+              "| Player | Game | Under | Last 5 (median) | Odds | Market |",
+              "|---|---|---|---:|---:|---:|"]
+        for l in fp["legs"]:
+            L.append(f"| {l['player']} | {l.get('game', '')} | {float(l['line']):g} {l['stat']} | "
+                     f"{float(l['med5']):g} | {int(l['american_odds']):+d} | "
+                     f"{float(l['fair_prob']):.0%} |")
+        L += ["", f"Combined **{int(fp['american']):+d}**: **{float(fp['fair_prob']):.0%}** at the "
+              f"market's own probabilities against **{float(fp['breakeven']):.0%}** needed to "
+              "break even. Below break-even on the market's numbers by design: it only pays "
+              "if recent form is worth more than the market gives it credit for.", ""]
+        fr = data.get("form_record") or {}
+        if fr.get("n"):
+            L += [f"*Every qualifying under so far: {fr['wins']}-{fr['n'] - fr['wins']} "
+                  f"({fr['win_pct']}% against {fr['breakeven_pct']}% needed at the odds taken), "
+                  f"return {fr['roi_pct']:+.1f}% ± {fr['roi_se_pct']}% over {fr['n']} graded.*", ""]
+
     # The receiving slate, printed as its own board rather than folded into the one above.
     #
     # The touchdown board ranks by probability, and a lead back outranks every receiver in
@@ -562,6 +607,9 @@ def render_markdown(data: dict) -> str:
             L.append(f"- **Touchdown parlay:** {rec['td_parlay_hit']} of "
                      f"{rec['td_parlay_settled']} hit, {rec['td_parlay_units']:+.2f} units "
                      "at the published price.")
+        if rec.get("form_parlay_settled"):
+            L.append(f"- **Form-under parlay:** {rec['form_parlay_hit']} of "
+                     f"{rec['form_parlay_settled']} hit, {rec['form_parlay_units']:+.2f} units.")
         L.append("")
         if rec.get("weeks"):
             L += ["| Week | ATS | Legs | TDs | Rec |", "|---|---|---|---|---|"]
