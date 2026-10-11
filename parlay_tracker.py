@@ -1654,9 +1654,14 @@ def _resolve_nfl_legs() -> int:
     return resolved_count
 
 
-def resolve_all_legs(budget_seconds: float = RESOLVE_BUDGET_SECONDS) -> dict:
+def resolve_all_legs(budget_seconds: float = RESOLVE_BUDGET_SECONDS,
+                     sports=None) -> dict:
     """
     Resolve NBA, MLB, WNBA, and NFL pending legs. Returns {nba, mlb, wnba, nfl} counts.
+
+    `sports` (lower-case keys) limits the pass to those leagues. The cloud runner cannot
+    reach stats.nba.com, so it resolves MLB and NFL only and leaves NBA and WNBA legs to
+    the home machine; each runner writes only the shards it owns. None means all four.
 
     The sports share one wall-clock budget: whichever runs first can use the whole window, and
     once it's spent the remaining resolvers no-op on their first loop check. Bounding the pass is
@@ -1668,10 +1673,11 @@ def resolve_all_legs(budget_seconds: float = RESOLVE_BUDGET_SECONDS) -> dict:
     socket.setdefaulttimeout(RESOLVE_HTTP_TIMEOUT)
     _resolve_deadline = _time.monotonic() + budget_seconds if budget_seconds else None
     try:
-        nba  = resolve_nba_legs()
-        mlb  = _resolve_mlb_legs()
-        wnba = _resolve_wnba_legs()
-        nfl  = _resolve_nfl_legs()
+        want = lambda k: sports is None or k in sports
+        nba  = resolve_nba_legs() if want("nba") else 0
+        mlb  = _resolve_mlb_legs() if want("mlb") else 0
+        wnba = _resolve_wnba_legs() if want("wnba") else 0
+        nfl  = _resolve_nfl_legs() if want("nfl") else 0
     finally:
         socket.setdefaulttimeout(_prev_timeout)
         _resolve_deadline = None
@@ -2633,7 +2639,7 @@ def apply_lineup_check(max_hours: float = LINEUP_CHECK_WINDOW_H) -> dict:
     return counts
 
 
-def purge_bad_snapshots() -> dict:
+def purge_bad_snapshots(sports=None) -> dict:
     """
     Drop closing prices that the old snapshot key wrote onto the wrong bet. Returns
     counts by reason.
@@ -2656,6 +2662,9 @@ def purge_bad_snapshots() -> dict:
     data = _load()
     counts = {"cross_game": 0, "cross_book": 0, "kept": 0}
     for p in data["parlays"]:
+        # Scoped like resolve_all_legs: a runner only edits the shards it owns.
+        if sports is not None and str(p.get("sport") or "").lower() not in sports:
+            continue
         book = str(p.get("sportsbook") or "").strip()
         for leg in p["legs"]:
             if leg.get("closing_implied") is None:

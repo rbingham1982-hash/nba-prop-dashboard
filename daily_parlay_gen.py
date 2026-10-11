@@ -768,8 +768,40 @@ def run_sport(sport_key, sport_label, pp_league_id, stat_types, rate_fn):
 
 STALE_RUN_HOURS = 36   # a daily job that hasn't logged a parlay in this long has missed a day
 
+# The work is split across two machines because stats.nba.com does not answer cloud
+# addresses (probed from GitHub Actions on 2026-10-11, check_sources.py): the cloud
+# runner takes MLB and NFL, the home machine NBA and WNBA. Each passes --sports, and every
+# step below that writes a log is scoped to the run's sports, so the two runners never
+# write the same file and their git pushes cannot conflict. No flag means all four,
+# which is exactly the single-machine behaviour this replaced.
+ALL_SPORTS = ("mlb", "wnba", "nba", "nfl")
 
-def resolve_pending():
+
+def parse_sports(argv) -> tuple:
+    """`--sports mlb,nfl` (or `--sports=mlb,nfl`) -> ('mlb', 'nfl'); absent -> every sport."""
+    raw = None
+    for i, a in enumerate(argv):
+        if a == "--sports" and i + 1 < len(argv):
+            raw = argv[i + 1]
+        elif a.startswith("--sports="):
+            raw = a.split("=", 1)[1]
+    if raw is None:
+        return ALL_SPORTS
+    asked = {x.strip().lower() for x in raw.split(",")} - {""}
+    unknown = asked - set(ALL_SPORTS)
+    if unknown or not asked:
+        raise SystemExit(f"--sports takes a comma list of {', '.join(ALL_SPORTS)}; got {raw!r}")
+    return tuple(s for s in ALL_SPORTS if s in asked)
+
+
+def _last_parlay(sports) -> datetime | None:
+    """Newest parlay among this run's sports — the other runner's boards are not ours."""
+    stamps = [parlay_tracker.last_parlay_time(s.upper()) for s in sports]
+    stamps = [t for t in stamps if t is not None]
+    return max(stamps) if stamps else None
+
+
+def resolve_pending(sports=ALL_SPORTS):
     """
     Settle finished games before scoring today's slate.
 
@@ -780,7 +812,7 @@ def resolve_pending():
     """
     print(f"\n{'='*62}\n  Resolving pending legs\n{'='*62}")
     try:
-        counts = parlay_tracker.resolve_all_legs()
+        counts = parlay_tracker.resolve_all_legs(sports=sports)
         print(f"  Resolved — MLB {counts['mlb']}, WNBA {counts['wnba']}, "
               f"NBA {counts['nba']}, NFL {counts.get('nfl', 0)}")
     except Exception as e:
@@ -803,6 +835,10 @@ def resolve_pending():
                   "retry_abandoned_legs() reopens them without discarding graded legs.)")
     except Exception:
         pass
+
+    # Both NBA logs below read stats.nba.com, so they belong to whichever runner has NBA.
+    if "nba" not in sports:
+        return
 
     # The NBA Hub's tip-off table reads a running log of opening tips. Only games not yet
     # logged are fetched, so a normal night is a few requests; the budget caps a long
@@ -827,10 +863,10 @@ def resolve_pending():
         print(f"  NBA weekly board grading failed ({e}) — retried next run.")
 
 
-def warn_if_stale(now):
+def warn_if_stale(now, sports=ALL_SPORTS):
     """Flag a missed run: if the last logged parlay predates STALE_RUN_HOURS, a day was skipped."""
     try:
-        last = parlay_tracker.last_parlay_time()
+        last = _last_parlay(sports)
     except Exception:
         return
     if last is None:
@@ -925,8 +961,8 @@ def log_mlb_predictions():
           f"predicted {len(preds)}, matched {n} to logged markets.")
 
 
-def already_ran_today(now) -> bool:
-    """True if a parlay was already logged today.
+def already_ran_today(now, sports=ALL_SPORTS) -> bool:
+    """True if a parlay was already logged today for any of this run's sports.
 
     The scheduled task repeats hourly through the day so a 2 PM run missed while
     the machine was hibernated/in modern-standby is caught the next time it's
@@ -934,13 +970,13 @@ def already_ran_today(now) -> bool:
     exits here instead of producing a duplicate slate.
     """
     try:
-        last = parlay_tracker.last_parlay_time()
+        last = _last_parlay(sports)
     except Exception:
         return False
     return last is not None and last.date() == now.date()
 
 
-def snapshot_only_pass(month: int) -> int:
+def snapshot_only_pass(month: int, sports=ALL_SPORTS) -> int:
     """
     Re-price today's still-pending legs against the current market. Returns legs stamped.
 
@@ -964,7 +1000,7 @@ def snapshot_only_pass(month: int) -> int:
         ("nba",  "NBA",  7, month >= 10 or month <= 6),
         ("nfl",  "NFL",  9, month >= 9 or month <= 2),
     ):
-        if not in_season:
+        if not in_season or sport_key not in sports:
             continue
         # Every book, not just FanDuel. Only FanDuel was ever re-snapshotted, which left
         # 0% of 5,239 Underdog legs and 0% of 328 PrizePicks legs with any price path at
@@ -1002,7 +1038,7 @@ def snapshot_only_pass(month: int) -> int:
     # deleted when its cross-book rule went stale. A checker nobody runs is not a checker,
     # and a checker that only runs after something looks wrong finds it too late.
     try:
-        au = parlay_tracker.purge_bad_snapshots()
+        au = parlay_tracker.purge_bad_snapshots(sports=sports)
         if au.get("cross_game") or au.get("cross_book"):
             print(f"    ! SNAPSHOT AUDIT removed {au['cross_game']} cross-game and "
                   f"{au['cross_book']} cross-book price(s) — investigate, this should be 0.")
@@ -1011,6 +1047,8 @@ def snapshot_only_pass(month: int) -> int:
 
     # Lineups post ~3-4h before first pitch, so the hourly firing is the only thing in the
     # system positioned to see them. This is where the batter-prop drift comes from.
+    if "mlb" not in sports:
+        return total
     try:
         lc = parlay_tracker.apply_lineup_check()
         if lc.get("scanned"):
@@ -1036,27 +1074,39 @@ def main():
     # games that have not started. Identical leg sets dedupe on _parlay_id, so a prop
     # unchanged between runs is not logged twice.
     force = "--force" in sys.argv
+    sports = parse_sports(sys.argv)
+    # The game-market log (moneylines + results) reads FanDuel, ESPN and statsapi only,
+    # all reachable from the cloud, so the cloud runner owns game_log.json for every
+    # league and the home runner passes --no-game-markets to stay off it.
+    game_markets = "--no-game-markets" not in sys.argv
     print(f"\nKonjure Analytics — Daily Parlay Generator")
-    print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}{'  (forced)' if force else ''}")
+    print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}{'  (forced)' if force else ''}"
+          + ("" if sports == ALL_SPORTS else f"  [{', '.join(sports)}]"))
 
-    if already_ran_today(now) and not force:
+    if already_ran_today(now, sports) and not force:
         print("  Already generated today — catch-up firing, snapshotting prices only.")
-        snapshot_only_pass(month)
+        snapshot_only_pass(month, sports)
         return
 
-    warn_if_stale(now)
-    resolve_pending()
-    log_game_markets()
+    warn_if_stale(now, sports)
+    resolve_pending(sports)
+    if game_markets:
+        log_game_markets()
 
     total = 0
-    total += run_sport("mlb",  "MLB",  2, MLB_STAT_TYPES,  mlb_hit_rate)
+    if "mlb" in sports:
+        total += run_sport("mlb",  "MLB",  2, MLB_STAT_TYPES,  mlb_hit_rate)
 
-    if 5 <= month <= 9:
+    if "wnba" not in sports:
+        pass
+    elif 5 <= month <= 9:
         total += run_sport("wnba", "WNBA", 6, WNBA_STAT_TYPES, wnba_hit_rate)
     else:
         print("\n  WNBA: off-season — skipping.")
 
-    if month >= 10 or month <= 6:
+    if "nba" not in sports:
+        pass
+    elif month >= 10 or month <= 6:
         total += run_sport("nba",  "NBA",  7, NBA_STAT_TYPES,  nba_hit_rate)
     else:
         print("\n  NBA: off-season — skipping.")
@@ -1064,7 +1114,9 @@ def main():
     # Sep-Feb covers Week 1 through the Super Bowl. The empty-fetch guard in run_sport
     # would skip an out-of-season NFL run anyway, but the month gate saves three book
     # fetches and the ~2s nflverse load on every run for the other six months.
-    if month >= 9 or month <= 2:
+    if "nfl" not in sports:
+        pass
+    elif month >= 9 or month <= 2:
         total += run_sport("nfl",  "NFL",  9, NFL_STAT_TYPES,  nfl_hit_rate)
     else:
         print("\n  NFL: off-season — skipping.")
