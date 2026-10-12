@@ -12,8 +12,8 @@
    "home_odds": 200,
    "away_odds": -245
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.6806,
@@ -40,12 +40,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8475,
-   "odds": -750,
-   "home_odds": -750,
-   "away_odds": 530
+   "fav_prob": 0.8606,
+   "odds": -850,
+   "home_odds": -850,
+   "away_odds": 590
   },
-  "last_seen": "2026-10-11T17:46:09"
+  "last_seen": "2026-10-11T21:13:40"
  },
  "BAL @ CLE|2026-10-18T17:01": {
   "label": "BAL @ CLE",
@@ -88,12 +88,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7532,
-   "odds": -360,
-   "home_odds": -360,
-   "away_odds": 290
+   "fav_prob": 0.7595,
+   "odds": -375,
+   "home_odds": -375,
+   "away_odds": 300
   },
-  "last_seen": "2026-10-11T17:46:09"
+  "last_seen": "2026-10-11T21:13:40"
  },
  "BUF @ LV|2026-10-18T20:26": {
   "label": "BUF @ LV",
@@ -117,7 +117,7 @@
    "home_odds": 225,
    "away_odds": -275
   },
-  "last_seen": "2026-10-11T17:46:09"
+  "last_seen": "2026-10-11T21:13:40"
  },
  "WAS @ SF|2026-10-20T00:16": {
   "label": "WAS @ SF",
@@ -136,12 +136,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7711,
-   "odds": -405,
-   "home_odds": -405,
-   "away_odds": 320
+   "fav_prob": 0.7764,
+   "odds": -420,
+   "home_odds": -420,
+   "away_odds": 330
   },
-  "last_seen": "2026-10-11T17:46:09"
+  "last_seen": "2026-10-11T21:13:40"
  },
  "TEN @ IND|2026-10-18T17:01": {
   "label": "TEN @ IND",
@@ -165,7 +165,7 @@
    "home_odds": -330,
    "away_odds": 265
   },
-  "last_seen": "2026-10-11T17:46:09"
+  "last_seen": "2026-10-11T21:13:40"
  },
  "LAC @ KC|2026-10-18T20:26": {
   "label": "LAC @ KC",
@@ -184,11 +184,11 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7723,
-   "odds": -420,
-   "home_odds": -420,
-   "away_odds": 320
+   "fav_prob": 0.7955,
+   "odds": -480,
+   "home_odds": -480,
+   "away_odds": 370
   },
-  "last_seen": "2026-10-11T17:46:09"
+  "last_seen": "2026-10-11T21:13:40"
  }
 }

@@ -1324,8 +1324,8 @@
     "edge": 3.02,
     "pick": "home",
     "pick_label": "LAC +3.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -6.0
    }
   ],
   "parlay": [],
@@ -1513,9 +1513,9 @@
     "wind_mph": 21.4,
     "expected_adj": -8.32,
     "gameday": "2026-10-11",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 66.0,
+    "residual": 11.5
    },
    {
     "game": "NYG @ WAS",
