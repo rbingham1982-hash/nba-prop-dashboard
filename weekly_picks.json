@@ -1561,9 +1561,9 @@
     "wind_mph": 10.9,
     "expected_adj": -4.24,
     "gameday": "2026-10-11",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 53.0,
+    "residual": 9.5
    },
    {
     "game": "PHI @ JAX",
