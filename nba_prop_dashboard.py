@@ -6393,7 +6393,7 @@ elif sport == "🏀 WNBA":
     _wnba_tabs_iter = _grouped_tabs([
         ("Home",    []),
         ("Analyze", ["Player Stats", "Opponent Breakdown", "vs. Opponent"]),
-        ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
+        ("💰 Edge Finder", ["Bet Simulation", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
     ], key_prefix="wnba")
@@ -7186,7 +7186,7 @@ elif sport == "⚾ MLB":
     _mlb_tabs_iter  = _grouped_tabs([
         ("Home",    []),
         ("Analyze", ["Hitter Analysis", "Pitcher Analysis", "vs Opponent", "Hit Board"]),
-        ("Bet",     ["Bet Simulation", "Sportsbook", "Parlays"]),
+        ("💰 Edge Finder", ["Bet Simulation", "Sportsbook", "Parlays"]),
         *( [("Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("About",   ["Daily Blog", "Disclaimer"]),
     ], key_prefix="mlb")
@@ -9107,320 +9107,323 @@ elif sport == "🏈 NFL":
             _bseason, _bwk = None, None
             st.error(f"Couldn't load NFL data: {_e}")
 
-        # ── Live FanDuel props, scored & ranked by edge ──────────────────────
-        st.markdown("**Live FanDuel props**")
-        # Fetched AND scored behind one cache. Uncached, this ran on every rerun of the
-        # NFL page — Streamlit executes every tab body, not just the visible one — so
-        # changing a player on the Player Analysis tab paid 6.8s to fetch FanDuel and
-        # 39.7s to score 908 props before anything redrew. That 46s is what left the
-        # previous sport's page on screen, dimmed, long enough to look like breakage.
-        #
-        # Five minutes, because prop lines move near kickoff and a board quoting a price
-        # from half an hour ago is worse than a slow one. The pair is cached together so
-        # the board and the parlay builder below can never disagree about a leg.
-        @st.cache_data(ttl=300, show_spinner=False)
-        def _nfl_live_props():
-            import daily_parlay_gen as _g
-            try:
-                raw = _pmnfl.fetch_fanduel("nfl")
-            except Exception as _fe:
-                return None, [], f"fetch: {_fe}"
-            if raw is None or raw.empty:
-                return raw, [], None
-            try:
-                legs = _g.score_legs(raw, {}, _g.NFL_STAT_TYPES, _g.nfl_hit_rate,
-                                     min_sample=_g.MIN_SAMPLE.get("NFL", 3))
-            except Exception as _se:
-                return raw, [], str(_se)
-            return raw, legs, None
-
-        # Imported out here, not inside a branch. The scoring block that used to carry
-        # this import moved into the cached function above, and _gen is still read by the
-        # board and the parlay builder further down.
-        import daily_parlay_gen as _gen
-
-        with st.spinner("Checking FanDuel and scoring NFL props…"):
-            _fd_nfl, _plegs_cached, _pcache_err = _nfl_live_props()
-        # Scored once, here, and reused by the parlay builder below, so the board and the
-        # builder price every leg identically. The fetcher returns BOTH sides of every
-        # two-way market; this board used to ignore `side` and score each row as an OVER,
-        # so every prop appeared twice and the under row set the over probability
-        # against the under's price, which is a meaningless edge.
-        _plegs, _pscore_err = _plegs_cached, _pcache_err
-        if _pscore_err is not None:
-            st.error(f"Couldn't score NFL props: {_pscore_err}")
-        elif _plegs:
-            # Ranked by the MARKET since 2026-10-11. The board used to rank by a trust-tapered
-            # edge, w x gap x (1 - gap/cap) x n/(n+8), with w the fitted market blend. Graded
-            # on 886 NFL props, the projection behind "Model %" scored a Brier of 0.284
-            # against the market's 0.248 (0.25 is a coin flip): props it called 60-70% hit
-            # 41%, and those it put 10-20 points above the market came in 9.9 points below
-            # the price. get_market_blend now gives the model zero weight, so every edge is
-            # zero and that ranking would order nothing. What the board can honestly rank is
-            # the market's own probability; the projection stays beside it as information.
-            import pandas as _pd
-            import form_signal as _fsig
-
-            # Recent form, for the column and for the live test below. An hour's cache: the
-            # history only changes when a week of games lands.
-            @st.cache_data(ttl=3600, show_spinner=False)
-            def _nfl_form_hist():
-                return _fsig._nfl_history()[0]
-            try:
-                _fhist = _nfl_form_hist()
-            except Exception:
-                _fhist = {}
-
-            def _med5(_l):
-                _v = _fsig._prior_values("nfl", _fhist, _l["player_name"], _l["stat_type"], None)
-                return _fsig.statistics.median(_v[-5:]) if len(_v) >= _fsig._MIN_GAMES else None
-
-            # One row per prop: the side the market favours.
-            _best = {}
-            for _l in _plegs:
-                _k = (_l["player_name"], _l["stat_type"], _l["line_score"], _l.get("game_label"))
-                if _k not in _best or float(_l["implied_prob"]) > float(_best[_k]["implied_prob"]):
-                    _best[_k] = _l
-            _rows = sorted(_best.values(), key=lambda l: -float(l["implied_prob"]))
-
-            def _nfl_board_df(_items):
-                return _pd.DataFrame([{
-                    "Player": _l["player_name"], "Game": _l["game_label"], "Stat": _l["stat_type"],
-                    "Side": _l["side"].title(), "Line": _l["line_score"],
-                    # Signed, the way a book prints them.
-                    "Odds": (f"+{_l['american_odds']}" if _l.get("american_odds") is not None
-                             and int(_l["american_odds"]) > 0 else str(_l.get("american_odds", "—"))),
-                    "Market %": round(float(_l["implied_prob"]) * 100, 1),
-                    "Projection %": round(_l["hit_rate"] * 100, 1),
-                    "Gap": round((float(_l["hit_rate"]) - float(_l["implied_prob"])) * 100, 1),
-                    "N": int(_l.get("sample_n") or 0),
-                    "Last-5 median": _med5(_l),
-                    "Flags": ", ".join(_gen.nfl_role_flags(_l["player_name"], _l["stat_type"],
-                                                            _l["line_score"])),
-                } for _l in _items])
-
-            st.dataframe(_nfl_board_df(_rows[:40]), width="stretch", hide_index=True)
-            st.caption(
-                f"{len(_rows)} props, one row each on the side the market favours, ranked by "
-                "**Market %** — FanDuel's price with the margin removed (and overs shaded for the "
-                "extra margin the book puts on them). **Projection %** is our usage projection "
-                "turned into a probability. It is not a price and not an edge: graded on 886 NFL "
-                "props it was a worse forecast than the market (and than a coin flip), and larger "
-                "**Gap**s did not realize better. Flags mark projections built on last season's "
-                "role: a new team, a thin sample, or a rookie's draft cohort.")
-            _far = sorted((l for l in _rows
-                           if abs(float(l["hit_rate"]) - float(l["implied_prob"]))
-                           >= _gen.NFL_MAX_MODEL_GAP),
-                          key=lambda l: -abs(float(l["hit_rate"]) - float(l["implied_prob"])))
-            if _far:
-                with st.expander(f"Projection {_gen.NFL_MAX_MODEL_GAP:.0%}+ away from the market — "
-                                 f"{len(_far)} props"):
-                    st.caption("A gap this wide usually means the projection is missing something "
-                               "the book has priced, most often a role change since last season. "
-                               "Useful for spotting stale roles; not a list of bets.")
-                    st.dataframe(_nfl_board_df(_far[:60]), width="stretch", hide_index=True)
-
-            # The one rule that beat the de-vigged price in two sports: the under when recent
-            # form sits below the line (form_signal). It is being tested live at the odds
-            # actually quoted, so it is shown as a test with its running record, not as picks.
-            _fu = [l for l in _plegs if l.get("side") == "under"]
-            _fu = [(l, _med5(l)) for l in _fu]
-            _fu = sorted(((l, m) for l, m in _fu if m is not None and m < float(l["line_score"])),
-                         key=lambda t: (float(t[0]["line_score"]) - t[1]) / max(float(t[0]["line_score"]), 1.0),
-                         reverse=True)
-            _frec = _fsig.record("nfl")
-            with st.expander(f"Recent-form unders — live test · {len(_fu)} qualifying now"):
-                if _frec.get("n"):
-                    st.caption(f"Record so far: {_frec['wins']}-{_frec['n'] - _frec['wins']} "
-                               f"({_frec['win_pct']}% against {_frec['breakeven_pct']}% needed at the "
-                               f"odds taken), return {_frec['roi_pct']:+.1f}% ± {_frec['roi_se_pct']}% "
-                               f"on {_frec['n']} graded · {_frec['pending']} pending.")
-                else:
-                    st.caption(f"No graded results yet · {_frec.get('pending', 0)} logged and pending.")
-                st.caption("Rule, fixed in advance: take the under when the median of the player's "
-                           "last 5 games is below the line. It beat the de-vigged price in NFL "
-                           "(+5.2 ± 2.4 points) and in WNBA, where it was never fit (+3.7 ± 1.1), but "
-                           "the margin may take that back. Unproven until the record says otherwise.")
-                # The rule parlay: derived from the logged legs, never picked by hand.
-                _fpar = _fsig.parlays("nfl")
-                _fprec = _fsig.parlay_record("nfl")
-                if _fpar:
-                    _latest = _fpar[-1]
-                    _res = {"win": "won", "loss": "lost", "void": "void", None: "pending"}[_latest["result"]]
-                    st.markdown(f"**Form-under parlay · {_latest['day']}** — "
-                                f"{_latest['american']:+d}, {_latest['fair_prob']:.1%} at market prices "
-                                f"against {_latest['breakeven']:.1%} to break even · {_res}")
-                    st.dataframe(_pd.DataFrame([{
-                        "Player": l["player"], "Game": l["game"], "Stat": l["stat"], "Under": l["line"],
-                        "Odds": f"{int(l['american_odds']):+d}", "Market %": round(100 * l["fair_prob"], 1),
-                        "Last-5 median": l["med5"], "Result": l.get("outcome") or "pending",
-                    } for l in _latest["legs"]]), width="stretch", hide_index=True)
-                    if _fprec.get("tickets"):
-                        st.caption(f"Parlay record: {_fprec['hits']} of {_fprec['tickets']} hit, "
-                                   f"{_fprec['units']:+.2f} units, return {_fprec['roi_pct']:+.1f}% ± "
-                                   f"{_fprec['roi_se_pct']}%.")
-                    st.caption("Fixed rule: each game day, the three logged form-unders with the "
-                               "highest market probability, one per game, all logged before the "
-                               "first of them kicks off. At market prices it sits below break-even "
-                               "by design; it only pays if the recent-form edge is real.")
-                if _fu:
-                    st.dataframe(_pd.DataFrame([{
-                        "Player": l["player_name"], "Game": l["game_label"], "Stat": l["stat_type"],
-                        "Under": l["line_score"],
-                        "Odds": (f"+{l['american_odds']}" if int(l["american_odds"]) > 0
-                                 else str(l["american_odds"])),
-                        "Market %": round(float(l["implied_prob"]) * 100, 1),
-                        "Last-5 median": m,
-                    } for l, m in _fu[:40]]), width="stretch", hide_index=True)
-        elif _fd_nfl is not None and not _fd_nfl.empty:
-            st.info("Props posted but none scored (games already under way, no projection for "
-                    "the player, or unmapped markets).")
-        else:
-            st.info("No NFL props posted yet — FanDuel puts player props up close to kickoff. "
-                    "The fetch is wired and will populate automatically. Use the manual check below meanwhile.")
-
-        st.divider()
-
-        # ── Parlay builder ───────────────────────────────────────────────────
-        # Same pipeline the daily generator runs, so what you see here and what gets
-        # logged overnight are the same board: usage-share scorer -> market blend ->
-        # _build_parlays under the NFL diversity caps.
-        st.markdown("**Parlay builder**")
-        if _bwk is None or _bwk.empty:
-            st.caption("NFL data unavailable right now.")
-        elif _fd_nfl is None or _fd_nfl.empty:
-            st.caption("Needs posted props — the builder runs off the live FanDuel board above.")
-        else:
-            _pc1, _pc2, _pc3 = st.columns([1, 1, 1.4])
-            with _pc1:
-                _pmin = st.slider("Min legs", 2, 5, 2, key="nfl_p_min")
-            with _pc2:
-                _pmax = st.slider("Max legs", 2, 5, 5, key="nfl_p_max")
-            with _pc3:
-                _pmix = st.checkbox(
-                    "Force mixed outcomes", value=True, key="nfl_p_mix",
-                    help="Cap legs per market and per outcome family (volume / yards / TDs). "
-                         "Off, the highest-probability combos collapse into one market — the "
-                         "first NFL slate returned 5-leg parlays that were five Passing TDs.")
-            if _pmax < _pmin:
-                _pmax = _pmin
-            try:
-                with st.spinner("Building parlays…"):
-                    _pcal = parlay_tracker.get_parlay_calibration(sport="NFL") or {}
-                    _pblend = parlay_tracker.get_market_blend(sport="NFL")
-                    _psafe, _pval = _gen.build_parlays(
-                        _plegs, min_legs=_pmin, max_legs=_pmax, top_n=15,
-                        sportsbook="FanDuel", parlay_cal=_pcal, market_blend=_pblend,
-                        max_same_market=_gen.MAX_SAME_MARKET.get("NFL") if _pmix else None,
-                        stat_family=_gen.STAT_FAMILY.get("NFL") if _pmix else None,
-                        max_same_family=_gen.MAX_SAME_FAMILY.get("NFL") if _pmix else None)
-            except Exception as _pe:
-                _psafe, _pval = [], []
-                st.error(f"Couldn't build parlays: {_pe}")
-
-            if not _plegs:
-                st.info("No props scored — players need at least 3 games of history.")
-            elif not _psafe and not _pval:
-                st.info("Props scored but no parlay cleared the constraints.")
-            else:
-                import pandas as _pd
-                _fam = _gen.NFL_STAT_FAMILY
-                for _lbl, _pool in (("Safe · most likely to hit", _psafe),
-                                    ("Value · highest EV", _pval)):
-                    if not _pool:
-                        continue
-                    st.markdown(f"*{_lbl}*")
-                    for _p in _pool[:5]:
-                        _mk = len({_l["stat_type"] for _l in _p["legs"]})
-                        _fm = len({_fam.get(_l["stat_type"], "?") for _l in _p["legs"]})
-                        _rec = "+EV (paper)" if _p.get("recommended") else "—"
-                        with st.expander(
-                            f"{_p['n']} legs · {_p['payout']:.1f}x · {_p['prob']*100:.1f}% "
-                            f"· EV {_p['ev']:+.3f} {_rec} · {_mk} markets / {_fm} families"):
-                            st.dataframe(_pd.DataFrame([{
-                                "Player": _l["player_name"], "Stat": _l["stat_type"],
-                                "Line": _l["line_score"], "Odds": _l["american_odds"],
-                                "Family": _fam.get(_l["stat_type"], "?"),
-                                "Model %": round(_l["hit_rate"] * 100, 1),
-                            } for _l in _p["legs"]]), width="stretch", hide_index=True)
-                st.caption(
-                    f"{len(_plegs)} legs scored · probabilities are calibrated and market-blended, "
-                    "so they match what the nightly board logs. Only ✅ +EV parlays are worth a stake — "
-                    "the rest are logged for calibration, not to bet.")
-
-        st.divider()
-
-        # ── Manual edge check (works now) ────────────────────────────────────
-        st.markdown("**Manual edge check**")
-        if _bwk is None or _bwk.empty:
-            st.caption("NFL data unavailable right now.")
-        else:
-            # Rosters as they are NOW over whatever history the scorer has. This tab
-            # prices a prop for a player taking the field this week, so the team he is on
-            # is today's fact while the form behind the number is last season's — reading
-            # the team off the history frame instead put Geno Smith under Las Vegas.
-            @st.cache_data(ttl=3600, show_spinner=False)
-            def _nfl_bet_rosters(season):
-                return _nflb.roster_teams_and_players(_nfl_bet_weekly()[1])
-
-            _bteams, _bby = _nfl_bet_rosters(_bseason)
-            _e1, _e2, _e3 = st.columns([1, 1.5, 1.3])
-            with _e1:
-                _bteam = st.selectbox("Team", _bteams, key="nfl_bet_team")
-            _bplist = _bby.get(_bteam, [])
-            with _e2:
-                _bpnames = [f"{n}  ·  {p}" for n, p in _bplist]
-                _bpsel = st.selectbox("Player", _bpnames, key="nfl_bet_player") if _bpnames else None
-            _bi = _bpnames.index(_bpsel) if _bpsel else None
-            _bplayer = _bplist[_bi][0] if _bi is not None else None
-            _bppos = _bplist[_bi][1] if _bi is not None else None
-            with _e3:
-                _bstat = st.selectbox("Stat", _nflb.POS_STATS.get(_bppos, list(_nflb.PROP_STATS.keys())),
-                                      key="nfl_bet_stat")
-            # Default the line to the player's own projection, the way the Player Analysis
-            # tab does. A flat 50.0 is wrong for every market here: it asked whether a
-            # receiver would catch 50 passes, which scored 0% and printed an -18.3 point
-            # "edge" that was an artefact of the default rather than anything about the
-            # player.
+        # Sportsbook (the live board and the manual check) and Parlays, as on the NBA page.
+        # The board runs first either way: the builder prices the legs it scored.
+        _nfl_edge_sb, _nfl_edge_par = st.tabs(["Sportsbook", "Parlays"], key="nfl_edge_tabs")
+        with _nfl_edge_sb:
+            # ── Live FanDuel props, scored & ranked by edge ──────────────────────
+            st.markdown("**Live FanDuel props**")
+            # Fetched AND scored behind one cache. Uncached, this ran on every rerun of the
+            # NFL page — Streamlit executes every tab body, not just the visible one — so
+            # changing a player on the Player Analysis tab paid 6.8s to fetch FanDuel and
+            # 39.7s to score 908 props before anything redrew. That 46s is what left the
+            # previous sport's page on screen, dimmed, long enough to look like breakage.
             #
-            # The key carries the player and stat because Streamlit only applies `value` on
-            # a widget's FIRST render — with a fixed key the box would keep the number from
-            # whichever selection happened to load first.
-            _blog = _nflb.game_log(_bwk, _bplayer) if _bplayer else []
-            _bproj = _nflb.project(_blog, _bstat) if (_blog and _bstat) else None
-            _bdefault = max(round((_bproj or 1) * 2) / 2 - 0.5, 0.5) if _bproj else 0.5
-            _o1, _o2 = st.columns(2)
-            with _o1:
-                _bline = st.number_input("Book line", value=float(_bdefault), step=0.5,
-                                         key=f"nfl_bet_line_{_bplayer}_{_bstat}")
-            with _o2:
-                _bodds = st.number_input("Odds (American)", value=-110, step=5, key="nfl_bet_odds")
-            if _bplayer and _bstat:
-                _r = _nflb.score_prop(_bwk, _bplayer, _bstat, _bline, _bodds)
-                if not _r or "edge" not in _r:
-                    st.caption("Not enough game history to score this player.")
-                else:
-                    _mm1, _mm2, _mm3, _mm4 = st.columns(4)
-                    _mm1.metric("Projection", _r["projection"])
-                    _mm2.metric("Model Over %", f"{_r['model_over']*100:.0f}%")
-                    _mm3.metric("Implied %", f"{_r['implied']*100:.0f}%")
-                    _mm4.metric("Edge", f"{_r['edge']*100:+.1f} pts", delta_color="off")
-                    _ev = _r["edge"] * 100
-                    if _ev >= 3:
-                        _vc, _vt = "#22c55e", f"✅ VALUE on the OVER (+{_ev:.1f} pts edge)"
-                    elif _ev <= -3:
-                        _vc, _vt = "#f59e0b", f"↩️ Value on the UNDER — model fades the over ({_ev:.1f} pts)"
+            # Five minutes, because prop lines move near kickoff and a board quoting a price
+            # from half an hour ago is worse than a slow one. The pair is cached together so
+            # the board and the parlay builder below can never disagree about a leg.
+            @st.cache_data(ttl=300, show_spinner=False)
+            def _nfl_live_props():
+                import daily_parlay_gen as _g
+                try:
+                    raw = _pmnfl.fetch_fanduel("nfl")
+                except Exception as _fe:
+                    return None, [], f"fetch: {_fe}"
+                if raw is None or raw.empty:
+                    return raw, [], None
+                try:
+                    legs = _g.score_legs(raw, {}, _g.NFL_STAT_TYPES, _g.nfl_hit_rate,
+                                         min_sample=_g.MIN_SAMPLE.get("NFL", 3))
+                except Exception as _se:
+                    return raw, [], str(_se)
+                return raw, legs, None
+
+            # Imported out here, not inside a branch. The scoring block that used to carry
+            # this import moved into the cached function above, and _gen is still read by the
+            # board and the parlay builder further down.
+            import daily_parlay_gen as _gen
+
+            with st.spinner("Checking FanDuel and scoring NFL props…"):
+                _fd_nfl, _plegs_cached, _pcache_err = _nfl_live_props()
+            # Scored once, here, and reused by the parlay builder below, so the board and the
+            # builder price every leg identically. The fetcher returns BOTH sides of every
+            # two-way market; this board used to ignore `side` and score each row as an OVER,
+            # so every prop appeared twice and the under row set the over probability
+            # against the under's price, which is a meaningless edge.
+            _plegs, _pscore_err = _plegs_cached, _pcache_err
+            if _pscore_err is not None:
+                st.error(f"Couldn't score NFL props: {_pscore_err}")
+            elif _plegs:
+                # Ranked by the MARKET since 2026-10-11. The board used to rank by a trust-tapered
+                # edge, w x gap x (1 - gap/cap) x n/(n+8), with w the fitted market blend. Graded
+                # on 886 NFL props, the projection behind "Model %" scored a Brier of 0.284
+                # against the market's 0.248 (0.25 is a coin flip): props it called 60-70% hit
+                # 41%, and those it put 10-20 points above the market came in 9.9 points below
+                # the price. get_market_blend now gives the model zero weight, so every edge is
+                # zero and that ranking would order nothing. What the board can honestly rank is
+                # the market's own probability; the projection stays beside it as information.
+                import pandas as _pd
+                import form_signal as _fsig
+
+                # Recent form, for the column and for the live test below. An hour's cache: the
+                # history only changes when a week of games lands.
+                @st.cache_data(ttl=3600, show_spinner=False)
+                def _nfl_form_hist():
+                    return _fsig._nfl_history()[0]
+                try:
+                    _fhist = _nfl_form_hist()
+                except Exception:
+                    _fhist = {}
+
+                def _med5(_l):
+                    _v = _fsig._prior_values("nfl", _fhist, _l["player_name"], _l["stat_type"], None)
+                    return _fsig.statistics.median(_v[-5:]) if len(_v) >= _fsig._MIN_GAMES else None
+
+                # One row per prop: the side the market favours.
+                _best = {}
+                for _l in _plegs:
+                    _k = (_l["player_name"], _l["stat_type"], _l["line_score"], _l.get("game_label"))
+                    if _k not in _best or float(_l["implied_prob"]) > float(_best[_k]["implied_prob"]):
+                        _best[_k] = _l
+                _rows = sorted(_best.values(), key=lambda l: -float(l["implied_prob"]))
+
+                def _nfl_board_df(_items):
+                    return _pd.DataFrame([{
+                        "Player": _l["player_name"], "Game": _l["game_label"], "Stat": _l["stat_type"],
+                        "Side": _l["side"].title(), "Line": _l["line_score"],
+                        # Signed, the way a book prints them.
+                        "Odds": (f"+{_l['american_odds']}" if _l.get("american_odds") is not None
+                                 and int(_l["american_odds"]) > 0 else str(_l.get("american_odds", "—"))),
+                        "Market %": round(float(_l["implied_prob"]) * 100, 1),
+                        "Projection %": round(_l["hit_rate"] * 100, 1),
+                        "Gap": round((float(_l["hit_rate"]) - float(_l["implied_prob"])) * 100, 1),
+                        "N": int(_l.get("sample_n") or 0),
+                        "Last-5 median": _med5(_l),
+                        "Flags": ", ".join(_gen.nfl_role_flags(_l["player_name"], _l["stat_type"],
+                                                                _l["line_score"])),
+                    } for _l in _items])
+
+                st.dataframe(_nfl_board_df(_rows[:40]), width="stretch", hide_index=True)
+                st.caption(
+                    f"{len(_rows)} props, one row each on the side the market favours, ranked by "
+                    "**Market %** — FanDuel's price with the margin removed (and overs shaded for the "
+                    "extra margin the book puts on them). **Projection %** is our usage projection "
+                    "turned into a probability. It is not a price and not an edge: graded on 886 NFL "
+                    "props it was a worse forecast than the market (and than a coin flip), and larger "
+                    "**Gap**s did not realize better. Flags mark projections built on last season's "
+                    "role: a new team, a thin sample, or a rookie's draft cohort.")
+                _far = sorted((l for l in _rows
+                               if abs(float(l["hit_rate"]) - float(l["implied_prob"]))
+                               >= _gen.NFL_MAX_MODEL_GAP),
+                              key=lambda l: -abs(float(l["hit_rate"]) - float(l["implied_prob"])))
+                if _far:
+                    with st.expander(f"Projection {_gen.NFL_MAX_MODEL_GAP:.0%}+ away from the market — "
+                                     f"{len(_far)} props"):
+                        st.caption("A gap this wide usually means the projection is missing something "
+                                   "the book has priced, most often a role change since last season. "
+                                   "Useful for spotting stale roles; not a list of bets.")
+                        st.dataframe(_nfl_board_df(_far[:60]), width="stretch", hide_index=True)
+
+                # The one rule that beat the de-vigged price in two sports: the under when recent
+                # form sits below the line (form_signal). It is being tested live at the odds
+                # actually quoted, so it is shown as a test with its running record, not as picks.
+                _fu = [l for l in _plegs if l.get("side") == "under"]
+                _fu = [(l, _med5(l)) for l in _fu]
+                _fu = sorted(((l, m) for l, m in _fu if m is not None and m < float(l["line_score"])),
+                             key=lambda t: (float(t[0]["line_score"]) - t[1]) / max(float(t[0]["line_score"]), 1.0),
+                             reverse=True)
+                _frec = _fsig.record("nfl")
+                with st.expander(f"Recent-form unders — live test · {len(_fu)} qualifying now"):
+                    if _frec.get("n"):
+                        st.caption(f"Record so far: {_frec['wins']}-{_frec['n'] - _frec['wins']} "
+                                   f"({_frec['win_pct']}% against {_frec['breakeven_pct']}% needed at the "
+                                   f"odds taken), return {_frec['roi_pct']:+.1f}% ± {_frec['roi_se_pct']}% "
+                                   f"on {_frec['n']} graded · {_frec['pending']} pending.")
                     else:
-                        _vc, _vt = "#9aa0b4", f"◽ No edge either way ({_ev:+.1f} pts)"
-                    st.markdown(
-                        f"<div style='border:1px solid {_vc}55;background:{_vc}18;border-radius:10px;"
-                        f"padding:0.6rem 0.9rem;margin-top:0.6rem;font-weight:600;color:{_vc};'>{_vt}</div>"
-                        f"<div style='font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem;'>"
-                        f"Projection {_r['projection']} ± {_r['sigma']} over {_r['n']} games · "
-                        f"historical over-rate at this line {_r['hit_rate_hist']*100:.0f}%. Blend = "
-                        f"35% model / 65% market. Not a proven edge until it clears the paper-trade gate.</div>",
-                        unsafe_allow_html=True,
-                    )
+                        st.caption(f"No graded results yet · {_frec.get('pending', 0)} logged and pending.")
+                    st.caption("Rule, fixed in advance: take the under when the median of the player's "
+                               "last 5 games is below the line. It beat the de-vigged price in NFL "
+                               "(+5.2 ± 2.4 points) and in WNBA, where it was never fit (+3.7 ± 1.1), but "
+                               "the margin may take that back. Unproven until the record says otherwise.")
+                    # The rule parlay: derived from the logged legs, never picked by hand.
+                    _fpar = _fsig.parlays("nfl")
+                    _fprec = _fsig.parlay_record("nfl")
+                    if _fpar:
+                        _latest = _fpar[-1]
+                        _res = {"win": "won", "loss": "lost", "void": "void", None: "pending"}[_latest["result"]]
+                        st.markdown(f"**Form-under parlay · {_latest['day']}** — "
+                                    f"{_latest['american']:+d}, {_latest['fair_prob']:.1%} at market prices "
+                                    f"against {_latest['breakeven']:.1%} to break even · {_res}")
+                        st.dataframe(_pd.DataFrame([{
+                            "Player": l["player"], "Game": l["game"], "Stat": l["stat"], "Under": l["line"],
+                            "Odds": f"{int(l['american_odds']):+d}", "Market %": round(100 * l["fair_prob"], 1),
+                            "Last-5 median": l["med5"], "Result": l.get("outcome") or "pending",
+                        } for l in _latest["legs"]]), width="stretch", hide_index=True)
+                        if _fprec.get("tickets"):
+                            st.caption(f"Parlay record: {_fprec['hits']} of {_fprec['tickets']} hit, "
+                                       f"{_fprec['units']:+.2f} units, return {_fprec['roi_pct']:+.1f}% ± "
+                                       f"{_fprec['roi_se_pct']}%.")
+                        st.caption("Fixed rule: each game day, the three logged form-unders with the "
+                                   "highest market probability, one per game, all logged before the "
+                                   "first of them kicks off. At market prices it sits below break-even "
+                                   "by design; it only pays if the recent-form edge is real.")
+                    if _fu:
+                        st.dataframe(_pd.DataFrame([{
+                            "Player": l["player_name"], "Game": l["game_label"], "Stat": l["stat_type"],
+                            "Under": l["line_score"],
+                            "Odds": (f"+{l['american_odds']}" if int(l["american_odds"]) > 0
+                                     else str(l["american_odds"])),
+                            "Market %": round(float(l["implied_prob"]) * 100, 1),
+                            "Last-5 median": m,
+                        } for l, m in _fu[:40]]), width="stretch", hide_index=True)
+            elif _fd_nfl is not None and not _fd_nfl.empty:
+                st.info("Props posted but none scored (games already under way, no projection for "
+                        "the player, or unmapped markets).")
+            else:
+                st.info("No NFL props posted yet — FanDuel puts player props up close to kickoff. "
+                        "The fetch is wired and will populate automatically. Use the manual check below meanwhile.")
+
+        with _nfl_edge_par:
+            # ── Parlay builder ───────────────────────────────────────────────────
+            # Same pipeline the daily generator runs, so what you see here and what gets
+            # logged overnight are the same board: usage-share scorer -> market blend ->
+            # _build_parlays under the NFL diversity caps.
+            st.markdown("**Parlay builder**")
+            if _bwk is None or _bwk.empty:
+                st.caption("NFL data unavailable right now.")
+            elif _fd_nfl is None or _fd_nfl.empty:
+                st.caption("Needs posted props — the builder runs off the live FanDuel board above.")
+            else:
+                _pc1, _pc2, _pc3 = st.columns([1, 1, 1.4])
+                with _pc1:
+                    _pmin = st.slider("Min legs", 2, 5, 2, key="nfl_p_min")
+                with _pc2:
+                    _pmax = st.slider("Max legs", 2, 5, 5, key="nfl_p_max")
+                with _pc3:
+                    _pmix = st.checkbox(
+                        "Force mixed outcomes", value=True, key="nfl_p_mix",
+                        help="Cap legs per market and per outcome family (volume / yards / TDs). "
+                             "Off, the highest-probability combos collapse into one market — the "
+                             "first NFL slate returned 5-leg parlays that were five Passing TDs.")
+                if _pmax < _pmin:
+                    _pmax = _pmin
+                try:
+                    with st.spinner("Building parlays…"):
+                        _pcal = parlay_tracker.get_parlay_calibration(sport="NFL") or {}
+                        _pblend = parlay_tracker.get_market_blend(sport="NFL")
+                        _psafe, _pval = _gen.build_parlays(
+                            _plegs, min_legs=_pmin, max_legs=_pmax, top_n=15,
+                            sportsbook="FanDuel", parlay_cal=_pcal, market_blend=_pblend,
+                            max_same_market=_gen.MAX_SAME_MARKET.get("NFL") if _pmix else None,
+                            stat_family=_gen.STAT_FAMILY.get("NFL") if _pmix else None,
+                            max_same_family=_gen.MAX_SAME_FAMILY.get("NFL") if _pmix else None)
+                except Exception as _pe:
+                    _psafe, _pval = [], []
+                    st.error(f"Couldn't build parlays: {_pe}")
+
+                if not _plegs:
+                    st.info("No props scored — players need at least 3 games of history.")
+                elif not _psafe and not _pval:
+                    st.info("Props scored but no parlay cleared the constraints.")
+                else:
+                    import pandas as _pd
+                    _fam = _gen.NFL_STAT_FAMILY
+                    for _lbl, _pool in (("Safe · most likely to hit", _psafe),
+                                        ("Value · highest EV", _pval)):
+                        if not _pool:
+                            continue
+                        st.markdown(f"*{_lbl}*")
+                        for _p in _pool[:5]:
+                            _mk = len({_l["stat_type"] for _l in _p["legs"]})
+                            _fm = len({_fam.get(_l["stat_type"], "?") for _l in _p["legs"]})
+                            _rec = "+EV (paper)" if _p.get("recommended") else "—"
+                            with st.expander(
+                                f"{_p['n']} legs · {_p['payout']:.1f}x · {_p['prob']*100:.1f}% "
+                                f"· EV {_p['ev']:+.3f} {_rec} · {_mk} markets / {_fm} families"):
+                                st.dataframe(_pd.DataFrame([{
+                                    "Player": _l["player_name"], "Stat": _l["stat_type"],
+                                    "Line": _l["line_score"], "Odds": _l["american_odds"],
+                                    "Family": _fam.get(_l["stat_type"], "?"),
+                                    "Model %": round(_l["hit_rate"] * 100, 1),
+                                } for _l in _p["legs"]]), width="stretch", hide_index=True)
+                    st.caption(
+                        f"{len(_plegs)} legs scored · probabilities are calibrated and market-blended, "
+                        "so they match what the nightly board logs. A '+EV' here is arithmetic on the market's own price, not a proven edge — "
+                        "every parlay is logged for calibration, none is a recommendation.")
+
+        with _nfl_edge_sb:
+            st.divider()
+            # ── Manual edge check (works now) ────────────────────────────────────
+            st.markdown("**Manual edge check**")
+            if _bwk is None or _bwk.empty:
+                st.caption("NFL data unavailable right now.")
+            else:
+                # Rosters as they are NOW over whatever history the scorer has. This tab
+                # prices a prop for a player taking the field this week, so the team he is on
+                # is today's fact while the form behind the number is last season's — reading
+                # the team off the history frame instead put Geno Smith under Las Vegas.
+                @st.cache_data(ttl=3600, show_spinner=False)
+                def _nfl_bet_rosters(season):
+                    return _nflb.roster_teams_and_players(_nfl_bet_weekly()[1])
+
+                _bteams, _bby = _nfl_bet_rosters(_bseason)
+                _e1, _e2, _e3 = st.columns([1, 1.5, 1.3])
+                with _e1:
+                    _bteam = st.selectbox("Team", _bteams, key="nfl_bet_team")
+                _bplist = _bby.get(_bteam, [])
+                with _e2:
+                    _bpnames = [f"{n}  ·  {p}" for n, p in _bplist]
+                    _bpsel = st.selectbox("Player", _bpnames, key="nfl_bet_player") if _bpnames else None
+                _bi = _bpnames.index(_bpsel) if _bpsel else None
+                _bplayer = _bplist[_bi][0] if _bi is not None else None
+                _bppos = _bplist[_bi][1] if _bi is not None else None
+                with _e3:
+                    _bstat = st.selectbox("Stat", _nflb.POS_STATS.get(_bppos, list(_nflb.PROP_STATS.keys())),
+                                          key="nfl_bet_stat")
+                # Default the line to the player's own projection, the way the Player Analysis
+                # tab does. A flat 50.0 is wrong for every market here: it asked whether a
+                # receiver would catch 50 passes, which scored 0% and printed an -18.3 point
+                # "edge" that was an artefact of the default rather than anything about the
+                # player.
+                #
+                # The key carries the player and stat because Streamlit only applies `value` on
+                # a widget's FIRST render — with a fixed key the box would keep the number from
+                # whichever selection happened to load first.
+                _blog = _nflb.game_log(_bwk, _bplayer) if _bplayer else []
+                _bproj = _nflb.project(_blog, _bstat) if (_blog and _bstat) else None
+                _bdefault = max(round((_bproj or 1) * 2) / 2 - 0.5, 0.5) if _bproj else 0.5
+                _o1, _o2 = st.columns(2)
+                with _o1:
+                    _bline = st.number_input("Book line", value=float(_bdefault), step=0.5,
+                                             key=f"nfl_bet_line_{_bplayer}_{_bstat}")
+                with _o2:
+                    _bodds = st.number_input("Odds (American)", value=-110, step=5, key="nfl_bet_odds")
+                if _bplayer and _bstat:
+                    _r = _nflb.score_prop(_bwk, _bplayer, _bstat, _bline, _bodds)
+                    if not _r or "edge" not in _r:
+                        st.caption("Not enough game history to score this player.")
+                    else:
+                        _mm1, _mm2, _mm3, _mm4 = st.columns(4)
+                        _mm1.metric("Projection", _r["projection"])
+                        _mm2.metric("Model Over %", f"{_r['model_over']*100:.0f}%")
+                        _mm3.metric("Implied %", f"{_r['implied']*100:.0f}%")
+                        _mm4.metric("Edge", f"{_r['edge']*100:+.1f} pts", delta_color="off")
+                        _ev = _r["edge"] * 100
+                        if _ev >= 3:
+                            _vc, _vt = "#22c55e", f"✅ VALUE on the OVER (+{_ev:.1f} pts edge)"
+                        elif _ev <= -3:
+                            _vc, _vt = "#f59e0b", f"↩️ Value on the UNDER — model fades the over ({_ev:.1f} pts)"
+                        else:
+                            _vc, _vt = "#9aa0b4", f"◽ No edge either way ({_ev:+.1f} pts)"
+                        st.markdown(
+                            f"<div style='border:1px solid {_vc}55;background:{_vc}18;border-radius:10px;"
+                            f"padding:0.6rem 0.9rem;margin-top:0.6rem;font-weight:600;color:{_vc};'>{_vt}</div>"
+                            f"<div style='font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem;'>"
+                            f"Projection {_r['projection']} ± {_r['sigma']} over {_r['n']} games · "
+                            f"historical over-rate at this line {_r['hit_rate_hist']*100:.0f}%. Blend = "
+                            f"market price (the model has no out-of-sample weight). Not an edge.</div>",
+                            unsafe_allow_html=True,
+                        )
 
     with _nfl_tab_track:
         # Full measurement apparatus (accuracy · CLV · paper-trade gate · pocket alert · drift),
