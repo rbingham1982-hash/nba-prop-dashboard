@@ -21,7 +21,7 @@
    "home_odds": -295,
    "away_odds": 240
   },
-  "last_seen": "2026-10-11T14:14:02"
+  "last_seen": "2026-10-13T08:22:30"
  },
  "DAL @ HOU|2026-10-22T00:40": {
   "label": "DAL @ HOU",
@@ -45,7 +45,7 @@
    "home_odds": -300,
    "away_odds": 245
   },
-  "last_seen": "2026-10-11T14:14:02"
+  "last_seen": "2026-10-13T08:22:30"
  },
  "CHI @ TOR|2026-10-21T23:40": {
   "label": "CHI @ TOR",
@@ -69,7 +69,7 @@
    "home_odds": -340,
    "away_odds": 275
   },
-  "last_seen": "2026-10-11T14:14:02"
+  "last_seen": "2026-10-13T08:22:30"
  },
  "CHI @ DEN|2026-10-12T01:10": {
   "label": "CHI @ DEN",
@@ -84,7 +84,7 @@
    "home_odds": -320,
    "away_odds": 245
   },
-  "outcome": null,
+  "outcome": "preseason",
   "winner": null,
   "last": {
    "fav": "home",
@@ -94,5 +94,125 @@
    "away_odds": 245
   },
   "last_seen": "2026-10-11T14:14:02"
+ },
+ "NYK @ TOR|2026-10-13T23:10": {
+  "label": "NYK @ TOR",
+  "home_name": "Toronto Raptors",
+  "away_name": "New York Knicks",
+  "start_time": "2026-10-13T23:10:00.000Z",
+  "first_seen": "2026-10-13T08:22:30",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7731,
+   "odds": -430,
+   "home_odds": -430,
+   "away_odds": 320
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7731,
+   "odds": -430,
+   "home_odds": -430,
+   "away_odds": 320
+  },
+  "last_seen": "2026-10-13T08:22:30"
+ },
+ "IND @ OKC|2026-10-14T00:10": {
+  "label": "IND @ OKC",
+  "home_name": "Oklahoma City Thunder",
+  "away_name": "Indiana Pacers",
+  "start_time": "2026-10-14T00:10:00.000Z",
+  "first_seen": "2026-10-13T08:22:30",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7681,
+   "odds": -420,
+   "home_odds": -420,
+   "away_odds": 310
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7681,
+   "odds": -420,
+   "home_odds": -420,
+   "away_odds": 310
+  },
+  "last_seen": "2026-10-13T08:22:30"
+ },
+ "ORL @ CHA|2026-10-13T14:15": {
+  "label": "ORL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Orlando Magic",
+  "start_time": "2026-10-13T14:15:00.000Z",
+  "first_seen": "2026-10-13T08:22:30",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7762,
+   "odds": -550,
+   "home_odds": -550,
+   "away_odds": 310
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7762,
+   "odds": -550,
+   "home_odds": -550,
+   "away_odds": 310
+  },
+  "last_seen": "2026-10-13T08:22:30"
+ },
+ "DAL @ DEN|2026-10-13T13:35": {
+  "label": "DAL @ DEN",
+  "home_name": "Denver Nuggets",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-10-13T13:35:00.000Z",
+  "first_seen": "2026-10-13T08:22:30",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6598,
+   "odds": -255,
+   "home_odds": 170,
+   "away_odds": -255
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6598,
+   "odds": -255,
+   "home_odds": 170,
+   "away_odds": -255
+  },
+  "last_seen": "2026-10-13T08:22:30"
+ },
+ "DAL @ CHA|2026-10-13T13:43": {
+  "label": "DAL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-10-13T13:43:00.000Z",
+  "first_seen": "2026-10-13T08:22:30",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7846,
+   "odds": -600,
+   "home_odds": -600,
+   "away_odds": 325
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7846,
+   "odds": -600,
+   "home_odds": -600,
+   "away_odds": 325
+  },
+  "last_seen": "2026-10-13T08:22:30"
  }
 }
