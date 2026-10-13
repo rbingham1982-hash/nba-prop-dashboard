@@ -40,12 +40,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8606,
-   "odds": -850,
-   "home_odds": -850,
-   "away_odds": 590
+   "fav_prob": 0.87,
+   "odds": -950,
+   "home_odds": -950,
+   "away_odds": 640
   },
-  "last_seen": "2026-10-12T06:30:52"
+  "last_seen": "2026-10-13T18:16:05"
  },
  "BAL @ CLE|2026-10-18T17:01": {
   "label": "BAL @ CLE",
@@ -64,12 +64,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.669,
-   "odds": -230,
-   "home_odds": 190,
-   "away_odds": -230
+   "fav_prob": 0.666,
+   "odds": -225,
+   "home_odds": 188,
+   "away_odds": -225
   },
-  "last_seen": "2026-10-12T23:43:17"
+  "last_seen": "2026-10-13T18:16:05"
  },
  "NYJ @ NE|2026-10-18T17:01": {
   "label": "NYJ @ NE",
@@ -88,12 +88,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7595,
-   "odds": -375,
-   "home_odds": -375,
-   "away_odds": 300
+   "fav_prob": 0.7472,
+   "odds": -350,
+   "home_odds": -350,
+   "away_odds": 280
   },
-  "last_seen": "2026-10-12T23:43:17"
+  "last_seen": "2026-10-13T18:16:05"
  },
  "BUF @ LV|2026-10-18T20:26": {
   "label": "BUF @ LV",
@@ -112,12 +112,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7044,
-   "odds": -275,
-   "home_odds": 225,
-   "away_odds": -275
+   "fav_prob": 0.6854,
+   "odds": -250,
+   "home_odds": 205,
+   "away_odds": -250
   },
-  "last_seen": "2026-10-12T06:30:52"
+  "last_seen": "2026-10-13T18:16:05"
  },
  "WAS @ SF|2026-10-20T00:16": {
   "label": "WAS @ SF",
@@ -136,12 +136,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7864,
-   "odds": -450,
-   "home_odds": -450,
-   "away_odds": 350
+   "fav_prob": 0.7764,
+   "odds": -420,
+   "home_odds": -420,
+   "away_odds": 330
   },
-  "last_seen": "2026-10-12T23:43:17"
+  "last_seen": "2026-10-13T18:16:05"
  },
  "TEN @ IND|2026-10-18T17:01": {
   "label": "TEN @ IND",
@@ -160,12 +160,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7328,
-   "odds": -320,
-   "home_odds": -320,
-   "away_odds": 260
+   "fav_prob": 0.7434,
+   "odds": -340,
+   "home_odds": -340,
+   "away_odds": 275
   },
-  "last_seen": "2026-10-12T23:43:17"
+  "last_seen": "2026-10-13T18:16:05"
  },
  "LAC @ KC|2026-10-18T20:26": {
   "label": "LAC @ KC",
@@ -189,6 +189,174 @@
    "home_odds": -460,
    "away_odds": 360
   },
-  "last_seen": "2026-10-12T23:43:17"
+  "last_seen": "2026-10-13T18:16:05"
+ },
+ "SF @ ATL|2026-10-25T17:01": {
+  "label": "SF @ ATL",
+  "home_name": "Atlanta Falcons",
+  "away_name": "San Francisco 49ers",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "first_seen": "2026-10-13T18:16:05",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6613,
+   "odds": -220,
+   "home_odds": 184,
+   "away_odds": -220
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6613,
+   "odds": -220,
+   "home_odds": 184,
+   "away_odds": -220
+  },
+  "last_seen": "2026-10-13T18:16:05"
+ },
+ "NYG @ HOU|2026-10-25T17:01": {
+  "label": "NYG @ HOU",
+  "home_name": "Houston Texans",
+  "away_name": "New York Giants",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "first_seen": "2026-10-13T18:16:05",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.785,
+   "odds": -430,
+   "home_odds": -430,
+   "away_odds": 350
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.785,
+   "odds": -430,
+   "home_odds": -430,
+   "away_odds": 350
+  },
+  "last_seen": "2026-10-13T18:16:05"
+ },
+ "MIA @ NYJ|2026-10-25T17:01": {
+  "label": "MIA @ NYJ",
+  "home_name": "New York Jets",
+  "away_name": "Miami Dolphins",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "first_seen": "2026-10-13T18:16:05",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.666,
+   "odds": -225,
+   "home_odds": -225,
+   "away_odds": 188
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.666,
+   "odds": -225,
+   "home_odds": -225,
+   "away_odds": 188
+  },
+  "last_seen": "2026-10-13T18:16:05"
+ },
+ "IND @ MIN|2026-10-25T17:01": {
+  "label": "IND @ MIN",
+  "home_name": "Minnesota Vikings",
+  "away_name": "Indianapolis Colts",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "first_seen": "2026-10-13T18:16:05",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.666,
+   "odds": -225,
+   "home_odds": -225,
+   "away_odds": 188
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.666,
+   "odds": -225,
+   "home_odds": -225,
+   "away_odds": 188
+  },
+  "last_seen": "2026-10-13T18:16:05"
+ },
+ "LA @ LV|2026-10-25T20:26": {
+  "label": "LA @ LV",
+  "home_name": "Las Vegas Raiders",
+  "away_name": "Los Angeles Rams",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "first_seen": "2026-10-13T18:16:05",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": 265,
+   "away_odds": -330
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": 265,
+   "away_odds": -330
+  },
+  "last_seen": "2026-10-13T18:16:05"
+ },
+ "DEN @ ARI|2026-10-25T20:06": {
+  "label": "DEN @ ARI",
+  "home_name": "Arizona Cardinals",
+  "away_name": "Denver Broncos",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "first_seen": "2026-10-13T18:16:05",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6675,
+   "odds": -225,
+   "home_odds": 190,
+   "away_odds": -225
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6675,
+   "odds": -225,
+   "home_odds": 190,
+   "away_odds": -225
+  },
+  "last_seen": "2026-10-13T18:16:05"
+ },
+ "GB @ DET|2026-10-25T20:26": {
+  "label": "GB @ DET",
+  "home_name": "Detroit Lions",
+  "away_name": "Green Bay Packers",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "first_seen": "2026-10-13T18:16:05",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6565,
+   "odds": -215,
+   "home_odds": -215,
+   "away_odds": 180
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6565,
+   "odds": -215,
+   "home_odds": -215,
+   "away_odds": 180
+  },
+  "last_seen": "2026-10-13T18:16:05"
  }
 }

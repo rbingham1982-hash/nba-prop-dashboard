@@ -4110,8 +4110,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "matthew stafford|Passing TDs|2.5|36132650": {
   "player": "Matthew Stafford",
@@ -4132,8 +4132,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "khalil shakir|Receptions|4.5|36132650": {
   "player": "Khalil Shakir",
@@ -4154,8 +4154,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "puka nacua|Receiving Yards|92.5|36132650": {
   "player": "Puka Nacua",
@@ -4176,8 +4176,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 138.0
  },
  "dalton kincaid|Receiving Yards|54.5|36132650": {
   "player": "Dalton Kincaid",
@@ -4198,8 +4198,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "james cook|Receiving Yards|9.5|36132650": {
   "player": "James Cook",
@@ -4220,8 +4220,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "dalton kincaid|Receptions|4.5|36132650": {
   "player": "Dalton Kincaid",
@@ -4242,8 +4242,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "keon coleman|Receptions|2.5|36132650": {
   "player": "Keon Coleman",
@@ -4264,8 +4264,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "dawson knox|Receiving Yards|11.5|36132650": {
   "player": "Dawson Knox",
@@ -4286,8 +4286,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 6.0
  },
  "jordan whittington|Receiving Yards|5.5|36132650": {
   "player": "Jordan Whittington",
@@ -4308,8 +4308,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "davante adams|Receptions|4.5|36132650": {
   "player": "Davante Adams",
@@ -4330,8 +4330,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 5.0
  },
  "ty johnson|Receptions|2.5|36132650": {
   "player": "Ty Johnson",
@@ -4352,8 +4352,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "colby parkinson|Receiving Yards|16.5|36132650": {
   "player": "Colby Parkinson",
@@ -4374,8 +4374,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "james cook|Receptions|1.5|36132650": {
   "player": "James Cook",
@@ -4396,8 +4396,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "khalil shakir|Receiving Yards|45.5|36132650": {
   "player": "Khalil Shakir",
@@ -4418,8 +4418,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 80.0
  },
  "konata mumpfield|Receiving Yards|7.5|36132650": {
   "player": "Konata Mumpfield",
@@ -4462,8 +4462,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 121.0
  },
  "james cook|Rushing Yards|75.5|36132650": {
   "player": "James Cook",
@@ -4484,8 +4484,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 111.0
  },
  "jameis winston|Passing TDs|1.5|36132651": {
   "player": "Jameis Winston",
@@ -5474,8 +5474,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-12T06:30:51",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 138.0
  },
  "dalton kincaid|Receiving Yards|55.5|36132650": {
   "player": "Dalton Kincaid",
@@ -5496,8 +5496,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-12T06:30:51",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "james cook|Receiving Yards|10.5|36132650": {
   "player": "James Cook",
@@ -5518,8 +5518,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-12T06:30:51",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "kyren williams|Receptions|3.5|36132650": {
   "player": "Kyren Williams",
@@ -5540,8 +5540,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-12T06:30:51",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "puka nacua|Rushing Yards|2.5|36132650": {
   "player": "Puka Nacua",
@@ -5562,8 +5562,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-12T06:30:51",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "james cook|Rushing Yards|76.5|36132650": {
   "player": "James Cook",
@@ -5584,8 +5584,8 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-12T06:30:51",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 111.0
  },
  "bo nix|Rushing Yards|13.5|36160506": {
   "player": "Bo Nix",
@@ -6596,6 +6596,798 @@
   "start_time": "2026-10-19T00:21:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-12T23:43:16",
+  "outcome": null,
+  "actual": null
+ },
+ "brian thomas|Receiving Yards|17.5|35605984": {
+  "player": "Brian Thomas Jr.",
+  "stat": "Receiving Yards",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 17.0,
+  "last5": [
+   40.0,
+   40.0,
+   8.0,
+   17.0,
+   0.0
+  ],
+  "game": "HOU @ JAX",
+  "start_time": "2026-10-18T13:30:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "woody marks|Receiving Yards|13.5|35605984": {
+  "player": "Woody Marks",
+  "stat": "Receiving Yards",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 6.0,
+  "last5": [
+   -2.0,
+   27.0,
+   6.0,
+   0.0,
+   23.0
+  ],
+  "game": "HOU @ JAX",
+  "start_time": "2026-10-18T13:30:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "marvin harrison|Receiving Yards|25.5|35605984": {
+  "player": "Marvin Harrison Jr.",
+  "stat": "Receiving Yards",
+  "line": 25.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   0.0,
+   33.0,
+   0.0,
+   40.0,
+   12.0
+  ],
+  "game": "HOU @ JAX",
+  "start_time": "2026-10-18T13:30:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "aj barner|Receiving Yards|22.5|36160506": {
+  "player": "AJ Barner",
+  "stat": "Receiving Yards",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 13.0,
+  "last5": [
+   13.0,
+   8.0,
+   69.0,
+   12.0,
+   20.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "marvin mims|Receiving Yards|12.5|36160506": {
+  "player": "Marvin Mims Jr.",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 10.0,
+  "last5": [
+   10.0,
+   10.0,
+   0.0,
+   10.0,
+   6.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "bo nix|Rushing Yards|12.5|36160506": {
+  "player": "Bo Nix",
+  "stat": "Rushing Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   2.0,
+   6.0,
+   7.0,
+   10.0,
+   10.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "drake maye|Passing TDs|1.5|36160508": {
+  "player": "Drake Maye",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": 118,
+  "fair_prob": 0.4533,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   0.0,
+   0.0,
+   3.0,
+   4.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "geno smith|Passing TDs|1.5|36160508": {
+  "player": "Geno Smith",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -250,
+  "fair_prob": 0.6932,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   3.0,
+   1.0,
+   1.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "drake maye|Passing Yards|233.5|36160508": {
+  "player": "Drake Maye",
+  "stat": "Passing Yards",
+  "line": 233.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 208.0,
+  "last5": [
+   178.0,
+   208.0,
+   199.0,
+   269.0,
+   374.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "geno smith|Passing Yards|221.5|36160508": {
+  "player": "Geno Smith",
+  "stat": "Passing Yards",
+  "line": 221.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 215.0,
+  "last5": [
+   215.0,
+   247.0,
+   321.0,
+   119.0,
+   182.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "garrett wilson|Receptions|6.5|36160508": {
+  "player": "Garrett Wilson",
+  "stat": "Receptions",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 6.0,
+  "last5": [
+   6.0,
+   5.0,
+   10.0,
+   3.0,
+   7.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "drake maye|Rushing Yards|27.5|36160508": {
+  "player": "Drake Maye",
+  "stat": "Rushing Yards",
+  "line": 27.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 25.0,
+  "last5": [
+   47.0,
+   17.0,
+   18.0,
+   54.0,
+   25.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "rhamondre stevenson|Rushing Yards|70.5|36160508": {
+  "player": "Rhamondre Stevenson",
+  "stat": "Rushing Yards",
+  "line": 70.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 47.0,
+  "last5": [
+   51.0,
+   43.0,
+   22.0,
+   47.0,
+   64.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "jameis winston|Passing Yards|222.5|36160509": {
+  "player": "Jameis Winston",
+  "stat": "Passing Yards",
+  "line": 222.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 118.0,
+  "last5": [
+   0.0,
+   111.0,
+   118.0,
+   250.0,
+   326.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler shough|Passing TDs|1.5|36160509": {
+  "player": "Tyler Shough",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 1.0,
+  "last5": [
+   3.0,
+   1.0,
+   4.0,
+   1.0,
+   0.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "jameis winston|Passing TDs|1.5|36160509": {
+  "player": "Jameis Winston",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -154,
+  "fair_prob": 0.592,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   3.0,
+   3.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "juwan johnson|Receptions|4.5|36160509": {
+  "player": "Juwan Johnson",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -136,
+  "fair_prob": 0.5629,
+  "med5": 4.0,
+  "last5": [
+   3.0,
+   4.0,
+   8.0,
+   6.0,
+   4.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "cam skattebo|Receiving Yards|12.5|36160509": {
+  "player": "Cam Skattebo",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   0.0,
+   19.0,
+   40.0,
+   8.0,
+   12.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "javonte williams|Rushing Yards|70.5|36160511": {
+  "player": "Javonte Williams",
+  "stat": "Rushing Yards",
+  "line": 70.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 45.0,
+  "last5": [
+   41.0,
+   30.0,
+   98.0,
+   62.0,
+   45.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "michael penix|Passing TDs|1.5|36160514": {
+  "player": "Michael Penix Jr.",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   0.0,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "michael penix|Passing Yards|236.5|36160514": {
+  "player": "Michael Penix Jr.",
+  "stat": "Passing Yards",
+  "line": 236.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 223.0,
+  "last5": [
+   177.0,
+   175.0,
+   256.0,
+   223.0,
+   240.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "zachariah branch|Receiving Yards|10.5|36160514": {
+  "player": "Zachariah Branch",
+  "stat": "Receiving Yards",
+  "line": 10.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 10.0,
+  "last5": [
+   0.0,
+   14.0,
+   7.0,
+   10.0,
+   15.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "cole kmet|Receiving Yards|9.5|36160514": {
+  "player": "Cole Kmet",
+  "stat": "Receiving Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 8.0,
+  "last5": [
+   35.0,
+   0.0,
+   0.0,
+   13.0,
+   8.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "cole kmet|Receptions|1.5|36160514": {
+  "player": "Cole Kmet",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -220,
+  "fair_prob": 0.668,
+  "med5": 1.0,
+  "last5": [
+   2.0,
+   0.0,
+   0.0,
+   2.0,
+   1.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "bijan robinson|Receiving Yards|26.5|36160514": {
+  "player": "Bijan Robinson",
+  "stat": "Receiving Yards",
+  "line": 26.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   90.0,
+   9.0,
+   19.0,
+   2.0,
+   32.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "bijan robinson|Receptions|3.5|36160514": {
+  "player": "Bijan Robinson",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -136,
+  "fair_prob": 0.5629,
+  "med5": 3.0,
+  "last5": [
+   8.0,
+   3.0,
+   2.0,
+   1.0,
+   4.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "colston loveland|Receiving Yards|34.5|36160514": {
+  "player": "Colston Loveland",
+  "stat": "Receiving Yards",
+  "line": 34.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   0.0,
+   3.0,
+   31.0,
+   57.0,
+   19.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle pitts|Receiving Yards|26.5|36160514": {
+  "player": "Kyle Pitts",
+  "stat": "Receiving Yards",
+  "line": 26.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 15.0,
+  "last5": [
+   0.0,
+   15.0,
+   5.0,
+   47.0,
+   42.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "drake london|Receptions|6.5|36160514": {
+  "player": "Drake London",
+  "stat": "Receptions",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -166,
+  "fair_prob": 0.608,
+  "med5": 5.0,
+  "last5": [
+   2.0,
+   4.0,
+   9.0,
+   5.0,
+   7.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle pitts|Receptions|2.5|36160514": {
+  "player": "Kyle Pitts",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": 110,
+  "fair_prob": 0.4702,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   1.0,
+   3.0,
+   5.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "jahan dotson|Receiving Yards|23.5|36160514": {
+  "player": "Jahan Dotson",
+  "stat": "Receiving Yards",
+  "line": 23.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   19.0,
+   11.0,
+   11.0,
+   54.0,
+   54.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "colston loveland|Receptions|3.5|36160514": {
+  "player": "Colston Loveland",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -144,
+  "fair_prob": 0.5761,
+  "med5": 2.0,
+  "last5": [
+   0.0,
+   1.0,
+   4.0,
+   6.0,
+   2.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "bijan robinson|Rushing Yards|91.5|36160514": {
+  "player": "Bijan Robinson",
+  "stat": "Rushing Yards",
+  "line": 91.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 86.0,
+  "last5": [
+   83.0,
+   72.0,
+   194.0,
+   145.0,
+   86.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "mike evans|Receiving Yards|73.5|36160515": {
+  "player": "Mike Evans",
+  "stat": "Receiving Yards",
+  "line": 73.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 54.0,
+  "last5": [
+   49.0,
+   54.0,
+   34.0,
+   76.0,
+   113.0
+  ],
+  "game": "WAS @ SF",
+  "start_time": "2026-10-20T00:16:00.000Z",
+  "game_day": "2026-10-19",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "justin herbert|Passing Yards|192.5|36160524": {
+  "player": "Justin Herbert",
+  "stat": "Passing Yards",
+  "line": 192.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 192.0,
+  "last5": [
+   209.0,
+   192.0,
+   226.0,
+   189.0,
+   121.0
+  ],
+  "game": "LAC @ KC",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
+  "outcome": null,
+  "actual": null
+ },
+ "patrick mahomes|Passing Yards|228.5|36160524": {
+  "player": "Patrick Mahomes",
+  "stat": "Passing Yards",
+  "line": 228.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 225.0,
+  "last5": [
+   189.0,
+   184.0,
+   382.0,
+   246.0,
+   225.0
+  ],
+  "game": "LAC @ KC",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T18:16:05",
   "outcome": null,
   "actual": null
  }
