@@ -55,12 +55,16 @@
     entertainment purposes. This policy covers this website
     (<a href="https://konjureanalytics.com">konjureanalytics.com</a>), the Konjure Analytics
     dashboard, the Konjure Analytics Android app, our newsletter, and our social media accounts.
-    The short version: we do not ask for, collect, or sell your personal information.</p>
+    The short version: we collect only an email address and a password hash if you create an
+    account, and we never sell or share them.</p>
 
     <h2>Information we collect</h2>
-    <p><strong>We do not require an account.</strong> There is no sign-up, login or password
-    anywhere in the service, and we do not ask for your name, email address, phone number,
-    location, payment details or any other personal information to use it.</p>
+    <p><strong>Accounts.</strong> Most of the service needs no account. The Edge Finder (the
+    sportsbook boards and parlay builders) requires a free account. When you create one we
+    store your email address, a one-way cryptographic hash of your password (scrypt with a
+    unique random salt — we never store or see the password itself), and when the account was
+    created and last used. These are kept in our database, hosted by Supabase, and used only to
+    let you sign in. We do not ask for your name, phone number, location or payment details.</p>
     <p><strong>We do not use cookies, analytics or advertising trackers.</strong> Neither this
     website nor the dashboard sets tracking cookies or runs analytics, advertising or
     fingerprinting scripts.</p>
@@ -103,10 +107,11 @@
     and Open-Meteo (weather). We send no information about you to any of them.</p>
 
     <h2>Data retention and deletion</h2>
-    <p>Because we do not collect personal data through the service, there is normally nothing
-    to delete. For a newsletter subscription or an email you sent us, you can request deletion
-    at any time; see <a href="data-deletion.html">Data deletion</a>. Requests are completed
-    within 30 days and confirmed by reply.</p>
+    <p>We keep an account until you ask us to delete it. You can request deletion of your
+    account, a newsletter subscription or an email you sent us at any time; see
+    <a href="data-deletion.html">Data deletion</a>. Requests are completed within 30 days and
+    confirmed by reply, and deleting an account removes its email address and password hash
+    from our database.</p>
 
     <h2>Children</h2>
     <p>Konjure Analytics discusses sports betting markets and is intended for adults (18 or
