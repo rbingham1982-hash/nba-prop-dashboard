@@ -6444,5 +6444,159 @@
   "logged_at": "2026-10-12T20:14:11",
   "outcome": null,
   "actual": null
+ },
+ "bo nix|Passing Yards|202.5|36160506": {
+  "player": "Bo Nix",
+  "stat": "Passing Yards",
+  "line": 202.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 186.0,
+  "last5": [
+   131.0,
+   288.0,
+   186.0,
+   214.0,
+   123.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-12T23:43:16",
+  "outcome": null,
+  "actual": null
+ },
+ "jaylen waddle|Receiving Yards|49.5|36160506": {
+  "player": "Jaylen Waddle",
+  "stat": "Receiving Yards",
+  "line": 49.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   2.0,
+   138.0,
+   10.0,
+   35.0,
+   19.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-12T23:43:16",
+  "outcome": null,
+  "actual": null
+ },
+ "dak prescott|Passing TDs|1.5|36160511": {
+  "player": "Dak Prescott",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": 116,
+  "fair_prob": 0.458,
+  "med5": 1.0,
+  "last5": [
+   2.0,
+   4.0,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-12T23:43:16",
+  "outcome": null,
+  "actual": null
+ },
+ "tucker kraft|Receiving Yards|46.5|36160511": {
+  "player": "Tucker Kraft",
+  "stat": "Receiving Yards",
+  "line": 46.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 42.0,
+  "last5": [
+   65.0,
+   15.0,
+   26.0,
+   42.0,
+   64.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-12T23:43:16",
+  "outcome": null,
+  "actual": null
+ },
+ "jake ferguson|Receiving Yards|27.5|36160511": {
+  "player": "Jake Ferguson",
+  "stat": "Receiving Yards",
+  "line": 27.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   6.0,
+   43.0,
+   23.0,
+   11.0,
+   19.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-12T23:43:16",
+  "outcome": null,
+  "actual": null
+ },
+ "jake ferguson|Receptions|3.5|36160511": {
+  "player": "Jake Ferguson",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -110,
+  "fair_prob": 0.5149,
+  "med5": 3.0,
+  "last5": [
+   2.0,
+   4.0,
+   3.0,
+   3.0,
+   3.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-12T23:43:16",
+  "outcome": null,
+  "actual": null
+ },
+ "tucker kraft|Receptions|4.5|36160511": {
+  "player": "Tucker Kraft",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -144,
+  "fair_prob": 0.5761,
+  "med5": 4.0,
+  "last5": [
+   3.0,
+   2.0,
+   4.0,
+   6.0,
+   5.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-12T23:43:16",
+  "outcome": null,
+  "actual": null
  }
 }
