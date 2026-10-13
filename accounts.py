@@ -80,7 +80,9 @@ def backend() -> str:
 def _sb_request(method: str, params: dict | None = None, json=None, prefer: str | None = None):
     import requests
     url, key = _supabase()
-    headers = {"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    headers = {"apikey": key, "Content-Type": "application/json"}
+    if key.startswith("eyJ"):        # legacy service_role JWT; new sb_secret_ keys go in apikey only
+        headers["Authorization"] = f"Bearer {key}"
     if prefer:
         headers["Prefer"] = prefer
     return requests.request(method, f"{url}/rest/v1/{_TABLE}", params=params, json=json,
