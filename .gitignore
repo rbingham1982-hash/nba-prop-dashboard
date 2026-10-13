@@ -61,3 +61,6 @@ newsletter_out/*
 
 # Per-machine: sports whose parlay shards this machine must not write (see parlay_tracker)
 .readonly_sports
+
+# Play-by-play cache for nba_shot_eval.py (re-downloadable, ~600 files a season)
+pbp_cache/
