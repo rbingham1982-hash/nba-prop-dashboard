@@ -57,24 +57,35 @@ def season_log(season: str, season_type: str = "Regular Season"):
     hit = _LOGS.get(key)
     if hit and time.time() - hit[0] < _LOG_TTL:
         return hit[1]
-    from nba_api.stats.endpoints import leaguegamelog
-    # stats.nba.com stalls often enough that one read timeout should not blank the Hub or
-    # skip a night's grading; three tries, then let the caller handle the failure.
-    for attempt in range(3):
-        try:
-            df = leaguegamelog.LeagueGameLog(season=season, player_or_team_abbreviation="P",
-                                             season_type_all_star=season_type,
-                                             timeout=45).get_data_frames()[0]
-            break
-        except Exception:
-            if attempt == 2:
-                raise
-            time.sleep(4.0 * (attempt + 1))
+    import nba_snapshot as ns
+    if ns.use_snapshot():
+        # stats.nba.com refuses cloud hosts; read the log the home PC saved into nba_data/.
+        df = ns.league_log(season, season_type).copy()
+        if df.empty:
+            raise LookupError(f"no saved game log for {season} {season_type}")
+    else:
+        df = _fetch_season_log(season, season_type)
     df["date"] = pd.to_datetime(df["GAME_DATE"])
     df["MIN"] = pd.to_numeric(df["MIN"], errors="coerce").fillna(0.0)
     df = df.sort_values(["date", "GAME_ID"]).reset_index(drop=True)
     _LOGS[key] = (time.time(), df)
     return df
+
+
+def _fetch_season_log(season: str, season_type: str):
+    import time
+    from nba_api.stats.endpoints import leaguegamelog
+    # stats.nba.com stalls often enough that one read timeout should not blank the Hub or
+    # skip a night's grading; three tries, then let the caller handle the failure.
+    for attempt in range(3):
+        try:
+            return leaguegamelog.LeagueGameLog(season=season, player_or_team_abbreviation="P",
+                                               season_type_all_star=season_type,
+                                               timeout=45).get_data_frames()[0]
+        except Exception:
+            if attempt == 2:
+                raise
+            time.sleep(4.0 * (attempt + 1))
 
 
 def letter(score) -> str:

@@ -2,8 +2,8 @@
 #
 # stats.nba.com does not answer cloud addresses, so these two leagues stay on this
 # machine while .github/workflows/daily-board.yml runs MLB and NFL on GitHub. This side
-# owns the NBA/WNBA shards, tip_log.json and nba_weekly_picks.json and commits nothing
-# else; the cloud owns the MLB/NFL shards, game_log.json and weekly_picks.json.
+# owns the NBA/WNBA shards, tip_log.json, nba_weekly_picks.json and the nba_data/ game-log
+# snapshot, and commits nothing else; the cloud owns the MLB/NFL shards, game_log.json and weekly_picks.json.
 #
 # The sync is careful because this is also the working copy you edit in:
 #   * it only syncs on main, so a run never commits to a feature branch;
@@ -52,8 +52,14 @@ if ($sync) {
 & venv\Scripts\python.exe daily_parlay_gen.py --sports nba,wnba --no-game-markets @args
 $genExit = $LASTEXITCODE
 
+# Save the league game logs into nba_data/ for the hosted dashboard, which stats.nba.com
+# refuses (nba_snapshot.py). Only months that changed are rewritten.
+& venv\Scripts\python.exe nba_snapshot.py
+if ($LASTEXITCODE -ne 0) { Say "nba_snapshot export failed (exit $LASTEXITCODE)" }
+
 if ($sync -and (Test-CanSync)) {
     $files = @($owned | ForEach-Object { Get-ChildItem -Name $_ -ErrorAction SilentlyContinue })
+    $files += @(Get-ChildItem nba_data -Filter *.csv.gz -ErrorAction SilentlyContinue | ForEach-Object { "nba_data/$($_.Name)" })
     if ($files.Count -gt 0) {
         git add -- $files
         git diff --cached --quiet -- $files

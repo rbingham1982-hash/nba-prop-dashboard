@@ -610,6 +610,20 @@ def _current_nba_season() -> str:
 def _fetch_team_players(team_abbr):
     # Raises on failure so st.cache_data never caches an error as an empty
     # roster (a cached [] used to blank every player dropdown for an hour).
+    import nba_snapshot as _ns
+    if _ns.use_snapshot():
+        # stats.nba.com refuses cloud hosts; ESPN's roster feed answers them and is current.
+        # The roster endpoint wants ESPN's short codes, not the long slugs in ESPN_SLUG_MAP.
+        slug = {"GSW": "gs", "NYK": "ny", "SAS": "sa", "NOP": "no", "UTA": "utah",
+                "WAS": "wsh"}.get(team_abbr.upper(), team_abbr.lower())
+        resp = requests.get(f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{slug}/roster",
+                            timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        resp.raise_for_status()
+        names = [a.get("displayName") or a.get("fullName", "") for a in resp.json().get("athletes", [])]
+        names = [n for n in names if n]
+        if not names:
+            raise ValueError(f"empty roster returned for {team_abbr}")
+        return names
     team_id = get_team_id(team_abbr)
     if not team_id:
         return []

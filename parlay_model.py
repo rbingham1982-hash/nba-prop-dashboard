@@ -31,6 +31,7 @@ from datetime import datetime
 
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playergamelog, commonallplayers
+import nba_snapshot as _nba_snapshot
 
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 MLB_SEASON = "2026"
@@ -1415,6 +1416,8 @@ def mlb_today_pitcher_lookup() -> dict:
 @_ttl_cache(86400)
 def _current_season_nba_player_ids() -> dict:
     """Live fallback: name->id map from CommonAllPlayers for players missing from the static db."""
+    if _nba_snapshot.use_snapshot():
+        return _nba_snapshot.name_ids("00")
     try:
         df = commonallplayers.CommonAllPlayers(
             is_only_current_season=1, league_id="00", season=nba_season_strings()[0]
@@ -1504,10 +1507,13 @@ def _fetch_gamelogs(player_id, seasons):
     for season in seasons:
         for s_type in ("Regular Season", "Playoffs"):
             try:
-                logs = playergamelog.PlayerGameLog(
-                    player_id=player_id, season=season,
-                    season_type_all_star=s_type, timeout=10,
-                ).get_data_frames()[0]
+                if _nba_snapshot.use_snapshot():      # stats.nba.com refuses cloud hosts
+                    logs = _nba_snapshot.player_log(player_id, season, s_type)
+                else:
+                    logs = playergamelog.PlayerGameLog(
+                        player_id=player_id, season=season,
+                        season_type_all_star=s_type, timeout=10,
+                    ).get_data_frames()[0]
                 if logs.empty:
                     continue
                 logs["SEASON"] = season
@@ -1526,6 +1532,8 @@ def _fetch_gamelogs(player_id, seasons):
 @_ttl_cache(86400)
 def _wnba_nba_api_player_ids() -> dict:
     """name.lower() -> nba_api person_id for all WNBA players ever (1200+ players)."""
+    if _nba_snapshot.use_snapshot():
+        return _nba_snapshot.name_ids("10")
     try:
         df = commonallplayers.CommonAllPlayers(is_only_current_season=0, league_id="10").get_data_frames()[0]
         if not df.empty:
@@ -1548,11 +1556,14 @@ def get_wnba_gamelogs(player_id, seasons):
     frames = []
     for season in seasons:
         try:
-            logs = playergamelog.PlayerGameLog(
-                player_id=player_id, season=season,
-                season_type_all_star="Regular Season",
-                league_id_nullable="10", timeout=15,
-            ).get_data_frames()[0]
+            if _nba_snapshot.use_snapshot():          # stats.nba.com refuses cloud hosts
+                logs = _nba_snapshot.player_log(player_id, season, league="10")
+            else:
+                logs = playergamelog.PlayerGameLog(
+                    player_id=player_id, season=season,
+                    season_type_all_star="Regular Season",
+                    league_id_nullable="10", timeout=15,
+                ).get_data_frames()[0]
             if not logs.empty:
                 frames.append(logs)
         except Exception:

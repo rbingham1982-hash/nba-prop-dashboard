@@ -27,19 +27,29 @@ def _prev_season(season: str, back: int = 1) -> str:
 
 
 def _fetch_stats(season: str):
+    import nba_snapshot as ns
+    if ns.use_snapshot():                     # stats.nba.com refuses cloud hosts
+        return ns.frame(f"dash-NBA-{season}")
     from nba_api.stats.endpoints import leaguedashplayerstats as L
     time.sleep(0.3)
-    return L.LeagueDashPlayerStats(
+    df = L.LeagueDashPlayerStats(
         season=season, per_mode_detailed="PerGame",
         season_type_all_star="Regular Season", timeout=25,
     ).get_data_frames()[0]
+    ns.record(f"dash-NBA-{season}", df)
+    return df
 
 
 def _fetch_index(season: str):
     """PlayerIndex for `season`: current rosters, positions, draft slot."""
-    from nba_api.stats.endpoints import playerindex
-    time.sleep(0.3)
-    df = playerindex.PlayerIndex(season=season, timeout=25).get_data_frames()[0]
+    import nba_snapshot as ns
+    if ns.use_snapshot():                     # stats.nba.com refuses cloud hosts
+        df = ns.frame(f"index-NBA-{season}")
+    else:
+        from nba_api.stats.endpoints import playerindex
+        time.sleep(0.3)
+        df = playerindex.PlayerIndex(season=season, timeout=25).get_data_frames()[0]
+        ns.record(f"index-NBA-{season}", df)
     pid = "PERSON_ID" if "PERSON_ID" in df.columns else "PLAYER_ID"
     df = df.rename(columns={pid: "PLAYER_ID"})
     df["NAME"] = (df["PLAYER_FIRST_NAME"].astype(str) + " " + df["PLAYER_LAST_NAME"].astype(str)).str.strip()
