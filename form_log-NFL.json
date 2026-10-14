@@ -7390,5 +7390,203 @@
   "logged_at": "2026-10-13T18:16:05",
   "outcome": null,
   "actual": null
+ },
+ "matthew stafford|Passing TDs|2.5|36160495": {
+  "player": "Matthew Stafford",
+  "stat": "Passing TDs",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 2.0,
+  "last5": [
+   0.0,
+   4.0,
+   2.0,
+   0.0,
+   3.0
+  ],
+  "game": "ARI @ LA",
+  "start_time": "2026-10-18T20:06:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
+ },
+ "bo nix|Passing Yards|200.5|36160506": {
+  "player": "Bo Nix",
+  "stat": "Passing Yards",
+  "line": 200.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 186.0,
+  "last5": [
+   131.0,
+   288.0,
+   186.0,
+   214.0,
+   123.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
+ },
+ "bo nix|Rushing Yards|15.5|36160506": {
+  "player": "Bo Nix",
+  "stat": "Rushing Yards",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   2.0,
+   6.0,
+   7.0,
+   10.0,
+   10.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
+ },
+ "josh allen|Passing TDs|1.5|36160513": {
+  "player": "Josh Allen",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 1.0,
+  "last5": [
+   2.0,
+   3.0,
+   0.0,
+   1.0,
+   1.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
+ },
+ "james cook|Receiving Yards|8.5|36160513": {
+  "player": "James Cook",
+  "stat": "Receiving Yards",
+  "line": 8.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   12.0,
+   4.0,
+   0.0,
+   8.0,
+   7.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
+ },
+ "james cook|Receptions|1.5|36160513": {
+  "player": "James Cook",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 1.0,
+  "last5": [
+   3.0,
+   1.0,
+   0.0,
+   2.0,
+   1.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
+ },
+ "brock bowers|Receptions|6.5|36160513": {
+  "player": "Brock Bowers",
+  "stat": "Receptions",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5392,
+  "med5": 6.0,
+  "last5": [
+   6.0,
+   5.0,
+   10.0,
+   6.0,
+   8.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
+ },
+ "kirk cousins|Rushing Yards|2.5|36160513": {
+  "player": "Kirk Cousins",
+  "stat": "Rushing Yards",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -178,
+  "fair_prob": 0.6268,
+  "med5": 0.0,
+  "last5": [
+   -6.0,
+   1.0,
+   3.0,
+   0.0,
+   0.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
+ },
+ "josh allen|Rushing Yards|33.5|36160513": {
+  "player": "Josh Allen",
+  "stat": "Rushing Yards",
+  "line": 33.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 23.0,
+  "last5": [
+   23.0,
+   69.0,
+   22.0,
+   4.0,
+   121.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-13T21:52:19",
+  "outcome": null,
+  "actual": null
  }
 }
