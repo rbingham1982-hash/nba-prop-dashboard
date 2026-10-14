@@ -1,19 +1,77 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Konjure Analytics — Konjure Analytics</title>
+<title>Konjure Analytics</title>
+<meta name="description" content="Player projections, prop-market analysis and a free weekly report for the NFL, NBA, MLB and WNBA — built from usage and opportunity, with every pick graded in public.">
+<link rel="icon" href="app-icon.png">
 <style>
+:root{--bg:#0f1117;--card:#161a26;--line:#232838;--text:#c8cad4;--head:#f3f4f6;--muted:#7c8196;--accent:#818cf8;--accent-2:#6366f1}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-background:#0f1117;color:#c8cad4;line-height:1.75;padding:3rem 1rem}
-.c{max-width:680px;margin:0 auto}
-h1{color:#f3f4f6;font-size:1.6rem;margin-bottom:.4rem}
-p{margin:.9rem 0} a{color:#818cf8}
-.k{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#818cf8;font-weight:800}
-code{background:#171f32;padding:.15rem .4rem;border-radius:4px;font-size:.9em}
+background:var(--bg);color:var(--text);line-height:1.7;padding:2.5rem 1rem 3rem}
+.c{max-width:760px;margin:0 auto}
+a{color:var(--accent)}
+.brand{display:flex;align-items:center;gap:.7rem;margin-bottom:2.5rem}
+.brand img{width:40px;height:40px;border-radius:10px}
+.k{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:800}
+h1{color:var(--head);font-size:2.1rem;line-height:1.2;margin-bottom:.9rem;letter-spacing:-.01em}
+.lede{font-size:1.08rem;max-width:620px}
+.cta{display:flex;flex-wrap:wrap;gap:.75rem;margin:1.8rem 0 2.8rem}
+.btn{display:inline-block;padding:.75rem 1.25rem;border-radius:10px;font-weight:700;text-decoration:none;font-size:.95rem}
+.btn.primary{background:var(--accent-2);color:#fff}
+.btn.primary:hover{background:var(--accent)}
+.btn.ghost{border:1px solid var(--line);color:var(--head)}
+.btn.ghost:hover{border-color:var(--accent)}
+h2{color:var(--head);font-size:1.15rem;margin-bottom:1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:2.8rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem}
+.card h3{color:var(--head);font-size:1rem;margin-bottom:.35rem}
+.card p{font-size:.9rem}
+.tag{display:inline-block;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:.05rem .55rem;margin-left:.35rem;vertical-align:middle}
+.news{background:linear-gradient(135deg,#1b1f33,#161a26);border:1px solid var(--line);border-radius:14px;
+padding:1.6rem 1.5rem;margin-bottom:2.8rem}
+.news p{margin:.4rem 0 1.2rem;max-width:560px}
+.small{font-size:.82rem;color:var(--muted)}
+.foot{border-top:1px solid var(--line);padding-top:1.4rem;font-size:.85rem}
+.foot p{margin:.4rem 0}
+@media (max-width:520px){h1{font-size:1.65rem}.btn{flex:1 1 100%;text-align:center}}
 </style></head><body><div class="c">
-<div class="k">Konjure Analytics</div><h1>Konjure Analytics</h1><p>Fantasy football and daily-fantasy projections built from usage and opportunity —
-  snaps, targets, plate appearances — rather than from last week's box score.</p>
-  <p><a href="privacy.html">Privacy policy</a> ·
-  <a href="data-deletion.html">Data deletion</a> ·
-  <a href="deauthorize.html">Deauthorize</a></p>
+
+<div class="brand"><img src="app-icon.png" alt=""><div class="k">Konjure Analytics</div></div>
+
+<h1>Sports projections built from opportunity, not last week's box score.</h1>
+<p class="lede">Player projections and prop-market analysis for the NFL, NBA, MLB and WNBA, driven by
+usage — snaps, targets, minutes, plate appearances. Every published pick is logged before kickoff
+and graded afterwards, wins and losses alike.</p>
+
+<div class="cta">
+  <a class="btn primary" href="https://konjureanalytics.beehiiv.com/subscribe">Get the free weekly report</a>
+  <a class="btn ghost" href="https://nba-prop-dashboard-dhmu5b4fonzesfkydqwznu.streamlit.app/">Open the dashboard →</a>
+</div>
+
+<h2>What's inside</h2>
+<div class="grid">
+  <div class="card"><h3>Weekly Hub</h3><p>Player grades, projections and the week's picks for every sport, refreshed through the day.</p></div>
+  <div class="card"><h3>Edge Finder <span class="tag">Free account</span></h3><p>Sportsbook boards and parlay builders that put our model next to the market price.</p></div>
+  <div class="card"><h3>Track record</h3><p>Every logged pick graded in public — the record is shown as it is, including when it's unflattering.</p></div>
+</div>
+
+<div class="news">
+  <div class="k">The Opportunity Report</div>
+  <h2 style="margin-top:.4rem">A free weekly email</h2>
+  <p>The week's top projections, waiver and start/sit calls, and a graded recap of last week's picks —
+  in your inbox once a week. No spam; unsubscribe in one click.</p>
+  <a class="btn primary" href="https://konjureanalytics.beehiiv.com/subscribe">Subscribe free</a>
+  <p class="small" style="margin:1rem 0 0">Already making an account for the Edge Finder? Tick the newsletter box when you sign up.</p>
+</div>
+
+<div class="foot">
+  <p class="small">For adults 18+ and of legal age for sports wagering where you live. Everything here is model
+  output for informational and entertainment purposes — not betting advice, and no outcome is guaranteed.
+  If gambling stops being fun, call 1-800-GAMBLER.</p>
+  <p><a href="privacy.html">Privacy policy</a> · <a href="data-deletion.html">Data deletion</a> ·
+  <a href="deauthorize.html">Deauthorize</a> · <a href="mailto:info@konjureanalytics.com">info@konjureanalytics.com</a></p>
+  <p class="small">© 2026 Konjure Analytics</p>
+</div>
+
 </div></body></html>

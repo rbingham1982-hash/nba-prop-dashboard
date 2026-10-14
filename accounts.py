@@ -12,7 +12,9 @@ Supabase (hosted Postgres) table reached over its REST API with plain `requests`
       pw_hash     text not null,
       salt        text not null,
       created_at  timestamptz not null default now(),
-      last_login  timestamptz
+      last_login  timestamptz,
+      newsletter  boolean not null default false,    -- ticked the opt-in at sign-up
+      newsletter_synced boolean not null default false -- beehiiv accepted the subscription
     );
     alter table konjure_users enable row level security;   -- no public policies: only the
                                                             -- service key can read or write
@@ -23,6 +25,11 @@ stays on the server; it is never sent to a browser.
 Without those, a SQLite file OUTSIDE the repository (~/.konjure/accounts.db) is used so the
 flow can be developed and tested on the home machine. On Streamlit Cloud with no Supabase
 configured, sign-up is closed rather than writing accounts somewhere that will vanish.
+
+Newsletter opt-in: an unticked box on the sign-up form. A tick is recorded on the account
+(`newsletter`) and the address is subscribed to the beehiiv publication (BEEHIIV_API_KEY,
+BEEHIIV_PUBLICATION_ID). beehiiv being down or unconfigured never blocks a sign-up; the
+account keeps `newsletter_synced = false`, and `sync_newsletter()` retries those later.
 
 Passwords are hashed with scrypt (hashlib, no extra dependency), a random 16-byte salt per
 account, and compared in constant time. Plaintext passwords are never stored or logged.
@@ -93,7 +100,13 @@ def _local():
     _LOCAL_DB.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(_LOCAL_DB)
     con.execute(f"create table if not exists {_TABLE} (email text primary key, pw_hash text not null, "
-                "salt text not null, created_at text not null, last_login text)")
+                "salt text not null, created_at text not null, last_login text, "
+                "newsletter integer not null default 0, newsletter_synced integer not null default 0)")
+    for col in ("newsletter", "newsletter_synced"):          # databases made before the opt-in
+        try:
+            con.execute(f"alter table {_TABLE} add column {col} integer not null default 0")
+        except sqlite3.OperationalError:
+            pass
     return con
 
 
@@ -109,11 +122,12 @@ def _get(email: str):
         return tuple(row) if row else None
 
 
-def _insert(email: str, pw_hash: str, salt: str) -> bool:
+def _insert(email: str, pw_hash: str, salt: str, newsletter: bool = False) -> bool:
     """True if created, False if the email already has an account."""
     now = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
     if backend() == "supabase":
-        r = _sb_request("POST", json={"email": email, "pw_hash": pw_hash, "salt": salt, "created_at": now},
+        r = _sb_request("POST", json={"email": email, "pw_hash": pw_hash, "salt": salt, "created_at": now,
+                                      "newsletter": bool(newsletter)},
                         prefer="return=minimal")
         if r.status_code == 409:
             return False
@@ -121,8 +135,8 @@ def _insert(email: str, pw_hash: str, salt: str) -> bool:
         return True
     try:
         with _local() as con:
-            con.execute(f"insert into {_TABLE} (email, pw_hash, salt, created_at) values (?, ?, ?, ?)",
-                        (email, pw_hash, salt, now))
+            con.execute(f"insert into {_TABLE} (email, pw_hash, salt, created_at, newsletter) "
+                        "values (?, ?, ?, ?, ?)", (email, pw_hash, salt, now, int(bool(newsletter))))
         return True
     except sqlite3.IntegrityError:
         return False
@@ -141,6 +155,58 @@ def _touch(email: str) -> None:
         pass                                  # bookkeeping only; never blocks a sign-in
 
 
+# ── the newsletter opt-in ─────────────────────────────────────────────────────────────────
+
+def subscribe_newsletter(email: str) -> bool:
+    """Add an address to the beehiiv publication. True if beehiiv accepted it."""
+    import requests
+    key, pub = _secret("BEEHIIV_API_KEY"), _secret("BEEHIIV_PUBLICATION_ID")
+    if not (key and pub):
+        return False
+    try:
+        r = requests.post(f"https://api.beehiiv.com/v2/publications/{pub}/subscriptions",
+                          headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                          json={"email": email, "reactivate_existing": False, "send_welcome_email": True,
+                                "utm_source": "konjure-dashboard", "utm_medium": "edge-finder-signup"},
+                          timeout=15)
+        return r.status_code in (200, 201)
+    except Exception:
+        return False
+
+
+def _mark_synced(email: str) -> None:
+    try:
+        if backend() == "supabase":
+            _sb_request("PATCH", params={"email": f"eq.{email}"}, json={"newsletter_synced": True},
+                        prefer="return=minimal")
+        else:
+            with _local() as con:
+                con.execute(f"update {_TABLE} set newsletter_synced = 1 where email = ?", (email,))
+    except Exception:
+        pass
+
+
+def sync_newsletter() -> dict:
+    """Retry opted-in accounts that beehiiv has not accepted yet (e.g. keys added later)."""
+    if backend() == "supabase":
+        r = _sb_request("GET", params={"newsletter": "is.true", "newsletter_synced": "is.false",
+                                       "select": "email"})
+        r.raise_for_status()
+        pending = [row["email"] for row in r.json()]
+    elif backend() == "local":
+        with _local() as con:
+            pending = [row[0] for row in con.execute(
+                f"select email from {_TABLE} where newsletter = 1 and newsletter_synced = 0")]
+    else:
+        return {"pending": 0, "synced": 0}
+    synced = 0
+    for email in pending:
+        if subscribe_newsletter(email):
+            _mark_synced(email)
+            synced += 1
+    return {"pending": len(pending), "synced": synced}
+
+
 # ── the account rules ─────────────────────────────────────────────────────────────────────
 
 def _hash(password: str, salt_hex: str) -> str:
@@ -151,7 +217,7 @@ def normalize(email: str) -> str:
     return str(email or "").strip().lower()
 
 
-def create_account(email: str, password: str) -> tuple[bool, str]:
+def create_account(email: str, password: str, newsletter: bool = False) -> tuple[bool, str]:
     email = normalize(email)
     if backend() == "closed":
         return False, "Sign-ups are not open yet."
@@ -161,9 +227,11 @@ def create_account(email: str, password: str) -> tuple[bool, str]:
         return False, f"Use a password of at least {_MIN_PASSWORD} characters."
     salt = secrets.token_hex(16)
     try:
-        created = _insert(email, _hash(password, salt), salt)
+        created = _insert(email, _hash(password, salt), salt, newsletter)
     except Exception:
         return False, "Could not create the account right now. Try again shortly."
+    if created and newsletter and subscribe_newsletter(email):
+        _mark_synced(email)
     return (True, "Account created.") if created else (False, "That email already has an account. Sign in instead.")
 
 
@@ -246,6 +314,8 @@ def gate(where: str, owner_bypass: bool = True) -> bool:
             p2 = st.text_input("Password (8+ characters)", type="password", key=f"acct_up_p_{where}")
             p3 = st.text_input("Confirm password", type="password", key=f"acct_up_c_{where}")
             agree = st.checkbox("I am 18 or older and agree to the privacy policy", key=f"acct_up_a_{where}")
+            news = st.checkbox("Email me the free weekly Opportunity Report (unsubscribe any time)",
+                               value=False, key=f"acct_up_n_{where}")
             go2 = st.form_submit_button("Create account")
         if go2:
             if p2 != p3:
@@ -253,7 +323,7 @@ def gate(where: str, owner_bypass: bool = True) -> bool:
             elif not agree:
                 st.error("Please confirm you are 18+ and agree to the privacy policy.")
             else:
-                ok, msg = create_account(e2, p2)
+                ok, msg = create_account(e2, p2, newsletter=news)
                 if ok:
                     st.session_state["_acct_email"] = normalize(e2)
                     st.rerun()
