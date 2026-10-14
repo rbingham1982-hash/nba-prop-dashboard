@@ -614,8 +614,7 @@ def _fetch_team_players(team_abbr):
     if _ns.use_snapshot():
         # stats.nba.com refuses cloud hosts; ESPN's roster feed answers them and is current.
         # The roster endpoint wants ESPN's short codes, not the long slugs in ESPN_SLUG_MAP.
-        slug = {"GSW": "gs", "NYK": "ny", "SAS": "sa", "NOP": "no", "UTA": "utah",
-                "WAS": "wsh"}.get(team_abbr.upper(), team_abbr.lower())
+        slug = _NBA_TO_ESPN.get(team_abbr.upper(), team_abbr.upper()).lower()
         resp = requests.get(f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{slug}/roster",
                             timeout=8, headers={"User-Agent": "Mozilla/5.0"})
         resp.raise_for_status()
@@ -2494,11 +2493,20 @@ def simulate_bets(df):
     bet_result = df["HIT"].apply(lambda x: 1 if x else -1)
     return pd.Series(bet_result.cumsum().to_list(), index=df.index, name="CUMULATIVE_PROFIT")
 
+# ESPN's team codes differ from the NBA's for six clubs. Passing NBA codes to ESPN left NOP
+# and UTA with no schedule at all, and for GSW/NYK/SAS/WAS every home/away, tip and W/L
+# comparison failed ("GSW @ GS": the team was never found in its own games).
+_NBA_TO_ESPN = {"GSW": "GS", "NYK": "NY", "SAS": "SA", "NOP": "NO", "UTA": "UTAH", "WAS": "WSH"}
+_ESPN_TO_NBA = {v: k for k, v in _NBA_TO_ESPN.items()}
+
+
 @st.cache_data(ttl=7200)
 def get_team_first_basket_history(team_abbr, num_games=20):
     """Pull first basket data via ESPN play-by-play (no nba_api PBP calls needed)."""
     _HDR = {"User-Agent": "Mozilla/5.0"}
-    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{team_abbr}/schedule"
+    team_abbr = team_abbr.upper()
+    espn_code = _NBA_TO_ESPN.get(team_abbr, team_abbr).lower()
+    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{espn_code}/schedule"
 
     def _done(params):
         js = requests.get(url, params=params, timeout=8, headers=_HDR).json()
@@ -2528,8 +2536,8 @@ def get_team_first_basket_history(team_abbr, num_games=20):
             comps = comp["competitors"]
             home_c = next((c for c in comps if c["homeAway"] == "home"), comps[0])
             away_c = next((c for c in comps if c["homeAway"] == "away"), comps[-1])
-            home_abbr = home_c["team"]["abbreviation"]
-            away_abbr = away_c["team"]["abbreviation"]
+            home_abbr = _ESPN_TO_NBA.get(home_c["team"]["abbreviation"].upper(), home_c["team"]["abbreviation"])
+            away_abbr = _ESPN_TO_NBA.get(away_c["team"]["abbreviation"].upper(), away_c["team"]["abbreviation"])
             is_home = home_abbr.upper() == team_abbr.upper()
             matchup_fmt = f"{team_abbr} vs. {away_abbr}" if is_home else f"{team_abbr} @ {home_abbr}"
             def _sc(raw):
@@ -5894,6 +5902,10 @@ if sport == "🏀 NBA":
                 section("Tonight's First Basket Prediction")
                 # Determine tonight's matchup for this team
                 _fb_today = get_nba_scoreboard(_scoreboard_date())
+                # The scoreboard carries ESPN codes (GS, NY, UTAH...); the history uses NBA codes.
+                _fb_today = [dict(g, home=_ESPN_TO_NBA.get(g["home"].upper(), g["home"].upper()),
+                                  away=_ESPN_TO_NBA.get(g["away"].upper(), g["away"].upper()))
+                             for g in _fb_today]
                 _fb_game = next(
                     (g for g in _fb_today
                      if g["away"].upper() == team_code.upper() or g["home"].upper() == team_code.upper()),
