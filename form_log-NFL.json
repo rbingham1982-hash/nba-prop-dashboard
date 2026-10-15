@@ -10052,5 +10052,181 @@
   "logged_at": "2026-10-14T20:22:18",
   "outcome": null,
   "actual": null
+ },
+ "kendrick bourne|Receiving Yards|36.5|36160495": {
+  "player": "Kendrick Bourne",
+  "stat": "Receiving Yards",
+  "line": 36.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 22.0,
+  "last5": [
+   0.0,
+   75.0,
+   11.0,
+   22.0,
+   70.0
+  ],
+  "game": "ARI @ LA",
+  "start_time": "2026-10-18T20:06:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
+ },
+ "geno smith|Passing Yards|219.5|36160508": {
+  "player": "Geno Smith",
+  "stat": "Passing Yards",
+  "line": 219.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 215.0,
+  "last5": [
+   215.0,
+   247.0,
+   321.0,
+   119.0,
+   182.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
+ },
+ "bryce lance|Receiving Yards|14.5|36160509": {
+  "player": "Bryce Lance",
+  "stat": "Receiving Yards",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   42.0,
+   8.0,
+   0.0,
+   7.0,
+   0.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
+ },
+ "malachi fields|Receiving Yards|25.5|36160509": {
+  "player": "Malachi Fields",
+  "stat": "Receiving Yards",
+  "line": 25.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 25.0,
+  "last5": [
+   25.0,
+   30.0,
+   19.0,
+   52.0,
+   20.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
+ },
+ "bo melton|Receiving Yards|17.5|36160511": {
+  "player": "Bo Melton",
+  "stat": "Receiving Yards",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   10.0,
+   0.0,
+   0.0,
+   0.0,
+   20.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
+ },
+ "bo melton|Receptions|1.5|36160511": {
+  "player": "Bo Melton",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": 112,
+  "fair_prob": 0.4665,
+  "med5": 0.0,
+  "last5": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   3.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
+ },
+ "marshawn lloyd|Receiving Yards|11.5|36160511": {
+  "player": "MarShawn Lloyd",
+  "stat": "Receiving Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 6.0,
+  "last5": [
+   0.0,
+   6.0,
+   7.0,
+   36.0,
+   6.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler warren|Receiving Yards|50.5|36160516": {
+  "player": "Tyler Warren",
+  "stat": "Receiving Yards",
+  "line": 50.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 41.0,
+  "last5": [
+   13.0,
+   21.0,
+   55.0,
+   41.0,
+   83.0
+  ],
+  "game": "TEN @ IND",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
  }
 }
