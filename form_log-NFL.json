@@ -4440,7 +4440,7 @@
   "start_time": "2026-10-13T00:16:00.000Z",
   "game_day": "2026-10-12",
   "logged_at": "2026-10-11T10:44:49",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "josh allen|Rushing Yards|36.5|36132650": {
@@ -10226,6 +10226,204 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T21:31:19",
+  "outcome": null,
+  "actual": null
+ },
+ "kendrick bourne|Receiving Yards|35.5|36160495": {
+  "player": "Kendrick Bourne",
+  "stat": "Receiving Yards",
+  "line": 35.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 22.0,
+  "last5": [
+   0.0,
+   75.0,
+   11.0,
+   22.0,
+   70.0
+  ],
+  "game": "ARI @ LA",
+  "start_time": "2026-10-18T20:06:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T02:54:31",
+  "outcome": null,
+  "actual": null
+ },
+ "liljordan humphrey|Receptions|1.5|36160506": {
+  "player": "Lil'Jordan Humphrey",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -250,
+  "fair_prob": 0.6932,
+  "med5": 1.0,
+  "last5": [
+   3.0,
+   1.0,
+   2.0,
+   0.0,
+   1.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-15T02:54:31",
+  "outcome": null,
+  "actual": null
+ },
+ "george holani|Rushing Yards|13.5|36160506": {
+  "player": "George Holani",
+  "stat": "Rushing Yards",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 13.0,
+  "last5": [
+   29.0,
+   13.0,
+   10.0,
+   18.0,
+   7.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-15T02:54:31",
+  "outcome": null,
+  "actual": null
+ },
+ "jk dobbins|Rushing Yards|48.5|36160506": {
+  "player": "J.K. Dobbins",
+  "stat": "Rushing Yards",
+  "line": 48.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 40.0,
+  "last5": [
+   36.0,
+   36.0,
+   49.0,
+   40.0,
+   68.0
+  ],
+  "game": "SEA @ DEN",
+  "start_time": "2026-10-16T00:16:00.000Z",
+  "game_day": "2026-10-15",
+  "logged_at": "2026-10-15T02:54:31",
+  "outcome": null,
+  "actual": null
+ },
+ "bryce lance|Receiving Yards|12.5|36160509": {
+  "player": "Bryce Lance",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   42.0,
+   8.0,
+   0.0,
+   7.0,
+   0.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T02:54:31",
+  "outcome": null,
+  "actual": null
+ },
+ "marshawn lloyd|Receiving Yards|12.5|36160511": {
+  "player": "MarShawn Lloyd",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 6.0,
+  "last5": [
+   0.0,
+   6.0,
+   7.0,
+   36.0,
+   6.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T02:54:31",
+  "outcome": null,
+  "actual": null
+ },
+ "marshawn lloyd|Rushing Yards|41.5|36160511": {
+  "player": "MarShawn Lloyd",
+  "stat": "Rushing Yards",
+  "line": 41.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 20.0,
+  "last5": [
+   37.0,
+   20.0,
+   11.0,
+   13.0,
+   31.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T02:54:31",
+  "outcome": null,
+  "actual": null
+ },
+ "pat freiermuth|Receiving Yards|36.5|36160512": {
+  "player": "Pat Freiermuth",
+  "stat": "Receiving Yards",
+  "line": 36.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 32.0,
+  "last5": [
+   46.0,
+   32.0,
+   30.0,
+   17.0,
+   44.0
+  ],
+  "game": "PIT @ TB",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T02:54:31",
+  "outcome": null,
+  "actual": null
+ },
+ "dalton kincaid|Receiving Yards|47.5|36160513": {
+  "player": "Dalton Kincaid",
+  "stat": "Receiving Yards",
+  "line": 47.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 38.0,
+  "last5": [
+   130.0,
+   95.0,
+   38.0,
+   7.0,
+   7.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T02:54:31",
   "outcome": null,
   "actual": null
  }
