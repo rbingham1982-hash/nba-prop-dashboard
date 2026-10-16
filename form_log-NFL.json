@@ -11460,5 +11460,181 @@
   "logged_at": "2026-10-15T20:08:00",
   "outcome": null,
   "actual": null
+ },
+ "woody marks|Rushing Yards|48.5|35605984": {
+  "player": "Woody Marks",
+  "stat": "Rushing Yards",
+  "line": 48.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 22.0,
+  "last5": [
+   42.0,
+   8.0,
+   15.0,
+   22.0,
+   62.0
+  ],
+  "game": "HOU @ JAX",
+  "start_time": "2026-10-18T13:30:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T21:25:48",
+  "outcome": null,
+  "actual": null
+ },
+ "harold fannin|Receptions|4.5|36160507": {
+  "player": "Harold Fannin Jr.",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 3.0,
+  "last5": [
+   2.0,
+   5.0,
+   7.0,
+   3.0,
+   1.0
+  ],
+  "game": "BAL @ CLE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T21:25:48",
+  "outcome": null,
+  "actual": null
+ },
+ "mark andrews|Receiving Yards|32.5|36160507": {
+  "player": "Mark Andrews",
+  "stat": "Receiving Yards",
+  "line": 32.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 28.0,
+  "last5": [
+   49.0,
+   49.0,
+   24.0,
+   27.0,
+   28.0
+  ],
+  "game": "BAL @ CLE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T21:25:48",
+  "outcome": null,
+  "actual": null
+ },
+ "harold fannin|Receiving Yards|40.5|36160507": {
+  "player": "Harold Fannin Jr.",
+  "stat": "Receiving Yards",
+  "line": 40.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 27.0,
+  "last5": [
+   21.0,
+   54.0,
+   51.0,
+   27.0,
+   4.0
+  ],
+  "game": "BAL @ CLE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T21:25:48",
+  "outcome": null,
+  "actual": null
+ },
+ "derrick henry|Receptions|1.5|36160507": {
+  "player": "Derrick Henry",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -154,
+  "fair_prob": 0.592,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   3.0,
+   1.0,
+   2.0,
+   1.0
+  ],
+  "game": "BAL @ CLE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T21:25:48",
+  "outcome": null,
+  "actual": null
+ },
+ "hunter henry|Receptions|3.5|36160508": {
+  "player": "Hunter Henry",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 3.0,
+  "last5": [
+   3.0,
+   3.0,
+   1.0,
+   5.0,
+   3.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T21:25:48",
+  "outcome": null,
+  "actual": null
+ },
+ "rhamondre stevenson|Rushing Yards|68.5|36160508": {
+  "player": "Rhamondre Stevenson",
+  "stat": "Rushing Yards",
+  "line": 68.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 47.0,
+  "last5": [
+   51.0,
+   43.0,
+   22.0,
+   47.0,
+   64.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T21:25:48",
+  "outcome": null,
+  "actual": null
+ },
+ "chuba hubbard|Rushing Yards|70.5|36160510": {
+  "player": "Chuba Hubbard",
+  "stat": "Rushing Yards",
+  "line": 70.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 53.0,
+  "last5": [
+   10.0,
+   49.0,
+   53.0,
+   82.0,
+   122.0
+  ],
+  "game": "CAR @ PHI",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T21:25:48",
+  "outcome": null,
+  "actual": null
  }
 }
