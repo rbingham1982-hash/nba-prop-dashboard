@@ -11350,5 +11350,115 @@
   "logged_at": "2026-10-15T17:05:58",
   "outcome": null,
   "actual": null
+ },
+ "jalen brooks|Receiving Yards|20.5|36160495": {
+  "player": "Jalen Brooks",
+  "stat": "Receiving Yards",
+  "line": 20.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   16.0
+  ],
+  "game": "ARI @ LA",
+  "start_time": "2026-10-18T20:06:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T20:08:00",
+  "outcome": null,
+  "actual": null
+ },
+ "alvin kamara|Receiving Yards|11.5|36160509": {
+  "player": "Alvin Kamara",
+  "stat": "Receiving Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 5.0,
+  "last5": [
+   4.0,
+   7.0,
+   5.0,
+   35.0,
+   -6.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T20:08:00",
+  "outcome": null,
+  "actual": null
+ },
+ "alvin kamara|Receptions|2.5|36160509": {
+  "player": "Alvin Kamara",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4927,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   5.0,
+   1.0,
+   5.0,
+   2.0
+  ],
+  "game": "NO @ NYG",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T20:08:00",
+  "outcome": null,
+  "actual": null
+ },
+ "bijan robinson|Rushing Yards|90.5|36160514": {
+  "player": "Bijan Robinson",
+  "stat": "Rushing Yards",
+  "line": 90.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 86.0,
+  "last5": [
+   83.0,
+   72.0,
+   194.0,
+   145.0,
+   86.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T20:08:00",
+  "outcome": null,
+  "actual": null
+ },
+ "roschon johnson|Rushing Yards|19.5|36160514": {
+  "player": "Roschon Johnson",
+  "stat": "Rushing Yards",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 6.0,
+  "last5": [
+   11.0,
+   0.0,
+   0.0,
+   16.0,
+   6.0
+  ],
+  "game": "CHI @ ATL",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-15T20:08:00",
+  "outcome": null,
+  "actual": null
  }
 }
