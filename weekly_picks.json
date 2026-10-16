@@ -1690,5 +1690,458 @@
    "breakeven_prob": 0.3513
   },
   "graded": true
+ },
+ "2026-06": {
+  "season": 2026,
+  "week": 6,
+  "generated": "2026-10-16T02:46:30",
+  "ats": [
+   {
+    "game": "CAR @ PHI",
+    "away_team": "CAR",
+    "home_team": "PHI",
+    "spread_line": -3.5,
+    "pred_margin": 3.76,
+    "edge": 7.26,
+    "pick": "home",
+    "pick_label": "PHI +3.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "PIT @ TB",
+    "away_team": "PIT",
+    "home_team": "TB",
+    "spread_line": -2.5,
+    "pred_margin": 1.7,
+    "edge": 4.2,
+    "pick": "home",
+    "pick_label": "TB +2.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "NYJ @ NE",
+    "away_team": "NYJ",
+    "home_team": "NE",
+    "spread_line": 7.5,
+    "pred_margin": 11.54,
+    "edge": 4.04,
+    "pick": "home",
+    "pick_label": "NE -7.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "NO @ NYG",
+    "away_team": "NO",
+    "home_team": "NYG",
+    "spread_line": -1.5,
+    "pred_margin": 2.53,
+    "edge": 4.03,
+    "pick": "home",
+    "pick_label": "NYG +1.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "DAL @ GB",
+    "away_team": "DAL",
+    "home_team": "GB",
+    "spread_line": 1.5,
+    "pred_margin": 5.41,
+    "edge": 3.91,
+    "pick": "home",
+    "pick_label": "GB -1.5",
+    "outcome": null,
+    "result": null
+   }
+  ],
+  "parlay": [],
+  "td": [
+   {
+    "player": "Jonathan Taylor",
+    "game": "Tennessee Titans @ Indianapolis Colts",
+    "american_odds": -280,
+    "model_prob": 0.5809,
+    "fair_prob": 0.698,
+    "blended_prob": 0.5809,
+    "edge": -0.1171,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Derrick Henry",
+    "game": "Baltimore Ravens @ Cleveland Browns",
+    "american_odds": -175,
+    "model_prob": 0.5717,
+    "fair_prob": 0.593,
+    "blended_prob": 0.5717,
+    "edge": -0.0213,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Javonte Williams",
+    "game": "Dallas Cowboys @ Green Bay Packers",
+    "american_odds": -200,
+    "model_prob": 0.5519,
+    "fair_prob": 0.6247,
+    "blended_prob": 0.5519,
+    "edge": -0.0728,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "James Cook",
+    "game": "Buffalo Bills @ Las Vegas Raiders",
+    "american_odds": -170,
+    "model_prob": 0.5185,
+    "fair_prob": 0.586,
+    "blended_prob": 0.5185,
+    "edge": -0.0675,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kyren Williams",
+    "game": "Arizona Cardinals @ Los Angeles Rams",
+    "american_odds": -210,
+    "model_prob": 0.5095,
+    "fair_prob": 0.636,
+    "blended_prob": 0.5095,
+    "edge": -0.1265,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Christian McCaffrey",
+    "game": "Washington Commanders @ San Francisco 49ers",
+    "american_odds": -300,
+    "model_prob": 0.4977,
+    "fair_prob": 0.7104,
+    "blended_prob": 0.4977,
+    "edge": -0.2127,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Josh Allen",
+    "game": "Buffalo Bills @ Las Vegas Raiders",
+    "american_odds": -175,
+    "model_prob": 0.4855,
+    "fair_prob": 0.593,
+    "blended_prob": 0.4855,
+    "edge": -0.1075,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Bijan Robinson",
+    "game": "Chicago Bears @ Atlanta Falcons",
+    "american_odds": -280,
+    "model_prob": 0.4688,
+    "fair_prob": 0.698,
+    "blended_prob": 0.4688,
+    "edge": -0.2292,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Bhayshul Tuten",
+    "game": "Houston Texans @ Jacksonville Jaguars",
+    "american_odds": 140,
+    "model_prob": 0.4645,
+    "fair_prob": 0.3913,
+    "blended_prob": 0.4645,
+    "edge": 0.0731,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kenneth Walker III",
+    "game": "Los Angeles Chargers @ Kansas City Chiefs",
+    "american_odds": -180,
+    "model_prob": 0.4461,
+    "fair_prob": 0.5998,
+    "blended_prob": 0.4461,
+    "edge": -0.1536,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "receivers_rule": "edge",
+  "receivers": [
+   {
+    "player": "Xavier Worthy",
+    "game": "Los Angeles Chargers @ Kansas City Chiefs",
+    "position": "WR",
+    "american_odds": 145,
+    "model_prob": 0.1581,
+    "fair_prob": 0.3841,
+    "blended_prob": 0.1581,
+    "edge": -0.226,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Mike Evans",
+    "game": "Washington Commanders @ San Francisco 49ers",
+    "position": "WR",
+    "american_odds": -135,
+    "model_prob": 0.3112,
+    "fair_prob": 0.5294,
+    "blended_prob": 0.3112,
+    "edge": -0.2182,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Brandin Cooks",
+    "game": "Washington Commanders @ San Francisco 49ers",
+    "position": "WR",
+    "american_odds": 230,
+    "model_prob": 0.095,
+    "fair_prob": 0.2919,
+    "blended_prob": 0.095,
+    "edge": -0.1969,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Darren Waller",
+    "game": "Carolina Panthers @ Philadelphia Eagles",
+    "position": "TE",
+    "american_odds": 330,
+    "model_prob": 0.4126,
+    "fair_prob": 0.2249,
+    "blended_prob": 0.4126,
+    "edge": 0.1877,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Puka Nacua",
+    "game": "Arizona Cardinals @ Los Angeles Rams",
+    "position": "WR",
+    "american_odds": -165,
+    "model_prob": 0.3917,
+    "fair_prob": 0.5788,
+    "blended_prob": 0.3917,
+    "edge": -0.187,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "wind": [
+   {
+    "game": "DAL @ GB",
+    "home_team": "GB",
+    "away_team": "DAL",
+    "total_line": 53.5,
+    "wind_mph": 21.3,
+    "expected_adj": -8.29,
+    "gameday": "2026-10-18",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "PIT @ TB",
+    "home_team": "TB",
+    "away_team": "PIT",
+    "total_line": 39.5,
+    "wind_mph": 18.4,
+    "expected_adj": -7.16,
+    "gameday": "2026-10-18",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "HOU @ JAX",
+    "home_team": "JAX",
+    "away_team": "HOU",
+    "total_line": 42.5,
+    "wind_mph": 16.0,
+    "expected_adj": -6.22,
+    "gameday": "2026-10-18",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "LAC @ KC",
+    "home_team": "KC",
+    "away_team": "LAC",
+    "total_line": 41.5,
+    "wind_mph": 13.1,
+    "expected_adj": -5.1,
+    "gameday": "2026-10-18",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "CAR @ PHI",
+    "home_team": "PHI",
+    "away_team": "CAR",
+    "total_line": 38.5,
+    "wind_mph": 10.5,
+    "expected_adj": -4.08,
+    "gameday": "2026-10-18",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "CHI @ ATL",
+    "home_team": "ATL",
+    "away_team": "CHI",
+    "total_line": 51.5,
+    "wind_mph": 10.4,
+    "expected_adj": -4.05,
+    "gameday": "2026-10-18",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   }
+  ],
+  "parlay_gate": true,
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Geno Smith",
+    "stat_type": "Passing TDs",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -270,
+    "model_prob": 0.649,
+    "blended_prob": 0.7071,
+    "implied_prob": 0.7071,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Theo Johnson",
+    "stat_type": "Receptions",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -235,
+    "model_prob": 0.5141,
+    "blended_prob": 0.6811,
+    "implied_prob": 0.6811,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kirk Cousins",
+    "stat_type": "Rushing Yards",
+    "line": 2.5,
+    "side": "under",
+    "american_odds": -178,
+    "model_prob": 0.9726,
+    "blended_prob": 0.6268,
+    "implied_prob": 0.6268,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Trevor Lawrence",
+    "stat_type": "Passing Yards",
+    "line": 228.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.4873,
+    "blended_prob": 0.525,
+    "implied_prob": 0.525,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Nico Collins",
+    "stat_type": "Receiving Yards",
+    "line": 69.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.5244,
+    "blended_prob": 0.525,
+    "implied_prob": 0.525,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 10.751,
+   "american": 975,
+   "model_prob": 0.08293,
+   "blended_prob": 0.0832,
+   "fair_prob": 0.0832,
+   "breakeven_prob": 0.09301
+  },
+  "td_parlay": [
+   "Jonathan Taylor",
+   "Derrick Henry",
+   "Javonte Williams"
+  ],
+  "td_parlay_price": {
+   "decimal": 3.199,
+   "american": 220,
+   "model_prob": 0.18329,
+   "blended_prob": 0.18329,
+   "fair_prob": 0.25857,
+   "breakeven_prob": 0.3126
+  },
+  "td_rule": "model",
+  "form_parlay": {
+   "day": "2026-10-18",
+   "keys": [
+    "geno smith|Passing TDs|1.5|36160508",
+    "theo johnson|Receptions|1.5|36160509",
+    "cole kmet|Receptions|1.5|36160514"
+   ],
+   "legs": [
+    {
+     "player": "Geno Smith",
+     "stat": "Passing TDs",
+     "line": 1.5,
+     "american_odds": -250,
+     "fair_prob": 0.6932,
+     "med5": 1.0,
+     "game": "NYJ @ NE",
+     "start_time": "2026-10-18T17:01:00.000Z"
+    },
+    {
+     "player": "Theo Johnson",
+     "stat": "Receptions",
+     "line": 1.5,
+     "american_odds": -235,
+     "fair_prob": 0.6811,
+     "med5": 1.0,
+     "game": "NO @ NYG",
+     "start_time": "2026-10-18T17:01:00.000Z"
+    },
+    {
+     "player": "Cole Kmet",
+     "stat": "Receptions",
+     "line": 1.5,
+     "american_odds": -220,
+     "fair_prob": 0.668,
+     "med5": 1.0,
+     "game": "CHI @ ATL",
+     "start_time": "2026-10-18T17:01:00.000Z"
+    }
+   ],
+   "decimal": 2.903,
+   "american": 190,
+   "fair_prob": 0.3154,
+   "breakeven": 0.3445,
+   "frozen_at": "2026-10-16T02:46:30"
+  }
  }
 }
