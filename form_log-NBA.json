@@ -2506,5 +2506,115 @@
   "logged_at": "2026-10-17T16:00:24",
   "outcome": null,
   "actual": null
+ },
+ "payton pritchard|Pts+Rebs|18.5|35928218": {
+  "player": "Payton Pritchard",
+  "stat": "Pts+Rebs",
+  "line": 18.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 18.0,
+  "last5": [
+   19.0,
+   36.0,
+   14.0,
+   17.0,
+   18.0
+  ],
+  "game": "BOS @ DET",
+  "start_time": "2026-10-20T19:00:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-17T17:00:28",
+  "outcome": null,
+  "actual": null
+ },
+ "jalen williams|Rebs+Asts|8.5|35928229": {
+  "player": "Jalen Williams",
+  "stat": "Rebs+Asts",
+  "line": 8.5,
+  "side": "under",
+  "american_odds": 110,
+  "fair_prob": 0.4702,
+  "med5": 5.0,
+  "last5": [
+   13.0,
+   5.0,
+   10.0,
+   1.0,
+   1.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-17T17:00:28",
+  "outcome": null,
+  "actual": null
+ },
+ "victor wembanyama|Pts+Asts|28.5|35928229": {
+  "player": "Victor Wembanyama",
+  "stat": "Pts+Asts",
+  "line": 28.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 28.0,
+  "last5": [
+   28.0,
+   31.0,
+   38.0,
+   25.0,
+   21.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-17T17:00:28",
+  "outcome": null,
+  "actual": null
+ },
+ "stephon castle|Pts+Asts|22.5|35928229": {
+  "player": "Stephon Castle",
+  "stat": "Pts+Asts",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 18.0,
+  "last5": [
+   20.0,
+   18.0,
+   28.0,
+   18.0,
+   10.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-17T17:00:28",
+  "outcome": null,
+  "actual": null
+ },
+ "deaaron fox|Rebs+Asts|9.5|35928229": {
+  "player": "De'Aaron Fox",
+  "stat": "Rebs+Asts",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -144,
+  "fair_prob": 0.5761,
+  "med5": 9.0,
+  "last5": [
+   9.0,
+   8.0,
+   11.0,
+   12.0,
+   5.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-17T17:00:28",
+  "outcome": null,
+  "actual": null
  }
 }
