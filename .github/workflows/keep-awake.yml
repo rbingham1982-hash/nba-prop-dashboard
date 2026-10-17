@@ -1,0 +1,28 @@
+# Keeps the hosted dashboard awake. Streamlit Community Cloud sleeps an app that has no
+# visitors for a while and shows a wake button instead; keep_awake.py opens the app in a
+# headless browser every few hours (and presses that button if it has to).
+name: keep dashboard awake
+
+on:
+  schedule:
+    - cron: "17 */3 * * *"    # every 3 hours, off the hour to dodge GitHub's busiest minute
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install Playwright
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Visit the dashboard
+        run: python keep_awake.py
