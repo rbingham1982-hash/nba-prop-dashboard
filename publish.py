@@ -840,6 +840,13 @@ def run(dry_run: bool = True,
         subtitle="Fantasy football and DFS, projected from usage"))
 
     result["action"] = "published"
+    # beehiiv's free plan refuses API posts, so the website archive is where the full issue
+    # is actually published. Rebuild it; commit docs/report/ with the issue's cards.
+    try:
+        import report_archive
+        result["archive"] = report_archive.build()
+    except Exception as e:
+        result["archive"] = {"ok": False, "error": str(e)}
     return result
 
 
