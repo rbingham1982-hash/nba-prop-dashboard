@@ -12956,5 +12956,71 @@
   "logged_at": "2026-10-16T19:21:21",
   "outcome": null,
   "actual": null
+ },
+ "woody marks|Rushing Yards|45.5|35605984": {
+  "player": "Woody Marks",
+  "stat": "Rushing Yards",
+  "line": 45.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 22.0,
+  "last5": [
+   42.0,
+   8.0,
+   15.0,
+   22.0,
+   62.0
+  ],
+  "game": "HOU @ JAX",
+  "start_time": "2026-10-18T13:30:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-17T02:22:58",
+  "outcome": null,
+  "actual": null
+ },
+ "javonte williams|Rushing Yards|68.5|36160511": {
+  "player": "Javonte Williams",
+  "stat": "Rushing Yards",
+  "line": 68.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 45.0,
+  "last5": [
+   41.0,
+   30.0,
+   98.0,
+   62.0,
+   45.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-17T02:22:58",
+  "outcome": null,
+  "actual": null
+ },
+ "tony pollard|Receiving Yards|9.5|36160516": {
+  "player": "Tony Pollard",
+  "stat": "Receiving Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 1.0,
+  "last5": [
+   -1.0,
+   1.0,
+   22.0,
+   2.0,
+   0.0
+  ],
+  "game": "TEN @ IND",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-17T02:22:58",
+  "outcome": null,
+  "actual": null
  }
 }
