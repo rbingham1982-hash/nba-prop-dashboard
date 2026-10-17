@@ -16,12 +16,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7175,
-   "odds": -295,
-   "home_odds": -295,
-   "away_odds": 240
+   "fav_prob": 0.7213,
+   "odds": -300,
+   "home_odds": -300,
+   "away_odds": 245
   },
-  "last_seen": "2026-10-13T08:22:30"
+  "last_seen": "2026-10-17T15:03:21"
  },
  "DAL @ HOU|2026-10-22T00:40": {
   "label": "DAL @ HOU",
@@ -45,7 +45,7 @@
    "home_odds": -300,
    "away_odds": 245
   },
-  "last_seen": "2026-10-13T08:22:30"
+  "last_seen": "2026-10-17T15:03:21"
  },
  "CHI @ TOR|2026-10-21T23:40": {
   "label": "CHI @ TOR",
@@ -64,12 +64,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7434,
-   "odds": -340,
-   "home_odds": -340,
-   "away_odds": 275
+   "fav_prob": 0.7472,
+   "odds": -350,
+   "home_odds": -350,
+   "away_odds": 280
   },
-  "last_seen": "2026-10-13T08:22:30"
+  "last_seen": "2026-10-17T15:03:21"
  },
  "CHI @ DEN|2026-10-12T01:10": {
   "label": "CHI @ DEN",
@@ -108,7 +108,7 @@
    "home_odds": -430,
    "away_odds": 320
   },
-  "outcome": null,
+  "outcome": "preseason",
   "winner": null,
   "last": {
    "fav": "home",
@@ -132,7 +132,7 @@
    "home_odds": -420,
    "away_odds": 310
   },
-  "outcome": null,
+  "outcome": "preseason",
   "winner": null,
   "last": {
    "fav": "home",
@@ -156,7 +156,7 @@
    "home_odds": -550,
    "away_odds": 310
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -180,7 +180,7 @@
    "home_odds": 170,
    "away_odds": -255
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -204,7 +204,7 @@
    "home_odds": -600,
    "away_odds": 325
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -214,5 +214,29 @@
    "away_odds": 325
   },
   "last_seen": "2026-10-13T08:22:30"
+ },
+ "NYK @ OKC|2026-10-17T20:55": {
+  "label": "NYK @ OKC",
+  "home_name": "Oklahoma City Thunder",
+  "away_name": "New York Knicks",
+  "start_time": "2026-10-17T20:55:00.000Z",
+  "first_seen": "2026-10-17T15:03:21",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.694,
+   "odds": -310,
+   "home_odds": -310,
+   "away_odds": 200
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.694,
+   "odds": -310,
+   "home_odds": -310,
+   "away_odds": 200
+  },
+  "last_seen": "2026-10-17T15:03:21"
  }
 }
