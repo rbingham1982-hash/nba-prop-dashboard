@@ -2440,5 +2440,71 @@
   "logged_at": "2026-10-17T15:03:17",
   "outcome": null,
   "actual": null
+ },
+ "tyrese maxey|Pts+Rebs|24.5|35928228": {
+  "player": "Tyrese Maxey",
+  "stat": "Pts+Rebs",
+  "line": 24.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 19.0,
+  "last5": [
+   41.0,
+   16.0,
+   29.0,
+   19.0,
+   19.0
+  ],
+  "game": "PHI @ NYK",
+  "start_time": "2026-10-20T23:00:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-17T16:00:24",
+  "outcome": null,
+  "actual": null
+ },
+ "tyrese maxey|Pts+Asts|25.5|35928228": {
+  "player": "Tyrese Maxey",
+  "stat": "Pts+Asts",
+  "line": 25.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 24.0,
+  "last5": [
+   37.0,
+   15.0,
+   32.0,
+   24.0,
+   21.0
+  ],
+  "game": "PHI @ NYK",
+  "start_time": "2026-10-20T23:00:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-17T16:00:24",
+  "outcome": null,
+  "actual": null
+ },
+ "mikal bridges|Pts+Rebs+Asts|20.5|35928228": {
+  "player": "Mikal Bridges",
+  "stat": "Pts+Rebs+Asts",
+  "line": 20.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 15.0,
+  "last5": [
+   15.0,
+   32.0,
+   9.0,
+   11.0,
+   20.0
+  ],
+  "game": "PHI @ NYK",
+  "start_time": "2026-10-20T23:00:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-17T16:00:24",
+  "outcome": null,
+  "actual": null
  }
 }
