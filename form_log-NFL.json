@@ -12890,5 +12890,71 @@
   "logged_at": "2026-10-16T16:59:55",
   "outcome": null,
   "actual": null
+ },
+ "kenyon sadiq|Receiving Yards|19.5|36160508": {
+  "player": "Kenyon Sadiq",
+  "stat": "Receiving Yards",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 17.0,
+  "last5": [
+   21.0,
+   17.0,
+   105.0,
+   0.0,
+   3.0
+  ],
+  "game": "NYJ @ NE",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-16T19:21:21",
+  "outcome": null,
+  "actual": null
+ },
+ "javonte williams|Rushing Yards|69.5|36160511": {
+  "player": "Javonte Williams",
+  "stat": "Rushing Yards",
+  "line": 69.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 45.0,
+  "last5": [
+   41.0,
+   30.0,
+   98.0,
+   62.0,
+   45.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-16T19:21:21",
+  "outcome": null,
+  "actual": null
+ },
+ "keenan allen|Receiving Yards|45.5|36160516": {
+  "player": "Keenan Allen",
+  "stat": "Receiving Yards",
+  "line": 45.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 36.0,
+  "last5": [
+   36.0,
+   32.0,
+   5.0,
+   63.0,
+   45.0
+  ],
+  "game": "TEN @ IND",
+  "start_time": "2026-10-18T17:01:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-16T19:21:21",
+  "outcome": null,
+  "actual": null
  }
 }
