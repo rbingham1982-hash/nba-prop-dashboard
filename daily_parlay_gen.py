@@ -771,7 +771,8 @@ STALE_RUN_HOURS = 36   # a daily job that hasn't logged a parlay in this long ha
 
 # The work is split across two machines because stats.nba.com does not answer cloud
 # addresses (probed from GitHub Actions on 2026-10-11, check_sources.py): the cloud
-# runner takes MLB and NFL, the home machine NBA and WNBA. Each passes --sports, and every
+# runner takes MLB, NFL and, since 2026-10-18, NBA (from ESPN box scores via nba_espn.py
+# and KONJURE_NBA_SNAPSHOT); the home machine keeps WNBA. Each passes --sports, and every
 # step below that writes a log is scoped to the run's sports, so the two runners never
 # write the same file and their git pushes cannot conflict. No flag means all four,
 # which is exactly the single-machine behaviour this replaced.
@@ -851,8 +852,8 @@ def run_favorite_signal(sports, month: int) -> None:
                   f"— at last price {rec['at_last_price']}, pending {rec['pending']}")
         except Exception as e:
             print(f"  Favourite signal {sport.upper()} failed ({e}) — retried next run.")
-    # The three-point-luck test (threes_signal) is NBA-only and reads stats.nba.com, so it
-    # rides along with whichever runner has NBA, the home machine.
+    # The three-point-luck test (threes_signal) is NBA-only, so it rides along with
+    # whichever runner has NBA (the cloud, reading the saved league log, since 2026-10-18).
     if "nba" in sports and seasons.get("nba"):
         try:
             import threes_signal
@@ -905,7 +906,7 @@ def resolve_pending(sports=ALL_SPORTS):
     except Exception:
         pass
 
-    # Both NBA logs below read stats.nba.com, so they belong to whichever runner has NBA.
+    # Both NBA logs below belong to whichever runner has NBA.
     if "nba" not in sports:
         return
 

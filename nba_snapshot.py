@@ -122,7 +122,10 @@ def _targets(today=None):
     cur, prev = pm.nba_season_strings(d)
     y = int(prev[:4]) - 1
     older = f"{y}-{str(y + 1)[-2:]}"   # nba_grades scores a season against the one before it
-    out = [("00", s, t) for s in (cur, prev, older) for t in ("Regular Season", "Playoffs")]
+    # The current NBA season is the cloud runner's, written from ESPN by nba_espn.py since
+    # 2026-10-18; exporting it here too would give two writers one file. Earlier seasons are
+    # final, so re-exporting them changes nothing.
+    out = [("00", s, t) for s in (prev, older) for t in ("Regular Season", "Playoffs")]
     # The dashboard reads WNBA 2025 with a 2024 fallback; keep the current year too.
     out += [("10", str(y), "Regular Season") for y in (d.year, d.year - 1, d.year - 2)]
     return out

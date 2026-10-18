@@ -1037,6 +1037,16 @@ def _get_nba_player_id(name: str):
     try:
         # Alias substitution
         lookup = _NBA_PLAYER_ALIASES.get(name.strip().lower(), name)
+        import nba_snapshot as ns
+        if ns.use_snapshot():
+            # The saved logs know this season's rookies; nba_api's bundled list does not.
+            ids = ns.name_ids("00")
+            hit = ids.get(lookup.strip().lower())
+            if hit is None:
+                norm = _normalize_name(lookup)
+                hit = next((i for n, i in ids.items() if _normalize_name(n) == norm), None)
+            if hit is not None:
+                return hit
         results = _nba_players.find_players_by_full_name(lookup)
         if results:
             return results[0]["id"]
@@ -1129,6 +1139,14 @@ def _fetch_player_gamelog(player_id: int) -> pd.DataFrame:
     season; _find_game_in_log matches on date and teams, so the extra rows cost nothing.
     """
     import parlay_model as pm
+    import nba_snapshot as ns
+    if ns.use_snapshot():
+        # The cloud runner cannot reach stats.nba.com: read the saved league logs (the
+        # current season written from ESPN by nba_espn.py). No play-in file exists there.
+        frames = [ns.player_log(player_id, season, st) for season in pm.nba_season_strings()
+                  for st in ("Regular Season", "Playoffs")]
+        frames = [f for f in frames if not f.empty]
+        return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
     from nba_api.stats.endpoints import playergamelog
     frames = []
     for season in pm.nba_season_strings():
@@ -1697,8 +1715,9 @@ def resolve_all_legs(budget_seconds: float = RESOLVE_BUDGET_SECONDS,
     Resolve NBA, MLB, WNBA, and NFL pending legs. Returns {nba, mlb, wnba, nfl} counts.
 
     `sports` (lower-case keys) limits the pass to those leagues. The cloud runner cannot
-    reach stats.nba.com, so it resolves MLB and NFL only and leaves NBA and WNBA legs to
-    the home machine; each runner writes only the shards it owns. None means all four.
+    reach stats.nba.com, so it resolves MLB, NFL and NBA (from the saved league log) and
+    leaves WNBA legs to the home machine; each runner writes only the shards it owns. None
+    means all four.
 
     The sports share one wall-clock budget: whichever runs first can use the whole window, and
     once it's spent the remaining resolvers no-op on their first loop check. Bounding the pass is

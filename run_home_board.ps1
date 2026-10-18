@@ -1,9 +1,10 @@
-# The NBA + WNBA half of the daily parlay run, with the git sync around it.
+# The WNBA part of the daily parlay run, with the git sync around it.
 #
-# stats.nba.com does not answer cloud addresses, so these two leagues stay on this
-# machine while .github/workflows/daily-board.yml runs MLB and NFL on GitHub. This side
-# owns the NBA/WNBA shards, tip_log.json, nba_weekly_picks.json and the nba_data/ game-log
-# snapshot, and commits nothing else; the cloud owns the MLB/NFL shards, game_log.json and weekly_picks.json.
+# stats.nba.com does not answer cloud addresses, so WNBA stays on this machine while
+# .github/workflows/daily-board.yml runs MLB, NFL and (since 2026-10-18, from ESPN box
+# scores) NBA on GitHub. This side owns the WNBA shards and the nba_data/ snapshot of past
+# seasons, the draft board and WNBA, and commits nothing else; the cloud owns everything
+# else, including the current NBA season's nba_data/gamelog-NBA-* files.
 #
 # The sync is careful because this is also the working copy you edit in:
 #   * it only syncs on main, so a run never commits to a feature branch;
@@ -25,8 +26,9 @@ function Say($msg) {
     Add-Content -Path $log -Value $line -Encoding utf8
 }
 
-$owned = @("parlay_log-NBA-*.json", "parlay_log-WNBA-*.json", "tip_log.json", "nba_weekly_picks.json", "form_log-NBA.json", "favorite_log-NBA.json", "favorite_log-WNBA.json", "threes_log-NBA.json")
-$cloudOwned = @("parlay_log-MLB-*.json", "parlay_log-NFL-*.json", "game_log.json", "weekly_picks.json", "form_log-NFL.json", "edge_log-NFL.json", "favorite_log-NFL.json", "favorite_log-MLB.json")
+# NBA moved to the cloud runner on 2026-10-18 (nba_espn.py); this side keeps WNBA.
+$owned = @("parlay_log-WNBA-*.json", "favorite_log-WNBA.json")
+$cloudOwned = @("parlay_log-MLB-*.json", "parlay_log-NFL-*.json", "game_log.json", "weekly_picks.json", "form_log-NFL.json", "edge_log-NFL.json", "favorite_log-NFL.json", "favorite_log-MLB.json", "parlay_log-NBA-*.json", "tip_log.json", "nba_weekly_picks.json", "form_log-NBA.json", "favorite_log-NBA.json", "threes_log-NBA.json", "nba_data/espn-nba-ids.csv")
 
 function Test-CanSync {
     $branch = (git rev-parse --abbrev-ref HEAD).Trim()
@@ -49,7 +51,7 @@ if ($sync) {
     if ($LASTEXITCODE -ne 0) { Say "sync skipped: pull failed"; $sync = $false }
 }
 
-& venv\Scripts\python.exe daily_parlay_gen.py --sports nba,wnba --no-game-markets @args
+& venv\Scripts\python.exe daily_parlay_gen.py --sports wnba --no-game-markets @args
 $genExit = $LASTEXITCODE
 
 # Save the league game logs into nba_data/ for the hosted dashboard, which stats.nba.com

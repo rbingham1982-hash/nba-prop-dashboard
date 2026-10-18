@@ -1,10 +1,14 @@
-# The MLB + NFL half of the daily parlay run. NBA and WNBA stay on the home machine,
-# because stats.nba.com does not answer GitHub's runners (check-sources.yml).
+# The MLB + NFL + NBA part of the daily parlay run. WNBA stays on the home machine,
+# because stats.nba.com does not answer GitHub's runners (check-sources.yml). NBA moved
+# here on 2026-10-18: nba_espn.py rebuilds the current season's league log from ESPN box
+# scores, and KONJURE_NBA_SNAPSHOT makes every NBA reader use it instead of stats.nba.com.
 #
 # This runner owns parlay_log-MLB-*.json, parlay_log-NFL-*.json, game_log.json,
 # weekly_picks.json (the NFL weekly board), form_log-NFL.json, edge_log-NFL.json and favorite_log-{NFL,MLB}.json,
-# and commits nothing else; the home runner owns the NBA/WNBA shards, tip_log.json,
-# nba_weekly_picks.json, form_log-NBA.json and favorite_log-{NBA,WNBA}.json. Disjoint files
+# and since 2026-10-18 the NBA files too: parlay_log-NBA-*.json, tip_log.json, nba_weekly_picks.json,
+# form_log-NBA.json, favorite_log-NBA.json, threes_log-NBA.json, the current season's
+# nba_data/gamelog-NBA-* files and nba_data/espn-nba-ids.csv. It commits nothing else; the home
+# runner owns the WNBA shards, favorite_log-WNBA.json and the rest of nba_data/. Disjoint files
 # are what let both push without conflicts.
 #
 # Cron is UTC. The hours are chosen so every firing lands on the same Chicago calendar
@@ -49,6 +53,7 @@ jobs:
     env:
       TZ: America/Chicago        # the generator's "today" is a Chicago day, not UTC
       PYTHONUTF8: "1"
+      KONJURE_NBA_SNAPSHOT: "1"  # NBA reads nba_data/, never stats.nba.com (it hangs here)
     steps:
       - uses: actions/checkout@v7
         with:
@@ -62,13 +67,17 @@ jobs:
       - name: Install
         run: pip install -r requirements.txt
 
-      - name: Run MLB + NFL
+      # Before the board: the NBA model, resolver and graders read this log.
+      - name: Refresh NBA game log from ESPN
+        run: python nba_espn.py
+
+      - name: Run MLB + NFL + NBA
         run: |
           FORCE=""
           if [ "${{ github.event.schedule }}" = "30 18 * * 0" ] || [ "${{ inputs.force }}" = "true" ]; then
             FORCE="--force"
           fi
-          python daily_parlay_gen.py --sports mlb,nfl $FORCE
+          python daily_parlay_gen.py --sports mlb,nba,nfl $FORCE
 
       # The NFL weekly board used to be saved only when the newsletter was built by hand,
       # so a weekend away meant a board saved on Sunday morning instead of Friday. Here it
@@ -86,6 +95,21 @@ jobs:
           print(f"week {e.get('season')}-{e.get('week')}: {state}")
           EOF
 
+      # The NBA weekly board: one night's slate, saved on the first Friday-Sunday firing from
+      # 4 PM Chicago, when that night's props are up. log_picks() is a no-op before Friday,
+      # in the preseason and on a week already saved. Grading runs inside the board step.
+      - name: Weekly NBA board
+        if: always()
+        run: |
+          python - <<'EOF'
+          import datetime, nba_weekly_picks as nw
+          if datetime.datetime.now().hour >= 16:
+              e = nw.log_picks()
+              print(e.get("week"), "saved" if e.get("generated") else e.get("note") or "not saved yet")
+          else:
+              print("before 4 PM: board not attempted")
+          EOF
+
       - name: Commit this runner's logs
         if: always()
         run: |
@@ -93,7 +117,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Only files that exist: form_log-NFL.json appears with the first qualifying prop,
           # and git add fails outright on a path that matches nothing.
-          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json game_log.json weekly_picks.json form_log-NFL.json edge_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json; do
+          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json parlay_log-NBA-*.json game_log.json weekly_picks.json \n                   form_log-NFL.json edge_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json \n                   tip_log.json nba_weekly_picks.json form_log-NBA.json favorite_log-NBA.json threes_log-NBA.json \n                   nba_data/gamelog-NBA-$(python -c 'import parlay_model as p; print(p.nba_season_strings()[0])')-*.csv.gz \n                   nba_data/espn-nba-ids.csv; do
             if [ -e "$f" ]; then git add -- "$f"; fi
           done
           if git diff --cached --quiet; then

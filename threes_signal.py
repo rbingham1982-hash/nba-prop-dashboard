@@ -22,7 +22,8 @@ THE RULE IS FIXED (2026-10-11, before the season). Do not tune it on its own res
     the first price seen is kept as a secondary record.
   * Regular season and playoffs; graded from ESPN's final score.
 
-File: threes_log-NBA.json (home runner — stats.nba.com does not answer the cloud).
+File: threes_log-NBA.json (cloud runner since 2026-10-18; team totals come from the saved
+league log there, since stats.nba.com does not answer the cloud).
 """
 from __future__ import annotations
 
@@ -62,13 +63,23 @@ def _team_logs() -> dict:
     """{team: [(date, season, fg3m, fg3a), ...]} for last season and this one, oldest first."""
     import pandas as pd
     import parlay_model as pm
+    import nba_snapshot as ns
     from nba_api.stats.endpoints import leaguegamelog
     frames = []
     for season in reversed(pm.nba_season_strings()):
         for st in ("Regular Season", "Playoffs"):
             try:
-                g = leaguegamelog.LeagueGameLog(season=season, player_or_team_abbreviation="T",
-                                                season_type_all_star=st, timeout=60).get_data_frames()[0]
+                if ns.use_snapshot():
+                    # Cloud runner: team totals are the sum of the saved player rows.
+                    p = ns.league_log(season, st)
+                    if p.empty:
+                        continue
+                    g = (p.groupby(["GAME_ID", "GAME_DATE", "TEAM_NAME"], as_index=False)
+                          [["FG3M", "FG3A"]].sum())
+                else:
+                    g = leaguegamelog.LeagueGameLog(season=season, player_or_team_abbreviation="T",
+                                                    season_type_all_star=st,
+                                                    timeout=60).get_data_frames()[0]
             except Exception:
                 continue
             if g.empty:
