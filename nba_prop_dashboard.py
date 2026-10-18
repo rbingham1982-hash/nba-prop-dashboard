@@ -6291,28 +6291,47 @@ if sport == "🏀 NBA":
                     _warm_ids = [(r["player_name"], get_player_id(r["player_name"])) for _, r in _pp_filt.iterrows()]
                     _warm_ids = [(n, p) for n, p in _warm_ids if p]
                     _warm_prog = st.progress(0, text=f"Loading {len(_warm_ids)} player histories…")
-                    with ThreadPoolExecutor(max_workers=3) as _wex:
-                        _wfutures = {_wex.submit(get_gamelogs, pid, (_NBA_CUR,)): name for name, pid in _warm_ids}
-                        _wdone = 0
-                        for _wf in as_completed(_wfutures, timeout=120):
-                            _wdone += 1
+                    # Best effort. stats.nba.com stalls in patches, and an unhandled timeout here
+                    # took the whole tab down (2026-10-18: "35 (of 50) futures unfinished").
+                    # Not a `with` block: its exit waits for every stuck request, which is the
+                    # very wait the timeout exists to cut short.
+                    _wex = ThreadPoolExecutor(max_workers=3)
+                    _wfutures = {_wex.submit(get_gamelogs, pid, (_NBA_CUR,)): name for name, pid in _warm_ids}
+                    _warmed, _warm_stalled = set(), False
+                    try:
+                        for _wdone, _wf in enumerate(as_completed(_wfutures, timeout=120), 1):
+                            if _wf.exception() is None:
+                                _warmed.add(_wfutures[_wf])
                             _warm_prog.progress(
                                 _wdone / max(1, len(_warm_ids)),
                                 text=f"Loading histories… ({_wdone}/{len(_warm_ids)})",
                             )
+                    except TimeoutError:
+                        _warm_stalled = True
+                    finally:
+                        _wex.shutdown(wait=False, cancel_futures=True)
                     _warm_prog.empty()
+                    if _warm_stalled:
+                        st.caption(f"stats.nba.com is slow right now: {len(_warm_ids) - len(_warmed)} of "
+                                   f"{len(_warm_ids)} player histories didn't load in time, so those legs "
+                                   "use the sportsbook's implied odds instead of the model.")
 
                     _prog = st.progress(0, text="Calculating hit rates…")
                     for _i, (_idx, _row) in enumerate(_pp_filt.iterrows()):
                         _ot = _row.get("odds_type", "standard") or "standard"
                         _imp = float(_row.get("implied_prob", -1.0) if "implied_prob" in _row.index else -1.0)
                         _cal_f = _nba_cal.get(_row["stat_type"], 1.0)
-                        _rate, _n = _nba_hit_rate(
-                            _row["player_name"], _row["stat_type"],
-                            float(_row["line_score"] or 0),
-                            odds_type=_ot, implied_override=_imp,
-                            cal_factor=_cal_f,
-                        )
+                        if _warm_stalled and _row["player_name"] not in _warmed:
+                            # Its history didn't load: scoring it would retry the stalled
+                            # request one player at a time. Price it at the book instead.
+                            _rate, _n = 0.0, 0
+                        else:
+                            _rate, _n = _nba_hit_rate(
+                                _row["player_name"], _row["stat_type"],
+                                float(_row["line_score"] or 0),
+                                odds_type=_ot, implied_override=_imp,
+                                cal_factor=_cal_f,
+                            )
                         # When player history is unavailable, fall back to implied odds
                         if _n == 0:
                             _eff_imp = _imp if _imp >= 0 else _PP_ODDS_IMPLIED.get(_ot, 0.50)
