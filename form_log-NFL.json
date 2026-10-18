@@ -14606,5 +14606,137 @@
   "logged_at": "2026-10-18T13:07:52",
   "outcome": null,
   "actual": null
+ },
+ "dalton kincaid|Receiving Yards|52.5|36160513": {
+  "player": "Dalton Kincaid",
+  "stat": "Receiving Yards",
+  "line": 52.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 38.0,
+  "last5": [
+   130.0,
+   95.0,
+   38.0,
+   7.0,
+   7.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T13:47:54",
+  "outcome": null,
+  "actual": null
+ },
+ "khalil shakir|Receptions|4.5|36160513": {
+  "player": "Khalil Shakir",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -148,
+  "fair_prob": 0.5858,
+  "med5": 3.0,
+  "last5": [
+   4.0,
+   3.0,
+   1.0,
+   7.0,
+   3.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T13:47:54",
+  "outcome": null,
+  "actual": null
+ },
+ "josh palmer|Receiving Yards|19.5|36160513": {
+  "player": "Josh Palmer",
+  "stat": "Receiving Yards",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   12.0,
+   1.0,
+   34.0,
+   43.0,
+   3.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T13:47:54",
+  "outcome": null,
+  "actual": null
+ },
+ "josh palmer|Receptions|1.5|36160513": {
+  "player": "Josh Palmer",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T13:47:54",
+  "outcome": null,
+  "actual": null
+ },
+ "keon coleman|Receptions|3.5|36160513": {
+  "player": "Keon Coleman",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -148,
+  "fair_prob": 0.5835,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   6.0,
+   1.0,
+   6.0,
+   1.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T13:47:54",
+  "outcome": null,
+  "actual": null
+ },
+ "keon coleman|Receiving Yards|38.5|36160513": {
+  "player": "Keon Coleman",
+  "stat": "Receiving Yards",
+  "line": 38.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 37.0,
+  "last5": [
+   1.0,
+   63.0,
+   37.0,
+   116.0,
+   7.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T13:47:54",
+  "outcome": null,
+  "actual": null
  }
 }
