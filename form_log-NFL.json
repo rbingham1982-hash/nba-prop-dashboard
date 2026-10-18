@@ -14738,5 +14738,49 @@
   "logged_at": "2026-10-18T13:47:54",
   "outcome": null,
   "actual": null
+ },
+ "dawson knox|Receiving Yards|12.5|36160513": {
+  "player": "Dawson Knox",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 6.0,
+  "last5": [
+   7.0,
+   5.0,
+   5.0,
+   13.0,
+   6.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T14:15:28",
+  "outcome": null,
+  "actual": null
+ },
+ "josh palmer|Receiving Yards|21.5|36160513": {
+  "player": "Josh Palmer",
+  "stat": "Receiving Yards",
+  "line": 21.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   12.0,
+   1.0,
+   34.0,
+   43.0,
+   3.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T14:15:28",
+  "outcome": null,
+  "actual": null
  }
 }
