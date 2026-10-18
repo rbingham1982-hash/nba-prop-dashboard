@@ -41,7 +41,8 @@ on:
 permissions:
   contents: write
 
-# One at a time: two runs racing would both rewrite the same shards.
+# One at a time: two runs racing would both rewrite the same shards. Queued runs wait
+# (cancel-in-progress false) and check out the newest main when they start; see checkout.
 concurrency:
   group: daily-board
   cancel-in-progress: false
@@ -55,8 +56,14 @@ jobs:
       PYTHONUTF8: "1"
       KONJURE_NBA_SNAPSHOT: "1"  # NBA reads nba_data/, never stats.nba.com (it hangs here)
     steps:
+      # The newest main at job START, not the commit that triggered the run. A run that
+      # waits in the concurrency queue otherwise starts from the SHA it was queued at,
+      # misses the logs the run ahead of it just pushed, rewrites them from stale copies
+      # and conflicts on push (2026-10-18: a dispatch queued at 4569df5 behind the run that
+      # pushed 8c3e99d failed its rebase on seven JSON logs).
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v7
