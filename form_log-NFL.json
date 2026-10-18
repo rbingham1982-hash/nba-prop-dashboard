@@ -14584,5 +14584,27 @@
   "logged_at": "2026-10-18T12:10:29",
   "outcome": null,
   "actual": null
+ },
+ "jalen nailor|Receiving Yards|20.5|36160513": {
+  "player": "Jalen Nailor",
+  "stat": "Receiving Yards",
+  "line": 20.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 16.0,
+  "last5": [
+   0.0,
+   49.0,
+   27.0,
+   9.0,
+   16.0
+  ],
+  "game": "BUF @ LV",
+  "start_time": "2026-10-18T20:26:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T13:07:52",
+  "outcome": null,
+  "actual": null
  }
 }
