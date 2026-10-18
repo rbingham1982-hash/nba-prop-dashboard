@@ -4217,7 +4217,7 @@ with hdr_col:
         <p class="konjure-sub">Multi-Sport Prop Intelligence &nbsp;&middot;&nbsp; Powered by Data</p>
     </div>""", unsafe_allow_html=True)
 with sport_col:
-    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy"], key="sport_selector")
+    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy", "🧮 Parlay Builder"], key="sport_selector")
     # Signed-in visitors see who they are and can sign out; the Edge Finder tabs carry the
     # sign-in forms themselves (accounts.gate), so there is nothing to show when signed out.
     if _acct.signed_in_email():
@@ -5188,7 +5188,8 @@ def _fallback_wnba_legs(stat_types: list = None, cal: dict = None) -> list:
 # block. __enter__/__exit__ is what `with` does anyway; the matching exit is the last
 # statement in this file.
 _PAGE_KEYS = {"🏀 NBA": "nba", "🏀 WNBA": "wnba", "⚾ MLB": "mlb",
-              "🏈 NFL": "nfl", "🏆 Fantasy": "fantasy"}
+              "🏈 NFL": "nfl", "🏆 Fantasy": "fantasy",
+              "🧮 Parlay Builder": "builder"}
 _page_box = st.container(key=f"page_{_PAGE_KEYS.get(sport, 'other')}")
 _page_box.__enter__()
 
@@ -6144,6 +6145,12 @@ if sport == "🏀 NBA":
     # ── PARLAYS ───────────────────────────────────────────────────────────────
     with tab_parlays:
         if _acct.gate("nba_parlays"):
+            # Build your own: the shared builder (parlay_builder), limited to this sport. Behind a
+            # toggle because Streamlit runs every tab body, and loading and scoring the props
+            # should only cost anything when someone is actually building a ticket.
+            if st.toggle("🧮 Build your own parlay", key="nba_byo_on"):
+                import parlay_builder as _pb
+                _pb.render(("nba",), key="nba_byo")
             section("NBA Parlay Builder")
             st.markdown("""
         <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
@@ -6926,6 +6933,12 @@ elif sport == "🏀 WNBA":
     # ── PARLAYS ───────────────────────────────────────────────────────────────
     with tab_w_parlays:
         if _acct.gate("wnba_parlays"):
+            # Build your own: the shared builder (parlay_builder), limited to this sport. Behind a
+            # toggle because Streamlit runs every tab body, and loading and scoring the props
+            # should only cost anything when someone is actually building a ticket.
+            if st.toggle("🧮 Build your own parlay", key="wnba_byo_on"):
+                import parlay_builder as _pb
+                _pb.render(("wnba",), key="wnba_byo")
             section("WNBA Parlay Builder")
             st.markdown("""
         <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
@@ -8284,6 +8297,12 @@ elif sport == "⚾ MLB":
     # ── MLB PARLAYS ───────────────────────────────────────────────────────────
     with tab_parlays_mlb:
         if _acct.gate("mlb_parlays"):
+            # Build your own: the shared builder (parlay_builder), limited to this sport. Behind a
+            # toggle because Streamlit runs every tab body, and loading and scoring the props
+            # should only cost anything when someone is actually building a ticket.
+            if st.toggle("🧮 Build your own parlay", key="mlb_byo_on"):
+                import parlay_builder as _pb
+                _pb.render(("mlb",), key="mlb_byo")
             section("MLB Parlay Builder")
             st.markdown("""
         <p style='color:var(--text-muted);font-size:0.82rem;line-height:1.6;max-width:680px;margin-bottom:1rem;'>
@@ -9327,6 +9346,12 @@ elif sport == "🏈 NFL":
                             "The fetch is wired and will populate automatically. Use the manual check below meanwhile.")
 
             with _nfl_edge_par:
+                # Build your own: the shared builder (parlay_builder), limited to this sport. Behind a
+                # toggle because Streamlit runs every tab body, and loading and scoring the props
+                # should only cost anything when someone is actually building a ticket.
+                if st.toggle("🧮 Build your own parlay", key="nfl_byo_on"):
+                    import parlay_builder as _pb
+                    _pb.render(("nfl",), key="nfl_byo")
                 # ── Parlay builder ───────────────────────────────────────────────────
                 # Same pipeline the daily generator runs, so what you see here and what gets
                 # logged overnight are the same board: usage-share scorer -> market blend ->
@@ -9478,6 +9503,16 @@ elif sport == "🏈 NFL":
             st.caption("Tracking is available in the local app.")
 
 # END OF FILE — orphaned block removed
+
+
+elif sport == "🧮 Parlay Builder":
+    section("Build Your Own Parlay")
+    st.caption("Pick FanDuel props from any sport. The ticket shows its payout and the market's "
+               "chance of hitting (FanDuel's own odds with the margin removed), with our model "
+               "beside it. Informational only; not betting advice.")
+    if _acct.gate("parlay_builder"):
+        import parlay_builder as _pb
+        _pb.render(key="pb_page")
 
 
 elif sport == "🏆 Fantasy":
