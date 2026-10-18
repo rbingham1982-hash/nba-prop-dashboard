@@ -6290,5 +6290,115 @@
   "logged_at": "2026-10-18T15:59:11",
   "outcome": null,
   "actual": null
+ },
+ "karl-anthony towns|Rebs+Asts|16.5|35928228": {
+  "player": "Karl-Anthony Towns",
+  "stat": "Rebs+Asts",
+  "line": 16.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 12.0,
+  "last5": [
+   16.0,
+   17.0,
+   9.0,
+   12.0,
+   11.0
+  ],
+  "game": "PHI @ NYK",
+  "start_time": "2026-10-20T23:00:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-18T16:23:02",
+  "outcome": null,
+  "actual": null
+ },
+ "ajay mitchell|Pts+Rebs|14.5|35928229": {
+  "player": "Ajay Mitchell",
+  "stat": "Pts+Rebs",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4927,
+  "med5": 10.0,
+  "last5": [
+   28.0,
+   31.0,
+   8.0,
+   10.0,
+   7.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-18T16:23:02",
+  "outcome": null,
+  "actual": null
+ },
+ "ajay mitchell|Pts+Asts|14.5|35928229": {
+  "player": "Ajay Mitchell",
+  "stat": "Pts+Asts",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4927,
+  "med5": 12.0,
+  "last5": [
+   34.0,
+   32.0,
+   9.0,
+   12.0,
+   3.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-18T16:23:02",
+  "outcome": null,
+  "actual": null
+ },
+ "shai gilgeous-alexander|Pts+Rebs+Asts|41.5|35928229": {
+  "player": "Shai Gilgeous-Alexander",
+  "stat": "Pts+Rebs+Asts",
+  "line": 41.5,
+  "side": "under",
+  "american_odds": -128,
+  "fair_prob": 0.5491,
+  "med5": 40.0,
+  "last5": [
+   40.0,
+   30.0,
+   43.0,
+   20.0,
+   48.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-18T16:23:02",
+  "outcome": null,
+  "actual": null
+ },
+ "stephon castle|Pts+Rebs+Asts|28.5|35928229": {
+  "player": "Stephon Castle",
+  "stat": "Pts+Rebs+Asts",
+  "line": 28.5,
+  "side": "under",
+  "american_odds": -128,
+  "fair_prob": 0.5491,
+  "med5": 23.0,
+  "last5": [
+   28.0,
+   22.0,
+   33.0,
+   23.0,
+   15.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-18T16:23:02",
+  "outcome": null,
+  "actual": null
  }
 }
