@@ -771,8 +771,8 @@ STALE_RUN_HOURS = 36   # a daily job that hasn't logged a parlay in this long ha
 
 # The work is split across two machines because stats.nba.com does not answer cloud
 # addresses (probed from GitHub Actions on 2026-10-11, check_sources.py): the cloud
-# runner takes MLB, NFL and, since 2026-10-18, NBA (from ESPN box scores via nba_espn.py
-# and KONJURE_NBA_SNAPSHOT); the home machine keeps WNBA. Each passes --sports, and every
+# runner takes all four since 2026-10-18 (NBA and WNBA from ESPN box scores via nba_espn.py
+# and KONJURE_NBA_SNAPSHOT), so --sports now only scopes manual runs. Each passes --sports, and every
 # step below that writes a log is scoped to the run's sports, so the two runners never
 # write the same file and their git pushes cannot conflict. No flag means all four,
 # which is exactly the single-machine behaviour this replaced.

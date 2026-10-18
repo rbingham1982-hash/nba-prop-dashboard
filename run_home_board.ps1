@@ -16,6 +16,16 @@
 # Task Scheduler calls run_home_board.bat, which calls this.
 
 Set-Location $PSScriptRoot
+
+# RETIRED 2026-10-18: every sport now runs on GitHub (.github/workflows/daily-board.yml),
+# NBA and WNBA from ESPN via nba_espn.py, and the cloud owns every file this script used to
+# commit. Running it would write the same files from a second machine, so it stops here
+# unless forced: .un_home_board.ps1 -Force
+if (-not ($args -contains "-Force")) {
+    Write-Host "run_home_board.ps1 is retired: the daily board runs on GitHub Actions."
+    exit 0
+}
+$args = @($args | Where-Object { $_ -ne "-Force" })
 $log = Join-Path $PSScriptRoot "logs\home_board_sync.log"
 New-Item -ItemType Directory -Force (Split-Path $log) | Out-Null
 function Say($msg) {

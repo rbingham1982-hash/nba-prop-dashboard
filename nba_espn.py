@@ -1,24 +1,27 @@
 """
-nba_espn.py — the current NBA season's league game log, built from ESPN box scores.
+nba_espn.py — the current NBA and WNBA seasons' league game logs, plus the NBA roster and
+season-stat files the draft board reads, all built from ESPN.
 
-stats.nba.com hangs for datacenter addresses, so until 2026-10-18 NBA ran on the home PC and
-the hosted app read the logs it exported (nba_snapshot.py). ESPN's public site API answers
-GitHub's runners (check_sources.py, 2026-10-18) and its box scores carry every column the
-NBA model and graders read, so the cloud runner now writes the current season itself:
+stats.nba.com hangs for datacenter addresses, so until 2026-10-18 NBA and WNBA ran on the home
+PC and the hosted app read the logs it exported (nba_snapshot.py). ESPN's public site API
+answers GitHub's runners (check_sources.py, 2026-10-18) and its box scores carry every column
+the models and graders read, so the cloud runner writes these itself:
 
-    python nba_espn.py          # refresh nba_data/gamelog-NBA-<season>-*.csv.gz
+    python nba_espn.py          # refresh both leagues' logs and the NBA roster files
 
-The files are LeagueGameLog-shaped and split by month exactly as nba_snapshot writes them,
+Game logs are LeagueGameLog-shaped and split by month exactly as nba_snapshot writes them,
 so every reader (nba_snapshot.league_log/player_log, nba_grades.season_log, the dashboard)
-works unchanged in snapshot mode. Earlier seasons stay as the home PC exported them; they
-are final.
+works unchanged in snapshot mode. Earlier seasons stay as the home PC exported them; they are
+final. Checked against stats.nba.com on three nights of 2025-26: 545 of 547 player-games
+matched with every stat identical (the two misses were a 1- and a 3-minute cameo).
 
-Player ids are NBA ids, so a player's rows join his earlier seasons. ESPN ids are mapped
-through, in order: the saved map (nba_data/espn-nba-ids.csv, so an id never changes once
-given), sportsdataverse's ESPN-to-NBA crosswalk, a name match against the saved PlayerIndex
-and game logs, and last a synthetic id (900,000,000 + the ESPN id) for a player found in
-none of them. Play-in games (ESPN season type 5) are not written: the snapshot has no
-play-in file, so a play-in prop stays ungraded.
+Player ids are stats.nba.com ids, so a player's rows join his earlier seasons. ESPN ids are
+mapped through, in order: the saved map (nba_data/espn-<league>-ids.csv, so an id never
+changes once given), sportsdataverse's ESPN-to-NBA crosswalk (NBA only), a name match
+against the saved PlayerIndex and game logs, and last a synthetic id (900,000,000 + the ESPN
+id) for a player found in none of them. Team codes come from the saved logs, matched on the
+team's name, so they stay stats.nba.com's (NYK, LVA, PHX), not ESPN's (NY, LV). Play-in
+games (ESPN season type 5) are not written: the snapshot has no play-in file.
 """
 from __future__ import annotations
 
@@ -31,12 +34,14 @@ import requests
 
 import nba_snapshot as ns
 
-_SITE = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba"
+_SITE = "https://site.api.espn.com/apis/site/v2/sports/basketball/{path}"
 _CROSSWALK = ("https://github.com/sportsdataverse/sportsdataverse-data/releases/download/"
               "nba_crosswalk/nba_player_crosswalk_{year}.parquet")
-_IDS = ns.DIR / "espn-nba-ids.csv"
-_ESPN_TO_NBA = {"GS": "GSW", "NY": "NYK", "SA": "SAS", "NO": "NOP", "UTAH": "UTA", "WSH": "WAS"}
+_LEAGUES = {"00": "nba", "10": "wnba"}
 _TYPES = {2: ("Regular Season", "2"), 3: ("Playoffs", "4")}     # ESPN type -> (snapshot, SEASON_ID prefix)
+# Used only when a team's name is not in the saved logs (a franchise renamed or new).
+_ESPN_ABBR = {"00": {"GS": "GSW", "NY": "NYK", "SA": "SAS", "NO": "NOP", "UTAH": "UTA", "WSH": "WAS"},
+              "10": {"GS": "GSV", "LV": "LVA", "LA": "LAS", "NY": "NYL", "WSH": "WAS", "POR": "PDX"}}
 _SYNTHETIC = 900_000_000
 _COLS = ["SEASON_ID", "PLAYER_ID", "PLAYER_NAME", "TEAM_ID", "TEAM_ABBREVIATION", "TEAM_NAME",
          "GAME_ID", "GAME_DATE", "MATCHUP", "WL", "MIN", "FGM", "FGA", "FG_PCT", "FG3M", "FG3A",
@@ -44,11 +49,11 @@ _COLS = ["SEASON_ID", "PLAYER_ID", "PLAYER_NAME", "TEAM_ID", "TEAM_ABBREVIATION"
          "PF", "PTS", "PLUS_MINUS", "FANTASY_PTS", "VIDEO_AVAILABLE"]
 
 
-def _get(path: str, **params) -> dict:
+def _get(league: str, path: str, **params) -> dict:
     for attempt in range(3):
         try:
-            r = requests.get(f"{_SITE}/{path}", params=params, timeout=20,
-                             headers={"User-Agent": "Mozilla/5.0"})
+            r = requests.get(_SITE.format(path=f"{_LEAGUES[league]}/{path}"), params=params,
+                             timeout=20, headers={"User-Agent": "Mozilla/5.0"})
             r.raise_for_status()
             return r.json()
         except Exception:
@@ -66,27 +71,59 @@ def _norm(name: str) -> str:
     return " ".join(s.split())
 
 
-def _teams() -> dict:
-    """NBA abbreviation -> (team id, full name), from nba_api's bundled table (no network)."""
-    from nba_api.stats.static import teams
-    return {t["abbreviation"]: (t["id"], t["full_name"]) for t in teams.get_teams()}
+def season_for(league: str, today: datetime.date) -> str:
+    """The season a date belongs to: '2026-27' for the NBA, '2026' for the WNBA."""
+    if league == "00":
+        import parlay_model as pm
+        return pm.nba_season_strings(today)[0]
+    return str(today.year if today.month >= 4 else today.year - 1)
+
+
+def _season_start(league: str, season: str) -> datetime.date:
+    return datetime.date(int(season[:4]), 10, 1) if league == "00" else datetime.date(int(season), 5, 1)
+
+
+# ── teams ─────────────────────────────────────────────────────────────────────────────────
+
+class _Teams:
+    """ESPN team -> (stats.nba.com abbreviation, team id, team name)."""
+
+    def __init__(self, league: str):
+        self.league, self.by_name, self.by_abbr = league, {}, {}
+        for f in sorted(ns.DIR.glob(f"gamelog-{ns._LEAGUE[league]}-*.csv.gz")):  # newest last
+            df = pd.read_csv(f, usecols=["TEAM_ID", "TEAM_ABBREVIATION", "TEAM_NAME"]).drop_duplicates()
+            for i, a, n in zip(df["TEAM_ID"], df["TEAM_ABBREVIATION"], df["TEAM_NAME"]):
+                self.by_name[_norm(n)] = (a, int(i), n)
+                self.by_abbr[a] = (a, int(i), n)
+        if league == "00":                       # LeagueGameLog spells it "LA Clippers"
+            self.by_name.setdefault(_norm("Los Angeles Clippers"), self.by_name.get(_norm("LA Clippers")))
+
+    def get(self, team: dict) -> tuple:
+        hit = self.by_name.get(_norm(team.get("displayName", "")))
+        if hit:
+            return hit
+        abbr = _ESPN_ABBR[self.league].get(team["abbreviation"], team["abbreviation"])
+        return self.by_abbr.get(abbr, (abbr, 0, team.get("displayName", abbr)))
 
 
 # ── player ids ────────────────────────────────────────────────────────────────────────────
 
 class _Ids:
-    def __init__(self, season: str):
+    def __init__(self, league: str, season: str):
+        self.league, self._season = league, season
+        self.path = ns.DIR / f"espn-{_LEAGUES[league]}-ids.csv"
         self.saved = {}
-        if _IDS.exists():
-            m = pd.read_csv(_IDS, dtype=str)
+        if self.path.exists():
+            m = pd.read_csv(self.path, dtype=str)
             self.saved = dict(zip(m["espn_id"], m["nba_id"].astype(int)))
         self.added = False
-        self._season = season
         self._cross = self._names = None
 
     def _crosswalk(self) -> dict:
         if self._cross is None:
             self._cross = {}
+            if self.league != "00":
+                return self._cross
             year = int(self._season[:4]) + 1
             for y in (year, year - 1):                  # the new season's file appears late
                 try:
@@ -100,11 +137,12 @@ class _Ids:
 
     def _by_name(self) -> dict:
         if self._names is None:
-            self._names = {_norm(n): i for n, i in ns.name_ids("00").items()}
-            idx = ns.frame(f"index-NBA-{self._season}")
-            if not idx.empty:
-                for f, l, i in zip(idx["PLAYER_FIRST_NAME"], idx["PLAYER_LAST_NAME"], idx["PERSON_ID"]):
-                    self._names[_norm(f"{f} {l}")] = int(i)
+            self._names = {_norm(n): i for n, i in ns.name_ids(self.league).items()}
+            if self.league == "00":
+                idx = ns.frame(f"index-NBA-{self._season}")
+                if not idx.empty:
+                    for f, l, i in zip(idx["PLAYER_FIRST_NAME"], idx["PLAYER_LAST_NAME"], idx["PERSON_ID"]):
+                        self._names[_norm(f"{f} {l}")] = int(i)
         return self._names
 
     def get(self, espn_id: str, name: str) -> int:
@@ -115,12 +153,11 @@ class _Ids:
         self.saved[espn_id], self.added = nba, True
         return nba
 
-    def save(self) -> bool:
-        if not self.added:
-            return False
-        pd.DataFrame(sorted(self.saved.items()), columns=["espn_id", "nba_id"]).to_csv(
-            _IDS, index=False, lineterminator="\n")
-        return True
+    def save(self, changed: list) -> None:
+        if self.added:
+            pd.DataFrame(sorted(self.saved.items()), columns=["espn_id", "nba_id"]).to_csv(
+                self.path, index=False, lineterminator="\n")
+            changed.append(self.path.name)
 
 
 # ── box scores ────────────────────────────────────────────────────────────────────────────
@@ -141,20 +178,17 @@ def _pct(m: int, a: int):
     return round(m / a, 3) if a else None
 
 
-def game_rows(event_id: str, day: datetime.date, season: str, s_prefix: str,
-              ids: _Ids, teams: dict) -> list:
+def game_rows(league: str, event_id: str, day: datetime.date, season: str, s_prefix: str,
+              ids: _Ids, teams: _Teams) -> list:
     """LeagueGameLog rows for one finished game: every player who played."""
-    s = _get("summary", event=event_id)
+    s = _get(league, "summary", event=event_id)
     comp = s["header"]["competitions"][0]
-    side = {}
-    for c in comp["competitors"]:
-        abbr = _ESPN_TO_NBA.get(c["team"]["abbreviation"], c["team"]["abbreviation"])
-        side[c["team"]["id"]] = (abbr, c["homeAway"], bool(c.get("winner")))
+    side = {c["team"]["id"]: (teams.get(c["team"]), c["homeAway"], bool(c.get("winner")))
+            for c in comp["competitors"]}
     rows = []
     for t in s.get("boxscore", {}).get("players", []):
-        abbr, home_away, won = side[t["team"]["id"]]
-        opp = next(a for tid, (a, _h, _w) in side.items() if tid != t["team"]["id"])
-        team_id, team_name = teams.get(abbr, (0, abbr))
+        (abbr, team_id, team_name), home_away, won = side[t["team"]["id"]]
+        opp = next(v[0][0] for tid, v in side.items() if tid != t["team"]["id"])
         block = t["statistics"][0]
         keys = block["keys"]
         for a in block["athletes"]:
@@ -191,23 +225,21 @@ def game_rows(event_id: str, day: datetime.date, season: str, s_prefix: str,
 
 # ── refresh ───────────────────────────────────────────────────────────────────────────────
 
-def _existing(season: str, s_type: str) -> pd.DataFrame:
-    return ns.league_log(season, s_type, "00")
-
-
-def refresh(today: datetime.date | None = None, max_days: int = 45) -> list[str]:
+def refresh(league: str = "00", today: datetime.date | None = None, max_days: int = 45,
+            changed: list | None = None) -> list[str]:
     """
     Fetch every finished game since the last one saved (re-reading the last two days, which
     catches stat corrections and games that ended after the previous run) and write the
     month files that changed. Returns the changed file names.
     """
-    import parlay_model as pm
     today = today or datetime.date.today()
-    season = pm.nba_season_strings(today)[0]
-    ids, teams = _Ids(season), _teams()
-    have = pd.concat([_existing(season, st) for st, _p in _TYPES.values()], ignore_index=True)
+    changed = [] if changed is None else changed
+    season = season_for(league, today)
+    ids, teams = _Ids(league, season), _Teams(league)
+    have = pd.concat([ns.league_log(season, st, league) for st, _p in _TYPES.values()],
+                     ignore_index=True)
     if have.empty:
-        start = datetime.date(int(season[:4]), 10, 1)
+        start = _season_start(league, season)
     else:
         start = pd.to_datetime(have["GAME_DATE"]).max().date() - datetime.timedelta(days=2)
     start = max(start, today - datetime.timedelta(days=max_days))
@@ -215,35 +247,135 @@ def refresh(today: datetime.date | None = None, max_days: int = 45) -> list[str]
     new = {st: [] for st, _p in _TYPES.values()}
     day = start
     while day <= today:
-        board = _get("scoreboard", dates=day.strftime("%Y%m%d"))
+        board = _get(league, "scoreboard", dates=day.strftime("%Y%m%d"))
         for e in board.get("events", []):
             kind = _TYPES.get(int(e.get("season", {}).get("type", 0)))
             if kind is None or not e["status"]["type"].get("completed"):
-                continue                        # preseason, play-in, or not over yet
+                continue                        # preseason, play-in, all-star, or not over yet
             try:
-                new[kind[0]] += game_rows(e["id"], day, season, kind[1], ids, teams)
+                new[kind[0]] += game_rows(league, e["id"], day, season, kind[1], ids, teams)
             except Exception as ex:
                 print(f"  skip {e.get('shortName')} {day}: {type(ex).__name__}: {ex}")
         day += datetime.timedelta(days=1)
 
-    changed = []
     for s_type, rows in new.items():
         if not rows:
             continue
         fresh = pd.DataFrame(rows, columns=_COLS)
-        old = _existing(season, s_type)
+        old = ns.league_log(season, s_type, league)
         if not old.empty:
-            old = old[~old["GAME_ID"].astype(str).isin(set(fresh["GAME_ID"]))]
+            # Replace by (date, team), not by GAME_ID: rows the home PC exported from
+            # stats.nba.com carry NBA game ids, so matching on ESPN's ids would keep both
+            # copies of the same game on the night the two sources meet.
+            done = set(zip(fresh["GAME_DATE"].astype(str), fresh["TEAM_ABBREVIATION"]))
+            old = old[[(str(d), a) not in done
+                       for d, a in zip(old["GAME_DATE"], old["TEAM_ABBREVIATION"])]]
         df = pd.concat([old, fresh], ignore_index=True)[_COLS]
         df = df.sort_values(["GAME_DATE", "GAME_ID", "PLAYER_ID"]).reset_index(drop=True)
         for month, part in df.groupby(df["GAME_DATE"].astype(str).str[:7]):
-            ns._write(ns.DIR / f"{ns._stem('00', season, s_type)}-{month}.csv.gz", part, changed)
-    if ids.save():
-        changed.append(_IDS.name)
+            ns._write(ns.DIR / f"{ns._stem(league, season, s_type)}-{month}.csv.gz", part, changed)
+    ids.save(changed)
     ns._CACHE.clear()
     return changed
 
 
+# ── NBA rosters and season stats (the draft board's inputs) ──────────────────────────────
+
+def refresh_rosters(today: datetime.date | None = None, changed: list | None = None) -> list[str]:
+    """
+    Keep index-NBA-<season> (PlayerIndex) current from ESPN's team rosters: a traded player's
+    team, and players signed since the last export. Columns ESPN does not carry (draft year
+    and slot, college) are kept from the saved file; a player ESPN lists on no roster keeps
+    his last saved team rather than being dropped.
+    """
+    today = today or datetime.date.today()
+    changed = [] if changed is None else changed
+    season = season_for("00", today)
+    ids, teams = _Ids("00", season), _Teams("00")
+    idx = ns.frame(f"index-NBA-{season}")
+    if idx.empty:
+        idx = ns.frame(f"index-NBA-{_prev(season)}")
+    rows = {int(r["PERSON_ID"]): dict(r) for _, r in idx.iterrows()} if not idx.empty else {}
+    seen = 0
+    for t in _get("00", "teams")["sports"][0]["leagues"][0]["teams"]:
+        abbr, team_id, team_name = teams.get(t["team"])
+        roster = _get("00", f"teams/{t['team']['id']}/roster").get("athletes", [])
+        for a in roster:
+            pid = ids.get(str(a["id"]), a.get("displayName", ""))
+            r = rows.get(pid) or {"PERSON_ID": pid, "ROSTER_STATUS": 1.0}
+            r.update({"PLAYER_FIRST_NAME": a.get("firstName", ""), "PLAYER_LAST_NAME": a.get("lastName", ""),
+                      "TEAM_ID": team_id, "TEAM_ABBREVIATION": abbr,
+                      # PlayerIndex splits the club into city and nickname, as ESPN does.
+                      "TEAM_NAME": t["team"].get("name", ""), "TEAM_CITY": t["team"].get("location", ""),
+                      "POSITION": (a.get("position") or {}).get("abbreviation", r.get("POSITION", "")),
+                      "JERSEY_NUMBER": a.get("jersey", r.get("JERSEY_NUMBER", ""))})
+            rows[pid] = r
+            seen += 1
+    if seen < 300:                               # a partial ESPN answer must not rewrite rosters
+        print(f"  rosters: only {seen} players returned — not saved")
+        return changed
+    out = pd.DataFrame(list(rows.values()))
+    cols = list(idx.columns) if not idx.empty else list(out.columns)
+    out = out[cols + [c for c in out.columns if c not in cols]].sort_values("PERSON_ID")
+    ns._write(ns.DIR / f"index-NBA-{season}.csv.gz", out.reset_index(drop=True), changed)
+    ids.save(changed)
+    return changed
+
+
+def refresh_dash(today: datetime.date | None = None, changed: list | None = None) -> list[str]:
+    """
+    dash-NBA-<season> (LeagueDashPlayerStats, per game, regular season) aggregated from the
+    saved game log, for the draft board's current-season numbers. AGE carries from last
+    season's file plus one; a player with no earlier file gets 0, which the aging curve
+    treats as no adjustment.
+    """
+    today = today or datetime.date.today()
+    changed = [] if changed is None else changed
+    season = season_for("00", today)
+    log = ns.league_log(season, "Regular Season", "00")
+    if log.empty:
+        return changed
+    stats = ["MIN", "FGM", "FGA", "FG3M", "FG3A", "FTM", "FTA", "OREB", "DREB", "REB", "AST",
+             "TOV", "STL", "BLK", "PF", "PTS", "PLUS_MINUS", "FANTASY_PTS"]
+    g = log.sort_values("GAME_DATE").groupby("PLAYER_ID")
+    df = g[stats].mean().round(1)
+    tot = g[["FGM", "FGA", "FG3M", "FG3A", "FTM", "FTA"]].sum()
+    df["GP"] = g.size()
+    df["W"] = g["WL"].apply(lambda s: int((s == "W").sum()))
+    df["L"] = df["GP"] - df["W"]
+    df["W_PCT"] = (df["W"] / df["GP"]).round(3)
+    for m, a, c in (("FGM", "FGA", "FG_PCT"), ("FG3M", "FG3A", "FG3_PCT"), ("FTM", "FTA", "FT_PCT")):
+        df[c] = (tot[m] / tot[a].where(tot[a] > 0)).round(3).fillna(0.0)
+    last = g.last()
+    df["PLAYER_NAME"], df["TEAM_ID"], df["TEAM_ABBREVIATION"] = (
+        last["PLAYER_NAME"], last["TEAM_ID"], last["TEAM_ABBREVIATION"])
+    prev = ns.frame(f"dash-NBA-{_prev(season)}")
+    ages = dict(zip(prev["PLAYER_ID"], prev["AGE"])) if not prev.empty else {}
+    df["AGE"] = [float(ages[p]) + 1 if p in ages else 0.0 for p in df.index]
+    df = df.rename(columns={"FANTASY_PTS": "NBA_FANTASY_PTS"}).reset_index()
+    ns._write(ns.DIR / f"dash-NBA-{season}.csv.gz", df, changed)
+    return changed
+
+
+def _prev(season: str) -> str:
+    y = int(season[:4]) - 1
+    return f"{y}-{str(y + 1)[-2:]}"
+
+
+def refresh_all(today: datetime.date | None = None) -> list[str]:
+    """Everything the cloud runner keeps current. Each part fails alone."""
+    changed: list = []
+    for name, fn in (("NBA log", lambda: refresh("00", today, changed=changed)),
+                     ("WNBA log", lambda: refresh("10", today, changed=changed)),
+                     ("NBA rosters", lambda: refresh_rosters(today, changed)),
+                     ("NBA season stats", lambda: refresh_dash(today, changed))):
+        try:
+            fn()
+        except Exception as e:
+            print(f"  {name} refresh failed ({type(e).__name__}: {e}) — retried next run")
+    return changed
+
+
 if __name__ == "__main__":
-    names = refresh()
-    print(f"ESPN NBA log: {len(names)} file(s) updated" + (": " + ", ".join(names) if names else ""))
+    names = refresh_all()
+    print(f"ESPN refresh: {len(names)} file(s) updated" + (": " + ", ".join(names) if names else ""))

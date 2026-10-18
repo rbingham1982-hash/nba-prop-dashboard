@@ -14,6 +14,10 @@ Files are split by calendar month and gzipped with a fixed timestamp, so a night
 rewrites only the current month's file and an unchanged month makes no diff at all.
 
     python nba_snapshot.py          # export (home PC); prints what changed
+
+Since 2026-10-18 the cloud runner keeps the current NBA and WNBA seasons and the NBA roster
+and season-stat files current from ESPN (nba_espn.py), and the home PC runs nothing on a
+schedule. export() stays as a manual tool for rebuilding past seasons from stats.nba.com.
 """
 from __future__ import annotations
 

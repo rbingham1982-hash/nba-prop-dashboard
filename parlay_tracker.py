@@ -1434,6 +1434,10 @@ def _resolve_mlb_legs() -> int:
     return resolved_count
 
 
+class _SnapshotIds(Exception):
+    """Internal: take the WNBA id map from the saved logs instead of CommonAllPlayers."""
+
+
 def _resolve_wnba_legs() -> int:
     """Auto-resolve pending WNBA legs via nba_api PlayerGameLog (league 10). Returns resolved count."""
     data = _load()
@@ -1451,6 +1455,11 @@ def _resolve_wnba_legs() -> int:
         return 0
 
     from nba_api.stats.endpoints import commonallplayers, playergamelog as _pgl  # type: ignore
+    import nba_snapshot as _ns
+    snap = _ns.use_snapshot()       # cloud runner: the saved league log, written from ESPN
+    _today = date.today()
+    _cur = _today.year if _today.month >= 4 else _today.year - 1
+    seasons = (str(_cur), str(_cur - 1))
 
     # Build the WNBA name→id map FIRST, before any lookups. This one heavy CommonAllPlayers
     # call gates all WNBA resolution — when it timed out, every pending WNBA leg found no id
@@ -1458,12 +1467,16 @@ def _resolve_wnba_legs() -> int:
     # an expansion-team game). If the map comes back empty, bail now; _count_attempts has not
     # run yet, so the give-up counters are untouched either way.
     try:
+        if snap:
+            raise _SnapshotIds()
         _time.sleep(0.5)
         wnba_df = commonallplayers.CommonAllPlayers(
             is_only_current_season=0, league_id="10"
         ).get_data_frames()[0]
         wnba_id_map = {row["DISPLAY_FIRST_LAST"].lower(): int(row["PERSON_ID"])
                        for _, row in wnba_df.iterrows()}
+    except _SnapshotIds:
+        wnba_id_map = _ns.name_ids("10")
     except Exception:
         wnba_id_map = {}
     if not wnba_id_map:
@@ -1510,9 +1523,14 @@ def _resolve_wnba_legs() -> int:
         # the player did play were voided.
         df = pd.DataFrame()
         complete = True
-        for season in ("2026", "2025"):
+        for season in seasons:
             for stype in ("Regular Season", "Playoffs"):
                 try:
+                    if snap:
+                        logs = _ns.player_log(pid, season, stype, league="10")
+                        if not logs.empty:
+                            df = logs if df.empty else pd.concat([df, logs], ignore_index=True)
+                        continue
                     _time.sleep(0.6)
                     logs = _pgl.PlayerGameLog(
                         player_id=pid, season=season,
@@ -1522,7 +1540,7 @@ def _resolve_wnba_legs() -> int:
                     if not logs.empty:
                         df = logs if df.empty else pd.concat([df, logs], ignore_index=True)
                 except Exception:
-                    if season == "2026":
+                    if season == seasons[0]:
                         complete = False
                     continue
         if df.empty:
@@ -1715,9 +1733,8 @@ def resolve_all_legs(budget_seconds: float = RESOLVE_BUDGET_SECONDS,
     Resolve NBA, MLB, WNBA, and NFL pending legs. Returns {nba, mlb, wnba, nfl} counts.
 
     `sports` (lower-case keys) limits the pass to those leagues. The cloud runner cannot
-    reach stats.nba.com, so it resolves MLB, NFL and NBA (from the saved league log) and
-    leaves WNBA legs to the home machine; each runner writes only the shards it owns. None
-    means all four.
+    reach stats.nba.com, so NBA and WNBA legs resolve from the saved league logs there
+    (nba_snapshot, written from ESPN by nba_espn.py). None means all four.
 
     The sports share one wall-clock budget: whichever runs first can use the whole window, and
     once it's spent the remaining resolvers no-op on their first loop check. Bounding the pass is
