@@ -292,31 +292,46 @@ def refresh_rosters(today: datetime.date | None = None, changed: list | None = N
     changed = [] if changed is None else changed
     season = season_for("00", today)
     ids, teams = _Ids("00", season), _Teams("00")
-    idx = ns.frame(f"index-NBA-{season}")
-    if idx.empty:
-        idx = ns.frame(f"index-NBA-{_prev(season)}")
-    rows = {int(r["PERSON_ID"]): dict(r) for _, r in idx.iterrows()} if not idx.empty else {}
+    # Read as text: values this run does not touch are written back exactly as they were
+    # ("243", not "243.0"), so only real roster moves show up as changes.
+    idx = pd.DataFrame()
+    for s_name in (season, _prev(season)):
+        path = ns.DIR / f"index-NBA-{s_name}.csv.gz"
+        if path.exists():
+            idx = pd.read_csv(path, dtype=str, keep_default_na=False)
+            break
+    rows = {int(float(r["PERSON_ID"])): dict(r) for _, r in idx.iterrows()} if not idx.empty else {}
     seen = 0
     for t in _get("00", "teams")["sports"][0]["leagues"][0]["teams"]:
         abbr, team_id, team_name = teams.get(t["team"])
         roster = _get("00", f"teams/{t['team']['id']}/roster").get("athletes", [])
         for a in roster:
             pid = ids.get(str(a["id"]), a.get("displayName", ""))
-            r = rows.get(pid) or {"PERSON_ID": pid, "ROSTER_STATUS": 1.0}
-            r.update({"PLAYER_FIRST_NAME": a.get("firstName", ""), "PLAYER_LAST_NAME": a.get("lastName", ""),
-                      "TEAM_ID": team_id, "TEAM_ABBREVIATION": abbr,
+            r = rows.get(pid)
+            if r is None:
+                # New to the file: ESPN is the only source, so it fills the name and a
+                # position ("G"/"F"/"C", coarser than PlayerIndex's "G-F").
+                r = {"PERSON_ID": str(pid), "ROSTER_STATUS": "1.0", "PLAYER_FIRST_NAME": a.get("firstName", ""),
+                     "PLAYER_LAST_NAME": a.get("lastName", ""),
+                     "POSITION": (a.get("position") or {}).get("abbreviation", "")}
+            # A known player keeps his saved name spelling and position (ESPN adds accents
+            # and drops the hybrid positions); only the club and number follow ESPN.
+            r.update({"TEAM_ID": str(team_id), "TEAM_ABBREVIATION": abbr,
                       # PlayerIndex splits the club into city and nickname, as ESPN does.
                       "TEAM_NAME": t["team"].get("name", ""), "TEAM_CITY": t["team"].get("location", ""),
-                      "POSITION": (a.get("position") or {}).get("abbreviation", r.get("POSITION", "")),
-                      "JERSEY_NUMBER": a.get("jersey", r.get("JERSEY_NUMBER", ""))})
+                      "JERSEY_NUMBER": str(a.get("jersey", r.get("JERSEY_NUMBER", "")))})
             rows[pid] = r
             seen += 1
     if seen < 300:                               # a partial ESPN answer must not rewrite rosters
         print(f"  rosters: only {seen} players returned — not saved")
         return changed
-    out = pd.DataFrame(list(rows.values()))
+    out = pd.DataFrame(list(rows.values())).fillna("")
     cols = list(idx.columns) if not idx.empty else list(out.columns)
-    out = out[cols + [c for c in out.columns if c not in cols]].sort_values("PERSON_ID")
+    out = out[cols + [c for c in out.columns if c not in cols]]
+    if not idx.empty:                           # saved order first, new players after
+        order = {p: i for i, p in enumerate(idx["PERSON_ID"])}
+        out = out.assign(_o=out["PERSON_ID"].map(order).fillna(len(order))).sort_values(
+            ["_o", "PLAYER_LAST_NAME"]).drop(columns="_o")
     ns._write(ns.DIR / f"index-NBA-{season}.csv.gz", out.reset_index(drop=True), changed)
     ids.save(changed)
     return changed
