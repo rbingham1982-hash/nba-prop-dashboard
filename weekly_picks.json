@@ -1966,9 +1966,9 @@
     "wind_mph": 16.0,
     "expected_adj": -6.22,
     "gameday": "2026-10-18",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 65.0,
+    "residual": 22.5
    },
    {
     "game": "LAC @ KC",
@@ -2142,6 +2142,7 @@
    "fair_prob": 0.3154,
    "breakeven": 0.3445,
    "frozen_at": "2026-10-16T02:46:30"
-  }
+  },
+  "graded": false
  }
 }

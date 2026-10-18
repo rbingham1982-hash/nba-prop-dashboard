@@ -14540,5 +14540,49 @@
   "logged_at": "2026-10-18T02:37:24",
   "outcome": null,
   "actual": null
+ },
+ "kendrick bourne|Receiving Yards|30.5|36160495": {
+  "player": "Kendrick Bourne",
+  "stat": "Receiving Yards",
+  "line": 30.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 22.0,
+  "last5": [
+   0.0,
+   75.0,
+   11.0,
+   22.0,
+   70.0
+  ],
+  "game": "ARI @ LA",
+  "start_time": "2026-10-18T20:06:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T12:10:29",
+  "outcome": null,
+  "actual": null
+ },
+ "blake corum|Rushing Yards|44.5|36160495": {
+  "player": "Blake Corum",
+  "stat": "Rushing Yards",
+  "line": 44.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   54.0,
+   79.0,
+   15.0,
+   14.0,
+   19.0
+  ],
+  "game": "ARI @ LA",
+  "start_time": "2026-10-18T20:06:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T12:10:29",
+  "outcome": null,
+  "actual": null
  }
 }
