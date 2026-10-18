@@ -6268,5 +6268,27 @@
   "logged_at": "2026-10-18T13:47:58",
   "outcome": null,
   "actual": null
+ },
+ "ausar thompson|Pts+Asts|14.5|35928218": {
+  "player": "Ausar Thompson",
+  "stat": "Pts+Asts",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -136,
+  "fair_prob": 0.5629,
+  "med5": 11.0,
+  "last5": [
+   14.0,
+   5.0,
+   11.0,
+   14.0,
+   5.0
+  ],
+  "game": "BOS @ DET",
+  "start_time": "2026-10-20T19:00:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-18T15:59:11",
+  "outcome": null,
+  "actual": null
  }
 }

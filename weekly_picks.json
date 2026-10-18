@@ -1705,8 +1705,8 @@
     "edge": 7.26,
     "pick": "home",
     "pick_label": "PHI +3.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -11.0
    },
    {
     "game": "PIT @ TB",
@@ -1717,8 +1717,8 @@
     "edge": 4.2,
     "pick": "home",
     "pick_label": "TB +2.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -7.0
    },
    {
     "game": "NYJ @ NE",
@@ -1729,8 +1729,8 @@
     "edge": 4.04,
     "pick": "home",
     "pick_label": "NE -7.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": 7.0
    },
    {
     "game": "NO @ NYG",
@@ -1741,8 +1741,8 @@
     "edge": 4.03,
     "pick": "home",
     "pick_label": "NYG +1.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -7.0
    },
    {
     "game": "DAL @ GB",
@@ -1954,9 +1954,9 @@
     "wind_mph": 18.4,
     "expected_adj": -7.16,
     "gameday": "2026-10-18",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 45.0,
+    "residual": 5.5
    },
    {
     "game": "HOU @ JAX",
@@ -1990,9 +1990,9 @@
     "wind_mph": 10.5,
     "expected_adj": -4.08,
     "gameday": "2026-10-18",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 39.0,
+    "residual": 0.5
    },
    {
     "game": "CHI @ ATL",
@@ -2002,9 +2002,9 @@
     "wind_mph": 10.4,
     "expected_adj": -4.05,
     "gameday": "2026-10-18",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 54.0,
+    "residual": 2.5
    }
   ],
   "parlay_gate": true,
