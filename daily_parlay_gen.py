@@ -817,6 +817,15 @@ def run_form_signal(sports, month: int) -> None:
                   f"— record {form_signal.record(sport)}, parlay {form_signal.parlay_record(sport)}")
         except Exception as e:
             print(f"  Form signal {sport.upper()} failed ({e}) — retried next run.")
+    # The model-edge overs test (edge_signal) is NFL-only and rides with the form test.
+    if "nfl" in sports and (month >= 9 or month <= 2):
+        try:
+            import edge_signal
+            r = edge_signal.run("nfl")
+            print(f"  Edge signal NFL: graded {r['graded']}, logged {r['logged']} "
+                  f"— record {edge_signal.record('nfl')}")
+        except Exception as e:
+            print(f"  Edge signal NFL failed ({e}) — retried next run.")
 
 
 def run_favorite_signal(sports, month: int) -> None:
