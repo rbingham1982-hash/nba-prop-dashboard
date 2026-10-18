@@ -132,6 +132,86 @@ def _sleeper():
     return r.status_code == 200, f"HTTP {r.status_code}, {len(r.json()) if r.ok else 0} players"
 
 
+# ── NBA alternatives to stats.nba.com (2026-10-18) ───────────────────────────────────────
+# stats.nba.com hangs for datacenter IPs, which is why NBA/WNBA stay on the home PC. These
+# probe the candidate replacements. None is required: the question is which ones answer.
+
+_UA = {"User-Agent": "Mozilla/5.0"}
+
+
+@probe("ESPN NBA box score (game summary)", required=False)
+def _espn_nba_box():
+    sb = requests.get("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",
+                      params={"dates": "20260301"}, timeout=15).json()
+    eid = sb["events"][0]["id"]
+    s = requests.get("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary",
+                     params={"event": eid}, timeout=15).json()
+    teams = s.get("boxscore", {}).get("players", [])
+    n = sum(len(st.get("athletes", [])) for t in teams for st in t.get("statistics", []))
+    keys = teams[0]["statistics"][0].get("keys", []) if teams else []
+    return n > 0, f"{n} player rows; fields {keys[:14]}"
+
+
+@probe("ESPN core API athlete season stats", required=False)
+def _espn_core():
+    # Nikola Jokic, 2025-26 regular season. The core API carries ESPN's own derived stats.
+    r = requests.get("https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/"
+                     "seasons/2026/types/2/athletes/3112335/statistics", timeout=15)
+    cats = r.json().get("splits", {}).get("categories", []) if r.ok else []
+    names = [s["name"] for c in cats for s in c.get("stats", [])]
+    adv = [n for n in names if any(k in n.lower() for k in ("per", "rating", "usage", "true",
+                                                            "efficiency", "estimated"))]
+    return r.ok and bool(names), f"HTTP {r.status_code}, {len(names)} stats; advanced-ish {adv[:10]}"
+
+
+@probe("cdn.nba.com box score (live-data JSON)", required=False)
+def _nba_cdn_box():
+    r = requests.get("https://cdn.nba.com/static/json/liveData/boxscore/boxscore_0022500900.json",
+                     headers={**_UA, "Referer": "https://www.nba.com/", "Origin": "https://www.nba.com"},
+                     timeout=15)
+    if not r.ok:
+        return False, f"HTTP {r.status_code}"
+    g = r.json()["game"]
+    p = g["homeTeam"]["players"][0]["statistics"]
+    return True, f"HTTP 200; player fields {list(p)[:12]}"
+
+
+@probe("cdn.nba.com season schedule", required=False)
+def _nba_cdn_sched():
+    r = requests.get("https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json",
+                     headers=_UA, timeout=20)
+    if not r.ok:
+        return False, f"HTTP {r.status_code}"
+    d = r.json()["leagueSchedule"]
+    return True, f"HTTP 200, season {d.get('seasonYear')}, {len(d.get('gameDates', []))} dates"
+
+
+@probe("pbpstats API player totals", required=False)
+def _pbpstats():
+    r = requests.get("https://api.pbpstats.com/get-totals/nba",
+                     params={"Season": "2025-26", "SeasonType": "Regular Season", "Type": "Player"},
+                     headers=_UA, timeout=30)
+    if not r.ok:
+        return False, f"HTTP {r.status_code}: {r.text[:100]!r}"
+    rows = r.json().get("multi_row_table_data", [])
+    return bool(rows), f"{len(rows)} players; fields {sorted(rows[0])[:12] if rows else []}"
+
+
+@probe("sportsdataverse NBA release (hoopR bulk data)", required=False)
+def _sdv():
+    import pandas as pd
+    df = pd.read_parquet("https://github.com/sportsdataverse/sportsdataverse-data/releases/"
+                         "download/espn_nba_player_boxscores/player_box_2026.parquet")
+    return len(df) > 0, f"{len(df)} player-game rows, last game {df['game_date'].max()}"
+
+
+@probe("Basketball-Reference advanced page (scrape only)", required=False)
+def _bref():
+    r = requests.get("https://www.basketball-reference.com/leagues/NBA_2026_advanced.html",
+                     headers=_UA, timeout=20)
+    return r.ok and "advanced" in r.text, f"HTTP {r.status_code}, {len(r.text) // 1024} KB"
+
+
 failed = [n for n, req, ok, _ in results if req and not ok]
 print("\n" + ("All required sources reachable." if not failed
               else "BLOCKED: " + ", ".join(failed)))
