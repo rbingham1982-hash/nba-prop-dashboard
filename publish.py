@@ -133,6 +133,80 @@ def render_card(title: str, subtitle: str, rows: list, footer: str,
     return path
 
 
+def _fit(d, text: str, size: int, width: int, bold: bool = False):
+    """The largest font at or below `size` that fits `text` in `width`, down to 60%."""
+    floor = int(size * 0.6)
+    while size > floor and d.textlength(text, font=_font(size, bold)) > width:
+        size -= 2
+    return _font(size, bold)
+
+
+def render_thumbnail(data: dict) -> pathlib.Path | None:
+    """
+    The issue's 1200x630 link thumbnail: beehiiv's post image, and the card X, Discord and
+    Facebook show under a shared link.
+
+    Not a card. The 4:5 cards crop to a meaningless strip at 1.91:1, and an empty
+    thumbnail slot makes a shared link look abandoned. Left half names the issue and what
+    is in it; right half is the player of the week, the one number worth a click.
+
+    Never attached to a Discord post: the cards already carry this content, and a
+    landscape duplicate at the top of the post would bury them.
+    """
+    from PIL import Image, ImageDraw
+    rc = data.get("recap") or {}
+    week = data.get("week")
+    if not week:
+        return None
+    W, H, line = 1200, 630, (55, 65, 81)
+    img = Image.new("RGB", (W, H), _BG)
+    d = ImageDraw.Draw(img)
+
+    d.text((64, 64), "THE OPPORTUNITY REPORT", font=_font(26, True), fill=_ACCENT)
+    d.text((64, 104), f"Week {week}", font=_font(96, True), fill=_FG)
+    d.text((64, 222), data["generated"].strftime("%B %d, %Y").replace(" 0", " "),
+           font=_font(32), fill=_MUTED)
+
+    # Only what this issue actually carries: a bullet for a section that was skipped
+    # would be the thumbnail promising content the page does not have.
+    bullets = []
+    if rc:
+        bullets.append("Every QB, RB, WR and TE graded")
+    if data.get("waivers"):
+        bullets.append("Waiver targets the crowd is missing")
+    picks = [label for key, label in (("ats", "Spread picks"), ("td_parlay", "TD parlay"),
+                                      ("parlay", "5-leg parlay")) if data.get(key)]
+    if picks:
+        bullets.append(" + ".join(picks))
+    for i, t in enumerate(bullets[:3]):
+        d.text((64, 318 + i * 52), "•  " + t, font=_font(30), fill=_FG)
+
+    d.line([(64, H - 92), (W - 64, H - 92)], fill=line, width=2)
+    d.text((64, H - 70), "konjureanalytics.com", font=_font(26), fill=_MUTED)
+
+    p = rc.get("potw")
+    if p:
+        x0, inner = 700, W - 64 - 700 - 72
+        d.rounded_rectangle([x0, 64, W - 64, H - 124], radius=18, outline=line, width=2)
+        d.text((x0 + 36, 92), "PLAYER OF THE WEEK", font=_font(22, True), fill=_MUTED)
+        d.text((x0 + 36, 128), p["player"], font=_fit(d, p["player"], 46, inner, True), fill=_FG)
+        d.text((x0 + 36, 186), f"{p['position']} · {p['team']} vs {p['opponent']}",
+               font=_font(26), fill=_MUTED)
+        f_grade = _font(110, True)
+        d.text((x0 + 36, 236), p["grade"], font=f_grade, fill=_ACCENT)
+        gx = x0 + 36 + d.textlength(p["grade"], font=f_grade) + 28
+        d.text((gx, 270), f"{float(p['score']):.1f}", font=_font(54, True), fill=_FG)
+        # The stat line is "passing · rushing" for a QB; one part per row reads at a glance.
+        for i, part in enumerate(str(p.get("line", "")).split(" · ")[:2]):
+            part = part.strip()
+            d.text((x0 + 36, 378 + i * 40), part, font=_fit(d, part, 28, inner), fill=_FG)
+
+    path = _OUT / f"{data['generated'].strftime('%Y-%m-%d')}-thumbnail.jpg"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path, "JPEG", quality=92, optimize=True)
+    return path
+
+
 def _leg_label(player: str, tail: str) -> str:
     """'Player  tail', with the first name cut to an initial when render_card's 30-character
     row would otherwise drop the stat ('Shai Gilgeous-Alexander  u4.5' lost 'Reb')."""
@@ -780,6 +854,8 @@ def run(dry_run: bool = True,
     nl.generate()                      # write the files regardless
     cards = render_cards(data)
     result["cards"] = [str(c) for c in cards]
+    thumb = render_thumbnail(data)
+    result["thumbnail"] = str(thumb) if thumb else None
 
     # The post text lives INSIDE the ``` fences in the social draft. Taking the first
     # non-heading line instead grabbed "Copy-paste. Nothing here is posted automatically."
