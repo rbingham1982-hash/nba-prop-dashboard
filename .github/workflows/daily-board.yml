@@ -129,6 +129,12 @@ jobs:
               print("before 4 PM: board not attempted")
           EOF
 
+      # The website's homepage, /record and the archive nav, rebuilt from the logs just
+      # graded so the public record is never behind. Deterministic: no new result, no diff.
+      - name: Rebuild the website
+        if: always()
+        run: python site_build.py
+
       - name: Commit this runner's logs
         if: always()
         run: |
@@ -136,7 +142,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Only files that exist: form_log-NFL.json appears with the first qualifying prop,
           # and git add fails outright on a path that matches nothing.
-          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json parlay_log-NBA-*.json game_log.json weekly_picks.json \n                   form_log-NFL.json edge_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json \n                   tip_log.json nba_weekly_picks.json form_log-NBA.json favorite_log-NBA.json threes_log-NBA.json \n                   parlay_log-WNBA-*.json favorite_log-WNBA.json nba_data; do
+          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json parlay_log-NBA-*.json game_log.json weekly_picks.json \n                   form_log-NFL.json edge_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json \n                   tip_log.json nba_weekly_picks.json form_log-NBA.json favorite_log-NBA.json threes_log-NBA.json \n                   parlay_log-WNBA-*.json favorite_log-WNBA.json nba_data                    docs/index.html docs/about.html docs/og.jpg docs/record docs/report; do
             if [ -e "$f" ]; then git add -- "$f"; fi
           done
           if git diff --cached --quiet; then

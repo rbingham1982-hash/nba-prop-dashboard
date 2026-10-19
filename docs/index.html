@@ -1,78 +1,113 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Konjure Analytics</title>
-<meta name="description" content="Player projections, prop-market analysis and a free weekly report for the NFL, NBA, MLB and WNBA — built from usage and opportunity, with every pick graded in public.">
+<title>Konjure Analytics: player grades and projections, every pick graded in public</title>
+<meta name="description" content="Player grades, projections and prop-market analysis for the NFL, NBA, MLB and WNBA, built from usage. Every pick written down before kickoff and graded in public.">
 <link rel="icon" href="app-icon.jpg">
 <style>
 :root{--bg:#0f1117;--card:#161a26;--line:#232838;--text:#c8cad4;--head:#f3f4f6;--muted:#7c8196;--accent:#818cf8;--accent-2:#6366f1}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-background:var(--bg);color:var(--text);line-height:1.7;padding:2.5rem 1rem 3rem}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);
+line-height:1.65;padding:1.5rem 1rem 3rem}
 .c{max-width:760px;margin:0 auto}
 a{color:var(--accent)}
-.brand{display:flex;align-items:center;gap:.7rem;margin-bottom:2.5rem}
-.brand img{width:40px;height:40px;border-radius:10px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.6rem;font-size:.85rem}
+.brand{display:flex;align-items:center;gap:.55rem;text-decoration:none;font-size:.7rem;letter-spacing:.18em;
+text-transform:uppercase;font-weight:800;color:var(--accent)}
+.brand img{width:28px;height:28px;border-radius:7px}
+.top nav{display:flex;gap:1rem}
+.top nav a{color:var(--text);text-decoration:none}
+.top nav a:hover{color:var(--accent)}
 .k{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:800}
-h1{color:var(--head);font-size:2.1rem;line-height:1.2;margin-bottom:.9rem;letter-spacing:-.01em}
-.lede{font-size:1.08rem;max-width:620px}
-.cta{display:flex;flex-wrap:wrap;gap:.75rem;margin:1.8rem 0 2.8rem}
-.btn{display:inline-block;padding:.75rem 1.25rem;border-radius:10px;font-weight:700;text-decoration:none;font-size:.95rem}
-.btn.primary{background:var(--accent-2);color:#fff}
-.btn.primary:hover{background:var(--accent)}
-.btn.ghost{border:1px solid var(--line);color:var(--head)}
-.btn.ghost:hover{border-color:var(--accent)}
-h2{color:var(--head);font-size:1.15rem;margin-bottom:1rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:2.8rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem}
-.card h3{color:var(--head);font-size:1rem;margin-bottom:.35rem}
+h1.page{color:var(--head);font-size:1.8rem;line-height:1.2;margin:.4rem 0 .7rem}
+.lede{max-width:600px;margin-bottom:1.6rem}
+.btn{display:inline-block;padding:.7rem 1.2rem;border-radius:10px;font-weight:700;text-decoration:none;font-size:.92rem;
+background:var(--accent-2);color:#fff}
+.btn:hover{background:var(--accent)}
+.list{list-style:none;display:grid;gap:.8rem;margin:1.8rem 0}
+.list a{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem;
+text-decoration:none;color:var(--text)}
+.list a:hover{border-color:var(--accent)}
+.list .t{color:var(--head);font-weight:700}
+.list .s{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+.issue{background:#fff;color:#111827;border-radius:14px;padding:1.6rem 1.4rem;overflow:hidden}
+.issue h1{font-size:1.55rem;line-height:1.25;margin:.2rem 0 .4rem;color:#0b1020}
+.issue h2{font-size:1.15rem;margin:1.6rem 0 .3rem;color:#0b1020}
+.issue table{display:block;overflow-x:auto;max-width:100%}
+.issue a{color:#4f46e5}
+.cta{background:linear-gradient(135deg,#1b1f33,#161a26);border:1px solid var(--line);border-radius:14px;
+padding:1.4rem;margin:1.8rem 0}
+.cta p{margin:.3rem 0 1rem}
+.pager{display:flex;justify-content:space-between;gap:1rem;font-size:.9rem;margin-top:1.4rem}
+.foot{border-top:1px solid var(--line);margin-top:2rem;padding-top:1.2rem;font-size:.8rem;color:var(--muted)}
+@media (max-width:520px){.issue{padding:1.1rem .9rem}h1.page{font-size:1.5rem}.top nav a.opt{display:none}}
+</style><meta property="og:title" content="Konjure Analytics: player grades and projections, every pick graded in public"><meta property="og:description" content="Player grades, projections and prop-market analysis for the NFL, NBA, MLB and WNBA, built from usage. Every pick written down before kickoff and graded in public."><meta property="og:type" content="website"><meta property="og:url" content="https://konjureanalytics.com/"><meta property="og:image" content="https://konjureanalytics.com/og.jpg"><meta name="twitter:card" content="summary_large_image"><style>
+.hero{margin:.6rem 0 1.6rem}
+.hero h1{color:var(--head);font-size:2.1rem;line-height:1.18;margin:.5rem 0 .9rem;letter-spacing:-.01em}
+.hero p{font-size:1.06rem;max-width:620px}
+.row{display:flex;flex-wrap:wrap;gap:.7rem;margin:1.4rem 0 0}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--head)}
+.btn.ghost:hover{border-color:var(--accent);background:transparent}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem;margin:1.8rem 0 .6rem}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.95rem 1rem}
+.stat .n{color:var(--head);font-size:1.45rem;font-weight:800;line-height:1.2}
+.stat .l{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.stat .d{font-size:.84rem;color:var(--muted);margin-top:.25rem}
+.note{font-size:.84rem;color:var(--muted);margin-bottom:2.2rem}
+h2.s{color:var(--head);font-size:1.2rem;margin:2.4rem 0 .8rem}
+.potw{display:flex;gap:1rem;align-items:center;background:linear-gradient(135deg,#1b1f33,#161a26);
+border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:.9rem}
+.potw .g{font-size:2.3rem;font-weight:800;color:var(--accent);min-width:3.6rem;text-align:center}
+.potw .who{color:var(--head);font-weight:800;font-size:1.1rem}
+.potw .what{font-size:.88rem;color:var(--muted)}
+table.t{width:100%;border-collapse:collapse;font-size:.9rem;margin:.4rem 0 1rem}
+table.t th{text-align:left;color:var(--muted);font-weight:600;font-size:.75rem;letter-spacing:.06em;
+text-transform:uppercase;border-bottom:1px solid var(--line);padding:.45rem .4rem}
+table.t td{border-bottom:1px solid var(--line);padding:.5rem .4rem}
+table.t td.r,table.t th.r{text-align:right}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.9rem;margin:.6rem 0 1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem}
+.card h3{color:var(--head);font-size:1rem;margin-bottom:.3rem}
 .card p{font-size:.9rem}
-.tag{display:inline-block;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
-color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:.05rem .55rem;margin-left:.35rem;vertical-align:middle}
 .news{background:linear-gradient(135deg,#1b1f33,#161a26);border:1px solid var(--line);border-radius:14px;
-padding:1.6rem 1.5rem;margin-bottom:2.8rem}
-.news p{margin:.4rem 0 1.2rem;max-width:560px}
+padding:1.4rem 1.3rem;margin:2.4rem 0}
+.news p{margin:.4rem 0 1rem;max-width:580px}
 .small{font-size:.82rem;color:var(--muted)}
-.foot{border-top:1px solid var(--line);padding-top:1.4rem;font-size:.85rem}
-.foot p{margin:.4rem 0}
-@media (max-width:520px){h1{font-size:1.65rem}.btn{flex:1 1 100%;text-align:center}}
+.social{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem}
+.prose h2{color:var(--head);font-size:1.15rem;margin:1.8rem 0 .5rem}
+.prose p,.prose li{margin:.45rem 0;max-width:660px}
+.prose ul{padding-left:1.2rem}
+@media (max-width:520px){.hero h1{font-size:1.65rem}.btn{flex:1 1 100%;text-align:center}}
 </style></head><body><div class="c">
+<div class="top"><a class="brand" href=""><img src="app-icon.jpg" alt="">Konjure Analytics</a>
+<nav><a href="record/">Record</a><a href="report/">Past issues</a><a class="opt" href="about.html">About</a><a class="opt" href="app/">Dashboard</a></nav></div>
 
-<div class="brand"><img src="app-icon.jpg" alt=""><div class="k">Konjure Analytics</div></div>
-
+<div class="hero"><div class="k">Player grades · projections · every pick graded</div>
 <h1>Sports projections built from opportunity, not last week's box score.</h1>
-<p class="lede">Player projections and prop-market analysis for the NFL, NBA, MLB and WNBA, driven by
-usage — snaps, targets, minutes, plate appearances. Every published pick is logged before kickoff
-and graded afterwards, wins and losses alike.</p>
-
-<div class="cta">
-  <a class="btn primary" href="https://konjureanalytics.beehiiv.com/subscribe">Get the free weekly report</a>
-  <a class="btn ghost" href="app/">Open the dashboard →</a>
-</div>
-
-<h2>What's inside</h2>
+<p>Player grades, projections and prop-market analysis for the NFL, NBA, MLB and WNBA, driven by
+usage: snaps, targets, minutes, plate appearances. Every published pick is written down before
+kickoff and graded afterwards, wins and losses alike.</p>
+<div class="row"><a class="btn" href="#subscribe">Get the free report</a>
+<a class="btn ghost" href="record/">See every pick graded</a></div></div>
+<div class="stats"><div class="stat"><div class="l">NFL spread picks</div><div class="n">14-15-1</div><div class="d">48.3% · break-even 52.4%</div></div><div class="stat"><div class="l">Touchdown scorer board</div><div class="n">34-16</div><div class="d">68.0% hit · the book&#x27;s odds expected 59.2%</div></div><div class="stat"><div class="l">Picks graded in public</div><div class="n">111</div><div class="d">every one logged before kickoff</div></div></div>
+<p class="note">Shown as it is, including when it is unflattering. A pick service that only shows
+its wins is hiding something. <a href="record/">Full record →</a></p>
+<h2 class="s">Week 5 report card</h2><div class="potw"><div class="g">A+</div><div><div class="k">Player of the week</div><div class="who">Drake Maye · QB, NE vs LV</div><div class="what">99.8 · 26/34, 374 yds, 4 TD, 0 INT · 7-25 rush, 1 TD</div></div></div><table class="t"><tr><th>Player</th><th>Pos</th><th>Team</th><th class="r">Grade</th><th class="r">Score</th></tr><tr><td>Drake Maye</td><td>QB</td><td>NE</td><td class="r"><b>A+</b></td><td class="r">100</td></tr><tr><td>Christian Watson</td><td>WR</td><td>GB</td><td class="r"><b>A+</b></td><td class="r">99</td></tr><tr><td>Jahmyr Gibbs</td><td>RB</td><td>DET</td><td class="r"><b>A+</b></td><td class="r">99</td></tr><tr><td>Jaylen Warren</td><td>RB</td><td>PIT</td><td class="r"><b>A+</b></td><td class="r">98</td></tr><tr><td>Sam LaPorta</td><td>TE</td><td>DET</td><td class="r"><b>A+</b></td><td class="r">98</td></tr><tr><td>Mike Evans</td><td>WR</td><td>SF</td><td class="r"><b>A+</b></td><td class="r">98</td></tr><tr><td>Bucky Irving</td><td>RB</td><td>TB</td><td class="r"><b>A+</b></td><td class="r">98</td></tr><tr><td>Isaiah Likely</td><td>TE</td><td>NYG</td><td class="r"><b>A+</b></td><td class="r">97</td></tr></table><p class="small">201 players graded on efficiency, production, share of the work and mistakes, against every player-week of last season at the position. A 90 beats 90% of them. The full card, every position, is in the Tuesday issue.</p>
+<div class="news" id="subscribe"><div class="k">The Opportunity Report · free, twice a week</div>
+<p><b>Tuesday:</b> the week just played, graded, and who to pick up.<br>
+<b>Friday:</b> this week's board, written down before kickoff.</p>
+<script async src="https://subscribe-forms.beehiiv.com/v3/loader.js" data-beehiiv-form="88c44e3c-0ca9-4e06-9c17-0a25f31cbc55"></script><noscript><a class="btn" href="https://konjureanalytics.beehiiv.com/subscribe">Subscribe free</a></noscript><p class="small" style="margin-top:.7rem">Or <a href="https://konjureanalytics.beehiiv.com/subscribe">subscribe on beehiiv</a>. Free. Unsubscribe in one click.</p></div>
+<h2 class="s">What's inside</h2>
 <div class="grid">
-  <div class="card"><h3>Weekly Hub</h3><p>Player grades, projections and the week's picks for every sport, refreshed through the day.</p></div>
-  <div class="card"><h3>Edge Finder <span class="tag">Free account</span></h3><p>Sportsbook boards and parlay builders that put our model next to the market price.</p></div>
-  <div class="card"><h3>Track record</h3><p>Every logged pick graded in public — the record is shown as it is, including when it's unflattering.</p></div>
+<div class="card"><h3>Weekly hub</h3><p>Player grades, projections and the week's picks for every sport, refreshed through the day.</p></div>
+<div class="card"><h3>Edge Finder · free account</h3><p>Sportsbook boards and a build-your-own parlay that shows its real chance of hitting, our model beside the market.</p></div>
+<div class="card"><h3>Track record</h3><p>Every logged pick and every live test, graded in public. <a href="record/">See it →</a></p></div>
 </div>
+<div class="row"><a class="btn ghost" href="app/">Open the dashboard →</a><a class="btn ghost" href="report/">Past issues</a>
+<a class="btn ghost" href="about.html">How it works</a></div>
+<p class="small" style="margin-top:2rem">For adults 18+ and of legal age for sports wagering where you live.
+Everything here is model output for informational and entertainment purposes. It is not betting advice,
+and no outcome is guaranteed. If gambling stops being fun, call 1-800-GAMBLER.</p>
 
-<div class="news">
-  <div class="k">The Opportunity Report</div>
-  <h2 style="margin-top:.4rem">A free weekly email</h2>
-  <p>The week's top projections, waiver and start/sit calls, and a graded recap of last week's picks —
-  in your inbox once a week. No spam; unsubscribe in one click.</p>
-  <a class="btn primary" href="https://konjureanalytics.beehiiv.com/subscribe">Subscribe free</a>
-  <a class="btn ghost" href="report/" style="margin-left:.5rem">Read past issues</a>
-  <p class="small" style="margin:1rem 0 0">Already making an account for the Edge Finder? Tick the newsletter box when you sign up.</p>
-</div>
-
-<div class="foot">
-  <p class="small">For adults 18+ and of legal age for sports wagering where you live. Everything here is model
-  output for informational and entertainment purposes — not betting advice, and no outcome is guaranteed.
-  If gambling stops being fun, call 1-800-GAMBLER.</p>
-  <p><a href="report/">Past issues</a> · <a href="privacy.html">Privacy policy</a> · <a href="data-deletion.html">Data deletion</a> ·
-  <a href="deauthorize.html">Deauthorize</a> · <a href="mailto:info@konjureanalytics.com">info@konjureanalytics.com</a></p>
-  <p class="small">© 2026 Konjure Analytics</p>
-</div>
-
+<div class="foot">Model output for informational and entertainment purposes — not betting advice. 18+ only.
+<a href="privacy.html">Privacy</a> · <a href="mailto:info@konjureanalytics.com">info@konjureanalytics.com</a></div>
 </div></body></html>

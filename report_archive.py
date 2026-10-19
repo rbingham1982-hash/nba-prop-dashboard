@@ -72,7 +72,7 @@ def _page(title: str, desc: str, body: str, depth: str = "../") -> str:
 <link rel="icon" href="{depth}app-icon.jpg">
 <style>{_CSS}</style></head><body><div class="c">
 <div class="top"><a class="brand" href="{depth}"><img src="{depth}app-icon.jpg" alt="">Konjure Analytics</a>
-<nav><a href="{depth}report/">Past issues</a><a class="opt" href="{depth}app/">Dashboard</a></nav></div>
+<nav><a href="{depth}record/">Record</a><a href="{depth}report/">Past issues</a><a class="opt" href="{depth}about.html">About</a><a class="opt" href="{depth}app/">Dashboard</a></nav></div>
 {body}
 <div class="foot">Model output for informational and entertainment purposes — not betting advice. 18+ only.
 <a href="{depth}privacy.html">Privacy</a> · <a href="mailto:info@konjureanalytics.com">info@konjureanalytics.com</a></div>
@@ -87,15 +87,33 @@ def _cta() -> str:
 
 
 def issues() -> list[dict]:
-    """Every built issue, newest first: date, title, cleaned HTML, and its section headings."""
-    out = []
-    for f in sorted(SRC.glob("*-newsletter.html"), reverse=True):
+    """
+    Every issue, newest first: date, title, cleaned HTML, and its section headings.
+
+    A freshly built issue is read from newsletter_out/; every other one from the page already
+    published here. newsletter_out/ is gitignored, so the cloud runner that publishes an
+    issue holds only that day's file, and rebuilding from newsletter_out/ alone would have
+    shrunk the archive to one issue.
+    """
+    found = {}
+    for page in OUT.glob("????-??-??.html"):
+        text = page.read_text(encoding="utf-8")
+        art = re.search(r'<article class="issue">(.*)</article>', text, flags=re.S)
+        ttl = re.search(r"<title>(.*?)</title>", text, flags=re.S)
+        if art:
+            found[page.stem] = (_html.unescape(ttl.group(1)) if ttl else
+                                f"The Opportunity Report — {page.stem}", art.group(1))
+    for f in SRC.glob("*-newsletter.html"):
         date = f.name[:10]
         md = SRC / f"{date}-newsletter.md"
         title = (md.read_text(encoding="utf-8").splitlines()[0].lstrip("# ").strip()
                  if md.exists() else f"The Opportunity Report — {date}")
         body = re.sub(r"<!--.*?-->", "", f.read_text(encoding="utf-8"), flags=re.S)
         body = re.sub(r'<p style="[^"]*">\s*</p>', "", body)          # paragraphs emptied by the strip
+        found[date] = (title, body)
+    out = []
+    for date in sorted(found, reverse=True):
+        title, body = found[date]
         heads = [re.sub(r"<[^>]+>", "", h) for h in re.findall(r"<h2>(.*?)</h2>", body)]
         out.append({"date": date, "title": title, "html": body, "sections": heads})
     return out
