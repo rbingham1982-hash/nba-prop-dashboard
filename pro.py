@@ -118,6 +118,10 @@ def _render_pitch(email: str | None) -> None:
     if not email:
         st.info("Create a free account (Edge Finder, any sport) to subscribe.")
         return
+    st.caption("Billed monthly, cancel any time. By subscribing you agree to the "
+               "[Terms of Service](https://konjureanalytics.com/terms.html) and the "
+               "[refund policy](https://konjureanalytics.com/refunds.html): a full refund within 7 days of "
+               "your first payment.")
     c1, c2 = st.columns([1, 2])
     c1.link_button(f"Upgrade{' · ' + price if price else ''}", checkout_url(email), type="primary")
     if c2.button("I've subscribed, refresh my access", key="pro_refresh"):

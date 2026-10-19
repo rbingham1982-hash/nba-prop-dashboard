@@ -376,6 +376,164 @@ informational and entertainment purposes, not betting advice. If gambling stops 
                  body, depth="", path="about.html")
 
 
+# Set before publishing the terms: the state whose law governs them, and where disputes go.
+GOVERNING_LAW = "[STATE]"
+TERMS_DATE = "October 19, 2026"
+
+
+def terms() -> str:
+    body = f"""
+<div class="k">Legal</div><h1 class="page">Terms of Service</h1>
+<p class="small">Last updated: {TERMS_DATE}</p>
+<div class="prose">
+<p>These terms cover your use of Konjure Analytics: this website (konjureanalytics.com), the Konjure
+Analytics dashboard and app, The Opportunity Report newsletter, and the Konjure Pro subscription
+(together, "the service"). By using the service you agree to them. If you do not agree, please do not
+use it.</p>
+
+<h2>1. Who can use the service</h2>
+<p>You must be at least 18, and of legal age for sports wagering where you live if you use the service
+in connection with betting. You are responsible for knowing and following the laws that apply to you.</p>
+
+<h2>2. Not betting advice</h2>
+<p>Everything we publish (grades, projections, probabilities, boards, parlays, alerts and the live tests)
+is model output and analysis for informational and entertainment purposes. It is not betting, financial or
+investment advice, and no outcome is guaranteed. Past results, including our public record, do not predict
+future results. Our model has not beaten sportsbook closing lines, and we say so on our
+<a href="record/">record page</a>. Any decision to bet is yours alone, and so are its results.
+If gambling stops being fun, call 1-800-GAMBLER.</p>
+
+<h2>3. Accounts</h2>
+<p>Some features need a free account. Give a real email address you control, keep your password private,
+and use one account per person. You are responsible for activity on your account. We may suspend or close
+an account that breaks these terms or is used to harm the service or other people.</p>
+
+<h2>4. Konjure Pro</h2>
+<ul>
+<li><b>Billing.</b> Konjure Pro is a subscription billed in advance, monthly, at the price shown at checkout,
+plus any tax that applies. Payments are processed by Stripe.</li>
+<li><b>Renewal.</b> Your subscription renews automatically each period until you cancel.</li>
+<li><b>Cancelling.</b> You can cancel at any time from the subscription management link in the Pro page or
+by emailing us. Cancelling stops future charges; you keep Pro until the end of the period you have
+paid for.</li>
+<li><b>Refunds.</b> See our <a href="refunds.html">refund policy</a>.</li>
+<li><b>Price changes.</b> If we change the price, we will tell you at least 30 days before it applies to
+your next renewal, and you can cancel before then.</li>
+<li><b>What Pro is.</b> Pro provides tools and data (opportunity alerts and the grades database). It does
+not provide picks, and it does not change what is published for free. Features may be improved, changed
+or retired; if we remove a core Pro feature, you may cancel and ask for a prorated refund of the unused
+period.</li>
+</ul>
+
+<h2>5. Acceptable use</h2>
+<p>Do not scrape, copy in bulk, resell or republish the service or its data, run automated tools against
+it, try to get around the account gate or the Pro paywall, or interfere with how it works. Data you
+download as a Pro subscriber (such as the grades CSV) is for your own personal use; you may quote or share
+individual figures with credit to Konjure Analytics, but not redistribute the dataset.</p>
+
+<h2>6. Our content</h2>
+<p>The grades, projections, write-ups, graphics and software are ours or our licensors'. We give you a
+personal, non-commercial, revocable licence to use them through the service. Sports statistics and
+sportsbook prices come from third-party and public sources, which remain theirs. If you send us
+feedback, we may use it without owing you anything.</p>
+
+<h2>7. Third-party services and links</h2>
+<p>The service relies on and links to others, including sportsbooks and fantasy sites, data providers,
+Stripe, beehiiv and our hosting providers. We are not affiliated with or endorsed by any league,
+team or sportsbook, and we are not responsible for third-party sites or their accuracy. Some links may
+be affiliate links that pay us if you sign up; when they are, we say so. Affiliate arrangements never
+change what our boards or grades say: those are produced by fixed rules and logged before the games.</p>
+
+<h2>8. Data accuracy</h2>
+<p>Data can be late, missing or wrong, and odds move. We work to catch errors and grade everything from
+official box scores, but we do not guarantee that any figure is accurate, complete or current.</p>
+
+<h2>9. Disclaimers</h2>
+<p>The service is provided "as is" and "as available", without warranties of any kind, express or implied,
+including merchantability, fitness for a particular purpose and non-infringement, to the fullest extent
+the law allows. We do not promise the service will be uninterrupted or error-free.</p>
+
+<h2>10. Limitation of liability</h2>
+<p>To the fullest extent the law allows, Konjure Analytics is not liable for any indirect, incidental,
+special, consequential or punitive damages, or for any betting or trading losses, lost profits or lost
+data, arising from your use of the service. Our total liability for any claim relating to the service is
+limited to the amount you paid us in the 12 months before the claim, or $50 if you paid nothing.</p>
+
+<h2>11. Indemnity</h2>
+<p>You agree to cover our reasonable costs from claims by others that arise from your breach of these terms
+or your misuse of the service.</p>
+
+<h2>12. Ending use</h2>
+<p>You can stop using the service and delete your account at any time (see the
+<a href="data-deletion.html">data deletion page</a>). We may suspend or end access for a breach of these
+terms. Sections 2 and 6 to 13 continue after access ends.</p>
+
+<h2>13. Governing law</h2>
+<p>These terms are governed by the laws of {GOVERNING_LAW}, without regard to its conflict-of-law rules, and
+any dispute will be resolved in the state or federal courts located there, unless the law where you live
+gives you the right to bring it elsewhere.</p>
+
+<h2>14. Changes</h2>
+<p>We may update these terms. We will change the date above, and for material changes we will give notice
+on the site or by email before they take effect. Continuing to use the service after that means you accept
+the updated terms.</p>
+
+<h2>15. Contact</h2>
+<p><a href="mailto:info@konjureanalytics.com">info@konjureanalytics.com</a></p>
+</div>
+"""
+    return _page("Terms of Service · Konjure Analytics",
+                 "The terms for using Konjure Analytics and the Konjure Pro subscription.",
+                 body, depth="", path="terms.html")
+
+
+def refunds() -> str:
+    body = f"""
+<div class="k">Legal</div><h1 class="page">Refund policy</h1>
+<p class="small">Last updated: {TERMS_DATE}</p>
+<div class="prose">
+<p>The free parts of Konjure Analytics cost nothing and need no refund. This policy covers the Konjure Pro
+subscription.</p>
+
+<h2>Cancel any time</h2>
+<p>You can cancel Pro whenever you like, from the subscription management link in the Pro page or by emailing
+us. You will not be charged again, and you keep Pro until the end of the period you have already paid for.</p>
+
+<h2>Your first payment: 7-day refund</h2>
+<p>If Pro is not for you, email us within 7 days of your first payment and we will refund it in full and end
+your subscription. No reason needed. This applies to your first payment on an account, once.</p>
+
+<h2>Renewals</h2>
+<p>Renewal payments are not refunded, because you can cancel at any time before the next one. Remember that
+cancelling keeps your access to the end of the paid period.</p>
+
+<h2>When we always refund</h2>
+<ul>
+<li>You were charged twice, or charged after cancelling.</li>
+<li>A billing error on our side.</li>
+<li>Pro was unavailable for most of a billing period because of a problem on our side.</li>
+<li>We removed a core Pro feature (see the <a href="terms.html">Terms of Service</a>): a prorated refund for the unused part of
+the period.</li>
+</ul>
+
+<h2>Results are not a reason for a refund</h2>
+<p>Pro sells tools and data, not picks, and nothing we publish guarantees any outcome. We cannot refund a
+subscription because of how a game, a bet or a fantasy week turned out.</p>
+
+<h2>How to ask</h2>
+<p>Email <a href="mailto:info@konjureanalytics.com">info@konjureanalytics.com</a> from, or mentioning, the email
+address on your subscription. We reply within 2 business days. Approved refunds go back to the original payment
+method through Stripe and usually appear within 5 to 10 business days, depending on your bank.</p>
+
+<h2>Before disputing a charge</h2>
+<p>Please email us first; we can usually fix a billing problem faster than a card dispute can.</p>
+</div>
+"""
+    return _page("Refund policy · Konjure Analytics",
+                 "How cancelling and refunds work for the Konjure Pro subscription.",
+                 body, depth="", path="refunds.html")
+
+
 def og_image() -> list:
     """docs/og.jpg, the share card for every page. Made once: a brand card, not data."""
     path = DOCS / "og.jpg"
@@ -408,6 +566,8 @@ def build() -> list[str]:
     _write("index.html", home(rc, rec), changed)
     _write("record/index.html", record_page(rec), changed)
     _write("about.html", about(), changed)
+    _write("terms.html", terms(), changed)
+    _write("refunds.html", refunds(), changed)
     changed += og_image()
     changed += ra.build()                      # the archive's nav links to the new pages
     return changed

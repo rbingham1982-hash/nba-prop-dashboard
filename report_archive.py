@@ -75,7 +75,7 @@ def _page(title: str, desc: str, body: str, depth: str = "../") -> str:
 <nav><a href="{depth}record/">Record</a><a href="{depth}report/">Past issues</a><a class="opt" href="{depth}about.html">About</a><a class="opt" href="{depth}app/">Dashboard</a></nav></div>
 {body}
 <div class="foot">Model output for informational and entertainment purposes — not betting advice. 18+ only.
-<a href="{depth}privacy.html">Privacy</a> · <a href="mailto:info@konjureanalytics.com">info@konjureanalytics.com</a></div>
+<a href="{depth}privacy.html">Privacy</a> · <a href="{depth}terms.html">Terms</a> · <a href="{depth}refunds.html">Refunds</a> · <a href="mailto:info@konjureanalytics.com">info@konjureanalytics.com</a></div>
 </div></body></html>
 """
 
