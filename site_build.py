@@ -377,7 +377,7 @@ informational and entertainment purposes, not betting advice. If gambling stops 
 
 
 # Set before publishing the terms: the state whose law governs them, and where disputes go.
-GOVERNING_LAW = "[STATE]"
+GOVERNING_LAW = "the State of Illinois"
 TERMS_DATE = "October 19, 2026"
 
 
