@@ -22,6 +22,9 @@ on:
     - cron: "0 0-4 * * *"     # daily window, second half (still the same Chicago day)
     - cron: "0 14 * * 0"      # Sunday early: 09:00 CDT, board up before the noon kickoffs
     - cron: "30 18 * * 0"     # Sunday late, forced: prices the late games off current lines
+    # NBA opening day 2026-10-20: BOS @ DET tips at 2 PM Central, the hour the daily window
+    # opens, so build that day's boards at 12:30 CDT. Fires once; remove after the opener.
+    - cron: "30 17 20 10 *"
     # Closing prices for the noon kickoffs. CLV only counts a snapshot taken within 2h of
     # the start, and nothing ran between the 9:00 board and 13:30, so the whole early
     # slate went without a close (46 of 1,142 NFL props had one by 2026-10-11). These are
@@ -81,6 +84,13 @@ jobs:
           FORCE=""
           if [ "${{ github.event.schedule }}" = "30 18 * * 0" ] || [ "${{ inputs.force }}" = "true" ]; then
             FORCE="--force"
+          fi
+          # Boards are built in the afternoon window (or at 9 AM for Sunday's NFL board).
+          # GitHub delays scheduled runs, sometimes past midnight, and a late-evening firing
+          # that starts at 3 AM would build the new day's boards far ahead of the games.
+          # Before noon, a scheduled run only updates prices.
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$(date +%-H)" -lt 12 ]              && [ "${{ github.event.schedule }}" != "0 14 * * 0" ]; then
+            FORCE="--snapshot-only"
           fi
           python daily_parlay_gen.py --sports mlb,nba,nfl,wnba $FORCE
 

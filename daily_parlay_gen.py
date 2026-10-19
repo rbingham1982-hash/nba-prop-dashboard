@@ -1153,6 +1153,17 @@ def main():
     print(f"Run: {now.strftime('%Y-%m-%d %H:%M')}{'  (forced)' if force else ''}"
           + ("" if sports == ALL_SPORTS else f"  [{', '.join(sports)}]"))
 
+    # --snapshot-only: price updates and signals, never a new board. The cloud workflow
+    # passes it to a run GitHub started after midnight: its delayed late-evening firings
+    # land at 1-4 AM, count as the new Chicago day, and would build that day's board
+    # 15+ hours before tip-off (2026-10-19's NBA board was built at 03:18).
+    if "--snapshot-only" in sys.argv and not force:
+        print("  Snapshot-only run — prices and signals, no new board.")
+        snapshot_only_pass(month, sports)
+        run_form_signal(sports, month)
+        run_favorite_signal(sports, month)
+        return
+
     if already_ran_today(now, sports) and not force:
         print("  Already generated today — catch-up firing, snapshotting prices only.")
         snapshot_only_pass(month, sports)
