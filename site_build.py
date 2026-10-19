@@ -27,10 +27,11 @@ BEEHIIV_FORM = "88c44e3c-0ca9-4e06-9c17-0a25f31cbc55"   # beehiiv Subscribe form
 
 # Fill these in to show the links; an empty string hides that link everywhere.
 SOCIAL = {
+    "X": "https://x.com/konjureanalytic",
+    "Instagram": "https://www.instagram.com/konjureanalytics",
+    "Threads": "https://www.threads.net/@konjureanalytics",
+    "Facebook": "https://www.facebook.com/konjureanalytics",
     "Discord": "",          # e.g. https://discord.gg/xxxxxxx
-    "X": "",                # e.g. https://x.com/konjureanalytics
-    "Instagram": "",
-    "Threads": "",
 }
 
 _EXTRA_CSS = """
