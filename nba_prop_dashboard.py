@@ -70,7 +70,11 @@ def _latch_parlay_build(flag_key: str, val_map: dict):
             st.session_state[dest_key] = st.session_state[widget_key]
 
 # True when running on a local machine; False in Codespaces / deployed environments
-_IS_LOCAL = not bool(os.environ.get("CODESPACE_NAME") or os.environ.get("GITPOD_WORKSPACE_ID"))
+# The owner's own machine. Streamlit Community Cloud checks the repo out under /mount/src
+# (accounts.on_streamlit_cloud); leaving it out of this test put the owner-only Track tabs
+# on the public site.
+_IS_LOCAL = not bool(os.environ.get("CODESPACE_NAME") or os.environ.get("GITPOD_WORKSPACE_ID")
+                     or _acct.on_streamlit_cloud())
 
 
 def _safe_rerun():
@@ -8787,9 +8791,13 @@ elif sport == "⚾ MLB":
             MLB data is sourced from the official MLB Stats API.
         </p>""", unsafe_allow_html=True)
 elif sport == "🏈 NFL":
-    _nfl_tab_hub, _nfl_tab_analyze, _nfl_tab_bet, _nfl_tab_track, _nfl_tab_board = st.tabs(
-        ["🏠 Week Hub", "🔬 Player Analysis", "💰 Edge Finder", "📈 Track", "📊 Draft Board"],
-        key="nfl_top_tabs")
+    # Track is owner-only, as on the other sports' pages.
+    _nfl_tabs = st.tabs(["🏠 Week Hub", "🔬 Player Analysis", "💰 Edge Finder",
+                         *(["📈 Track"] if _IS_LOCAL else []), "📊 Draft Board"],
+                        key="nfl_top_tabs")
+    _nfl_tab_hub, _nfl_tab_analyze, _nfl_tab_bet = _nfl_tabs[:3]
+    _nfl_tab_track = _nfl_tabs[3] if _IS_LOCAL else None
+    _nfl_tab_board = _nfl_tabs[-1]
 
     with _nfl_tab_hub:
         # ══ NFL — Week Hub: the in-season landing view, rendered by nfl_hub (player grades
@@ -9512,14 +9520,11 @@ elif sport == "🏈 NFL":
                                 unsafe_allow_html=True,
                             )
 
-    with _nfl_tab_track:
-        # Full measurement apparatus (accuracy · CLV · paper-trade gate · pocket alert · drift),
-        # sport-filtered to NFL. Empty until NFL legs are logged + games played (~Sept), then it
-        # auto-populates like the other sports. NFL leg resolution is wired via _resolve_nfl_legs.
-        if _IS_LOCAL:
+    if _nfl_tab_track is not None:
+        with _nfl_tab_track:
+            # Full measurement apparatus (accuracy · CLV · paper-trade gate · pocket alert ·
+            # drift), sport-filtered to NFL. Owner-only: the tab does not exist on the site.
             _render_accuracy_tab("NFL")
-        else:
-            st.caption("Tracking is available in the local app.")
 
 # END OF FILE — orphaned block removed
 
