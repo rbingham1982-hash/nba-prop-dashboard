@@ -9563,12 +9563,16 @@ elif sport == "🏆 Fantasy":
     _f1, _f2, _f3 = st.tabs(["Daily DFS", "Waiver Board", "Start / Sit"], key="fantasy_tabs")
 
     with _f1:
-        _sport = st.radio("Slate", ["MLB", "NFL"], horizontal=True,
+        _sport = st.radio("Slate", ["MLB", "NFL", "NBA"], horizontal=True,
                           key="dfs_sport", label_visibility="collapsed")
         if st.button("Load slate", key="dfs_go"):
             with st.spinner("Fetching DraftKings salaries and projecting…"):
                 try:
-                    _sl = _ft.dfs_slate(_sport)
+                    if _sport == "NBA":
+                        import nba_fantasy as _nf
+                        _sl = _nf.dfs_slate()
+                    else:
+                        _sl = _ft.dfs_slate(_sport)
                 except Exception as _e:
                     _sl = None
                     st.error(f"Couldn't build the slate: {_e}")
@@ -9584,21 +9588,35 @@ elif sport == "🏆 Fantasy":
                 st.caption("`value` is projected points per $1,000. Cheap players rank "
                            "high by construction — that is the point of a salary cap, "
                            "not a bug, but read it next to proj_points rather than alone.")
+                if _sport == "NBA":
+                    st.caption("NBA projections are DraftKings points per game from recent box "
+                               "scores, steadied by last season early on. Rookies with no NBA "
+                               "games yet are left off rather than guessed at.")
 
     with _f2:
+        _wsport = st.radio("League", ["NFL", "NBA"], horizontal=True,
+                           key="wv_sport", label_visibility="collapsed")
         if st.button("Build waiver board", key="wv_go"):
             with st.spinner("Projecting the player pool and pulling Sleeper trends…"):
                 try:
-                    _wb = _ft.waiver_board(limit=24)
+                    if _wsport == "NBA":
+                        import nba_fantasy as _nf
+                        _wb = _nf.waiver_board(limit=25)
+                    else:
+                        _wb = _ft.waiver_board(limit=24)
                 except Exception as _e:
                     _wb = []
                     st.error(f"Couldn't build the board: {_e}")
             if _wb:
                 import pandas as _pdw
-                st.dataframe(_pdw.DataFrame(_wb)[
-                    ["player", "position", "team", "proj_points",
-                     "search_rank", "adds", "crowd"]],
-                    width="stretch", hide_index=True)
+                _wcols = (["player", "position", "team", "proj_points", "proj_min",
+                           "search_rank", "adds", "injury", "crowd"] if _wsport == "NBA" else
+                          ["player", "position", "team", "proj_points",
+                           "search_rank", "adds", "crowd"])
+                st.dataframe(_pdw.DataFrame(_wb)[_wcols], width="stretch", hide_index=True)
+                if _wsport == "NBA":
+                    st.caption("NBA: projected DraftKings points and minutes per game, players "
+                               "averaging 18+ minutes, injured-Out players left off.")
                 st.caption("Filtered to players outside Sleeper's top 150, so these are "
                            "plausibly available. **quiet** is the one you want — the "
                            "projection likes him and the crowd has not moved yet; "
@@ -9607,13 +9625,21 @@ elif sport == "🏆 Fantasy":
                 st.info("No board returned.")
 
     with _f3:
+        _ssport = st.radio("League", ["NFL", "NBA"], horizontal=True,
+                           key="ss_sport", label_visibility="collapsed")
         _names = st.text_area("Players to compare (one per line)",
                               key="ss_names", height=110,
-                              placeholder="Puka Nacua\nTrey McBride\nWan'Dale Robinson")
+                              placeholder=("Jalen Brunson\nTyrese Maxey\nCooper Flagg" if _ssport == "NBA"
+                                           else "Puka Nacua\nTrey McBride\nWan'Dale Robinson"))
         if st.button("Rank them", key="ss_go") and _names.strip():
             with st.spinner("Projecting…"):
                 try:
-                    _rows = _ft.start_sit([n.strip() for n in _names.splitlines() if n.strip()])
+                    _ss_list = [n.strip() for n in _names.splitlines() if n.strip()]
+                    if _ssport == "NBA":
+                        import nba_fantasy as _nf
+                        _rows = _nf.start_sit(_ss_list)
+                    else:
+                        _rows = _ft.start_sit(_ss_list)
                 except Exception as _e:
                     _rows = []
                     st.error(f"Couldn't rank: {_e}")
