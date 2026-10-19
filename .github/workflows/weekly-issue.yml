@@ -1,0 +1,170 @@
+# The Opportunity Report, built in the cloud twice a week and published by hand.
+#
+#   Tuesday 1 PM Chicago   the week just played: final grades (Monday night's game is in
+#                          nflverse's file by then), last week's results, waiver targets
+#   Friday 5 PM Chicago    the week's board: NFL picks (saved 2 PM Friday by daily-board)
+#                          and the NBA board (from 4 PM)
+#
+# A scheduled run is a DRY RUN: it builds the issue and the cards, runs the quality gate and
+# posts nothing. The issue is printed on the run's summary page for review and the files
+# are attached as an artifact. Publishing stays a human step: Actions -> weekly issue ->
+# Run workflow, choose the edition, tick "publish". That posts the headline and cards to
+# Discord (needs the DISCORD_WEBHOOK_URL repository secret), rebuilds the website archive
+# and commits the cards, docs/report/ and the published marker, which stops a second post
+# to Discord the same day. beehiiv is still pasted by hand (its API is plan-locked).
+name: weekly issue
+
+on:
+  schedule:
+    # Two firings per edition so the local hour holds in both CDT and CST; the gate step
+    # below lets one through. Tuesday 13:00, Friday 17:00 Chicago.
+    - cron: "0 18 * * 2"
+    - cron: "0 19 * * 2"
+    - cron: "0 22 * * 5"
+    - cron: "0 23 * * 5"
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: "Which issue"
+        type: choice
+        options: [tuesday, friday, full]
+        default: tuesday
+      publish:
+        description: "Post to Discord (unticked = dry run for review)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: read
+
+# Shares the daily board's queue: both write weekly_picks.json and the NBA logs.
+concurrency:
+  group: daily-board
+  cancel-in-progress: false
+
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: America/Chicago
+      PYTHONUTF8: "1"
+      KONJURE_NBA_SNAPSHOT: "1"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Decide what to build
+        id: plan
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "edition=${{ inputs.edition }}" >> "$GITHUB_OUTPUT"
+            echo "publish=${{ inputs.publish }}" >> "$GITHUB_OUTPUT"
+            echo "go=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          dow=$(date +%u); hour=$(date +%-H)
+          if [ "$dow" = "2" ]; then ed=tuesday; want=13; else ed=friday; want=17; fi
+          # One of each pair of firings is an hour early for the season's clock; GitHub can
+          # also start a run late, so anything from the target hour to 3 hours after counts.
+          if [ "$hour" -lt "$want" ] || [ "$hour" -gt $((want + 3)) ]; then
+            echo "go=false" >> "$GITHUB_OUTPUT"; echo "$hour:00 is outside the $ed window"; exit 0
+          fi
+          # And only once a day: the other firing of the pair may land in the window too. Keyed
+          # on the issue artifact, which only a run that actually built the issue leaves (a
+          # run skipped by the window check above also finishes "success").
+          done_today=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=issue-$ed&per_page=20" \
+                         --jq "[.artifacts[] | select(.created_at > \"$(date -u -d '-20 hours' +%Y-%m-%dT%H:%M:%SZ)\")] | length")
+          if [ "${done_today:-0}" -gt 0 ]; then
+            echo "go=false" >> "$GITHUB_OUTPUT"; echo "the $ed issue was already built today"; exit 0
+          fi
+          echo "edition=$ed" >> "$GITHUB_OUTPUT"
+          echo "publish=false" >> "$GITHUB_OUTPUT"
+          echo "go=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v7
+        if: steps.plan.outputs.go == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        if: steps.plan.outputs.go == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Refresh NBA data from ESPN
+        if: steps.plan.outputs.go == 'true'
+        run: python nba_espn.py
+
+      - name: Build the issue
+        if: steps.plan.outputs.go == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ steps.plan.outputs.publish == 'true' && secrets.DISCORD_WEBHOOK_URL || '' }}
+        run: |
+          python - <<'EOF'
+          import json, os
+          import publish
+          ed = "${{ steps.plan.outputs.edition }}"
+          live = "${{ steps.plan.outputs.publish }}" == "true"
+          if live and not os.environ.get("DISCORD_WEBHOOK_URL"):
+              raise SystemExit("publish was ticked but the DISCORD_WEBHOOK_URL secret is not set")
+          r = publish.run(dry_run=not live, channels=("discord",), edition=ed)
+          print(json.dumps(r, indent=1, default=str))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as s:
+              mode = "PUBLISHED to Discord" if live else "dry run, nothing posted"
+              s.write(f"## {ed.title()} edition: {mode}\n\n")
+              s.write(f"**Quality gate:** {'passed' if r['gate_passed'] else 'BLOCKED'}\n\n")
+              for f in r.get("failures") or []:
+                  s.write(f"- {f}\n")
+              for n in r.get("notes") or []:
+                  s.write(f"- note: {n}\n")
+              hl = (r.get("would_post") or {}).get("webhook")
+              if hl:
+                  s.write("\n**Discord headline:**\n\n```\n" + hl + "\n```\n")
+              if r.get("posted"):
+                  s.write(f"\n**Posted:** `{json.dumps(r['posted'], default=str)}`\n")
+              cards = r.get("cards") or []
+              s.write(f"\n**Cards ({len(cards)}):** " + ", ".join(os.path.basename(c) for c in cards)
+                      + " (download them from Artifacts below)\n\n---\n\n")
+              if cards:
+                  md = cards[0][: cards[0].rfind("-card-")] + "-newsletter.md"
+                  if os.path.exists(md):
+                      s.write(open(md, encoding="utf-8").read())
+          if live and not r.get("posted", {}).get("discord", {}).get("ok"):
+              raise SystemExit(f"Discord post did not go through: {r.get('posted') or r.get('action')}")
+          EOF
+
+      - name: Attach the issue files
+        if: steps.plan.outputs.go == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-${{ steps.plan.outputs.edition }}
+          path: |
+            newsletter_out/*-newsletter.md
+            newsletter_out/*-newsletter.html
+            newsletter_out/*-social.md
+            newsletter_out/*-card-*.jpg
+          retention-days: 14
+
+      # Only after a live post: the cards that went out, the website archive and the marker.
+      # newsletter_out/ is gitignored, so the JPGs and the marker are added explicitly.
+      - name: Commit what was published
+        if: steps.plan.outputs.go == 'true' && steps.plan.outputs.publish == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          stamp=$(date +%Y-%m-%d)
+          git add -f newsletter_out/${stamp}-card-*.jpg newsletter_out/.published-${stamp}-discord
+          git add docs/report
+          git commit -q -m "chore: keep the ${stamp} ${{ steps.plan.outputs.edition }} cards that were published to Discord"
+          git restore .
+          for i in 1 2 3; do
+            git pull --rebase -q && git push -q && exit 0
+            sleep $((i * 15))
+          done
+          echo "Push failed after three tries."
+          exit 1

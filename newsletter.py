@@ -242,12 +242,51 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
     return out
 
 
+# ── Editions ────────────────────────────────────────────────────────────────
+#
+# Two issues a week since 2026-10-19, each when its content is ready. Tuesday carries the
+# week just played: the grades are final once Monday night's game is in nflverse's file,
+# and waiver claims run that night. Friday carries the week ahead: the NFL board saves
+# Friday afternoon and the NBA board from 4 PM. "full" is everything, the original single
+# issue. An edition only blanks the other edition's sections, so the renderer, the cards,
+# the social drafts and the quality gate all follow without knowing about editions.
+
+EDITIONS = ("full", "tuesday", "friday")
+_EDITION_KEYS = {
+    "tuesday": ("recap", "recap_picks", "sleepers", "waivers", "waiver_stats", "fantasy_record",
+                "trending", "fades"),
+    "friday": ("ats", "parlay", "parlay_price", "parlay_withheld_price", "td", "td_parlay",
+               "td_parlay_price", "receivers", "form_parlay", "picks_record", "form_record",
+               "nba_board", "nba_last", "nba_record", "nba_form_record", "dfs"),
+}
+_EDITION_LINE = {"tuesday": "Tuesday edition: the week just played, graded, and who to pick up.",
+                 "friday": "Friday edition: this week's board, written down before kickoff."}
+
+
+def select_edition(data: dict, edition: str = "full") -> dict:
+    """The issue's data with the other edition's sections emptied. `full` keeps everything."""
+    if edition not in EDITIONS:
+        raise ValueError(f"edition must be one of {EDITIONS}, got {edition!r}")
+    out = dict(data, edition=edition)
+    if edition == "full":
+        return out
+    other = "friday" if edition == "tuesday" else "tuesday"
+    for k in _EDITION_KEYS[other]:
+        if k in out:
+            out[k] = type(out[k])() if isinstance(out[k], (list, dict)) else None
+    if edition == "tuesday":
+        out["picks_locked"] = False        # say the board comes Friday rather than leave a hole
+    return out
+
+
 def render_markdown(data: dict) -> str:
     d = data["generated"].strftime("%B %d, %Y")
     L = [f"# The Opportunity Report — {d}", ""]
     L.append("*Fantasy football and DFS, projected from usage rather than from last week's "
              "box score.*")
     L.append("")
+    if data.get("edition") in _EDITION_LINE:
+        L += [f"**{_EDITION_LINE[data['edition']]}**", ""]
 
     # The week just played leads an in-season issue: what happened, then how our published
     # board did against it, before anything looks ahead.
@@ -794,6 +833,24 @@ def render_social(data: dict) -> str:
     L = [f"# Social drafts — {d}", "",
          "Copy-paste. Nothing here is posted automatically.", ""]
 
+    # Friday's news is the board, so it leads that edition — the first block is what
+    # publish.run posts as the headline. ("lock" stays out of the copy: banned phrase.)
+    ats, tdp = data.get("ats") or [], data.get("td_parlay") or []
+    if data.get("edition") == "friday" and (ats or data.get("td")):
+        price = (data.get("td_parlay_price") or {}).get("american")
+        bits = []
+        if ats:
+            bits.append(f"{len(ats)} spread picks")
+        if data.get("td"):
+            bits.append("the touchdown scorer board")
+        if tdp and price:
+            bits.append(f"a {len(tdp)}-leg touchdown parlay at {int(price):+d}")
+        L += ["## Week board — X / Discord", "",
+              "```",
+              f"Week {data.get('week', '?')} board is up: {', '.join(bits)}.",
+              "Written down before kickoff and graded after, misses included.",
+              "```", ""]
+
     # In season the recap is the news, so the player of the week leads — and the first block
     # is what publish.run posts as the headline.
     rc = data.get("recap")
@@ -859,11 +916,14 @@ def render_social(data: dict) -> str:
     return "\n".join(L)
 
 
-def generate(nfl_limit: int = 16, dfs_sport: str = "MLB", out_dir: pathlib.Path | None = None) -> dict:
-    """Build one issue and write it. Returns the paths written."""
+def generate(nfl_limit: int = 16, dfs_sport: str = "MLB", out_dir: pathlib.Path | None = None,
+             data: dict | None = None, edition: str = "full") -> dict:
+    """Build one issue and write it. Returns the paths written. Pass `data` to write an
+    issue already built (publish.run does, so the files and the cards cannot differ)."""
     out_dir = out_dir or OUT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
-    data = build_sections(nfl_limit=nfl_limit, dfs_sport=dfs_sport)
+    if data is None:
+        data = select_edition(build_sections(nfl_limit=nfl_limit, dfs_sport=dfs_sport), edition)
     stamp = data["generated"].strftime("%Y-%m-%d")
     md = render_markdown(data)
     paths = {
@@ -955,7 +1015,13 @@ def quality_gate(data: dict, rendered: str = "") -> tuple:
     # An empty board is only a failure if nothing was SCORED. Zero players clearing the
     # floor is a true answer — in late August everyone with a role is rostered — and
     # publishing "nothing worth adding" is what makes the weeks with a real name credible.
-    if not st.get("scored"):
+    # The waiver board belongs to the Tuesday edition; Friday's job is the board instead,
+    # and a Friday issue with no board at all has nothing to publish.
+    if data.get("edition") == "friday":
+        if not (data.get("ats") or data.get("td") or data.get("nba_board")):
+            fails.append("Friday edition has no board — the NFL and NBA boards are not saved "
+                         "yet (NFL from 2 PM Friday, NBA from 4 PM)")
+    elif not st.get("scored"):
         fails.append("waiver board scored no players at all — the projection or Sleeper "
                      "feed is down")
     elif not waivers:

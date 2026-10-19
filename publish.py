@@ -70,7 +70,12 @@ _ACCENT = (129, 140, 248)
 
 def _font(size: int, bold: bool = False):
     from PIL import ImageFont
-    for name in (("segoeuib.ttf", "arialbd.ttf") if bold else ("segoeui.ttf", "arial.ttf")):
+    # Segoe/Arial on Windows; DejaVu on the GitHub runner (Ubuntu), which has no Segoe, and
+    # without a TrueType font PIL falls back to a tiny bitmap face.
+    for name in (("segoeuib.ttf", "arialbd.ttf", "DejaVuSans-Bold.ttf",
+                  "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf") if bold else
+                 ("segoeui.ttf", "arial.ttf", "DejaVuSans.ttf",
+                  "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")):
         try:
             return ImageFont.truetype(name, size)
         except Exception:
@@ -827,19 +832,22 @@ def test_beehiiv() -> dict:
 # ── The run ─────────────────────────────────────────────────────────────────
 
 def run(dry_run: bool = True,
-        channels: tuple = ("discord", "x", "threads", "instagram", "beehiiv")) -> dict:
+        channels: tuple = ("discord", "x", "threads", "instagram", "beehiiv"),
+        edition: str = "full") -> dict:
     """
     Build an issue, gate it, and distribute it.
 
     dry_run=True is the default on purpose: the safe call is the one you get by accident.
+    `edition` is newsletter.EDITIONS: "tuesday" (the week graded), "friday" (the week's
+    board) or "full" (everything, the original single issue).
     """
     import newsletter as nl
-    data = nl.build_sections()
+    data = nl.select_edition(nl.build_sections(), edition)
     md = nl.render_markdown(data)
     html = nl.render_html(md, data)
     ok, fails = nl.quality_gate(data, md)
 
-    result = {"gate_passed": ok, "failures": fails, "dry_run": dry_run,
+    result = {"gate_passed": ok, "failures": fails, "dry_run": dry_run, "edition": edition,
               "configured": configured(), "posted": {},
               # Both channels ride out with the result. The DraftKings block on 2026-09-20
               # was invisible here, so a run that quietly dropped a section looked exactly
@@ -851,7 +859,7 @@ def run(dry_run: bool = True,
         result["action"] = "BLOCKED — nothing was sent"
         return result
 
-    nl.generate()                      # write the files regardless
+    nl.generate(data=data)             # write the files regardless, from this same build
     cards = render_cards(data)
     result["cards"] = [str(c) for c in cards]
     thumb = render_thumbnail(data)
@@ -930,4 +938,5 @@ if __name__ == "__main__":
     import sys, json
     sys.stdout.reconfigure(encoding="utf-8")
     live = "--live" in sys.argv
-    print(json.dumps(run(dry_run=not live), indent=2, default=str))
+    ed = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--edition=")), "full")
+    print(json.dumps(run(dry_run=not live, edition=ed), indent=2, default=str))
