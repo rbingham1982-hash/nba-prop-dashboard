@@ -4221,7 +4221,7 @@ with hdr_col:
         <p class="konjure-sub">Multi-Sport Prop Intelligence &nbsp;&middot;&nbsp; Powered by Data</p>
     </div>""", unsafe_allow_html=True)
 with sport_col:
-    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy", "🧮 Parlay Builder"], key="sport_selector")
+    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy", "🧮 Parlay Builder", "⭐ Pro"], key="sport_selector")
     # Signed-in visitors see who they are and can sign out; the Edge Finder tabs carry the
     # sign-in forms themselves (accounts.gate), so there is nothing to show when signed out.
     if _acct.signed_in_email():
@@ -5193,7 +5193,7 @@ def _fallback_wnba_legs(stat_types: list = None, cal: dict = None) -> list:
 # statement in this file.
 _PAGE_KEYS = {"🏀 NBA": "nba", "🏀 WNBA": "wnba", "⚾ MLB": "mlb",
               "🏈 NFL": "nfl", "🏆 Fantasy": "fantasy",
-              "🧮 Parlay Builder": "builder"}
+              "🧮 Parlay Builder": "builder", "⭐ Pro": "pro"}
 _page_box = st.container(key=f"page_{_PAGE_KEYS.get(sport, 'other')}")
 _page_box.__enter__()
 
@@ -9537,6 +9537,15 @@ elif sport == "🧮 Parlay Builder":
     if _acct.gate("parlay_builder"):
         import parlay_builder as _pb
         _pb.render(key="pb_page")
+
+
+elif sport == "⭐ Pro":
+    # Konjure Pro (pro.py): the pitch and a free preview for everyone, the tools for subscribers.
+    # Signing in is the Edge Finder's account gate; Pro needs an account to tie the payment to.
+    import pro as _pro
+    _pro.render()
+    if not (_acct.signed_in_email() or _pro.owner()):
+        _acct.gate("pro")                   # draws the sign-in / create-account forms
 
 
 elif sport == "🏆 Fantasy":
