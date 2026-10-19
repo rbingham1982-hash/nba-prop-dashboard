@@ -1753,8 +1753,8 @@
     "edge": 3.91,
     "pick": "home",
     "pick_label": "GB -1.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 10.0
    }
   ],
   "parlay": [],
@@ -1942,9 +1942,9 @@
     "wind_mph": 21.3,
     "expected_adj": -8.29,
     "gameday": "2026-10-18",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 36.0,
+    "residual": -17.5
    },
    {
     "game": "PIT @ TB",
