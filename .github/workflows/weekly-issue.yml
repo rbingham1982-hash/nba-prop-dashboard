@@ -61,6 +61,7 @@ jobs:
       - name: Decide what to build
         id: plan
         run: |
+          echo "stamp=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "edition=${{ inputs.edition }}" >> "$GITHUB_OUTPUT"
             echo "publish=${{ inputs.publish }}" >> "$GITHUB_OUTPUT"
@@ -143,11 +144,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: issue-${{ steps.plan.outputs.edition }}
+          # Today's files only: earlier issues' published cards are committed in the repo.
           path: |
-            newsletter_out/*-newsletter.md
-            newsletter_out/*-newsletter.html
-            newsletter_out/*-social.md
-            newsletter_out/*-card-*.jpg
+            newsletter_out/${{ steps.plan.outputs.stamp }}-*
           retention-days: 14
 
       # Only after a live post: the cards that went out, the website archive and the marker.
