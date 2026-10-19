@@ -1978,9 +1978,9 @@
     "wind_mph": 13.1,
     "expected_adj": -5.1,
     "gameday": "2026-10-18",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 28.0,
+    "residual": -13.5
    },
    {
     "game": "CAR @ PHI",

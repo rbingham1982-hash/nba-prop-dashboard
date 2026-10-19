@@ -14782,5 +14782,71 @@
   "logged_at": "2026-10-18T14:15:28",
   "outcome": null,
   "actual": null
+ },
+ "savion williams|Receiving Yards|5.5|36160511": {
+  "player": "Savion Williams",
+  "stat": "Receiving Yards",
+  "line": 5.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 2.0,
+  "last5": [
+   12.0,
+   2.0,
+   33.0,
+   0.0,
+   0.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T19:05:33",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler goodson|Rushing Yards|10.5|36160511": {
+  "player": "Tyler Goodson",
+  "stat": "Rushing Yards",
+  "line": 10.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 9.0,
+  "last5": [
+   0.0,
+   9.0,
+   3.0,
+   22.0,
+   12.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T19:05:33",
+  "outcome": null,
+  "actual": null
+ },
+ "javonte williams|Rushing Yards|66.5|36160511": {
+  "player": "Javonte Williams",
+  "stat": "Rushing Yards",
+  "line": 66.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 45.0,
+  "last5": [
+   41.0,
+   30.0,
+   98.0,
+   62.0,
+   45.0
+  ],
+  "game": "DAL @ GB",
+  "start_time": "2026-10-19T00:21:00.000Z",
+  "game_day": "2026-10-18",
+  "logged_at": "2026-10-18T19:05:33",
+  "outcome": null,
+  "actual": null
  }
 }
