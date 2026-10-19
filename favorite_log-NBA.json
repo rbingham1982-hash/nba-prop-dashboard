@@ -21,7 +21,7 @@
    "home_odds": -300,
    "away_odds": 245
   },
-  "last_seen": "2026-10-19T03:22:24"
+  "last_seen": "2026-10-19T17:52:47"
  },
  "DAL @ HOU|2026-10-22T00:40": {
   "label": "DAL @ HOU",
@@ -45,7 +45,7 @@
    "home_odds": -335,
    "away_odds": 270
   },
-  "last_seen": "2026-10-19T03:22:24"
+  "last_seen": "2026-10-19T17:52:47"
  },
  "CHI @ TOR|2026-10-21T23:40": {
   "label": "CHI @ TOR",
@@ -64,12 +64,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7472,
-   "odds": -350,
-   "home_odds": -350,
-   "away_odds": 280
+   "fav_prob": 0.7502,
+   "odds": -355,
+   "home_odds": -355,
+   "away_odds": 285
   },
-  "last_seen": "2026-10-19T03:22:24"
+  "last_seen": "2026-10-19T17:52:47"
  },
  "CHI @ DEN|2026-10-12T01:10": {
   "label": "CHI @ DEN",
@@ -832,12 +832,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7136,
-   "odds": -290,
-   "home_odds": -290,
-   "away_odds": 235
+   "fav_prob": 0.6411,
+   "odds": -200,
+   "home_odds": -200,
+   "away_odds": 168
   },
-  "last_seen": "2026-10-19T03:22:24"
+  "last_seen": "2026-10-19T17:52:47"
  },
  "LAL @ BOS|2026-10-19T00:27": {
   "label": "LAL @ BOS",
@@ -982,5 +982,29 @@
    "away_odds": 175
   },
   "last_seen": "2026-10-19T03:22:24"
+ },
+ "PHX @ CLE|2026-10-19T23:59": {
+  "label": "PHX @ CLE",
+  "home_name": "Cleveland Cavaliers",
+  "away_name": "Phoenix Suns",
+  "start_time": "2026-10-19T23:59:00.000Z",
+  "first_seen": "2026-10-19T17:52:47",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.7178,
+   "odds": -360,
+   "home_odds": 225,
+   "away_odds": -360
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.7178,
+   "odds": -360,
+   "home_odds": 225,
+   "away_odds": -360
+  },
+  "last_seen": "2026-10-19T17:52:47"
  }
 }

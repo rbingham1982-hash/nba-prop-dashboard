@@ -952,5 +952,41 @@
   "logged_at": "2026-10-19T03:22:22",
   "outcome": null,
   "actual": null
+ },
+ "drake maye|Passing Yards|244.5|36190129": {
+  "player": "Drake Maye",
+  "stat": "Passing Yards",
+  "line": 244.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5731,
+  "fair_prob": 0.475,
+  "edge": 0.0981,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-19T17:52:46",
+  "outcome": null,
+  "actual": null
+ },
+ "cole kmet|Receptions|1.5|36190129": {
+  "player": "Cole Kmet",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 168,
+  "model_prob": 0.4084,
+  "fair_prob": 0.3237,
+  "edge": 0.0847,
+  "sample_n": 22,
+  "depth": 2,
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-19T17:52:46",
+  "outcome": null,
+  "actual": null
  }
 }
