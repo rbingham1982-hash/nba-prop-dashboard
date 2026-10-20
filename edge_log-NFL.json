@@ -988,5 +988,41 @@
   "logged_at": "2026-10-19T17:52:46",
   "outcome": null,
   "actual": null
+ },
+ "aaron rodgers|Passing Yards|230.5|35605985": {
+  "player": "Aaron Rodgers",
+  "stat": "Passing Yards",
+  "line": 230.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5454,
+  "fair_prob": 0.475,
+  "edge": 0.0704,
+  "sample_n": 22,
+  "depth": 1,
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-19T21:46:52",
+  "outcome": null,
+  "actual": null
+ },
+ "aaron rodgers|Passing TDs|1.5|35605985": {
+  "player": "Aaron Rodgers",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": -104,
+  "model_prob": 0.5128,
+  "fair_prob": 0.4509,
+  "edge": 0.0619,
+  "sample_n": 22,
+  "depth": 1,
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-19T21:46:52",
+  "outcome": null,
+  "actual": null
  }
 }

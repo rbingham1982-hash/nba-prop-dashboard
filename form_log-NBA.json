@@ -15310,5 +15310,203 @@
   "logged_at": "2026-10-19T20:41:13",
   "outcome": null,
   "actual": null
+ },
+ "og anunoby|Rebs+Asts|6.5|35928228": {
+  "player": "OG Anunoby",
+  "stat": "Rebs+Asts",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": 118,
+  "fair_prob": 0.4533,
+  "med5": 6.0,
+  "last5": [
+   3.0,
+   7.0,
+   6.0,
+   5.0,
+   8.0
+  ],
+  "game": "PHI @ NYK",
+  "start_time": "2026-10-20T23:00:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
+ },
+ "jalen williams|Pts+Rebs+Asts|27.5|35928229": {
+  "player": "Jalen Williams",
+  "stat": "Pts+Rebs+Asts",
+  "line": 27.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.521,
+  "med5": 24.0,
+  "last5": [
+   35.0,
+   24.0,
+   36.0,
+   5.0,
+   2.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
+ },
+ "deaaron fox|Pts+Asts|20.5|35928229": {
+  "player": "De'Aaron Fox",
+  "stat": "Pts+Asts",
+  "line": 20.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 20.0,
+  "last5": [
+   12.0,
+   25.0,
+   20.0,
+   25.0,
+   12.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
+ },
+ "jalen williams|Pts+Rebs|22.5|35928229": {
+  "player": "Jalen Williams",
+  "stat": "Pts+Rebs",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 20.0,
+  "last5": [
+   29.0,
+   20.0,
+   33.0,
+   5.0,
+   1.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:30:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
+ },
+ "naz reid|Pts+Rebs|24.5|35937400": {
+  "player": "Naz Reid",
+  "stat": "Pts+Rebs",
+  "line": 24.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 24.0,
+  "last5": [
+   18.0,
+   27.0,
+   24.0,
+   17.0,
+   25.0
+  ],
+  "game": "CHA @ BKN",
+  "start_time": "2026-10-21T23:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
+ },
+ "naz reid|Pts+Rebs+Asts|26.5|35937400": {
+  "player": "Naz Reid",
+  "stat": "Pts+Rebs+Asts",
+  "line": 26.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 26.0,
+  "last5": [
+   18.0,
+   32.0,
+   28.0,
+   19.0,
+   26.0
+  ],
+  "game": "CHA @ BKN",
+  "start_time": "2026-10-21T23:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
+ },
+ "dayron sharpe|Pts+Rebs|19.5|35937400": {
+  "player": "Day'Ron Sharpe",
+  "stat": "Pts+Rebs",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 18.0,
+  "last5": [
+   15.0,
+   18.0,
+   12.0,
+   20.0,
+   24.0
+  ],
+  "game": "CHA @ BKN",
+  "start_time": "2026-10-21T23:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
+ },
+ "naz reid|Pts+Asts|19.5|35937400": {
+  "player": "Naz Reid",
+  "stat": "Pts+Asts",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 19.0,
+  "last5": [
+   11.0,
+   23.0,
+   19.0,
+   14.0,
+   19.0
+  ],
+  "game": "CHA @ BKN",
+  "start_time": "2026-10-21T23:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
+ },
+ "trae young|Pts+Asts|29.5|35937402": {
+  "player": "Trae Young",
+  "stat": "Pts+Asts",
+  "line": 29.5,
+  "side": "under",
+  "american_odds": -128,
+  "fair_prob": 0.5491,
+  "med5": 21.0,
+  "last5": [
+   18.0,
+   25.0,
+   21.0,
+   17.0,
+   26.0
+  ],
+  "game": "MIL @ WAS",
+  "start_time": "2026-10-21T23:10:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-19T21:46:43",
+  "outcome": null,
+  "actual": null
  }
 }

@@ -15552,5 +15552,27 @@
   "logged_at": "2026-10-19T17:52:27",
   "outcome": null,
   "actual": null
+ },
+ "tyler shough|Passing TDs|1.5|35605985": {
+  "player": "Tyler Shough",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -186,
+  "fair_prob": 0.6325,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   4.0,
+   1.0,
+   0.0,
+   3.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-19T21:46:39",
+  "outcome": null,
+  "actual": null
  }
 }

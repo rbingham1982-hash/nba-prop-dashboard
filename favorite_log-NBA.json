@@ -21,7 +21,7 @@
    "home_odds": -300,
    "away_odds": 245
   },
-  "last_seen": "2026-10-19T20:41:22"
+  "last_seen": "2026-10-19T21:46:54"
  },
  "DAL @ HOU|2026-10-22T00:40": {
   "label": "DAL @ HOU",
@@ -45,7 +45,7 @@
    "home_odds": -335,
    "away_odds": 270
   },
-  "last_seen": "2026-10-19T20:41:22"
+  "last_seen": "2026-10-19T21:46:54"
  },
  "CHI @ TOR|2026-10-21T23:40": {
   "label": "CHI @ TOR",
@@ -69,7 +69,7 @@
    "home_odds": -355,
    "away_odds": 285
   },
-  "last_seen": "2026-10-19T20:41:22"
+  "last_seen": "2026-10-19T21:46:54"
  },
  "CHI @ DEN|2026-10-12T01:10": {
   "label": "CHI @ DEN",
@@ -837,7 +837,7 @@
    "home_odds": -200,
    "away_odds": 168
   },
-  "last_seen": "2026-10-19T20:41:22"
+  "last_seen": "2026-10-19T21:46:54"
  },
  "LAL @ BOS|2026-10-19T00:27": {
   "label": "LAL @ BOS",
@@ -1078,5 +1078,53 @@
    "away_odds": 185
   },
   "last_seen": "2026-10-19T20:41:22"
+ },
+ "DEN @ ORL|2026-10-20T03:35": {
+  "label": "DEN @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-10-20T03:35:00.000Z",
+  "first_seen": "2026-10-19T21:46:54",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6735,
+   "odds": -280,
+   "home_odds": -280,
+   "away_odds": 180
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6735,
+   "odds": -280,
+   "home_odds": -280,
+   "away_odds": 180
+  },
+  "last_seen": "2026-10-19T21:46:54"
+ },
+ "DAL @ DEN|2026-10-20T03:15": {
+  "label": "DAL @ DEN",
+  "home_name": "Denver Nuggets",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-10-20T03:15:00.000Z",
+  "first_seen": "2026-10-19T21:46:54",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6674,
+   "odds": -270,
+   "home_odds": 175,
+   "away_odds": -270
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6674,
+   "odds": -270,
+   "home_odds": 175,
+   "away_odds": -270
+  },
+  "last_seen": "2026-10-19T21:46:54"
  }
 }
