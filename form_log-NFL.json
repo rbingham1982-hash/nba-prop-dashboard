@@ -6222,8 +6222,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 264.0
  },
  "jayden daniels|Passing Yards|205.5|36160515": {
   "player": "Jayden Daniels",
@@ -6244,8 +6244,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 300.0
  },
  "jayden daniels|Passing TDs|1.5|36160515": {
   "player": "Jayden Daniels",
@@ -6266,8 +6266,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "brock purdy|Passing TDs|2.5|36160515": {
   "player": "Brock Purdy",
@@ -6288,8 +6288,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "christian mccaffrey|Receiving Yards|39.5|36160515": {
   "player": "Christian McCaffrey",
@@ -6310,8 +6310,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 53.0
  },
  "mike evans|Receiving Yards|77.5|36160515": {
   "player": "Mike Evans",
@@ -6332,8 +6332,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 94.0
  },
  "george kittle|Receptions|5.5|36160515": {
   "player": "George Kittle",
@@ -6354,8 +6354,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "christian mccaffrey|Receptions|4.5|36160515": {
   "player": "Christian McCaffrey",
@@ -6376,8 +6376,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "mike evans|Receptions|5.5|36160515": {
   "player": "Mike Evans",
@@ -6398,8 +6398,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "jacory croskey-merritt|Rushing Yards|45.5|36160515": {
   "player": "Jacory Croskey-Merritt",
@@ -6442,8 +6442,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 34.0
  },
  "bo nix|Passing Yards|202.5|36160506": {
   "player": "Bo Nix",
@@ -7344,8 +7344,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-13T18:16:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 94.0
  },
  "justin herbert|Passing Yards|192.5|36160524": {
   "player": "Justin Herbert",
@@ -10006,8 +10006,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-14T20:22:18",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "daniel jones|Passing Yards|234.5|36160516": {
   "player": "Daniel Jones",
@@ -12690,8 +12690,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-16T16:59:55",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 94.0
  },
  "gunnar helm|Receiving Yards|15.5|36160516": {
   "player": "Gunnar Helm",
@@ -13526,8 +13526,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-17T16:22:40",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "christian mccaffrey|Receiving Yards|38.5|36160515": {
   "player": "Christian McCaffrey",
@@ -13548,8 +13548,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-17T16:22:40",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 53.0
  },
  "rachaad white|Rushing Yards|46.5|36160515": {
   "player": "Rachaad White",
@@ -13570,8 +13570,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-17T16:22:40",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 27.0
  },
  "daniel jones|Passing Yards|230.5|36160516": {
   "player": "Daniel Jones",
@@ -13856,8 +13856,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-17T18:55:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 300.0
  },
  "rachaad white|Receiving Yards|12.5|36160515": {
   "player": "Rachaad White",
@@ -13878,8 +13878,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-17T18:55:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "daniel jones|Passing Yards|228.5|36160516": {
   "player": "Daniel Jones",
@@ -14868,8 +14868,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-19T03:22:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "drake maye|Passing Yards|239.5|36190129": {
   "player": "Drake Maye",
@@ -15176,8 +15176,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-19T17:52:27",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 264.0
  },
  "jayden daniels|Passing Yards|209.5|36160515": {
   "player": "Jayden Daniels",
@@ -15198,8 +15198,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-19T17:52:27",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 300.0
  },
  "mike evans|Receiving Yards|66.5|36160515": {
   "player": "Mike Evans",
@@ -15220,8 +15220,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-19T17:52:27",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 94.0
  },
  "rachaad white|Receiving Yards|14.5|36160515": {
   "player": "Rachaad White",
@@ -15242,8 +15242,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-19T17:52:27",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "rachaad white|Receptions|2.5|36160515": {
   "player": "Rachaad White",
@@ -15264,8 +15264,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-19T17:52:27",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "rachaad white|Rushing Yards|44.5|36160515": {
   "player": "Rachaad White",
@@ -15286,8 +15286,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-19T17:52:27",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 27.0
  },
  "kaelon black|Rushing Yards|24.5|36160515": {
   "player": "Kaelon Black",
@@ -15308,8 +15308,8 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-19T17:52:27",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 34.0
  },
  "drake maye|Passing Yards|244.5|36190129": {
   "player": "Drake Maye",
@@ -15572,6 +15572,644 @@
   "start_time": "2026-10-25T13:30:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-19T21:46:39",
+  "outcome": null,
+  "actual": null
+ },
+ "germie bernard|Receptions|4.5|35605985": {
+  "player": "Germie Bernard",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": 118,
+  "fair_prob": 0.4533,
+  "med5": 4.0,
+  "last5": [
+   4.0,
+   1.0,
+   2.0,
+   6.0,
+   11.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "devaughn vele|Receptions|4.5|35605985": {
+  "player": "Devaughn Vele",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -162,
+  "fair_prob": 0.6035,
+  "med5": 4.0,
+  "last5": [
+   5.0,
+   3.0,
+   6.0,
+   4.0,
+   3.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "noah fant|Receiving Yards|11.5|35605985": {
+  "player": "Noah Fant",
+  "stat": "Receiving Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   33.0,
+   0.0,
+   33.0,
+   7.0,
+   0.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "germie bernard|Receiving Yards|53.5|35605985": {
+  "player": "Germie Bernard",
+  "stat": "Receiving Yards",
+  "line": 53.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 35.0,
+  "last5": [
+   35.0,
+   14.0,
+   11.0,
+   80.0,
+   87.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "alvin kamara|Receiving Yards|14.5|35605985": {
+  "player": "Alvin Kamara",
+  "stat": "Receiving Yards",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   7.0,
+   5.0,
+   35.0,
+   -6.0,
+   35.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "rico dowdle|Receiving Yards|9.5|35605985": {
+  "player": "Rico Dowdle",
+  "stat": "Receiving Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 9.0,
+  "last5": [
+   4.0,
+   20.0,
+   6.0,
+   22.0,
+   9.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "alvin kamara|Receptions|3.5|35605985": {
+  "player": "Alvin Kamara",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -174,
+  "fair_prob": 0.6186,
+  "med5": 2.0,
+  "last5": [
+   5.0,
+   1.0,
+   5.0,
+   2.0,
+   2.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "jaylen warren|Receptions|3.5|35605985": {
+  "player": "Jaylen Warren",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -180,
+  "fair_prob": 0.6257,
+  "med5": 3.0,
+  "last5": [
+   2.0,
+   3.0,
+   3.0,
+   6.0,
+   2.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "noah fant|Receptions|1.5|35605985": {
+  "player": "Noah Fant",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 1.0,
+  "last5": [
+   4.0,
+   0.0,
+   4.0,
+   1.0,
+   0.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "dk metcalf|Receiving Yards|54.5|35605985": {
+  "player": "DK Metcalf",
+  "stat": "Receiving Yards",
+  "line": 54.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 31.0,
+  "last5": [
+   27.0,
+   31.0,
+   115.0,
+   12.0,
+   93.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "dk metcalf|Receptions|4.5|35605985": {
+  "player": "DK Metcalf",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 4.0,
+  "last5": [
+   4.0,
+   3.0,
+   5.0,
+   3.0,
+   11.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "kendre miller|Rushing Yards|45.5|35605985": {
+  "player": "Kendre Miller",
+  "stat": "Rushing Yards",
+  "line": 45.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 30.0,
+  "last5": [
+   30.0,
+   14.0,
+   9.0,
+   30.0,
+   70.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "rico dowdle|Rushing Yards|33.5|35605985": {
+  "player": "Rico Dowdle",
+  "stat": "Rushing Yards",
+  "line": 33.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 22.0,
+  "last5": [
+   59.0,
+   10.0,
+   15.0,
+   22.0,
+   40.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "sam darnold|Passing TDs|1.5|36189006": {
+  "player": "Sam Darnold",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -180,
+  "fair_prob": 0.6257,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   4.0,
+   2.0,
+   1.0,
+   0.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "sam darnold|Passing Yards|224.5|36189006": {
+  "player": "Sam Darnold",
+  "stat": "Passing Yards",
+  "line": 224.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 195.0,
+  "last5": [
+   13.0,
+   379.0,
+   168.0,
+   195.0,
+   278.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "cooper kupp|Receptions|2.5|36189006": {
+  "player": "Cooper Kupp",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -140,
+  "fair_prob": 0.5708,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   4.0,
+   1.0,
+   2.0,
+   5.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "rashid shaheed|Receptions|2.5|36189006": {
+  "player": "Rashid Shaheed",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -136,
+  "fair_prob": 0.5629,
+  "med5": 2.0,
+  "last5": [
+   3.0,
+   2.0,
+   1.0,
+   2.0,
+   5.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "rashid shaheed|Receiving Yards|25.5|36189006": {
+  "player": "Rashid Shaheed",
+  "stat": "Receiving Yards",
+  "line": 25.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 23.0,
+  "last5": [
+   35.0,
+   14.0,
+   20.0,
+   23.0,
+   66.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "cooper kupp|Receiving Yards|25.5|36189006": {
+  "player": "Cooper Kupp",
+  "stat": "Receiving Yards",
+  "line": 25.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 20.0,
+  "last5": [
+   20.0,
+   46.0,
+   13.0,
+   15.0,
+   50.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "aj barner|Receiving Yards|25.5|36189006": {
+  "player": "AJ Barner",
+  "stat": "Receiving Yards",
+  "line": 25.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 16.0,
+  "last5": [
+   8.0,
+   69.0,
+   12.0,
+   20.0,
+   16.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "drake maye|Passing Yards|251.5|36190129": {
+  "player": "Drake Maye",
+  "stat": "Passing Yards",
+  "line": 251.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 235.0,
+  "last5": [
+   208.0,
+   199.0,
+   269.0,
+   374.0,
+   235.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "demario douglas|Receptions|3.5|36190129": {
+  "player": "Demario Douglas",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -178,
+  "fair_prob": 0.6227,
+  "med5": 2.0,
+  "last5": [
+   1.0,
+   1.0,
+   2.0,
+   4.0,
+   7.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "eli raridon|Receiving Yards|13.5|36190129": {
+  "player": "Eli Raridon",
+  "stat": "Receiving Yards",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   2.0,
+   30.0,
+   12.0,
+   57.0,
+   11.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle williams|Receiving Yards|19.5|36190129": {
+  "player": "Kyle Williams",
+  "stat": "Receiving Yards",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   10.0,
+   34.0,
+   0.0,
+   91.0,
+   12.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "eli raridon|Receptions|1.5|36190129": {
+  "player": "Eli Raridon",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -154,
+  "fair_prob": 0.592,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   1.0,
+   1.0,
+   5.0,
+   1.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle williams|Receptions|1.5|36190129": {
+  "player": "Kyle Williams",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -180,
+  "fair_prob": 0.6257,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   1.0,
+   0.0,
+   3.0,
+   1.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "aj brown|Receiving Yards|69.5|36190129": {
+  "player": "A.J. Brown",
+  "stat": "Receiving Yards",
+  "line": 69.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 41.0,
+  "last5": [
+   41.0,
+   95.0,
+   68.0,
+   26.0,
+   27.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "efton chism|Receiving Yards|19.5|36190129": {
+  "player": "Efton Chism III",
+  "stat": "Receiving Yards",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 1.0,
+  "last5": [
+   -2.0,
+   1.0,
+   42.0,
+   57.0,
+   0.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
+  "outcome": null,
+  "actual": null
+ },
+ "efton chism|Receptions|1.5|36190129": {
+  "player": "Efton Chism III",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": 112,
+  "fair_prob": 0.4665,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   1.0,
+   2.0,
+   5.0,
+   0.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-20T03:04:12",
   "outcome": null,
   "actual": null
  }
