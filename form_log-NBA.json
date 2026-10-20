@@ -16740,5 +16740,115 @@
   "logged_at": "2026-10-20T15:50:55",
   "outcome": null,
   "actual": null
+ },
+ "jalen williams|Pts+Rebs+Asts|28.5|35928229": {
+  "player": "Jalen Williams",
+  "stat": "Pts+Rebs+Asts",
+  "line": 28.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5438,
+  "med5": 24.0,
+  "last5": [
+   35.0,
+   24.0,
+   36.0,
+   5.0,
+   2.0
+  ],
+  "game": "OKC @ SAS",
+  "start_time": "2026-10-21T01:40:00.000Z",
+  "game_day": "2026-10-20",
+  "logged_at": "2026-10-20T17:13:06",
+  "outcome": null,
+  "actual": null
+ },
+ "franz wagner|Assists|5.5|35937399": {
+  "player": "Franz Wagner",
+  "stat": "Assists",
+  "line": 5.5,
+  "side": "under",
+  "american_odds": -166,
+  "fair_prob": 0.608,
+  "med5": 3.0,
+  "last5": [
+   1.0,
+   4.0,
+   1.0,
+   6.0,
+   3.0
+  ],
+  "game": "ATL @ ORL",
+  "start_time": "2026-10-21T23:10:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-20T17:13:06",
+  "outcome": null,
+  "actual": null
+ },
+ "derrick jones|Pts+Rebs|16.5|35937403": {
+  "player": "Derrick Jones Jr.",
+  "stat": "Pts+Rebs",
+  "line": 16.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 12.0,
+  "last5": [
+   9.0,
+   21.0,
+   16.0,
+   12.0,
+   4.0
+  ],
+  "game": "SAC @ LAC",
+  "start_time": "2026-10-22T02:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-20T17:13:06",
+  "outcome": null,
+  "actual": null
+ },
+ "zach lavine|Pts+Rebs|22.5|35937403": {
+  "player": "Zach LaVine",
+  "stat": "Pts+Rebs",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 18.0,
+  "last5": [
+   18.0,
+   21.0,
+   41.0,
+   12.0,
+   8.0
+  ],
+  "game": "SAC @ LAC",
+  "start_time": "2026-10-22T02:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-20T17:13:06",
+  "outcome": null,
+  "actual": null
+ },
+ "kelly oubre|Points|12.5|35937408": {
+  "player": "Kelly Oubre Jr.",
+  "stat": "Points",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5392,
+  "med5": 12.0,
+  "last5": [
+   6.0,
+   12.0,
+   19.0,
+   22.0,
+   10.0
+  ],
+  "game": "IND @ NOP",
+  "start_time": "2026-10-22T00:10:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-20T17:13:06",
+  "outcome": null,
+  "actual": null
  }
 }

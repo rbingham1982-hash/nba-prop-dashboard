@@ -1564,5 +1564,41 @@
   "logged_at": "2026-10-20T15:51:07",
   "outcome": null,
   "actual": null
+ },
+ "wandale robinson|Receptions|4.5|36189001": {
+  "player": "Wan'Dale Robinson",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "over",
+  "american_odds": 124,
+  "model_prob": 0.5016,
+  "fair_prob": 0.392,
+  "edge": 0.1096,
+  "sample_n": 22,
+  "depth": 2,
+  "game": "CLE @ TEN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T17:13:24",
+  "outcome": null,
+  "actual": null
+ },
+ "harold fannin|Receptions|3.5|36189001": {
+  "player": "Harold Fannin Jr.",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "over",
+  "american_odds": -102,
+  "model_prob": 0.5115,
+  "fair_prob": 0.4468,
+  "edge": 0.0647,
+  "sample_n": 22,
+  "depth": null,
+  "game": "CLE @ TEN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-20T17:13:24",
+  "outcome": null,
+  "actual": null
  }
 }
