@@ -21,7 +21,7 @@
    "home_odds": -300,
    "away_odds": 245
   },
-  "last_seen": "2026-10-20T20:27:12"
+  "last_seen": "2026-10-20T21:40:39"
  },
  "DAL @ HOU|2026-10-22T00:40": {
   "label": "DAL @ HOU",
@@ -45,7 +45,7 @@
    "home_odds": -335,
    "away_odds": 270
   },
-  "last_seen": "2026-10-20T20:27:12"
+  "last_seen": "2026-10-20T21:40:39"
  },
  "CHI @ TOR|2026-10-21T23:40": {
   "label": "CHI @ TOR",
@@ -64,12 +64,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7764,
-   "odds": -420,
-   "home_odds": -420,
-   "away_odds": 330
+   "fav_prob": 0.7711,
+   "odds": -405,
+   "home_odds": -405,
+   "away_odds": 320
   },
-  "last_seen": "2026-10-20T20:27:12"
+  "last_seen": "2026-10-20T21:40:39"
  },
  "CHI @ DEN|2026-10-12T01:10": {
   "label": "CHI @ DEN",
@@ -837,7 +837,7 @@
    "home_odds": -225,
    "away_odds": 188
   },
-  "last_seen": "2026-10-20T20:27:12"
+  "last_seen": "2026-10-20T21:40:39"
  },
  "LAL @ BOS|2026-10-19T00:27": {
   "label": "LAL @ BOS",
@@ -1294,5 +1294,29 @@
    "away_odds": 195
   },
   "last_seen": "2026-10-20T20:27:12"
+ },
+ "ORL @ CHA|2026-10-21T03:35": {
+  "label": "ORL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Orlando Magic",
+  "start_time": "2026-10-21T03:35:00.000Z",
+  "first_seen": "2026-10-20T21:40:39",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6663,
+   "odds": -265,
+   "home_odds": -265,
+   "away_odds": 175
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6663,
+   "odds": -265,
+   "home_odds": -265,
+   "away_odds": 175
+  },
+  "last_seen": "2026-10-20T21:40:39"
  }
 }
