@@ -6992,7 +6992,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-13T18:16:05",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "javonte williams|Rushing Yards|70.5|36160511": {
@@ -7762,7 +7762,7 @@
   "start_time": "2026-10-18T20:06:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T03:16:28",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "jeremiyah love|Rushing Yards|43.5|36160495": {
@@ -7784,7 +7784,7 @@
   "start_time": "2026-10-18T20:06:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T03:16:28",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "blake corum|Rushing Yards|43.5|36160495": {
@@ -8048,7 +8048,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T03:16:28",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "carnell tate|Receptions|4.5|36160516": {
@@ -8092,7 +8092,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T03:16:28",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "elic ayomanor|Receptions|1.5|36160516": {
@@ -8136,7 +8136,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T03:16:28",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "tyjae spears|Receptions|2.5|36160516": {
@@ -8884,7 +8884,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T17:11:24",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "chuba hubbard|Receiving Yards|17.5|36160510": {
@@ -9390,7 +9390,7 @@
   "start_time": "2026-10-18T20:26:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T17:11:24",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "dalton kincaid|Receiving Yards|46.5|36160513": {
@@ -9456,7 +9456,7 @@
   "start_time": "2026-10-18T20:26:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T17:11:24",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "colston loveland|Receiving Yards|32.5|36160514": {
@@ -9522,7 +9522,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T17:11:24",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "josh downs|Receiving Yards|48.5|36160516": {
@@ -10226,7 +10226,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-14T21:31:19",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "kendrick bourne|Receiving Yards|35.5|36160495": {
@@ -11722,7 +11722,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-16T02:45:44",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "laquon treadwell|Receptions|2.5|36160516": {
@@ -12712,7 +12712,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-16T16:59:55",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "kimani vidal|Receiving Yards|8.5|36160524": {
@@ -13614,7 +13614,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-17T16:22:40",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "keenan allen|Receiving Yards|41.5|36160516": {
@@ -13966,7 +13966,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-17T21:18:34",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "tyler huntley|Rushing Yards|24.5|36160507": {
@@ -17904,6 +17904,402 @@
   "start_time": "2026-10-25T20:26:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-20T21:40:13",
+  "outcome": null,
+  "actual": null
+ },
+ "bo nix|Passing TDs|1.5|36189004": {
+  "player": "Bo Nix",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -144,
+  "fair_prob": 0.5761,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   2.0,
+   1.0,
+   1.0,
+   0.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "bo nix|Passing Yards|221.5|36189004": {
+  "player": "Bo Nix",
+  "stat": "Passing Yards",
+  "line": 221.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 186.0,
+  "last5": [
+   288.0,
+   186.0,
+   214.0,
+   123.0,
+   107.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "trey mcbride|Receiving Yards|65.5|36189004": {
+  "player": "Trey McBride",
+  "stat": "Receiving Yards",
+  "line": 65.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 53.0,
+  "last5": [
+   41.0,
+   75.0,
+   31.0,
+   66.0,
+   53.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "jaylen waddle|Receptions|4.5|36189004": {
+  "player": "Jaylen Waddle",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": 112,
+  "fair_prob": 0.4665,
+  "med5": 4.0,
+  "last5": [
+   8.0,
+   2.0,
+   5.0,
+   2.0,
+   4.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "troy franklin|Receiving Yards|17.5|36189004": {
+  "player": "Troy Franklin",
+  "stat": "Receiving Yards",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 16.0,
+  "last5": [
+   0.0,
+   27.0,
+   21.0,
+   16.0,
+   2.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "courtland sutton|Receptions|3.5|36189004": {
+  "player": "Courtland Sutton",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -154,
+  "fair_prob": 0.592,
+  "med5": 2.0,
+  "last5": [
+   3.0,
+   3.0,
+   1.0,
+   2.0,
+   2.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "michael wilson|Receiving Yards|47.5|36189004": {
+  "player": "Michael Wilson",
+  "stat": "Receiving Yards",
+  "line": 47.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 32.0,
+  "last5": [
+   18.0,
+   89.0,
+   95.0,
+   30.0,
+   32.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "courtland sutton|Receiving Yards|35.5|36189004": {
+  "player": "Courtland Sutton",
+  "stat": "Receiving Yards",
+  "line": 35.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   25.0,
+   46.0,
+   4.0,
+   18.0,
+   19.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "michael wilson|Receptions|4.5|36189004": {
+  "player": "Michael Wilson",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -154,
+  "fair_prob": 0.592,
+  "med5": 4.0,
+  "last5": [
+   2.0,
+   11.0,
+   7.0,
+   4.0,
+   4.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "evan engram|Receptions|2.5|36189004": {
+  "player": "Evan Engram",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   0.0,
+   1.0,
+   4.0,
+   2.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "jalen brooks|Receiving Yards|17.5|36189004": {
+  "player": "Jalen Brooks",
+  "stat": "Receiving Yards",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   16.0,
+   30.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "jaylen waddle|Receiving Yards|54.5|36189004": {
+  "player": "Jaylen Waddle",
+  "stat": "Receiving Yards",
+  "line": 54.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 24.0,
+  "last5": [
+   138.0,
+   10.0,
+   35.0,
+   19.0,
+   24.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "jalen brooks|Receptions|1.5|36189004": {
+  "player": "Jalen Brooks",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4927,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   2.0,
+   2.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "evan engram|Receiving Yards|23.5|36189004": {
+  "player": "Evan Engram",
+  "stat": "Receiving Yards",
+  "line": 23.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 13.0,
+  "last5": [
+   17.0,
+   0.0,
+   6.0,
+   55.0,
+   13.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "troy franklin|Receptions|1.5|36189004": {
+  "player": "Troy Franklin",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": 104,
+  "fair_prob": 0.4831,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   1.0,
+   2.0,
+   1.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "marvin mims|Receiving Yards|12.5|36189004": {
+  "player": "Marvin Mims Jr.",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 10.0,
+  "last5": [
+   10.0,
+   0.0,
+   10.0,
+   6.0,
+   13.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "bo nix|Rushing Yards|12.5|36189004": {
+  "player": "Bo Nix",
+  "stat": "Rushing Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   6.0,
+   7.0,
+   10.0,
+   10.0,
+   2.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
+  "outcome": null,
+  "actual": null
+ },
+ "jk dobbins|Rushing Yards|58.5|36189004": {
+  "player": "J.K. Dobbins",
+  "stat": "Rushing Yards",
+  "line": 58.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 41.0,
+  "last5": [
+   36.0,
+   49.0,
+   40.0,
+   68.0,
+   41.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:09:31",
   "outcome": null,
   "actual": null
  }

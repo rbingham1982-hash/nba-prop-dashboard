@@ -266,7 +266,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-18T09:26:58",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "chris olave|Receptions|6.5|36160509": {
@@ -356,7 +356,7 @@
   "start_time": "2026-10-18T17:01:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-18T09:26:58",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "bryce young|Passing TDs|1.5|36160510": {
@@ -464,7 +464,7 @@
   "start_time": "2026-10-19T00:21:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-18T09:26:58",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "jake ferguson|Receptions|3.5|36160511": {
@@ -500,7 +500,7 @@
   "start_time": "2026-10-19T00:21:00.000Z",
   "game_day": "2026-10-18",
   "logged_at": "2026-10-18T09:26:58",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "aaron rodgers|Passing TDs|1.5|36160512": {
@@ -1832,6 +1832,42 @@
   "start_time": "2026-10-25T20:26:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-20T21:40:37",
+  "outcome": null,
+  "actual": null
+ },
+ "trey mcbride|Receptions|7.5|36189004": {
+  "player": "Trey McBride",
+  "stat": "Receptions",
+  "line": 7.5,
+  "side": "over",
+  "american_odds": 106,
+  "model_prob": 0.5172,
+  "fair_prob": 0.4292,
+  "edge": 0.088,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:10:01",
+  "outcome": null,
+  "actual": null
+ },
+ "michael wilson|Receptions|4.5|36189004": {
+  "player": "Michael Wilson",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "over",
+  "american_odds": 116,
+  "model_prob": 0.5557,
+  "fair_prob": 0.408,
+  "edge": 0.1477,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T03:10:01",
   "outcome": null,
   "actual": null
  }
