@@ -137,6 +137,11 @@ def _records() -> dict:
         out["nba"] = nw.record()
     except Exception:
         out["nba"] = {}
+    try:
+        import nba_daily_picks as ndp
+        out["nba_daily"] = ndp.record()
+    except Exception:
+        out["nba_daily"] = {}
     tests = []
     for label, sport, fn in (("NFL recent-form unders", "nfl", "form"),
                              ("NBA recent-form unders", "nba", "form"),
@@ -178,7 +183,10 @@ def _proof(rec: dict) -> str:
     if n.get("td_n"):
         tiles.append(_stat("Touchdown scorer board", f"{n['td_record']}",
                            f"{_pct(n['td_pct'])} hit · the book's odds expected {_pct(n['td_expected_pct'])}"))
-    total = sum(int(n.get(k) or 0) for k in ("ats_n", "leg_n", "td_n", "rec_n"))
+    nd = (rec.get("nba_daily") or {}).get("ats") or {}
+    if nd.get("n"):
+        tiles.append(_stat("NBA spread picks", nd["record"], f"{_pct(nd['pct'])} · break-even 52.4%"))
+    total = sum(int(n.get(k) or 0) for k in ("ats_n", "leg_n", "td_n", "rec_n")) + int(nd.get("n") or 0)
     if total:
         tiles.append(_stat("Picks graded in public", f"{total}",
                            "every one logged before kickoff"))
@@ -271,7 +279,17 @@ def record_page(rec) -> str:
         rows.append(("NBA scorer board", b["scorer_record"], _pct(b.get("scorer_pct")),
                      f'expected {_pct(b.get("scorer_expected_pct"))}'))
     if b.get("parlays_settled"):
-        rows.append(("NBA parlay", f'{b["parlays_hit"]}-{b["parlays_settled"] - b["parlays_hit"]}', "", ""))
+        rows.append(("NBA weekly parlay", f'{b["parlays_hit"]}-{b["parlays_settled"] - b["parlays_hit"]}', "", ""))
+    nd = rec.get("nba_daily") or {}
+    if (nd.get("ats") or {}).get("n"):
+        rows.append(("NBA spread picks (daily)", nd["ats"]["record"], _pct(nd["ats"]["pct"]),
+                     "52.4% breaks even; 48.1% in the 2025-26 backtest"))
+    if (nd.get("ats_all_games") or {}).get("n"):
+        rows.append(("NBA spread model, every game", nd["ats_all_games"]["record"], _pct(nd["ats_all_games"]["pct"]),
+                     "all games logged, published or not"))
+    if nd.get("parlays_settled"):
+        rows.append(("NBA daily parlay", f'{nd["parlays_hit"]}-{nd["parlays_settled"] - nd["parlays_hit"]}', "",
+                     f'legs {nd["leg_record"]}'))
     board = "".join(f'<tr><td>{_h.escape(a)}</td><td class="r"><b>{_h.escape(r)}</b></td>'
                     f'<td class="r">{_h.escape(p)}</td><td>{_h.escape(c)}</td></tr>' for a, r, p, c in rows)
     weeks = "".join(f'<tr><td>Week {int(str(w["week"]).split("-")[-1])}</td>'

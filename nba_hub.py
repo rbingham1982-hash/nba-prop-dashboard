@@ -215,6 +215,15 @@ def _tipoff(season: str) -> None:
                "the team number more than its history suggests.")
 
 
+def _daily() -> None:
+    nh._sec("Today's board", "spread picks and a props parlay, saved each afternoon, graded next day")
+    try:
+        import nba_daily_picks as ndp
+        ndp.render_hub_section()
+    except Exception:
+        st.caption("The daily NBA board saves each afternoon once the regular season starts.")
+
+
 def _board() -> None:
     nh._sec("This week's board", "logged before tip-off, graded after")
     try:
@@ -280,5 +289,6 @@ def render() -> None:
     with right:
         _table(g, nightly)
     _tipoff(season)
+    _daily()
     _board()
     _method()
