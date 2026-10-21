@@ -66,10 +66,42 @@ def league_log(season: str, season_type: str = "Regular Season", league: str = "
     return df
 
 
+_LIVE: dict = {}
+_LIVE_TTL = 1800
+
+
+def live_league_log(season: str, season_type: str = "Regular Season", league: str = "00") -> pd.DataFrame:
+    """
+    The whole league's log for a season from stats.nba.com, one request, cached 30 minutes.
+
+    Where stats.nba.com answers (the home machine), one LeagueGameLog call replaces the
+    four PlayerGameLog calls per player the dashboard used to make: the NBA parlay builder
+    pre-warmed 50 players that way, 200 requests and minutes of waiting, against 4 here.
+    If the call fails the saved files answer instead, so a stall costs freshness, not the page.
+    """
+    key = (league, season, season_type)
+    hit = _LIVE.get(key)
+    if hit and time.time() - hit[0] < _LIVE_TTL:
+        return hit[1]
+    try:
+        from nba_api.stats.endpoints import leaguegamelog
+        df = leaguegamelog.LeagueGameLog(season=season, league_id=league, player_or_team_abbreviation="P",
+                                         season_type_all_star=season_type, timeout=30).get_data_frames()[0]
+        df = df.sort_values(["GAME_DATE", "GAME_ID"]).reset_index(drop=True)
+        # LeagueGameLog lists tonight's games while they are being played (a starter at 0
+        # minutes and 3 points mid-first quarter); only finished nights count.
+        df = df[pd.to_datetime(df["GAME_DATE"]).dt.date < datetime.date.today()].reset_index(drop=True)
+    except Exception:
+        df = league_log(season, season_type, league)
+    _LIVE[key] = (time.time(), df)
+    return df
+
+
 def player_log(player_id, season: str, season_type: str = "Regular Season",
-               league: str = "00") -> pd.DataFrame:
-    """One player's games shaped like PlayerGameLog: Player_ID/Game_ID, "Oct 22, 2025" dates, newest first."""
-    df = league_log(season, season_type, league)
+               league: str = "00", live: bool = False) -> pd.DataFrame:
+    """One player's games shaped like PlayerGameLog: Player_ID/Game_ID, "Oct 22, 2025" dates, newest first.
+    `live` reads stats.nba.com's league log (one cached call) instead of the saved files."""
+    df = live_league_log(season, season_type, league) if live else league_log(season, season_type, league)
     if df.empty:
         return df
     d = df[df["PLAYER_ID"].astype(str) == str(player_id)].copy()

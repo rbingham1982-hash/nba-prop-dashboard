@@ -1507,13 +1507,11 @@ def _fetch_gamelogs(player_id, seasons):
     for season in seasons:
         for s_type in ("Regular Season", "Playoffs"):
             try:
-                if _nba_snapshot.use_snapshot():      # stats.nba.com refuses cloud hosts
-                    logs = _nba_snapshot.player_log(player_id, season, s_type)
-                else:
-                    logs = playergamelog.PlayerGameLog(
-                        player_id=player_id, season=season,
-                        season_type_all_star=s_type, timeout=10,
-                    ).get_data_frames()[0]
+                # One league-wide log per season, sliced per player: the saved files on a
+                # cloud host (stats.nba.com refuses them), one cached stats.nba.com call at
+                # home. Per-player PlayerGameLog calls made the parlay builder crawl.
+                logs = _nba_snapshot.player_log(player_id, season, s_type,
+                                                live=not _nba_snapshot.use_snapshot())
                 if logs.empty:
                     continue
                 logs["SEASON"] = season
