@@ -4221,7 +4221,7 @@ with hdr_col:
         <p class="konjure-sub">Multi-Sport Prop Intelligence &nbsp;&middot;&nbsp; Powered by Data</p>
     </div>""", unsafe_allow_html=True)
 with sport_col:
-    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy", "🧮 Parlay Builder", "⭐ Pro"], key="sport_selector")
+    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy", "🧮 Parlay Builder", "🎮 Games", "⭐ Pro"], key="sport_selector")
     # Signed-in visitors see who they are and can sign out; the Edge Finder tabs carry the
     # sign-in forms themselves (accounts.gate), so there is nothing to show when signed out.
     if _acct.signed_in_email():
@@ -5193,7 +5193,7 @@ def _fallback_wnba_legs(stat_types: list = None, cal: dict = None) -> list:
 # statement in this file.
 _PAGE_KEYS = {"🏀 NBA": "nba", "🏀 WNBA": "wnba", "⚾ MLB": "mlb",
               "🏈 NFL": "nfl", "🏆 Fantasy": "fantasy",
-              "🧮 Parlay Builder": "builder", "⭐ Pro": "pro"}
+              "🧮 Parlay Builder": "builder", "🎮 Games": "games", "⭐ Pro": "pro"}
 _page_box = st.container(key=f"page_{_PAGE_KEYS.get(sport, 'other')}")
 _page_box.__enter__()
 
@@ -9537,6 +9537,15 @@ elif sport == "🧮 Parlay Builder":
     if _acct.gate("parlay_builder"):
         import parlay_builder as _pb
         _pb.render(key="pb_page")
+
+
+elif sport == "🎮 Games":
+    # Guess the Grade and Beat the Market (games.py). Free to play, no prizes. Anyone can play
+    # Guess the Grade; entering Beat the Market and keeping a score needs an account.
+    import games as _games
+    _games.render()
+    if not (_acct.signed_in_email() or not _acct.on_streamlit_cloud()):
+        _acct.gate("games")
 
 
 elif sport == "⭐ Pro":
