@@ -23868,5 +23868,203 @@
   "logged_at": "2026-10-21T17:08:14",
   "outcome": null,
   "actual": null
+ },
+ "anthony davis|Pts+Rebs+Asts|36.5|35937402": {
+  "player": "Anthony Davis",
+  "stat": "Pts+Rebs+Asts",
+  "line": 36.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5396,
+  "med5": 36.0,
+  "last5": [
+   6.0,
+   23.0,
+   41.0,
+   37.0,
+   36.0
+  ],
+  "game": "MIL @ WAS",
+  "start_time": "2026-10-21T23:10:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
+ },
+ "tre johnson|Pts+Rebs|14.5|35937402": {
+  "player": "Tre Johnson",
+  "stat": "Pts+Rebs",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5489,
+  "med5": 13.0,
+  "last5": [
+   13.0,
+   12.0,
+   17.0,
+   12.0,
+   14.0
+  ],
+  "game": "MIL @ WAS",
+  "start_time": "2026-10-21T23:10:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
+ },
+ "anthony davis|Pts+Rebs|33.5|35937402": {
+  "player": "Anthony Davis",
+  "stat": "Pts+Rebs",
+  "line": 33.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5438,
+  "med5": 32.0,
+  "last5": [
+   6.0,
+   21.0,
+   38.0,
+   35.0,
+   32.0
+  ],
+  "game": "MIL @ WAS",
+  "start_time": "2026-10-21T23:10:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
+ },
+ "alex sarr|Pts+Rebs|20.5|35937402": {
+  "player": "Alex Sarr",
+  "stat": "Pts+Rebs",
+  "line": 20.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.5011,
+  "med5": 17.0,
+  "last5": [
+   20.0,
+   9.0,
+   5.0,
+   19.0,
+   17.0
+  ],
+  "game": "MIL @ WAS",
+  "start_time": "2026-10-21T23:10:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
+ },
+ "kyshawn george|Pts+Rebs|18.5|35937402": {
+  "player": "Kyshawn George",
+  "stat": "Pts+Rebs",
+  "line": 18.5,
+  "side": "under",
+  "american_odds": -128,
+  "fair_prob": 0.5539,
+  "med5": 15.0,
+  "last5": [
+   9.0,
+   15.0,
+   13.0,
+   17.0,
+   17.0
+  ],
+  "game": "MIL @ WAS",
+  "start_time": "2026-10-21T23:10:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
+ },
+ "malik monk|Pts+Asts|13.5|35937403": {
+  "player": "Malik Monk",
+  "stat": "Pts+Asts",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 11.0,
+  "last5": [
+   17.0,
+   23.0,
+   8.0,
+   5.0,
+   11.0
+  ],
+  "game": "SAC @ LAC",
+  "start_time": "2026-10-22T02:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
+ },
+ "malik monk|Pts+Rebs+Asts|15.5|35937403": {
+  "player": "Malik Monk",
+  "stat": "Pts+Rebs+Asts",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 12.0,
+  "last5": [
+   19.0,
+   26.0,
+   8.0,
+   6.0,
+   12.0
+  ],
+  "game": "SAC @ LAC",
+  "start_time": "2026-10-22T02:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
+ },
+ "matas buzelis|Points|15.5|35937407": {
+  "player": "Matas Buzelis",
+  "stat": "Points",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.5011,
+  "med5": 14.0,
+  "last5": [
+   29.0,
+   12.0,
+   17.0,
+   11.0,
+   14.0
+  ],
+  "game": "CHI @ TOR",
+  "start_time": "2026-10-21T23:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
+ },
+ "peyton watson|Points|14.5|35937409": {
+  "player": "Peyton Watson",
+  "stat": "Points",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 10.0,
+  "last5": [
+   14.0,
+   21.0,
+   7.0,
+   10.0,
+   6.0
+  ],
+  "game": "CLE @ PHI",
+  "start_time": "2026-10-22T23:10:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-21T17:14:56",
+  "outcome": null,
+  "actual": null
  }
 }
