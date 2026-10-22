@@ -279,5 +279,133 @@
    "fair_prob": 0.09496,
    "breakeven_prob": 0.10333
   }
+ },
+ "2026-10-22": {
+  "date": "2026-10-22",
+  "generated": "2026-10-22T17:18:15",
+  "ats": [
+   {
+    "event": "401909094",
+    "game": "DEN @ OKC",
+    "home": "OKC",
+    "away": "DEN",
+    "start_time": "2026-10-23T01:30Z",
+    "home_spread": -8.5,
+    "book": "DraftKings",
+    "pred_margin": 12.17,
+    "edge": 3.67,
+    "pick": "home",
+    "pick_label": "OKC -8.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": true
+   },
+   {
+    "event": "401909093",
+    "game": "CLE @ PHI",
+    "home": "PHI",
+    "away": "CLE",
+    "start_time": "2026-10-22T23:00Z",
+    "home_spread": -2.5,
+    "book": "DraftKings",
+    "pred_margin": 6.05,
+    "edge": 3.55,
+    "pick": "home",
+    "pick_label": "PHI -2.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": true
+   }
+  ],
+  "ats_rule": "published when the model and the line differ by 2-6 points",
+  "parlay": [],
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Evan Mobley",
+    "stat_type": "3-PT Made",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -265,
+    "game": "CLE @ PHI",
+    "start_time": "2026-10-22T23:10:00.000Z",
+    "model_prob": 0.97,
+    "implied_prob": 0.7103,
+    "blended_prob": 0.7103,
+    "edge": 0.2597,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jamal Murray",
+    "stat_type": "Rebounds",
+    "line": 4.5,
+    "side": "under",
+    "american_odds": -162,
+    "game": "DEN @ OKC",
+    "start_time": "2026-10-23T01:40:00.000Z",
+    "model_prob": 0.4786,
+    "implied_prob": 0.6079,
+    "blended_prob": 0.6079,
+    "edge": -0.1293,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Joel Embiid",
+    "stat_type": "Assists",
+    "line": 4.5,
+    "side": "under",
+    "american_odds": -158,
+    "game": "CLE @ PHI",
+    "start_time": "2026-10-22T23:10:00.000Z",
+    "model_prob": 0.4971,
+    "implied_prob": 0.6034,
+    "blended_prob": 0.6034,
+    "edge": -0.1063,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Anfernee Simons",
+    "stat_type": "Points",
+    "line": 9.5,
+    "side": "under",
+    "american_odds": -132,
+    "game": "CLE @ PHI",
+    "start_time": "2026-10-22T23:10:00.000Z",
+    "model_prob": 0.2314,
+    "implied_prob": 0.5622,
+    "blended_prob": 0.5622,
+    "edge": -0.3308,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Cason Wallace",
+    "stat_type": "Pts+Rebs+Asts",
+    "line": 14.5,
+    "side": "under",
+    "american_odds": -128,
+    "game": "DEN @ OKC",
+    "start_time": "2026-10-23T01:40:00.000Z",
+    "model_prob": 0.64,
+    "implied_prob": 0.5539,
+    "blended_prob": 0.5539,
+    "edge": 0.0861,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 11.388,
+   "american": 1039,
+   "model_prob": 0.03418,
+   "blended_prob": 0.08113,
+   "fair_prob": 0.08113,
+   "breakeven_prob": 0.08781
+  }
  }
 }
