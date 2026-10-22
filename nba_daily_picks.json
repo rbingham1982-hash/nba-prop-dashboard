@@ -15,9 +15,9 @@
     "edge": 8.04,
     "pick": "away",
     "pick_label": "MIL +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 128,
+    "away_pts": 116,
     "published": false
    },
    {
@@ -32,9 +32,9 @@
     "edge": 7.23,
     "pick": "away",
     "pick_label": "CHA -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 103,
+    "away_pts": 110,
     "published": false
    },
    {
@@ -49,9 +49,9 @@
     "edge": 6.09,
     "pick": "away",
     "pick_label": "CHI +10.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 135,
+    "away_pts": 92,
     "published": false
    },
    {
@@ -66,9 +66,9 @@
     "edge": 5.56,
     "pick": "away",
     "pick_label": "GSW +6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 127,
+    "away_pts": 105,
     "published": true
    },
    {
@@ -83,9 +83,9 @@
     "edge": 5.24,
     "pick": "home",
     "pick_label": "NOP +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 120,
+    "away_pts": 123,
     "published": true
    },
    {
@@ -100,9 +100,9 @@
     "edge": 3.98,
     "pick": "away",
     "pick_label": "PHX +2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 124,
+    "away_pts": 83,
     "published": true
    },
    {
@@ -117,9 +117,9 @@
     "edge": 3.67,
     "pick": "away",
     "pick_label": "DAL +9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 128,
+    "away_pts": 110,
     "published": false
    },
    {
@@ -134,9 +134,9 @@
     "edge": 3.5,
     "pick": "away",
     "pick_label": "ATL +2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 125,
+    "away_pts": 132,
     "published": false
    },
    {
@@ -151,9 +151,9 @@
     "edge": 2.19,
     "pick": "away",
     "pick_label": "MIN +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 106,
+    "away_pts": 131,
     "published": false
    },
    {
@@ -168,9 +168,9 @@
     "edge": 0.62,
     "pick": "away",
     "pick_label": "UTA +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 123,
+    "away_pts": 103,
     "published": false
    },
    {
@@ -185,9 +185,9 @@
     "edge": 0.52,
     "pick": "home",
     "pick_label": "LAC -5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 121,
+    "away_pts": 96,
     "published": false
    }
   ],
@@ -207,8 +207,8 @@
     "implied_prob": 0.6892,
     "blended_prob": 0.6892,
     "edge": -0.0821,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Isaiah Collier",
@@ -222,8 +222,8 @@
     "implied_prob": 0.6646,
     "blended_prob": 0.6646,
     "edge": -0.0946,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Jaren Jackson Jr.",
@@ -237,8 +237,8 @@
     "implied_prob": 0.6592,
     "blended_prob": 0.6592,
     "edge": 0.0108,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Jamal Shead",
@@ -252,8 +252,8 @@
     "implied_prob": 0.5678,
     "blended_prob": 0.5678,
     "edge": -0.0378,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Andrew Wiggins",
@@ -267,8 +267,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": 0.039,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 14.0
    }
   ],
   "parlay_withheld_price": {

@@ -16,12 +16,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7258,
-   "odds": -310,
-   "home_odds": -310,
-   "away_odds": 250
+   "fav_prob": 0.7328,
+   "odds": -320,
+   "home_odds": -320,
+   "away_odds": 260
   },
-  "last_seen": "2026-10-21T21:38:51"
+  "last_seen": "2026-10-22T03:10:22"
  },
  "DAL @ HOU|2026-10-22T00:40": {
   "label": "DAL @ HOU",
@@ -36,8 +36,8 @@
    "home_odds": -300,
    "away_odds": 245
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7764,
@@ -60,8 +60,8 @@
    "home_odds": -340,
    "away_odds": 275
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7864,
@@ -828,8 +828,8 @@
    "home_odds": -260,
    "away_odds": 215
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.6565,
@@ -924,7 +924,7 @@
    "home_odds": -360,
    "away_odds": 225
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -1557,7 +1557,7 @@
    "home_odds": -260,
    "away_odds": 215
   },
-  "last_seen": "2026-10-21T21:38:51"
+  "last_seen": "2026-10-22T03:10:22"
  },
  "DEN @ DAL|2026-10-22T02:59": {
   "label": "DEN @ DAL",
@@ -1606,5 +1606,101 @@
    "away_odds": 190
   },
   "last_seen": "2026-10-21T21:38:51"
+ },
+ "DAL @ IND|2026-10-23T23:10": {
+  "label": "DAL @ IND",
+  "home_name": "Indiana Pacers",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-10-23T23:10:00.000Z",
+  "first_seen": "2026-10-22T03:10:22",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6515,
+   "odds": -210,
+   "home_odds": -210,
+   "away_odds": 176
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6515,
+   "odds": -210,
+   "home_odds": -210,
+   "away_odds": 176
+  },
+  "last_seen": "2026-10-22T03:10:22"
+ },
+ "LAC @ LAL|2026-10-24T02:10": {
+  "label": "LAC @ LAL",
+  "home_name": "Los Angeles Lakers",
+  "away_name": "Los Angeles Clippers",
+  "start_time": "2026-10-24T02:10:00.000Z",
+  "first_seen": "2026-10-22T03:10:22",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7711,
+   "odds": -405,
+   "home_odds": -405,
+   "away_odds": 320
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7711,
+   "odds": -405,
+   "home_odds": -405,
+   "away_odds": 320
+  },
+  "last_seen": "2026-10-22T03:10:22"
+ },
+ "POR @ SAC|2026-10-24T02:10": {
+  "label": "POR @ SAC",
+  "home_name": "Sacramento Kings",
+  "away_name": "Portland Trail Blazers",
+  "start_time": "2026-10-24T02:10:00.000Z",
+  "first_seen": "2026-10-22T03:10:22",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6778,
+   "odds": -240,
+   "home_odds": 198,
+   "away_odds": -240
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6778,
+   "odds": -240,
+   "home_odds": 198,
+   "away_odds": -240
+  },
+  "last_seen": "2026-10-22T03:10:22"
+ },
+ "TOR @ MIA|2026-10-22T08:47": {
+  "label": "TOR @ MIA",
+  "home_name": "Miami Heat",
+  "away_name": "Toronto Raptors",
+  "start_time": "2026-10-22T08:47:00.000Z",
+  "first_seen": "2026-10-22T03:10:22",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.7088,
+   "odds": -340,
+   "home_odds": 215,
+   "away_odds": -340
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.7088,
+   "odds": -340,
+   "home_odds": 215,
+   "away_odds": -340
+  },
+  "last_seen": "2026-10-22T03:10:22"
  }
 }

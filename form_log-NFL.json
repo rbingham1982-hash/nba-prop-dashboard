@@ -6420,7 +6420,7 @@
   "start_time": "2026-10-20T00:16:00.000Z",
   "game_day": "2026-10-19",
   "logged_at": "2026-10-12T20:14:11",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "kaelon black|Rushing Yards|23.5|36160515": {
@@ -20368,6 +20368,116 @@
   "start_time": "2026-10-25T20:26:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-21T21:38:10",
+  "outcome": null,
+  "actual": null
+ },
+ "evan engram|Receiving Yards|21.5|36189004": {
+  "player": "Evan Engram",
+  "stat": "Receiving Yards",
+  "line": 21.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 13.0,
+  "last5": [
+   17.0,
+   0.0,
+   6.0,
+   55.0,
+   13.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T03:09:40",
+  "outcome": null,
+  "actual": null
+ },
+ "tanner mckee|Rushing Yards|7.5|36189007": {
+  "player": "Tanner McKee",
+  "stat": "Rushing Yards",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   -2.0,
+   9.0,
+   -2.0,
+   3.0,
+   0.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-22T03:09:40",
+  "outcome": null,
+  "actual": null
+ },
+ "dak prescott|Rushing Yards|9.5|36189007": {
+  "player": "Dak Prescott",
+  "stat": "Rushing Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   26.0,
+   19.0,
+   7.0,
+   0.0,
+   7.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-22T03:09:40",
+  "outcome": null,
+  "actual": null
+ },
+ "rome odunze|Receiving Yards|43.5|36190129": {
+  "player": "Rome Odunze",
+  "stat": "Receiving Yards",
+  "line": 43.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 43.0,
+  "last5": [
+   43.0,
+   44.0,
+   94.0,
+   40.0,
+   39.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-22T03:09:40",
+  "outcome": null,
+  "actual": null
+ },
+ "aj brown|Receiving Yards|72.5|36190129": {
+  "player": "A.J. Brown",
+  "stat": "Receiving Yards",
+  "line": 72.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 41.0,
+  "last5": [
+   41.0,
+   95.0,
+   68.0,
+   26.0,
+   27.0
+  ],
+  "game": "NE @ CHI",
+  "start_time": "2026-10-23T00:16:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-22T03:09:40",
   "outcome": null,
   "actual": null
  }
