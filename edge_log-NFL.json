@@ -2230,5 +2230,23 @@
   "logged_at": "2026-10-21T20:25:29",
   "outcome": null,
   "actual": null
+ },
+ "jacoby brissett|Passing Yards|231.5|36189004": {
+  "player": "Jacoby Brissett",
+  "stat": "Passing Yards",
+  "line": 231.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5502,
+  "fair_prob": 0.475,
+  "edge": 0.0752,
+  "sample_n": 20,
+  "depth": 1,
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T21:38:49",
+  "outcome": null,
+  "actual": null
  }
 }

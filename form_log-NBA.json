@@ -25320,5 +25320,115 @@
   "logged_at": "2026-10-21T20:24:57",
   "outcome": null,
   "actual": null
+ },
+ "derrick jones|Points|11.5|35937403": {
+  "player": "Derrick Jones Jr.",
+  "stat": "Points",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": 104,
+  "fair_prob": 0.4878,
+  "med5": 10.0,
+  "last5": [
+   6.0,
+   11.0,
+   11.0,
+   10.0,
+   0.0
+  ],
+  "game": "SAC @ LAC",
+  "start_time": "2026-10-22T02:40:00.000Z",
+  "game_day": "2026-10-21",
+  "logged_at": "2026-10-21T21:38:16",
+  "outcome": null,
+  "actual": null
+ },
+ "isaiah hartenstein|Rebounds|7.5|35937405": {
+  "player": "Isaiah Hartenstein",
+  "stat": "Rebounds",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": 116,
+  "fair_prob": 0.458,
+  "med5": 5.0,
+  "last5": [
+   7.0,
+   15.0,
+   5.0,
+   5.0,
+   3.0
+  ],
+  "game": "DEN @ OKC",
+  "start_time": "2026-10-23T01:40:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-21T21:38:16",
+  "outcome": null,
+  "actual": null
+ },
+ "chet holmgren|Pts+Rebs+Asts|23.5|35937405": {
+  "player": "Chet Holmgren",
+  "stat": "Pts+Rebs+Asts",
+  "line": 23.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 22.0,
+  "last5": [
+   21.0,
+   28.0,
+   22.0,
+   8.0,
+   23.0
+  ],
+  "game": "DEN @ OKC",
+  "start_time": "2026-10-23T01:40:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-21T21:38:16",
+  "outcome": null,
+  "actual": null
+ },
+ "ajay mitchell|Pts+Rebs+Asts|18.5|35937405": {
+  "player": "Ajay Mitchell",
+  "stat": "Pts+Rebs+Asts",
+  "line": 18.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 13.0,
+  "last5": [
+   35.0,
+   13.0,
+   12.0,
+   8.0,
+   15.0
+  ],
+  "game": "DEN @ OKC",
+  "start_time": "2026-10-23T01:40:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-21T21:38:16",
+  "outcome": null,
+  "actual": null
+ },
+ "isaiah hartenstein|Rebs+Asts|10.5|35937405": {
+  "player": "Isaiah Hartenstein",
+  "stat": "Rebs+Asts",
+  "line": 10.5,
+  "side": "under",
+  "american_odds": 104,
+  "fair_prob": 0.4831,
+  "med5": 8.0,
+  "last5": [
+   10.0,
+   19.0,
+   8.0,
+   5.0,
+   6.0
+  ],
+  "game": "DEN @ OKC",
+  "start_time": "2026-10-23T01:40:00.000Z",
+  "game_day": "2026-10-22",
+  "logged_at": "2026-10-21T21:38:16",
+  "outcome": null,
+  "actual": null
  }
 }

@@ -20238,5 +20238,137 @@
   "logged_at": "2026-10-21T20:24:53",
   "outcome": null,
   "actual": null
+ },
+ "bryce lance|Receiving Yards|14.5|35605985": {
+  "player": "Bryce Lance",
+  "stat": "Receiving Yards",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   8.0,
+   0.0,
+   7.0,
+   0.0,
+   9.0
+  ],
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T21:38:10",
+  "outcome": null,
+  "actual": null
+ },
+ "chuba hubbard|Receiving Yards|14.5|36188995": {
+  "player": "Chuba Hubbard",
+  "stat": "Receiving Yards",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 11.0,
+  "last5": [
+   38.0,
+   11.0,
+   28.0,
+   7.0,
+   1.0
+  ],
+  "game": "TB @ CAR",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T21:38:10",
+  "outcome": null,
+  "actual": null
+ },
+ "jj mccarthy|Passing Yards|200.5|36188999": {
+  "player": "J.J McCarthy",
+  "stat": "Passing Yards",
+  "line": 200.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 182.0,
+  "last5": [
+   250.0,
+   108.0,
+   182.0,
+   0.0,
+   243.0
+  ],
+  "game": "NYG @ HOU",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T21:38:10",
+  "outcome": null,
+  "actual": null
+ },
+ "colby parkinson|Receiving Yards|23.5|36189003": {
+  "player": "Colby Parkinson",
+  "stat": "Receiving Yards",
+  "line": 23.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 6.0,
+  "last5": [
+   6.0,
+   15.0,
+   0.0,
+   3.0,
+   31.0
+  ],
+  "game": "LA @ LV",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T21:38:10",
+  "outcome": null,
+  "actual": null
+ },
+ "jacoby brissett|Passing Yards|231.5|36189004": {
+  "player": "Jacoby Brissett",
+  "stat": "Passing Yards",
+  "line": 231.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 218.0,
+  "last5": [
+   95.0,
+   280.0,
+   166.0,
+   292.0,
+   218.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T21:38:10",
+  "outcome": null,
+  "actual": null
+ },
+ "tucker kraft|Receiving Yards|49.5|36189005": {
+  "player": "Tucker Kraft",
+  "stat": "Receiving Yards",
+  "line": 49.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 37.0,
+  "last5": [
+   15.0,
+   26.0,
+   42.0,
+   64.0,
+   37.0
+  ],
+  "game": "GB @ DET",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-21T21:38:10",
+  "outcome": null,
+  "actual": null
  }
 }
