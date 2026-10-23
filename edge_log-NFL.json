@@ -914,8 +914,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-19T03:22:22",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "drake maye|Passing Yards|239.5|36190129": {
   "player": "Drake Maye",
@@ -932,8 +932,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-19T03:22:22",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 321.0
  },
  "rome odunze|Receptions|3.5|36190129": {
   "player": "Rome Odunze",
@@ -950,8 +950,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-19T03:22:22",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "drake maye|Passing Yards|244.5|36190129": {
   "player": "Drake Maye",
@@ -968,8 +968,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-19T17:52:46",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 321.0
  },
  "cole kmet|Receptions|1.5|36190129": {
   "player": "Cole Kmet",
@@ -986,8 +986,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-19T17:52:46",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "aaron rodgers|Passing Yards|230.5|35605985": {
   "player": "Aaron Rodgers",
@@ -1220,8 +1220,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-20T03:04:31",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 321.0
  },
  "alvin kamara|Receptions|2.5|35605985": {
   "player": "Alvin Kamara",
@@ -1490,8 +1490,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-20T15:51:07",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 321.0
  },
  "aj brown|Receptions|5.5|36190129": {
   "player": "A.J. Brown",
@@ -1508,8 +1508,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-20T15:51:07",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "treveyon henderson|Receiving Yards|2.5|36190129": {
   "player": "TreVeyon Henderson",
@@ -1526,8 +1526,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-20T15:51:07",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 14.0
  },
  "efton chism|Receptions|2.5|36190129": {
   "player": "Efton Chism III",
@@ -1544,8 +1544,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-20T15:51:07",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "treveyon henderson|Rushing Yards|25.5|36190129": {
   "player": "TreVeyon Henderson",
@@ -1562,8 +1562,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-20T15:51:07",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "wandale robinson|Receptions|4.5|36189001": {
   "player": "Wan'Dale Robinson",
@@ -2138,8 +2138,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-21T17:08:41",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 321.0
  },
  "treveyon henderson|Rushing Yards|22.5|36190129": {
   "player": "TreVeyon Henderson",
@@ -2156,8 +2156,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-21T17:08:41",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "jk dobbins|Rushing Yards|51.5|36189004": {
   "player": "J.K. Dobbins",
@@ -2210,8 +2210,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-21T20:25:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "treveyon henderson|Rushing Yards|24.5|36190129": {
   "player": "TreVeyon Henderson",
@@ -2228,8 +2228,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-21T20:25:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "jacoby brissett|Passing Yards|231.5|36189004": {
   "player": "Jacoby Brissett",
@@ -2480,8 +2480,8 @@
   "start_time": "2026-10-23T00:16:00.000Z",
   "game_day": "2026-10-22",
   "logged_at": "2026-10-22T17:18:09",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 321.0
  },
  "matthew stafford|Passing Yards|259.5|36189003": {
   "player": "Matthew Stafford",
@@ -2534,6 +2534,60 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-22T21:43:35",
+  "outcome": null,
+  "actual": null
+ },
+ "dalton schultz|Receiving Yards|30.5|36188999": {
+  "player": "Dalton Schultz",
+  "stat": "Receiving Yards",
+  "line": 30.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5519,
+  "fair_prob": 0.475,
+  "edge": 0.0769,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "NYG @ HOU",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-23T03:08:56",
+  "outcome": null,
+  "actual": null
+ },
+ "mason taylor|Receptions|2.5|36189000": {
+  "player": "Mason Taylor",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "over",
+  "american_odds": -158,
+  "model_prob": 0.6185,
+  "fair_prob": 0.5467,
+  "edge": 0.0718,
+  "sample_n": 16,
+  "depth": 2,
+  "game": "MIA @ NYJ",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-23T03:08:56",
+  "outcome": null,
+  "actual": null
+ },
+ "jauan jennings|Receptions|0.5|36189002": {
+  "player": "Jauan Jennings",
+  "stat": "Receptions",
+  "line": 0.5,
+  "side": "over",
+  "american_odds": -230,
+  "model_prob": 0.7748,
+  "fair_prob": 0.6263,
+  "edge": 0.1485,
+  "sample_n": 19,
+  "depth": 2,
+  "game": "IND @ MIN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-23T03:08:56",
   "outcome": null,
   "actual": null
  }

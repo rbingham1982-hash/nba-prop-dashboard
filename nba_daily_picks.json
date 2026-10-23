@@ -296,9 +296,9 @@
     "edge": 3.67,
     "pick": "home",
     "pick_label": "OKC -8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 96,
+    "away_pts": 84,
     "published": true
    },
    {
@@ -313,9 +313,9 @@
     "edge": 3.55,
     "pick": "home",
     "pick_label": "PHI -2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 114,
+    "away_pts": 106,
     "published": true
    }
   ],
@@ -335,8 +335,8 @@
     "implied_prob": 0.7103,
     "blended_prob": 0.7103,
     "edge": 0.2597,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Jamal Murray",
@@ -350,8 +350,8 @@
     "implied_prob": 0.6079,
     "blended_prob": 0.6079,
     "edge": -0.1293,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 10.0
    },
    {
     "player": "Joel Embiid",
@@ -365,8 +365,8 @@
     "implied_prob": 0.6034,
     "blended_prob": 0.6034,
     "edge": -0.1063,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Anfernee Simons",
@@ -380,8 +380,8 @@
     "implied_prob": 0.5622,
     "blended_prob": 0.5622,
     "edge": -0.3308,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Cason Wallace",
@@ -395,8 +395,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": 0.0861,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 11.0
    }
   ],
   "parlay_withheld_price": {

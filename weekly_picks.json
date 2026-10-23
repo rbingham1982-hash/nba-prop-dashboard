@@ -2144,5 +2144,410 @@
    "frozen_at": "2026-10-16T02:46:30"
   },
   "graded": true
+ },
+ "2026-07": {
+  "season": 2026,
+  "week": 7,
+  "generated": "2026-10-23T03:09:41",
+  "ats": [
+   {
+    "game": "DAL @ PHI",
+    "away_team": "DAL",
+    "home_team": "PHI",
+    "spread_line": -4.5,
+    "pred_margin": 4.2,
+    "edge": 8.7,
+    "pick": "home",
+    "pick_label": "PHI +4.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "NYG @ HOU",
+    "away_team": "NYG",
+    "home_team": "HOU",
+    "spread_line": 10.5,
+    "pred_margin": 6.37,
+    "edge": -4.13,
+    "pick": "away",
+    "pick_label": "NYG +10.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "LA @ LV",
+    "away_team": "LA",
+    "home_team": "LV",
+    "spread_line": -3.5,
+    "pred_margin": -7.58,
+    "edge": -4.08,
+    "pick": "away",
+    "pick_label": "LA -3.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "CIN @ BAL",
+    "away_team": "CIN",
+    "home_team": "BAL",
+    "spread_line": 1.5,
+    "pred_margin": 5.4,
+    "edge": 3.9,
+    "pick": "home",
+    "pick_label": "BAL -1.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "IND @ MIN",
+    "away_team": "IND",
+    "home_team": "MIN",
+    "spread_line": 6.5,
+    "pred_margin": 2.92,
+    "edge": -3.58,
+    "pick": "away",
+    "pick_label": "IND +6.5",
+    "outcome": null,
+    "result": null
+   }
+  ],
+  "parlay": [],
+  "td": [
+   {
+    "player": "Jahmyr Gibbs",
+    "game": "Green Bay Packers @ Detroit Lions",
+    "american_odds": -350,
+    "model_prob": 0.6349,
+    "fair_prob": 0.7367,
+    "blended_prob": 0.6349,
+    "edge": -0.1018,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jonathan Taylor",
+    "game": "Indianapolis Colts @ Minnesota Vikings",
+    "american_odds": -120,
+    "model_prob": 0.5788,
+    "fair_prob": 0.5043,
+    "blended_prob": 0.5788,
+    "edge": 0.0744,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Derrick Henry",
+    "game": "Cincinnati Bengals @ Baltimore Ravens",
+    "american_odds": -220,
+    "model_prob": 0.563,
+    "fair_prob": 0.6467,
+    "blended_prob": 0.563,
+    "edge": -0.0837,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Javonte Williams",
+    "game": "Dallas Cowboys @ Philadelphia Eagles",
+    "american_odds": -175,
+    "model_prob": 0.551,
+    "fair_prob": 0.593,
+    "blended_prob": 0.551,
+    "edge": -0.042,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Josh Jacobs",
+    "game": "Green Bay Packers @ Detroit Lions",
+    "american_odds": 110,
+    "model_prob": 0.5194,
+    "fair_prob": 0.4438,
+    "blended_prob": 0.5194,
+    "edge": 0.0756,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Christian McCaffrey",
+    "game": "San Francisco 49ers @ Atlanta Falcons",
+    "american_odds": -260,
+    "model_prob": 0.5156,
+    "fair_prob": 0.6838,
+    "blended_prob": 0.5156,
+    "edge": -0.1682,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kyren Williams",
+    "game": "Los Angeles Rams @ Las Vegas Raiders",
+    "american_odds": -165,
+    "model_prob": 0.4975,
+    "fair_prob": 0.5788,
+    "blended_prob": 0.4975,
+    "edge": -0.0813,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Ollie Gordon II",
+    "game": "Miami Dolphins @ New York Jets",
+    "american_odds": 200,
+    "model_prob": 0.4882,
+    "fair_prob": 0.3189,
+    "blended_prob": 0.4882,
+    "edge": 0.1692,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kenneth Walker III",
+    "game": "Kansas City Chiefs @ Seattle Seahawks",
+    "american_odds": -130,
+    "model_prob": 0.4686,
+    "fair_prob": 0.5214,
+    "blended_prob": 0.4686,
+    "edge": -0.0528,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Zach Charbonnet",
+    "game": "Kansas City Chiefs @ Seattle Seahawks",
+    "american_odds": 110,
+    "model_prob": 0.4615,
+    "fair_prob": 0.4438,
+    "blended_prob": 0.4615,
+    "edge": 0.0177,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "receivers_rule": "edge",
+  "receivers": [
+   {
+    "player": "Jordan Whittington",
+    "game": "Los Angeles Rams @ Las Vegas Raiders",
+    "position": "WR",
+    "american_odds": 250,
+    "model_prob": 0.0503,
+    "fair_prob": 0.2763,
+    "blended_prob": 0.0503,
+    "edge": -0.226,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Cade Otton",
+    "game": "Tampa Bay Buccaneers @ Carolina Panthers",
+    "position": "TE",
+    "american_odds": 240,
+    "model_prob": 0.1084,
+    "fair_prob": 0.2839,
+    "blended_prob": 0.1084,
+    "edge": -0.1755,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Justin Jefferson",
+    "game": "Indianapolis Colts @ Minnesota Vikings",
+    "position": "WR",
+    "american_odds": 165,
+    "model_prob": 0.1839,
+    "fair_prob": 0.3575,
+    "blended_prob": 0.1839,
+    "edge": -0.1736,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Nate Adkins",
+    "game": "Denver Broncos @ Arizona Cardinals",
+    "position": "TE",
+    "american_odds": 1000,
+    "model_prob": 0.2495,
+    "fair_prob": 0.0873,
+    "blended_prob": 0.2495,
+    "edge": 0.1621,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Tory Horton",
+    "game": "Kansas City Chiefs @ Seattle Seahawks",
+    "position": "WR",
+    "american_odds": 750,
+    "model_prob": 0.2739,
+    "fair_prob": 0.1131,
+    "blended_prob": 0.2739,
+    "edge": 0.1608,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "wind": [
+   {
+    "game": "SF @ ATL",
+    "home_team": "ATL",
+    "away_team": "SF",
+    "total_line": 49.5,
+    "wind_mph": 11.5,
+    "expected_adj": -4.47,
+    "gameday": "2026-10-25",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "NYG @ HOU",
+    "home_team": "HOU",
+    "away_team": "NYG",
+    "total_line": 42.5,
+    "wind_mph": 10.6,
+    "expected_adj": -4.12,
+    "gameday": "2026-10-25",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   }
+  ],
+  "parlay_gate": true,
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "J.K. Dobbins",
+    "stat_type": "Receptions",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -220,
+    "model_prob": 0.5748,
+    "blended_prob": 0.668,
+    "implied_prob": 0.668,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Deshaun Watson",
+    "stat_type": "Passing TDs",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -215,
+    "model_prob": 0.6578,
+    "blended_prob": 0.6628,
+    "implied_prob": 0.6628,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Matthew Stafford",
+    "stat_type": "Rushing Yards",
+    "line": 0.5,
+    "side": "under",
+    "american_odds": -165,
+    "model_prob": 0.8814,
+    "blended_prob": 0.6096,
+    "implied_prob": 0.6096,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Tyler Shough",
+    "stat_type": "Passing Yards",
+    "line": 227.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.4559,
+    "blended_prob": 0.525,
+    "implied_prob": 0.525,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Noah Fant",
+    "stat_type": "Receiving Yards",
+    "line": 11.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.4886,
+    "blended_prob": 0.525,
+    "implied_prob": 0.525,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 12.061,
+   "american": 1106,
+   "model_prob": 0.07423,
+   "blended_prob": 0.07439,
+   "fair_prob": 0.07439,
+   "breakeven_prob": 0.08291
+  },
+  "td_parlay": [
+   "Jahmyr Gibbs",
+   "Jonathan Taylor",
+   "Derrick Henry"
+  ],
+  "td_parlay_price": {
+   "decimal": 3.429,
+   "american": 243,
+   "model_prob": 0.20689,
+   "blended_prob": 0.20689,
+   "fair_prob": 0.24026,
+   "breakeven_prob": 0.29167
+  },
+  "td_rule": "model",
+  "form_parlay": {
+   "day": "2026-10-25",
+   "keys": [
+    "olamide zaccheaus|Receptions|1.5|36188996",
+    "jared goff|Passing TDs|2.5|36189005",
+    "elic ayomanor|Receptions|1.5|36189001"
+   ],
+   "legs": [
+    {
+     "player": "Olamide Zaccheaus",
+     "stat": "Receptions",
+     "line": 1.5,
+     "american_odds": -250,
+     "fair_prob": 0.6932,
+     "med5": 0.0,
+     "game": "SF @ ATL",
+     "start_time": "2026-10-25T17:01:00.000Z"
+    },
+    {
+     "player": "Jared Goff",
+     "stat": "Passing TDs",
+     "line": 2.5,
+     "american_odds": -230,
+     "fair_prob": 0.6763,
+     "med5": 2.0,
+     "game": "GB @ DET",
+     "start_time": "2026-10-25T20:26:00.000Z"
+    },
+    {
+     "player": "Elic Ayomanor",
+     "stat": "Receptions",
+     "line": 1.5,
+     "american_odds": -215,
+     "fair_prob": 0.6628,
+     "med5": 1.0,
+     "game": "CLE @ TEN",
+     "start_time": "2026-10-25T17:01:00.000Z"
+    }
+   ],
+   "decimal": 2.943,
+   "american": 194,
+   "fair_prob": 0.3107,
+   "breakeven": 0.3398,
+   "frozen_at": "2026-10-23T03:09:42"
+  }
  }
 }
