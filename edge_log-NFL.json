@@ -2518,5 +2518,23 @@
   "logged_at": "2026-10-22T20:23:44",
   "outcome": null,
   "actual": null
+ },
+ "tyjae spears|Receptions|2.5|36189001": {
+  "player": "Tyjae Spears",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "over",
+  "american_odds": 102,
+  "model_prob": 0.4955,
+  "fair_prob": 0.4371,
+  "edge": 0.0584,
+  "sample_n": 19,
+  "depth": 2,
+  "game": "CLE @ TEN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T21:43:35",
+  "outcome": null,
+  "actual": null
  }
 }

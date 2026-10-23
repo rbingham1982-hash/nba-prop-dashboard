@@ -22020,5 +22020,71 @@
   "logged_at": "2026-10-22T20:23:04",
   "outcome": null,
   "actual": null
+ },
+ "quinshon judkins|Rushing Yards|46.5|36189001": {
+  "player": "Quinshon Judkins",
+  "stat": "Rushing Yards",
+  "line": 46.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 44.0,
+  "last5": [
+   33.0,
+   21.0,
+   70.0,
+   53.0,
+   44.0
+  ],
+  "game": "CLE @ TEN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T21:42:52",
+  "outcome": null,
+  "actual": null
+ },
+ "jordan addison|Receiving Yards|42.5|36189002": {
+  "player": "Jordan Addison",
+  "stat": "Receiving Yards",
+  "line": 42.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 21.0,
+  "last5": [
+   8.0,
+   0.0,
+   21.0,
+   90.0,
+   52.0
+  ],
+  "game": "IND @ MIN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T21:42:52",
+  "outcome": null,
+  "actual": null
+ },
+ "rashid shaheed|Receiving Yards|24.5|36189006": {
+  "player": "Rashid Shaheed",
+  "stat": "Receiving Yards",
+  "line": 24.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 23.0,
+  "last5": [
+   35.0,
+   14.0,
+   20.0,
+   23.0,
+   66.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T21:42:52",
+  "outcome": null,
+  "actual": null
  }
 }
