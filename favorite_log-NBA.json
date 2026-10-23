@@ -16,12 +16,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7369,
-   "odds": -330,
-   "home_odds": -330,
+   "fav_prob": 0.7355,
+   "odds": -320,
+   "home_odds": -320,
    "away_odds": 265
   },
-  "last_seen": "2026-10-22T17:18:11"
+  "last_seen": "2026-10-22T20:23:45"
  },
  "DAL @ HOU|2026-10-22T00:40": {
   "label": "DAL @ HOU",
@@ -996,7 +996,7 @@
    "home_odds": 225,
    "away_odds": -360
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -1552,12 +1552,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.6515,
-   "odds": -210,
-   "home_odds": -210,
-   "away_odds": 176
+   "fav_prob": 0.6464,
+   "odds": -205,
+   "home_odds": -205,
+   "away_odds": 172
   },
-  "last_seen": "2026-10-22T17:18:11"
+  "last_seen": "2026-10-22T20:23:45"
  },
  "DEN @ DAL|2026-10-22T02:59": {
   "label": "DEN @ DAL",
@@ -1624,12 +1624,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.6464,
-   "odds": -205,
-   "home_odds": -205,
-   "away_odds": 172
+   "fav_prob": 0.6548,
+   "odds": -210,
+   "home_odds": -210,
+   "away_odds": 180
   },
-  "last_seen": "2026-10-22T17:18:11"
+  "last_seen": "2026-10-22T20:23:45"
  },
  "LAC @ LAL|2026-10-24T02:10": {
   "label": "LAC @ LAL",
@@ -1653,7 +1653,7 @@
    "home_odds": -405,
    "away_odds": 320
   },
-  "last_seen": "2026-10-22T17:18:11"
+  "last_seen": "2026-10-22T20:23:45"
  },
  "POR @ SAC|2026-10-24T02:10": {
   "label": "POR @ SAC",
@@ -1672,12 +1672,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7175,
-   "odds": -295,
-   "home_odds": 240,
-   "away_odds": -295
+   "fav_prob": 0.7258,
+   "odds": -310,
+   "home_odds": 250,
+   "away_odds": -310
   },
-  "last_seen": "2026-10-22T17:18:11"
+  "last_seen": "2026-10-22T20:23:45"
  },
  "TOR @ MIA|2026-10-22T08:47": {
   "label": "TOR @ MIA",
@@ -1725,7 +1725,7 @@
    "home_odds": 176,
    "away_odds": -210
   },
-  "last_seen": "2026-10-22T17:18:11"
+  "last_seen": "2026-10-22T20:23:45"
  },
  "BOS @ NYK|2026-10-22T22:59": {
   "label": "BOS @ NYK",

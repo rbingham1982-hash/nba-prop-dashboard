@@ -21888,5 +21888,137 @@
   "logged_at": "2026-10-22T17:17:35",
   "outcome": null,
   "actual": null
+ },
+ "tyjae spears|Receiving Yards|11.5|36189001": {
+  "player": "Tyjae Spears",
+  "stat": "Receiving Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   29.0,
+   0.0,
+   -1.0,
+   28.0,
+   7.0
+  ],
+  "game": "CLE @ TEN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T20:23:04",
+  "outcome": null,
+  "actual": null
+ },
+ "tyjae spears|Receptions|2.5|36189001": {
+  "player": "Tyjae Spears",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 1.0,
+  "last5": [
+   2.0,
+   0.0,
+   1.0,
+   9.0,
+   1.0
+  ],
+  "game": "CLE @ TEN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T20:23:04",
+  "outcome": null,
+  "actual": null
+ },
+ "tyjae spears|Rushing Yards|10.5|36189001": {
+  "player": "Tyjae Spears",
+  "stat": "Rushing Yards",
+  "line": 10.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 5.0,
+  "last5": [
+   41.0,
+   5.0,
+   7.0,
+   0.0,
+   1.0
+  ],
+  "game": "CLE @ TEN",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T20:23:04",
+  "outcome": null,
+  "actual": null
+ },
+ "ashton jeanty|Rushing Yards|52.5|36189003": {
+  "player": "Ashton Jeanty",
+  "stat": "Rushing Yards",
+  "line": 52.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 48.0,
+  "last5": [
+   48.0,
+   56.0,
+   58.0,
+   27.0,
+   22.0
+  ],
+  "game": "LA @ LV",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T20:23:04",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler allgeier|Rushing Yards|42.5|36189004": {
+  "player": "Tyler Allgeier",
+  "stat": "Rushing Yards",
+  "line": 42.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 10.0,
+  "last5": [
+   10.0,
+   -1.0,
+   42.0,
+   7.0,
+   38.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T20:23:04",
+  "outcome": null,
+  "actual": null
+ },
+ "jk dobbins|Rushing Yards|48.5|36189004": {
+  "player": "J.K. Dobbins",
+  "stat": "Rushing Yards",
+  "line": 48.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 41.0,
+  "last5": [
+   36.0,
+   49.0,
+   40.0,
+   68.0,
+   41.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-22T20:23:04",
+  "outcome": null,
+  "actual": null
  }
 }
