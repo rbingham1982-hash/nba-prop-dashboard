@@ -6070,7 +6070,7 @@ if sport == "🏀 NBA":
 
     # ── SPORTSBOOK ────────────────────────────────────────────────────────────
     with tab_pp:
-        if _acct.gate("nba_sportsbook"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("nba_sportsbook"))
             _sb_nba_col1, _sb_nba_col2 = st.columns([4, 1])
             with _sb_nba_col1:
                 _sb_nba = st.radio(
@@ -6859,7 +6859,7 @@ elif sport == "🏀 WNBA":
 
     # ── BET SIMULATION ────────────────────────────────────────────────────────
     with tab_w_sim:
-        if _acct.gate("wnba_sim"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("wnba_sim"))
             wsim_ctrl, wsim_main = st.columns([1, 2.8])
             with wsim_ctrl:
                 section("Select Player")
@@ -6913,7 +6913,7 @@ elif sport == "🏀 WNBA":
 
     # ── SPORTSBOOK ────────────────────────────────────────────────────────────
     with tab_w_pp:
-        if _acct.gate("wnba_sportsbook"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("wnba_sportsbook"))
             _wsb_col1, _wsb_col2 = st.columns([4, 1])
             with _wsb_col1:
                 _wsb_choice = st.radio("Sportsbook", ["FanDuel", "Underdog", "PrizePicks"], key="wsb_choice", horizontal=True)
@@ -8169,7 +8169,7 @@ elif sport == "⚾ MLB":
 
     # ── MLB BET SIMULATION ───────────────────────────────────────────────────
     with tab_sim_mlb:
-        if _acct.gate("mlb_sim"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("mlb_sim"))
             _MLB_HIT_SIM_MAP = {
                 "Hits": "H", "Home Runs": "HR", "RBIs": "RBI",
                 "Strikeouts": "K", "Walks": "BB", "Total Bases": "TB", "Stolen Bases": "SB",
@@ -8239,7 +8239,7 @@ elif sport == "⚾ MLB":
 
     # ── MLB PRIZEPICKS ────────────────────────────────────────────────────────
     with tab_pp_mlb:
-        if _acct.gate("mlb_sportsbook"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("mlb_sportsbook"))
             _sb_mlb_col1, _sb_mlb_col2 = st.columns([4, 1])
             with _sb_mlb_col1:
                 _sb_mlb = st.radio(
