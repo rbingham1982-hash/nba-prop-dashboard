@@ -1332,7 +1332,7 @@
    "home_odds": -400,
    "away_odds": 245
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -1356,7 +1356,7 @@
    "home_odds": -320,
    "away_odds": 205
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -1380,7 +1380,7 @@
    "home_odds": -280,
    "away_odds": 180
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -2008,12 +2008,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7764,
-   "odds": -420,
-   "home_odds": -420,
-   "away_odds": 330
+   "fav_prob": 0.7685,
+   "odds": -400,
+   "home_odds": -400,
+   "away_odds": 315
   },
-  "last_seen": "2026-10-24T02:48:10"
+  "last_seen": "2026-10-24T14:15:57"
  },
  "NOP @ DEN|2026-10-25T01:10": {
   "label": "NOP @ DEN",
@@ -2037,7 +2037,7 @@
    "home_odds": -500,
    "away_odds": 385
   },
-  "last_seen": "2026-10-24T02:48:10"
+  "last_seen": "2026-10-24T14:15:57"
  },
  "BKN @ CLE|2026-10-24T23:40": {
   "label": "BKN @ CLE",
@@ -2056,12 +2056,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8017,
-   "odds": -500,
-   "home_odds": -500,
-   "away_odds": 385
+   "fav_prob": 0.7995,
+   "odds": -490,
+   "home_odds": -490,
+   "away_odds": 380
   },
-  "last_seen": "2026-10-24T02:48:10"
+  "last_seen": "2026-10-24T14:15:57"
  },
  "MIL @ PHI|2026-10-24T23:40": {
   "label": "MIL @ PHI",
@@ -2080,12 +2080,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8282,
-   "odds": -620,
-   "home_odds": -620,
-   "away_odds": 460
+   "fav_prob": 0.8038,
+   "odds": -510,
+   "home_odds": -510,
+   "away_odds": 390
   },
-  "last_seen": "2026-10-24T02:48:10"
+  "last_seen": "2026-10-24T14:15:57"
  },
  "SAS @ DAL|2026-10-25T00:10": {
   "label": "SAS @ DAL",
@@ -2104,12 +2104,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.822,
-   "odds": -590,
-   "home_odds": 440,
-   "away_odds": -590
+   "fav_prob": 0.8566,
+   "odds": -820,
+   "home_odds": 570,
+   "away_odds": -820
   },
-  "last_seen": "2026-10-24T02:48:10"
+  "last_seen": "2026-10-24T14:15:57"
  },
  "DEN @ CHA|2026-10-24T02:43": {
   "label": "DEN @ CHA",
