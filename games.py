@@ -20,8 +20,10 @@ BEAT THE MARKET
 from __future__ import annotations
 
 import datetime
+import functools
 import hashlib
 import random
+from zoneinfo import ZoneInfo
 
 import games_store as gs
 
@@ -71,7 +73,7 @@ def gtg_puzzle(day: datetime.date) -> dict:
             r = band.iloc[rng.randrange(len(band))]
             ts = r["ts_pct"]
             rounds.append({
-                "player": r["PLAYER_NAME"], "team": r["TEAM_ABBREVIATION"], "opponent": r["opponent"],
+                "player": r["PLAYER_NAME"], "player_id": int(r["PLAYER_ID"]), "team": r["TEAM_ABBREVIATION"], "opponent": r["opponent"],
                 "result": r["WL"], "minutes": int(r["MIN"]),
                 "line": (f"{int(r['PTS'])} pts · {int(r['REB'])} reb · {int(r['AST'])} ast · "
                          f"{int(r['STL'])} stl · {int(r['BLK'])} blk · {int(r['TOV'])} TO"
@@ -268,22 +270,221 @@ def season_table() -> list:
     return sorted(((gs.handle(k), round(t, 1), n) for k, (n, t) in tot.items()), key=lambda x: -x[1])
 
 
+
+
+
 # ── the page ──────────────────────────────────────────────────────────────────────────────
+#
+# Built for the moment of finding out. Guess the Grade locks a guess, then reveals the player
+# with both numbers on one track before the next round; Beat the Market shows, as the slider
+# moves, what each prop would win or cost against the market, so the scoring rule is felt
+# rather than read.
+
+_GRADE_COLOR = {"A": "#34d399", "B": "#60a5fa", "C": "#fbbf24", "D": "#fb923c", "F": "#f87171"}
+_SQUARE = {"🟩": "#34d399", "🟨": "#fbbf24", "🟥": "#f87171"}
+
+_CSS = """<style>
+.kg-hero{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 45%,#0f172a 100%);border:1px solid #3730a3;
+ border-radius:18px;padding:1.3rem 1.5rem;margin:.2rem 0 1rem;position:relative;overflow:hidden}
+.kg-hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;
+ background:radial-gradient(circle,rgba(129,140,248,.35),transparent 70%)}
+.kg-hero .k{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:#a5b4fc;font-weight:800}
+.kg-hero h2{color:#fff;font-size:1.7rem;margin:.2rem 0 .3rem;font-weight:800}
+.kg-hero p{color:#c7d2fe;font-size:.9rem;margin:0;max-width:640px}
+.kg-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
+.kg-chip{background:rgba(15,23,42,.55);border:1px solid #4338ca;border-radius:999px;padding:.25rem .75rem;
+ font-size:.78rem;color:#e0e7ff}
+.kg-steps{display:flex;gap:.45rem;margin:.4rem 0 1rem;align-items:center}
+.kg-step{flex:1;height:10px;border-radius:999px;background:#232838}
+.kg-step.now{background:#818cf8;animation:kgpulse 1.4s ease-in-out infinite}
+.kg-score{font-size:.8rem;color:#9ca3af;white-space:nowrap;margin-left:.6rem}
+.kg-score b{color:#fff;font-size:1rem}
+.kg-card{background:linear-gradient(160deg,#171b2b,#111522);border:1px solid #262c40;border-radius:18px;
+ padding:1.3rem 1.4rem;margin-bottom:.8rem}
+.kg-myst{display:flex;gap:1.1rem;align-items:center;margin-bottom:1rem}
+.kg-q{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ font-size:2.2rem;font-weight:900;color:#a5b4fc;background:radial-gradient(circle at 35% 30%,#3730a3,#1e1b4b);
+ border:2px dashed #6366f1;flex-shrink:0}
+.kg-who{color:#fff;font-weight:800;font-size:1.15rem}
+.kg-sub{color:#8b92a8;font-size:.82rem}
+.kg-tiles{display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem}
+.kg-tile{background:#0d1019;border:1px solid #232838;border-radius:12px;padding:.55rem .3rem;text-align:center}
+.kg-tile b{display:block;color:#fff;font-size:1.45rem;line-height:1.1;font-weight:800}
+.kg-tile span{font-size:.62rem;letter-spacing:.12em;color:#7c8196;text-transform:uppercase}
+.kg-call{display:flex;align-items:center;gap:.7rem;margin:.2rem 0 .5rem;color:#9ca3af;font-size:.85rem}
+.kg-badge{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:54px;border-radius:14px;
+ font-weight:900;font-size:1.5rem;color:#0b1020;padding:0 .4rem}
+.kg-badge.sm{min-width:38px;height:38px;font-size:1.05rem;border-radius:10px}
+.kg-rev{display:flex;gap:1.1rem;align-items:center}
+.kg-shot{width:96px;height:96px;border-radius:50%;object-fit:cover;object-position:top;background:#1f2330;
+ border:3px solid #818cf8;flex-shrink:0;animation:kgin .5s ease-out}
+.kg-track{position:relative;height:14px;background:linear-gradient(90deg,#f87171,#fb923c 25%,#fbbf24 50%,#60a5fa 75%,#34d399);
+ border-radius:999px;margin:2.3rem .4rem 2.1rem;opacity:.9}
+.kg-gap{position:absolute;top:-4px;height:22px;background:rgba(255,255,255,.18);border:1px dashed #fff;border-radius:6px}
+.kg-mark{position:absolute;top:-9px;width:4px;height:32px;border-radius:2px;transform:translateX(-2px)}
+.kg-mark span{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.72rem;font-weight:800;
+ padding:.1rem .45rem;border-radius:6px}
+.kg-mark.you{background:#e0e7ff}.kg-mark.you span{top:-1.55rem;background:#e0e7ff;color:#1e1b4b}
+.kg-mark.real{background:#fff;box-shadow:0 0 12px #fff}.kg-mark.real span{bottom:-1.55rem;background:#fff;color:#0b1020}
+.kg-pts{font-size:2.6rem;font-weight:900;line-height:1;animation:kgpop .55s cubic-bezier(.2,1.6,.4,1)}
+.kg-verdict{font-size:1rem;font-weight:700;color:#e5e7eb;margin-top:.2rem}
+.kg-final{text-align:center;padding:1.8rem 1rem}
+.kg-final .big{font-size:3.6rem;font-weight:900;color:#fff;line-height:1;animation:kgpop .7s cubic-bezier(.2,1.6,.4,1)}
+.kg-final .big small{font-size:1.3rem;color:#7c8196}
+.kg-final .tier{display:inline-block;margin-top:.6rem;padding:.3rem .9rem;border-radius:999px;font-weight:800;
+ background:#312e81;color:#e0e7ff;letter-spacing:.06em}
+.kg-sq{font-size:1.9rem;letter-spacing:.2rem;margin-top:.8rem}
+.kg-row{display:flex;align-items:center;gap:.8rem;padding:.55rem .2rem;border-bottom:1px solid #1d2232}
+.kg-row:last-child{border-bottom:none}
+.kg-row img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:top;background:#1f2330}
+.kg-row .n{flex:1;color:#e5e7eb;font-size:.9rem}.kg-row .n div{color:#7c8196;font-size:.76rem}
+.kg-row .p{font-weight:800;color:#fff;min-width:46px;text-align:right}
+.kg-prop{display:flex;gap:.9rem;align-items:center}
+.kg-prop img{width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;background:#1f2330;
+ border:2px solid #312e81;flex-shrink:0}
+.kg-line{color:#fff;font-weight:900;font-size:1.25rem}
+.kg-meter{position:relative;height:8px;border-radius:999px;background:#5b2333;margin:.55rem 0 .2rem;overflow:hidden}
+.kg-meter span{position:absolute;left:0;top:0;bottom:0;background:#34d399;border-radius:999px}
+.kg-meter i{position:absolute;top:0;width:2px;height:8px;background:#fff}
+.kg-stakes{display:flex;gap:.5rem;font-size:.8rem;margin-top:.15rem;flex-wrap:wrap}
+.kg-stakes span{padding:.2rem .55rem;border-radius:8px;font-weight:700}
+.kg-win{background:rgba(52,211,153,.14);color:#34d399}.kg-lose{background:rgba(248,113,113,.14);color:#f87171}
+.kg-board{background:#111522;border:1px solid #232838;border-radius:14px;padding:.4rem .9rem;margin:.4rem 0 1rem}
+.kg-lb{display:flex;align-items:center;gap:.7rem;padding:.5rem 0;border-bottom:1px solid #1b2030;font-size:.9rem;color:#d1d5db}
+.kg-lb:last-child{border-bottom:none}
+.kg-lb .r{width:2rem;text-align:center;font-weight:800;color:#7c8196}
+.kg-lb .n{flex:1}.kg-lb .s{font-weight:800;color:#fff}
+.kg-lb.me{background:rgba(129,140,248,.12);border-radius:10px;padding-left:.4rem}
+.kg-lb.bot .n{color:#a5b4fc}
+.kg-res{display:inline-block;font-size:.7rem;font-weight:800;padding:.15rem .5rem;border-radius:6px;text-transform:uppercase}
+@keyframes kgpop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes kgin{0%{transform:scale(.6) rotate(-8deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes kgpulse{0%,100%{opacity:1}50%{opacity:.45}}
+@media (max-width:700px){.kg-tiles{grid-template-columns:repeat(4,1fr)}.kg-hero h2{font-size:1.35rem}
+ .kg-shot{width:72px;height:72px}.kg-pts{font-size:2rem}}
+</style>"""
+
+
+def _esc(s) -> str:
+    import html
+    return html.escape(str(s))
+
 
 def _email():
     import accounts as acct
     return acct.signed_in_email() or ("owner" if acct.backend() == "local" else None)
 
 
+def _headshot(pid) -> str:
+    return f"https://cdn.nba.com/headshots/nba/latest/1040x760/{int(pid)}.png" if pid else ""
+
+
+def _gcolor(grade) -> str:
+    return _GRADE_COLOR.get(str(grade)[:1], "#818cf8")
+
+
+def _letter(score) -> str:
+    import nba_grades as ng
+    return ng.letter(score)
+
+
+def _square(miss: float) -> str:
+    return "🟩" if miss <= 5 else "🟨" if miss <= 12 else "🟥"
+
+
+def _verdict(miss: float) -> str:
+    return ("🎯 Bullseye" if miss <= 2 else "🔥 Scout's eye" if miss <= 5 else "👍 Close" if miss <= 12
+            else "😬 Off the mark" if miss <= 25 else "🧊 Ice cold")
+
+
+def _tier(total: int) -> str:
+    return ("Front-office legend" if total >= 450 else "Lead scout" if total >= 400 else "Scout" if total >= 325
+            else "Analyst" if total >= 250 else "Rookie")
+
+
+def _board_html(rows: list, me: str | None, fmt) -> str:
+    """rows: [(name, value)] best first; the visitor's row and the house rows are marked."""
+    medal = {0: "🥇", 1: "🥈", 2: "🥉"}
+    out = "<div class='kg-board'>"
+    for i, (n, v) in enumerate(rows):
+        cls = "me" if me and n == me else "bot" if n.startswith(("🤖", "📈")) else ""
+        out += (f"<div class='kg-lb {cls}'><div class='r'>{medal.get(i, i + 1)}</div>"
+                f"<div class='n'>{_esc(n)}{' · you' if cls == 'me' else ''}</div><div class='s'>{fmt(v)}</div></div>")
+    return out + "</div>"
+
+
 def render() -> None:
     import streamlit as st
-    st.markdown("#### 🎮 Konjure Games")
-    st.caption("Free daily games built on the same data as the dashboard. No prizes, just a leaderboard.")
-    t1, t2 = st.tabs(["Guess the Grade", "Beat the Market"])
+    st.markdown(_CSS, unsafe_allow_html=True)
+    today = datetime.date.today()
+    email = _email()
+    played = gs.get(f"gtg_play:{today}:{email}") if email else None
+    entered = gs.get(f"btm_entry:{today}:{email}") if email else None
+    chips = [f"🧠 Guess the Grade: {'✅ ' + str(int(played['score'])) + '/500' if played else 'not played yet'}",
+             f"📈 Beat the Market: {'✅ entered' if entered else 'open'}",
+             "🆓 Free · new games every day"]
+    st.markdown("<div class='kg-hero'><div class='k'>Konjure Games · " + f"{today:%A %b %d}" + "</div>"
+                "<h2>Think you can read the game?</h2><p>Two daily games built on the same data as the dashboard. "
+                "Grade last night's stat lines blind, then take on the betting market with tonight's props. "
+                "No prizes, just bragging rights and a leaderboard.</p><div class='kg-chips'>"
+                + "".join(f"<span class='kg-chip'>{_esc(c)}</span>" for c in chips) + "</div></div>",
+                unsafe_allow_html=True)
+    t1, t2 = st.tabs(["🧠 Guess the Grade", "📈 Beat the Market"])
     with t1:
         _render_gtg()
     with t2:
         _render_btm()
+
+
+# ── Guess the Grade ──
+
+def _steps(picks: list, rounds: list, current: int | None) -> str:
+    out = "<div class='kg-steps'>"
+    for j in range(len(rounds)):
+        if j < len(picks):
+            out += f"<div class='kg-step' style='background:{_SQUARE[_square(abs(picks[j] - rounds[j]['score']))]}'></div>"
+        else:
+            out += f"<div class='kg-step{' now' if j == current else ''}'></div>"
+    total = sum(gtg_points(p, r["score"]) for p, r in zip(picks, rounds))
+    return out + f"<div class='kg-score'>Score <b>{total}</b> / {100 * len(rounds)}</div></div>"
+
+
+def _mystery(r: dict, i: int, n: int) -> str:
+    vals = {}
+    for part in r["line"].split(" · "):          # "31 pts", "4 TO", "62% true shooting"
+        bits = part.split(" ", 1)
+        if len(bits) == 2:
+            vals[bits[1]] = bits[0]
+    order = [("pts", "PTS"), ("reb", "REB"), ("ast", "AST"), ("stl", "STL"), ("blk", "BLK"), ("TO", "TOV"),
+             ("true shooting", "TS%")]
+    tiles = "".join(f"<div class='kg-tile'><b>{_esc(vals[k])}</b><span>{lab}</span></div>"
+                    for k, lab in order if k in vals)
+    return (f"<div class='kg-card'><div class='kg-myst'><div class='kg-q'>?</div><div>"
+            f"<div class='kg-sub'>ROUND {i + 1} OF {n} · MYSTERY PLAYER</div>"
+            f"<div class='kg-who'>{_esc(r['team'])} vs {_esc(r['opponent'])} · "
+            f"{'Won' if r['result'] == 'W' else 'Lost'}</div>"
+            f"<div class='kg-sub'>{r['minutes']} minutes · {r['plus_minus']:+d} on the floor</div></div></div>"
+            f"<div class='kg-tiles'>{tiles}</div></div>")
+
+
+def _reveal(r: dict, guess: float) -> str:
+    actual = r["score"]
+    miss = abs(guess - actual)
+    pts = gtg_points(guess, actual)
+    lo, hi = sorted((guess, actual))
+    pc = "#34d399" if pts >= 90 else "#fbbf24" if pts >= 70 else "#f87171"
+    img = (f"<img class='kg-shot' src='{_esc(_headshot(r.get('player_id')))}'>" if r.get("player_id")
+           else "<div class='kg-q'>★</div>")
+    return (f"<div class='kg-card'><div class='kg-rev'>{img}<div style='flex:1'>"
+            f"<div class='kg-sub'>IT WAS</div><div class='kg-who' style='font-size:1.4rem'>{_esc(r['player'])}</div>"
+            f"<div class='kg-sub'>{_esc(r['line'])}</div></div>"
+            f"<div style='text-align:center'><div class='kg-badge' style='background:{_gcolor(r['grade'])}'>"
+            f"{_esc(r['grade'])}</div><div class='kg-sub' style='margin-top:.2rem'>{actual:.0f}</div></div></div>"
+            f"<div class='kg-track'><div class='kg-gap' style='left:{lo}%;width:{max(hi - lo, 0.5)}%'></div>"
+            f"<div class='kg-mark you' style='left:{guess}%'><span>You {guess:.0f}</span></div>"
+            f"<div class='kg-mark real' style='left:{actual}%'><span>Actual {actual:.0f}</span></div></div>"
+            f"<div style='text-align:center'><div class='kg-pts' style='color:{pc}'>+{pts}</div>"
+            f"<div class='kg-verdict'>{_verdict(miss)} · off by {miss:.0f}</div></div></div>")
 
 
 def _render_gtg() -> None:
@@ -299,49 +500,105 @@ def _render_gtg() -> None:
     if not pz:
         st.info("No graded NBA night to play yet. Guess the Grade returns the morning after the next slate.")
         return
-    st.caption(f"Five stat lines from the NBA night of {pz['night']}, names hidden. Guess each one's Konjure "
-               "grade (0-100, a percentile against every player-game of last season). 100 points a round, "
-               "minus 2 for every point you miss by.")
     email = _email()
     done = gs.get(f"gtg_play:{today}:{email}") if email else None
     key = f"gtg_{today}"
-    state = st.session_state.setdefault(key, {"picks": [], "revealed": False})
+    state = st.session_state.setdefault(key, {"picks": [], "phase": "guess", "cheered": False})
     if done and not state["picks"]:
-        state["picks"], state["revealed"] = done["payload"]["picks"], True
-    rounds = pz["rounds"]
-    i = len(state["picks"])
+        state["picks"], state["phase"] = list(done["payload"]["picks"]), "final"
+    rounds, picks = pz["rounds"], state["picks"]
+    n = len(rounds)
 
-    for j, (p, r) in enumerate(zip(state["picks"], rounds)):
-        st.markdown(f"**{j + 1}. {r['player']}** ({r['team']} vs {r['opponent']}, {r['result']}) — {r['line']}. "
-                    f"Grade **{r['grade']} {r['score']:.0f}**, you said {p:.0f}: **+{gtg_points(p, r['score'])}**")
-
-    if i < len(rounds):
-        r = rounds[i]
-        st.markdown(f"##### Round {i + 1} of {len(rounds)}")
-        st.markdown(f"<div style='font-size:1.15rem;line-height:1.6'><b>{r['line']}</b><br>"
-                    f"<span style='color:var(--text-muted)'>{r['minutes']} minutes · {r['team']} vs {r['opponent']} · "
-                    f"{'won' if r['result'] == 'W' else 'lost'} · {r['plus_minus']:+d} on the floor</span></div>",
-                    unsafe_allow_html=True)
-        g = st.slider("Your grade", 0, 100, 50, key=f"{key}_s{i}")
-        if st.button("Lock it in", key=f"{key}_b{i}", type="primary"):
-            state["picks"].append(g)
-            if len(state["picks"]) == len(rounds) and email:
-                total = sum(gtg_points(p, x["score"]) for p, x in zip(state["picks"], rounds))
-                gs.put(f"gtg_play:{today}:{email}", "gtg_play", today.isoformat(),
-                       {"picks": state["picks"]}, email=email, score=total, insert_only=True)
+    if state["phase"] == "reveal":
+        st.markdown(_steps(picks, rounds, None), unsafe_allow_html=True)
+        st.markdown(_reveal(rounds[len(picks) - 1], picks[-1]), unsafe_allow_html=True)
+        last = len(picks) == n
+        if st.button("See my score 🏁" if last else "Next player →", type="primary", key=f"{key}_next",
+                     width="stretch"):
+            state["phase"] = "final" if last else "guess"
             st.rerun()
         return
 
-    total = sum(gtg_points(p, r["score"]) for p, r in zip(state["picks"], rounds))
-    st.success(f"Today: **{total} / 500**")
-    st.code(gtg_share(today, state["picks"], rounds), language=None)
-    if not email:
-        st.caption("Sign in (any Edge Finder tab) to keep your score on the leaderboard.")
-    board = sorted(((gs.handle(e["email"]), e["score"]) for e in gs.rows("gtg_play", today.isoformat())),
-                   key=lambda x: -x[1])[:10]
-    if board:
-        st.markdown("**Today's leaderboard**")
-        st.table([{"Player": n, "Score": int(s)} for n, s in board])
+    if len(picks) < n:
+        i = len(picks)
+        if i == 0:
+            st.caption(f"Five real stat lines from the NBA night of {pz['night']}, names hidden. Slide to the grade "
+                       "you think each earned (0-100: where it ranks against every player-game of last season). "
+                       "100 points a round, minus 2 for every point you miss by.")
+        st.markdown(_steps(picks, rounds, i), unsafe_allow_html=True)
+        st.markdown(_mystery(rounds[i], i, n), unsafe_allow_html=True)
+        g = st.slider("Your grade", 0, 100, 50, key=f"{key}_s{i}")
+        st.markdown(f"<div class='kg-call'>Your call <span class='kg-badge sm' style='background:{_gcolor(_letter(g))}'>"
+                    f"{_letter(g)}</span> better than {g}% of last season's games</div>", unsafe_allow_html=True)
+        if st.button("🔒 Lock it in & reveal", key=f"{key}_b{i}", type="primary", width="stretch"):
+            picks.append(g)
+            state["phase"] = "reveal"
+            if len(picks) == n and email:
+                total = sum(gtg_points(p, x["score"]) for p, x in zip(picks, rounds))
+                gs.put(f"gtg_play:{today}:{email}", "gtg_play", today.isoformat(),
+                       {"picks": picks}, email=email, score=total, insert_only=True)
+            st.rerun()
+        return
+
+    total = sum(gtg_points(p, r["score"]) for p, r in zip(picks, rounds))
+    squares = "".join(_square(abs(p - r["score"])) for p, r in zip(picks, rounds))
+    st.markdown(f"<div class='kg-card kg-final'><div class='kg-sub'>TODAY'S SCORE</div>"
+                f"<div class='big'>{total}<small> / {100 * n}</small></div><div class='tier'>{_tier(total)}</div>"
+                f"<div class='kg-sq'>{squares}</div></div>", unsafe_allow_html=True)
+    if total >= 400 and not state["cheered"]:
+        st.balloons()
+    state["cheered"] = True
+    c1, c2 = st.columns([3, 2])
+    with c1:
+        st.markdown("<div class='kg-card' style='padding:.6rem 1rem'>" + "".join(
+            f"<div class='kg-row'><img src='{_esc(_headshot(r.get('player_id')))}'>"
+            f"<div class='n'><b>{_esc(r['player'])}</b><div>{_esc(r['line'])}</div></div>"
+            f"<span class='kg-badge sm' style='background:{_gcolor(r['grade'])}'>{_esc(r['grade'])}</span>"
+            f"<div class='p'>{p:.0f}→{r['score']:.0f}<div class='kg-sub'>+{gtg_points(p, r['score'])}</div></div></div>"
+            for p, r in zip(picks, rounds)) + "</div>", unsafe_allow_html=True)
+    with c2:
+        st.markdown("**Share it**")
+        st.code(gtg_share(today, picks, rounds), language=None)
+        if not email:
+            st.caption("Sign in with the form at the bottom of this page to put your score on the leaderboard.")
+        board = sorted(((gs.handle(e["email"]), e["score"]) for e in gs.rows("gtg_play", today.isoformat())),
+                       key=lambda x: -x[1])[:10]
+        if board:
+            st.markdown("**Today's leaderboard**")
+            st.markdown(_board_html(board, gs.handle(email) if email else None, lambda v: f"{int(v)}"),
+                        unsafe_allow_html=True)
+        st.caption("A new five drops every morning.")
+
+
+# ── Beat the Market ──
+
+@functools.lru_cache(maxsize=1)
+def _ids() -> dict:
+    try:
+        import nba_snapshot as ns
+        return ns.name_ids()
+    except Exception:
+        return {}
+
+
+def _stakes(side: str, conf: int, prop: dict) -> tuple:
+    """(points if the pick is right, points if it is wrong) for one prop at this confidence."""
+    p_over = conf / 100 if side == "over" else 1 - conf / 100
+    right = prop_points(p_over, dict(prop, outcome=side))
+    wrong = prop_points(p_over, dict(prop, outcome="under" if side == "over" else "over"))
+    return right, wrong
+
+
+def _prop_card(p: dict) -> str:
+    pid = _ids().get(str(p["player"]).lower())
+    img = (f"<img src='{_esc(_headshot(pid))}'>" if pid else "<div class='kg-q' style='width:64px;height:64px'>?</div>")
+    m = p["p_over_market"]
+    return (f"<div class='kg-prop'>{img}<div style='flex:1'><div class='kg-who'>{_esc(p['player'])}</div>"
+            f"<div class='kg-line'>{_esc(p['stat'])} {p['line']:g}</div>"
+            f"<div class='kg-sub'>{_esc(p['game'])}</div>"
+            f"<div class='kg-meter'><span style='width:{100 * m:.0f}%'></span><i style='left:50%'></i></div>"
+            f"<div class='kg-sub'>Market: <b style='color:#34d399'>{m:.0%} over</b> · "
+            f"<b style='color:#f87171'>{1 - m:.0%} under</b></div></div></div>")
 
 
 def _render_btm() -> None:
@@ -352,9 +609,6 @@ def _render_btm() -> None:
         settle(today - datetime.timedelta(days=1))
     except Exception:
         pass
-    st.caption("Five of tonight's NBA props. Pick over or under and how sure you are. You score against "
-               "FanDuel's own odds with the margin removed: closer to what happens than the market earns points, "
-               "further loses them. The market scores 0; beating it is rare. Konjure's model plays too.")
     with st.spinner("Loading tonight's slate…"):
         try:
             s = btm_slate(today)
@@ -365,29 +619,49 @@ def _render_btm() -> None:
         st.info("No slate yet: it opens once tonight's NBA props are posted, usually by early afternoon.")
     else:
         closed = locked(s)
+        lock_t = datetime.datetime.fromisoformat(s["locks_at"].replace("Z", "+00:00"))
+        left = lock_t - datetime.datetime.now(datetime.timezone.utc)
         mine = gs.get(f"btm_entry:{today}:{email}") if email else None
         prev = (mine or {}).get("payload", {}).get("picks") or []
-        st.markdown(f"**Tonight's five** · entries close at the first tip "
-                    f"({datetime.datetime.fromisoformat(s['locks_at'].replace('Z', '+00:00')).astimezone():%I:%M %p})")
-        picks = []
+        status = ("🔒 Entries closed: results post tomorrow morning" if closed else
+                  f"⏳ Locks in {left.seconds // 3600}h {left.seconds % 3600 // 60}m, at the first tip "
+                  f"({lock_t.astimezone(ZoneInfo('America/New_York')).strftime('%I:%M %p').lstrip('0')} ET)")
+        st.markdown(f"<div class='kg-chips' style='margin:0 0 .6rem'><span class='kg-chip'>{status}</span></div>",
+                    unsafe_allow_html=True)
+        st.caption("Pick a side and how sure you are. Being more right than FanDuel's odds (margin removed) "
+                   "earns points; being more wrong costs them. The market always scores 0, and the green and "
+                   "red tags show what's at stake as you slide. Konjure's model plays too.")
+        picks, best, worst = [], 0.0, 0.0
         for i, p in enumerate(s["props"]):
-            c1, c2, c3 = st.columns([3, 1.3, 2])
-            c1.markdown(f"**{p['player']}** · {p['stat']} **{p['line']:g}**<br>"
-                        f"<span style='color:var(--text-muted);font-size:.85rem'>{p['game']} · market "
-                        f"{p['p_over_market']:.0%} over</span>", unsafe_allow_html=True)
             d = prev[i] if i < len(prev) else {"side": "over", "confidence": 60}
-            side = c2.radio("Side", ["over", "under"], index=0 if d["side"] == "over" else 1,
-                            key=f"btm_side_{today}_{i}", horizontal=True, label_visibility="collapsed",
-                            disabled=closed)
-            conf = c3.slider("How sure", 50, 95, int(d["confidence"]), 5, key=f"btm_conf_{today}_{i}",
-                             format="%d%%", label_visibility="collapsed", disabled=closed)
+            with st.container(border=True):
+                c1, c2 = st.columns([3, 2])
+                c1.markdown(_prop_card(p), unsafe_allow_html=True)
+                with c2:
+                    side = st.segmented_control("Side", ["Over", "Under"], default=d["side"].title(),
+                                                key=f"btm_side_{today}_{i}", label_visibility="collapsed",
+                                                disabled=closed) or d["side"].title()
+                    side = side.lower()
+                    conf = st.slider("How sure", 50, 95, int(d["confidence"]), 5, key=f"btm_conf_{today}_{i}",
+                                     format="%d%% sure", label_visibility="collapsed", disabled=closed)
+                    right, wrong = _stakes(side, conf, p)
+                    best += right
+                    worst += wrong
+                    st.markdown(f"<div class='kg-stakes'><span class='kg-win'>{side.upper()} hits {right:+.1f}</span>"
+                                f"<span class='kg-lose'>misses {wrong:+.1f}</span></div>", unsafe_allow_html=True)
             picks.append({"side": side, "confidence": conf})
+        st.markdown(f"<div class='kg-card' style='display:flex;justify-content:space-around;text-align:center;padding:.9rem'>"
+                    f"<div><div class='kg-sub'>ALL FIVE RIGHT</div><div class='kg-line' style='color:#34d399'>{best:+.1f}</div></div>"
+                    f"<div><div class='kg-sub'>THE MARKET</div><div class='kg-line'>0.0</div></div>"
+                    f"<div><div class='kg-sub'>ALL FIVE WRONG</div><div class='kg-line' style='color:#f87171'>{worst:+.1f}</div></div>"
+                    f"</div>", unsafe_allow_html=True)
         if closed:
-            st.caption("Entries are closed for tonight. Results post tomorrow morning."
-                       + (" Your entry is in." if mine else ""))
+            st.caption("Entries are closed for tonight." + (" Your entry is in. ✅" if mine else ""))
         elif not email:
-            st.info("Create a free account (any Edge Finder tab) to enter.")
-        elif st.button("Update my entry" if mine else "Submit my entry", type="primary", key=f"btm_go_{today}"):
+            st.info("Like your card? Create a free account with the form at the bottom of this page to enter "
+                    "it and join the leaderboard.")
+        elif st.button("🔄 Update my entry" if mine else "🚀 Submit my entry", type="primary", key=f"btm_go_{today}",
+                       width="stretch"):
             if locked(s):
                 st.error("Too late: the first game has tipped.")
             else:
@@ -397,12 +671,25 @@ def _render_btm() -> None:
     y = today - datetime.timedelta(days=1)
     board = leaderboard(y)
     if board:
-        st.markdown(f"**Last night's results ({y:%b %d})**")
         ys = gs.get(f"btm_slate:{y}")["payload"]
-        st.caption(" · ".join(f"{p['player']} {p['stat']} {p['line']:g}: {p.get('actual', '—')} "
-                              f"({p.get('outcome') or 'pending'})" for p in ys["props"]))
-        st.table([{"Player": n, "Points": f"{v:+.1f}"} for n, v in board[:12]])
+        ye = gs.get(f"btm_entry:{y}:{email}") if email else None
+        yp = (ye or {}).get("payload", {}).get("picks") or []
+        st.markdown(f"#### Last night ({y:%b %d})")
+        rows = ""
+        for i, p in enumerate(ys["props"]):
+            out = p.get("outcome") or "pending"
+            col = {"over": "#34d399", "under": "#f87171"}.get(out, "#7c8196")
+            mine_pts = prop_points(entry_p_over(yp[i]), p) if i < len(yp) else None
+            pid = _ids().get(str(p["player"]).lower())
+            rows += (f"<div class='kg-row'><img src='{_esc(_headshot(pid))}'><div class='n'><b>{_esc(p['player'])}</b> "
+                     f"{_esc(p['stat'])} {p['line']:g}<div>finished with {p.get('actual', '—')}</div></div>"
+                     f"<span class='kg-res' style='background:{col}22;color:{col}'>{out}</span>"
+                     f"<div class='p'>{'' if mine_pts is None else f'{mine_pts:+.1f}'}</div></div>")
+        st.markdown(f"<div class='kg-card' style='padding:.6rem 1rem'>{rows}</div>", unsafe_allow_html=True)
+        st.markdown(_board_html(board[:12], gs.handle(email) if email else None, lambda v: f"{v:+.1f}"),
+                    unsafe_allow_html=True)
     season = season_table()
     if season:
-        st.markdown("**Season leaderboard**")
-        st.table([{"Player": n, "Points": f"{t:+.1f}", "Days": d} for n, t, d in season[:15]])
+        st.markdown("#### Season leaderboard")
+        st.markdown(_board_html([(n, t) for n, t, _ in season[:15]], gs.handle(email) if email else None,
+                                lambda v: f"{v:+.1f}"), unsafe_allow_html=True)
