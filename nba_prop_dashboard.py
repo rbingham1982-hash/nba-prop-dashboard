@@ -9173,7 +9173,7 @@ elif sport == "🏈 NFL":
                     "whether the number was any good.")
 
     with _nfl_tab_bet:
-        if _acct.gate("nfl_edge"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("nfl_edge")); saving a ticket still needs sign-in
             st.markdown(
                 "<div style='margin:0.2rem 0 0.9rem;'>"
                 "<div style='font-size:0.62rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#818cf8;'>"
