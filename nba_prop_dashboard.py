@@ -9534,9 +9534,10 @@ elif sport == "🧮 Parlay Builder":
     st.caption("Pick FanDuel props from any sport. The ticket shows its payout and the market's "
                "chance of hitting (FanDuel's own odds with the margin removed), with our model "
                "beside it. Informational only; not betting advice.")
-    if _acct.gate("parlay_builder"):
-        import parlay_builder as _pb
-        _pb.render(key="pb_page")
+    # Open to everyone so people can try it without an account; saving a ticket still asks
+    # them to sign in (parlay_builder.render handles that).
+    import parlay_builder as _pb
+    _pb.render(key="pb_page")
 
 
 elif sport == "🎮 Games":
