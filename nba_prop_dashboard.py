@@ -4221,7 +4221,10 @@ with hdr_col:
         <p class="konjure-sub">Multi-Sport Prop Intelligence &nbsp;&middot;&nbsp; Powered by Data</p>
     </div>""", unsafe_allow_html=True)
 with sport_col:
-    sport = st.selectbox("Sport", ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy", "🧮 Parlay Builder", "🎮 Games", "⭐ Pro"], key="sport_selector")
+    _sports = ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy", "🧮 Parlay Builder", "🎮 Games", "⭐ Pro"]
+    # A podcast challenge link (?challenge=YYYYMMDD) lands on the Games page.
+    sport = st.selectbox("Sport", _sports, key="sport_selector",
+                         index=_sports.index("🎮 Games") if st.query_params.get("challenge") else 0)
     # Signed-in visitors see who they are and can sign out; the Edge Finder tabs carry the
     # sign-in forms themselves (accounts.gate), so there is nothing to show when signed out.
     if _acct.signed_in_email():

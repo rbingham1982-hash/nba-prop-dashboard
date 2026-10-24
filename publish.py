@@ -860,6 +860,13 @@ def run(dry_run: bool = True,
         return result
 
     nl.generate(data=data)             # write the files regardless, from this same build
+    # The podcast's recording sheet comes from the same build, so the show matches the issue.
+    if edition in ("tuesday", "full"):
+        try:
+            import podcast_brief
+            result["podcast_brief"] = str(podcast_brief.write(data))
+        except Exception as e:
+            result["notes"].append(f"podcast brief: {e}")
     cards = render_cards(data)
     result["cards"] = [str(c) for c in cards]
     thumb = render_thumbnail(data)

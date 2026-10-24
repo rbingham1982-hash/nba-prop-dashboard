@@ -135,6 +135,10 @@ jobs:
                   md = cards[0][: cards[0].rfind("-card-")] + "-newsletter.md"
                   if os.path.exists(md):
                       s.write(open(md, encoding="utf-8").read())
+              # The podcast episode brief (Tuesday), after the issue so the answer key stays last.
+              pb = r.get("podcast_brief")
+              if pb and os.path.exists(pb):
+                  s.write("\n\n---\n\n" + open(pb, encoding="utf-8").read())
           if live and not r.get("posted", {}).get("discord", {}).get("ok"):
               raise SystemExit(f"Discord post did not go through: {r.get('posted') or r.get('action')}")
           EOF

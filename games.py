@@ -8,6 +8,10 @@ GUESS THE GRADE
   draw, one line from each fifth of the grade range, so each has a star, a dud and three in
   between. Play as often as you like; the day's leaderboard keeps each player's best.
 
+  A CHALLENGE is a fixed five everyone gets, for the podcast's on-air segment: the link
+  ?challenge=YYYYMMDD draws from the week before that date with a seed from the date, so it
+  needs no storage and plays the same next month. Its leaderboard is its own.
+
 BEAT THE MARKET
   Five of tonight's NBA props, frozen once for the day and the same for everyone. For each,
   pick over or under and how sure you are (50-95%). Scored against FanDuel's own price with
@@ -84,6 +88,29 @@ def gtg_puzzle(pool, rng: random.Random | None = None) -> dict:
     return {"sport": "NBA", "rounds": rounds}
 
 
+CHALLENGE_URL = "https://konjureanalytics.com/app/?challenge={code}"
+
+
+def challenge_code(day: datetime.date) -> str:
+    return day.strftime("%Y%m%d")
+
+
+def challenge_day(code) -> datetime.date | None:
+    try:
+        d = datetime.datetime.strptime(str(code).strip(), "%Y%m%d").date()
+    except ValueError:
+        return None
+    return d if d <= datetime.date.today() else None
+
+
+def gtg_challenge(day: datetime.date) -> dict:
+    """The fixed five for `day`'s challenge, the same for everyone and on every visit."""
+    pool = gtg_pool(day)
+    if pool is not None and not pool.empty:
+        pool = pool.sort_values(["date", "PLAYER_ID"]).reset_index(drop=True)
+    return gtg_puzzle(pool, _rng(day, "challenge"))
+
+
 def gtg_share(day: datetime.date, picks: list, rounds: list) -> str:
     sq = []
     for p, r in zip(picks, rounds):
@@ -92,6 +119,14 @@ def gtg_share(day: datetime.date, picks: list, rounds: list) -> str:
     total = sum(gtg_points(p, r["score"]) for p, r in zip(picks, rounds))
     return (f"Konjure Guess the Grade · {day:%b %d}\n{''.join(sq)}  {total}/500\n"
             f"konjureanalytics.com")
+
+
+def challenge_share(day: datetime.date, picks: list, rounds: list) -> str:
+    sq = "".join("🟩" if abs(p - r["score"]) <= 5 else "🟨" if abs(p - r["score"]) <= 12 else "🟥"
+                 for p, r in zip(picks, rounds))
+    total = sum(gtg_points(p, r["score"]) for p, r in zip(picks, rounds))
+    return (f"🎙️ Konjure podcast challenge · {day:%b %d}\n{sq}  {total}/500\n"
+            f"Beat me: {CHALLENGE_URL.format(code=challenge_code(day))}")
 
 
 # ── Beat the Market ───────────────────────────────────────────────────────────────────────
@@ -496,19 +531,30 @@ def _render_gtg() -> None:
     today = datetime.date.today()
     with st.spinner("Loading the week's lines…"):
         pool = _pool(today)
+    @st.cache_data(ttl=86400, show_spinner=False)
+    def _challenge(day):
+        return gtg_challenge(day)
+
     email = _email()
+    cday = challenge_day(st.query_params.get("challenge", ""))
     state = st.session_state.get("gtg_game")
-    if not state or state.get("day") != today.isoformat():
-        # A fresh random five for every game; the draw lives in the session so reruns keep it.
-        pz = gtg_puzzle(pool)
+    want = f"challenge:{cday}" if cday else today.isoformat()
+    if not state or state.get("day") != want:
+        # A fresh random five for every game, or the challenge's fixed five; the draw lives
+        # in the session so reruns keep it.
+        pz = _challenge(cday) if cday else gtg_puzzle(pool)
         if not pz:
             st.info("No graded NBA games to play yet. Guess the Grade returns the morning after the next slate.")
             return
         n_game = (state or {}).get("n", 0) + 1
-        state = st.session_state["gtg_game"] = {"day": today.isoformat(), "n": n_game, "rounds": pz["rounds"],
+        state = st.session_state["gtg_game"] = {"day": want, "n": n_game, "rounds": pz["rounds"],
                                                 "picks": [], "phase": "guess", "cheered": False}
     key = f"gtg_{today}_{state['n']}"
     rounds, picks = state["rounds"], state["picks"]
+    if cday:
+        st.markdown(f"<div class='kg-chips' style='margin:0 0 .4rem'><span class='kg-chip' "
+                    f"style='border-color:#f59e0b;color:#fde68a'>🎙️ Podcast challenge · {cday:%b %d} · "
+                    "everyone gets these same five</span></div>", unsafe_allow_html=True)
     n = len(rounds)
 
     if state["phase"] == "reveal":
@@ -536,11 +582,12 @@ def _render_gtg() -> None:
             picks.append(g)
             state["phase"] = "reveal"
             if len(picks) == n and email:
-                # The day's leaderboard keeps each player's best game.
+                # Each leaderboard keeps a player's best game: the day's, or the challenge's.
                 total = sum(gtg_points(p, x["score"]) for p, x in zip(picks, rounds))
-                best = gs.get(f"gtg_play:{today}:{email}")
+                kind, gday = ("gtg_challenge", cday) if cday else ("gtg_play", today)
+                best = gs.get(f"{kind}:{gday}:{email}")
                 if not best or total > (best.get("score") or 0):
-                    gs.put(f"gtg_play:{today}:{email}", "gtg_play", today.isoformat(),
+                    gs.put(f"{kind}:{gday}:{email}", kind, gday.isoformat(),
                            {"picks": picks, "rounds": rounds}, email=email, score=total)
             st.rerun()
         return
@@ -563,17 +610,21 @@ def _render_gtg() -> None:
             for p, r in zip(picks, rounds)) + "</div>", unsafe_allow_html=True)
     with c2:
         st.markdown("**Share it**")
-        st.code(gtg_share(today, picks, rounds), language=None)
+        st.code(challenge_share(cday, picks, rounds) if cday else gtg_share(today, picks, rounds),
+                language=None)
         if not email:
             st.caption("Sign in with the form at the bottom of this page to put your score on the leaderboard.")
-        board = sorted(((gs.handle(e["email"]), e["score"]) for e in gs.rows("gtg_play", today.isoformat())),
+        kind, gday = ("gtg_challenge", cday) if cday else ("gtg_play", today)
+        board = sorted(((gs.handle(e["email"]), e["score"]) for e in gs.rows(kind, gday.isoformat())),
                        key=lambda x: -x[1])[:10]
         if board:
-            st.markdown("**Today's leaderboard**")
+            st.markdown("**Challenge leaderboard**" if cday else "**Today's leaderboard**")
             st.markdown(_board_html(board, gs.handle(email) if email else None, lambda v: f"{int(v)}"),
                         unsafe_allow_html=True)
-        st.caption("Your best game today counts for the leaderboard.")
-    if st.button("🔁 Play again: new five", type="primary", key=f"{key}_again", width="stretch"):
+        st.caption("Your best game counts for the leaderboard.")
+    if st.button("🔁 Play a random five" if cday else "🔁 Play again: new five", type="primary",
+                 key=f"{key}_again", width="stretch"):
+        st.query_params.pop("challenge", None)
         st.session_state["gtg_game"] = {"day": "", "n": state["n"]}
         st.rerun()
 

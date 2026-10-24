@@ -36,4 +36,15 @@ gap:.6rem;text-align:center;padding:1rem;font-size:.9rem;pointer-events:none}
   <iframe src="https://nba-prop-dashboard-dhmu5b4fonzesfkydqwznu.streamlit.app/?embed=true&amp;embed_options=dark_theme"
           title="Konjure Analytics dashboard" allow="clipboard-write; fullscreen"></iframe>
 </div>
+<script>
+// /app/?challenge=YYYYMMDD (the podcast's Guess the Grade link) opens the dashboard on that challenge.
+(function () {
+  var c = new URLSearchParams(location.search).get("challenge");
+  if (c && /^\d{8}$/.test(c)) {
+    var f = document.querySelector("iframe");
+    f.src = f.src + "&challenge=" + c;
+    document.querySelector(".links a[target]").href += "?challenge=" + c;
+  }
+})();
+</script>
 </body></html>
