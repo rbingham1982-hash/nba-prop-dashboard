@@ -6148,7 +6148,7 @@ if sport == "🏀 NBA":
 
     # ── PARLAYS ───────────────────────────────────────────────────────────────
     with tab_parlays:
-        if _acct.gate("nba_parlays"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("nba_parlays")); saving a ticket still needs sign-in
             # Build your own: the shared builder (parlay_builder), limited to this sport. Behind a
             # toggle because Streamlit runs every tab body, and loading and scoring the props
             # should only cost anything when someone is actually building a ticket.
@@ -6955,7 +6955,7 @@ elif sport == "🏀 WNBA":
 
     # ── PARLAYS ───────────────────────────────────────────────────────────────
     with tab_w_parlays:
-        if _acct.gate("wnba_parlays"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("wnba_parlays")); saving a ticket still needs sign-in
             # Build your own: the shared builder (parlay_builder), limited to this sport. Behind a
             # toggle because Streamlit runs every tab body, and loading and scoring the props
             # should only cost anything when someone is actually building a ticket.
@@ -8319,7 +8319,7 @@ elif sport == "⚾ MLB":
 
     # ── MLB PARLAYS ───────────────────────────────────────────────────────────
     with tab_parlays_mlb:
-        if _acct.gate("mlb_parlays"):
+        if True:   # open to everyone since 2026-10-24 (was _acct.gate("mlb_parlays")); saving a ticket still needs sign-in
             # Build your own: the shared builder (parlay_builder), limited to this sport. Behind a
             # toggle because Streamlit runs every tab body, and loading and scoring the props
             # should only cost anything when someone is actually building a ticket.

@@ -281,7 +281,7 @@ def gate(where: str, owner_bypass: bool = True) -> bool:
     if signed_in_email():
         return True
     st.markdown("#### 🔒 Create a free account to use the Edge Finder")
-    st.caption("The Edge Finder, the sportsbook boards and the parlay builders are free with an "
+    st.caption("The Edge Finder and the sportsbook boards are free with an "
                "account. We only store your email and a one-way hash of your password — see the "
                "[privacy policy](https://konjureanalytics.com/privacy.html).")
     if backend() == "closed":
