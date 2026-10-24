@@ -2752,5 +2752,23 @@
   "logged_at": "2026-10-23T17:02:04",
   "outcome": null,
   "actual": null
+ },
+ "jk dobbins|Rushing Yards|47.5|36189004": {
+  "player": "J.K. Dobbins",
+  "stat": "Rushing Yards",
+  "line": 47.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.609,
+  "fair_prob": 0.475,
+  "edge": 0.134,
+  "sample_n": 16,
+  "depth": 1,
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-23T19:32:27",
+  "outcome": null,
+  "actual": null
  }
 }
