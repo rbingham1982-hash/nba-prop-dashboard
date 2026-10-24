@@ -2878,5 +2878,41 @@
   "logged_at": "2026-10-24T14:15:56",
   "outcome": null,
   "actual": null
+ },
+ "derrick henry|Receptions|1.5|36188997": {
+  "player": "Derrick Henry",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 148,
+  "model_prob": 0.4129,
+  "fair_prob": 0.3519,
+  "edge": 0.061,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "CIN @ BAL",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T16:30:18",
+  "outcome": null,
+  "actual": null
+ },
+ "zay flowers|Receiving Yards|63.5|36188997": {
+  "player": "Zay Flowers",
+  "stat": "Receiving Yards",
+  "line": 63.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.5892,
+  "fair_prob": 0.475,
+  "edge": 0.1142,
+  "sample_n": 22,
+  "depth": 1,
+  "game": "CIN @ BAL",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T16:30:18",
+  "outcome": null,
+  "actual": null
  }
 }

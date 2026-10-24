@@ -2008,12 +2008,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7685,
-   "odds": -400,
-   "home_odds": -400,
-   "away_odds": 315
+   "fav_prob": 0.7864,
+   "odds": -450,
+   "home_odds": -450,
+   "away_odds": 350
   },
-  "last_seen": "2026-10-24T14:15:57"
+  "last_seen": "2026-10-24T16:30:20"
  },
  "NOP @ DEN|2026-10-25T01:10": {
   "label": "NOP @ DEN",
@@ -2032,12 +2032,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8017,
-   "odds": -500,
-   "home_odds": -500,
-   "away_odds": 385
+   "fav_prob": 0.8075,
+   "odds": -520,
+   "home_odds": -520,
+   "away_odds": 400
   },
-  "last_seen": "2026-10-24T14:15:57"
+  "last_seen": "2026-10-24T16:30:20"
  },
  "BKN @ CLE|2026-10-24T23:40": {
   "label": "BKN @ CLE",
@@ -2056,12 +2056,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7995,
-   "odds": -490,
-   "home_odds": -490,
+   "fav_prob": 0.8,
+   "odds": -500,
+   "home_odds": -500,
    "away_odds": 380
   },
-  "last_seen": "2026-10-24T14:15:57"
+  "last_seen": "2026-10-24T16:30:20"
  },
  "MIL @ PHI|2026-10-24T23:40": {
   "label": "MIL @ PHI",
@@ -2080,12 +2080,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8038,
-   "odds": -510,
-   "home_odds": -510,
-   "away_odds": 390
+   "fav_prob": 0.8282,
+   "odds": -620,
+   "home_odds": -620,
+   "away_odds": 460
   },
-  "last_seen": "2026-10-24T14:15:57"
+  "last_seen": "2026-10-24T16:30:20"
  },
  "SAS @ DAL|2026-10-25T00:10": {
   "label": "SAS @ DAL",
@@ -2104,12 +2104,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.8566,
-   "odds": -820,
-   "home_odds": 570,
-   "away_odds": -820
+   "fav_prob": 0.8479,
+   "odds": -770,
+   "home_odds": 530,
+   "away_odds": -770
   },
-  "last_seen": "2026-10-24T14:15:57"
+  "last_seen": "2026-10-24T16:30:20"
  },
  "DEN @ CHA|2026-10-24T02:43": {
   "label": "DEN @ CHA",
@@ -2182,5 +2182,53 @@
    "away_odds": -480
   },
   "last_seen": "2026-10-23T21:40:44"
+ },
+ "LAL @ NYK|2026-10-24T21:55": {
+  "label": "LAL @ NYK",
+  "home_name": "New York Knicks",
+  "away_name": "Los Angeles Lakers",
+  "start_time": "2026-10-24T21:55:00.000Z",
+  "first_seen": "2026-10-24T16:30:20",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6543,
+   "odds": -250,
+   "home_odds": 165,
+   "away_odds": -250
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6543,
+   "odds": -250,
+   "home_odds": 165,
+   "away_odds": -250
+  },
+  "last_seen": "2026-10-24T16:30:20"
+ },
+ "OKC @ LAL|2026-10-24T21:59": {
+  "label": "OKC @ LAL",
+  "home_name": "Los Angeles Lakers",
+  "away_name": "Oklahoma City Thunder",
+  "start_time": "2026-10-24T21:59:00.000Z",
+  "first_seen": "2026-10-24T16:30:20",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6794,
+   "odds": -290,
+   "home_odds": 185,
+   "away_odds": -290
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6794,
+   "odds": -290,
+   "home_odds": 185,
+   "away_odds": -290
+  },
+  "last_seen": "2026-10-24T16:30:20"
  }
 }
