@@ -2,11 +2,11 @@
 games.py — two free daily games built on Konjure's own data. No prizes, so no contest law.
 
 GUESS THE GRADE
-  Five stat lines from the last night of NBA games (the latest graded NFL week out of
-  season), names hidden. Guess each line's grade, 0-100: the same composite score the NBA
-  Hub publishes (nba_grades). Each guess scores 100 minus twice the miss, floored at 0, so a
-  perfect day is 500. The five are drawn once per date, one from each fifth of the grade
-  range, so every day has a star, a dud and three in between. Same puzzle for everyone.
+  Five stat lines from the last week of NBA games, names hidden. Guess each line's grade,
+  0-100: the same composite score the NBA Hub publishes (nba_grades). Each guess scores 100
+  minus twice the miss, floored at 0, so a perfect game is 500. Every game is a fresh random
+  draw, one line from each fifth of the grade range, so each has a star, a dud and three in
+  between. Play as often as you like; the day's leaderboard keeps each player's best.
 
 BEAT THE MARKET
   Five of tonight's NBA props, frozen once for the day and the same for everyone. For each,
@@ -42,39 +42,38 @@ def gtg_points(guess: float, actual: float) -> int:
     return int(max(0, round(100 - 2 * abs(float(guess) - float(actual)))))
 
 
-def _nba_night(day: datetime.date):
-    """(date, graded frame) for the latest NBA night before `day` with a real slate."""
+def gtg_pool(day: datetime.date):
+    """Every graded player-game (15+ minutes) from the NBA nights in the week before `day`."""
     import nba_grades as ng
+    import pandas as pd
     import parlay_model as pm
     season = pm.nba_season_strings(day)[0]
     try:
         log = ng.season_log(season)
     except Exception:
-        return None, None
-    nights = sorted({d.date() for d in log["date"].unique() if d.date() < day}, reverse=True)
-    for night in nights[:7]:
-        g = ng.grade_night(season, night)
-        if len(g) >= 20:
-            return night, g
-    return None, None
+        return None
+    week = log[(log["date"] < pd.Timestamp(day)) & (log["date"] >= pd.Timestamp(day - datetime.timedelta(days=7)))]
+    if week.empty:
+        return None
+    g = ng.grade_games(week, ng._prev_season(season))
+    return g[g["MIN"] >= 15].dropna(subset=["score"]).reset_index(drop=True)
 
 
-def gtg_puzzle(day: datetime.date) -> dict:
-    """The day's five rounds: {'sport', 'night', 'rounds': [...]} or {} when there is nothing to grade."""
-    night, g = _nba_night(day)
+def gtg_puzzle(pool, rng: random.Random | None = None) -> dict:
+    """Five rounds drawn from `pool`, one per fifth of the grade range: {'rounds': [...]} or {}."""
+    rng = rng or random.Random()
     rounds = []
-    if g is not None:
-        g = g[g["MIN"] >= 15].dropna(subset=["score"])
-        rng = _rng(day, "gtg")
+    if pool is not None and not pool.empty:
         for lo in (0, 20, 40, 60, 80):
-            band = g[(g["score"] >= lo) & (g["score"] < lo + 20 + (1 if lo == 80 else 0))]
+            band = pool[(pool["score"] >= lo) & (pool["score"] < lo + 20 + (1 if lo == 80 else 0))]
             if band.empty:
                 continue
             r = band.iloc[rng.randrange(len(band))]
             ts = r["ts_pct"]
             rounds.append({
-                "player": r["PLAYER_NAME"], "player_id": int(r["PLAYER_ID"]), "team": r["TEAM_ABBREVIATION"], "opponent": r["opponent"],
-                "result": r["WL"], "minutes": int(r["MIN"]),
+                "player": r["PLAYER_NAME"], "player_id": int(r["PLAYER_ID"]), "team": r["TEAM_ABBREVIATION"],
+                "opponent": r["opponent"], "result": r["WL"], "minutes": int(r["MIN"]),
+                "night": r["date"].strftime("%a %b %d"),
                 "line": (f"{int(r['PTS'])} pts · {int(r['REB'])} reb · {int(r['AST'])} ast · "
                          f"{int(r['STL'])} stl · {int(r['BLK'])} blk · {int(r['TOV'])} TO"
                          + (f" · {ts:.0%} true shooting" if ts == ts else "")),
@@ -82,7 +81,7 @@ def gtg_puzzle(day: datetime.date) -> dict:
         rng.shuffle(rounds)
     if len(rounds) < GTG_ROUNDS:
         return {}
-    return {"sport": "NBA", "night": night.isoformat(), "rounds": rounds}
+    return {"sport": "NBA", "rounds": rounds}
 
 
 def gtg_share(day: datetime.date, picks: list, rounds: list) -> str:
@@ -420,12 +419,12 @@ def render() -> None:
     email = _email()
     played = gs.get(f"gtg_play:{today}:{email}") if email else None
     entered = gs.get(f"btm_entry:{today}:{email}") if email else None
-    chips = [f"🧠 Guess the Grade: {'✅ ' + str(int(played['score'])) + '/500' if played else 'not played yet'}",
+    chips = [f"🧠 Guess the Grade: {'best today ' + str(int(played['score'])) + '/500' if played else 'not played yet'}",
              f"📈 Beat the Market: {'✅ entered' if entered else 'open'}",
              "🆓 Free · new games every day"]
     st.markdown("<div class='kg-hero'><div class='k'>Konjure Games · " + f"{today:%A %b %d}" + "</div>"
                 "<h2>Think you can read the game?</h2><p>Two daily games built on the same data as the dashboard. "
-                "Grade last night's stat lines blind, then take on the betting market with tonight's props. "
+                "Grade real stat lines blind, then take on the betting market with tonight's props. "
                 "No prizes, just bragging rights and a leaderboard.</p><div class='kg-chips'>"
                 + "".join(f"<span class='kg-chip'>{_esc(c)}</span>" for c in chips) + "</div></div>",
                 unsafe_allow_html=True)
@@ -460,7 +459,7 @@ def _mystery(r: dict, i: int, n: int) -> str:
     tiles = "".join(f"<div class='kg-tile'><b>{_esc(vals[k])}</b><span>{lab}</span></div>"
                     for k, lab in order if k in vals)
     return (f"<div class='kg-card'><div class='kg-myst'><div class='kg-q'>?</div><div>"
-            f"<div class='kg-sub'>ROUND {i + 1} OF {n} · MYSTERY PLAYER</div>"
+            f"<div class='kg-sub'>ROUND {i + 1} OF {n} · MYSTERY PLAYER · {_esc(r.get('night', ''))}</div>"
             f"<div class='kg-who'>{_esc(r['team'])} vs {_esc(r['opponent'])} · "
             f"{'Won' if r['result'] == 'W' else 'Lost'}</div>"
             f"<div class='kg-sub'>{r['minutes']} minutes · {r['plus_minus']:+d} on the floor</div></div></div>"
@@ -491,22 +490,25 @@ def _render_gtg() -> None:
     import streamlit as st
 
     @st.cache_data(ttl=3600, show_spinner=False)
-    def _puzzle(day):
-        return gtg_puzzle(day)
+    def _pool(day):
+        return gtg_pool(day)
 
     today = datetime.date.today()
-    with st.spinner("Loading last night's lines…"):
-        pz = _puzzle(today)
-    if not pz:
-        st.info("No graded NBA night to play yet. Guess the Grade returns the morning after the next slate.")
-        return
+    with st.spinner("Loading the week's lines…"):
+        pool = _pool(today)
     email = _email()
-    done = gs.get(f"gtg_play:{today}:{email}") if email else None
-    key = f"gtg_{today}"
-    state = st.session_state.setdefault(key, {"picks": [], "phase": "guess", "cheered": False})
-    if done and not state["picks"]:
-        state["picks"], state["phase"] = list(done["payload"]["picks"]), "final"
-    rounds, picks = pz["rounds"], state["picks"]
+    state = st.session_state.get("gtg_game")
+    if not state or state.get("day") != today.isoformat():
+        # A fresh random five for every game; the draw lives in the session so reruns keep it.
+        pz = gtg_puzzle(pool)
+        if not pz:
+            st.info("No graded NBA games to play yet. Guess the Grade returns the morning after the next slate.")
+            return
+        n_game = (state or {}).get("n", 0) + 1
+        state = st.session_state["gtg_game"] = {"day": today.isoformat(), "n": n_game, "rounds": pz["rounds"],
+                                                "picks": [], "phase": "guess", "cheered": False}
+    key = f"gtg_{today}_{state['n']}"
+    rounds, picks = state["rounds"], state["picks"]
     n = len(rounds)
 
     if state["phase"] == "reveal":
@@ -522,7 +524,7 @@ def _render_gtg() -> None:
     if len(picks) < n:
         i = len(picks)
         if i == 0:
-            st.caption(f"Five real stat lines from the NBA night of {pz['night']}, names hidden. Slide to the grade "
+            st.caption("Five real stat lines from the past week of NBA games, names hidden. Slide to the grade "
                        "you think each earned (0-100: where it ranks against every player-game of last season). "
                        "100 points a round, minus 2 for every point you miss by.")
         st.markdown(_steps(picks, rounds, i), unsafe_allow_html=True)
@@ -534,15 +536,18 @@ def _render_gtg() -> None:
             picks.append(g)
             state["phase"] = "reveal"
             if len(picks) == n and email:
+                # The day's leaderboard keeps each player's best game.
                 total = sum(gtg_points(p, x["score"]) for p, x in zip(picks, rounds))
-                gs.put(f"gtg_play:{today}:{email}", "gtg_play", today.isoformat(),
-                       {"picks": picks}, email=email, score=total, insert_only=True)
+                best = gs.get(f"gtg_play:{today}:{email}")
+                if not best or total > (best.get("score") or 0):
+                    gs.put(f"gtg_play:{today}:{email}", "gtg_play", today.isoformat(),
+                           {"picks": picks, "rounds": rounds}, email=email, score=total)
             st.rerun()
         return
 
     total = sum(gtg_points(p, r["score"]) for p, r in zip(picks, rounds))
     squares = "".join(_square(abs(p - r["score"])) for p, r in zip(picks, rounds))
-    st.markdown(f"<div class='kg-card kg-final'><div class='kg-sub'>TODAY'S SCORE</div>"
+    st.markdown(f"<div class='kg-card kg-final'><div class='kg-sub'>YOUR SCORE</div>"
                 f"<div class='big'>{total}<small> / {100 * n}</small></div><div class='tier'>{_tier(total)}</div>"
                 f"<div class='kg-sq'>{squares}</div></div>", unsafe_allow_html=True)
     if total >= 400 and not state["cheered"]:
@@ -567,7 +572,10 @@ def _render_gtg() -> None:
             st.markdown("**Today's leaderboard**")
             st.markdown(_board_html(board, gs.handle(email) if email else None, lambda v: f"{int(v)}"),
                         unsafe_allow_html=True)
-        st.caption("A new five drops every morning.")
+        st.caption("Your best game today counts for the leaderboard.")
+    if st.button("🔁 Play again: new five", type="primary", key=f"{key}_again", width="stretch"):
+        st.session_state["gtg_game"] = {"day": "", "n": state["n"]}
+        st.rerun()
 
 
 # ── Beat the Market ──

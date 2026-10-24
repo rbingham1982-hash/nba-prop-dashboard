@@ -4,7 +4,7 @@ games_store.py — storage for the Konjure games (games.py): daily slates, entri
 One table, one row per thing, keyed by a readable id so the rules live in the key:
   btm_slate:<date>            Beat the Market's five props for a day (shared by everyone)
   btm_entry:<date>:<email>    one person's Beat the Market entry for that day
-  gtg_play:<date>:<email>     one person's Guess the Grade result for that day
+  gtg_play:<date>:<email>     one person's best Guess the Grade game that day (picks + the rounds drawn)
 
 Supabase table `konjure_games` on the hosted app (create it with GAMES_SQL), SQLite at
 ~/.konjure/games.db on the home machine, the same split as accounts.py and the parlay tickets.
