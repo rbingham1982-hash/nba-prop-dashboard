@@ -23626,5 +23626,27 @@
   "logged_at": "2026-10-23T21:40:08",
   "outcome": null,
   "actual": null
+ },
+ "jj mccarthy|Passing Yards|203.5|36188999": {
+  "player": "J.J McCarthy",
+  "stat": "Passing Yards",
+  "line": 203.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 182.0,
+  "last5": [
+   250.0,
+   108.0,
+   182.0,
+   0.0,
+   243.0
+  ],
+  "game": "NYG @ HOU",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T02:47:31",
+  "outcome": null,
+  "actual": null
  }
 }

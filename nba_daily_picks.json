@@ -424,9 +424,9 @@
     "edge": 9.89,
     "pick": "home",
     "pick_label": "CHA +2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 81,
+    "away_pts": 128,
     "published": false
    },
    {
@@ -441,9 +441,9 @@
     "edge": 6.78,
     "pick": "home",
     "pick_label": "BOS -2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 107,
+    "away_pts": 103,
     "published": false
    },
    {
@@ -458,9 +458,9 @@
     "edge": 6.15,
     "pick": "home",
     "pick_label": "SAC +9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 120,
+    "away_pts": 128,
     "published": false
    },
    {
@@ -475,9 +475,9 @@
     "edge": 5.54,
     "pick": "home",
     "pick_label": "WAS +9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 102,
+    "away_pts": 112,
     "published": true
    },
    {
@@ -492,9 +492,9 @@
     "edge": 4.27,
     "pick": "home",
     "pick_label": "GSW -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 108,
+    "away_pts": 111,
     "published": true
    },
    {
@@ -509,9 +509,9 @@
     "edge": 3.15,
     "pick": "home",
     "pick_label": "UTA -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 120,
+    "away_pts": 119,
     "published": true
    },
    {
@@ -526,9 +526,9 @@
     "edge": 2.2,
     "pick": "home",
     "pick_label": "SAS -4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 110,
+    "away_pts": 114,
     "published": false
    },
    {
@@ -543,9 +543,9 @@
     "edge": 2.06,
     "pick": "home",
     "pick_label": "MIA +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 111,
+    "away_pts": 128,
     "published": false
    },
    {
@@ -560,9 +560,9 @@
     "edge": 0.95,
     "pick": "away",
     "pick_label": "LAC +8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 125,
+    "away_pts": 117,
     "published": false
    },
    {
@@ -577,9 +577,9 @@
     "edge": 0.25,
     "pick": "away",
     "pick_label": "DAL +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 105,
+    "away_pts": 121,
     "published": false
    },
    {
@@ -594,9 +594,9 @@
     "edge": 0.19,
     "pick": "away",
     "pick_label": "MIN +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 93,
+    "away_pts": 115,
     "published": false
    }
   ],
@@ -616,8 +616,8 @@
     "implied_prob": 0.7111,
     "blended_prob": 0.7111,
     "edge": -0.114,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Bennedict Mathurin",
@@ -631,8 +631,8 @@
     "implied_prob": 0.6449,
     "blended_prob": 0.6449,
     "edge": -0.2749,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Kyshawn George",
@@ -646,8 +646,8 @@
     "implied_prob": 0.6356,
     "blended_prob": 0.6356,
     "edge": 0.073,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    },
    {
     "player": "Derrick White",
@@ -661,8 +661,8 @@
     "implied_prob": 0.5678,
     "blended_prob": 0.5678,
     "edge": 0.2251,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 12.0
    },
    {
     "player": "Tim Hardaway Jr.",
@@ -676,8 +676,8 @@
     "implied_prob": 0.5581,
     "blended_prob": 0.5581,
     "edge": -0.1895,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 13.0
    }
   ],
   "parlay_withheld_price": {
