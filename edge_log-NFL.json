@@ -2770,5 +2770,23 @@
   "logged_at": "2026-10-23T19:32:27",
   "outcome": null,
   "actual": null
+ },
+ "michael penix|Passing Yards|229.5|36188996": {
+  "player": "Michael Penix Jr.",
+  "stat": "Passing Yards",
+  "line": 229.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5422,
+  "fair_prob": 0.475,
+  "edge": 0.0672,
+  "sample_n": 13,
+  "depth": 1,
+  "game": "SF @ ATL",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-23T21:40:42",
+  "outcome": null,
+  "actual": null
  }
 }
