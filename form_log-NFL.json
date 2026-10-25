@@ -24924,5 +24924,71 @@
   "logged_at": "2026-10-25T12:20:15",
   "outcome": null,
   "actual": null
+ },
+ "amon-ra st brown|Receiving Yards|79.5|36189005": {
+  "player": "Amon-Ra St. Brown",
+  "stat": "Receiving Yards",
+  "line": 79.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 69.0,
+  "last5": [
+   67.0,
+   142.0,
+   19.0,
+   75.0,
+   69.0
+  ],
+  "game": "GB @ DET",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T13:25:51",
+  "outcome": null,
+  "actual": null
+ },
+ "jordan love|Rushing Yards|6.5|36189005": {
+  "player": "Jordan Love",
+  "stat": "Rushing Yards",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   -8.0,
+   6.0,
+   12.0
+  ],
+  "game": "GB @ DET",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T13:25:51",
+  "outcome": null,
+  "actual": null
+ },
+ "velus jones|Rushing Yards|11.5|36189006": {
+  "player": "Velus Jones Jr.",
+  "stat": "Rushing Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   32.0,
+   0.0,
+   20.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T13:25:51",
+  "outcome": null,
+  "actual": null
  }
 }
