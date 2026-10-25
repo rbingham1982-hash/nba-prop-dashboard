@@ -4,7 +4,7 @@
 # NBA/WNBA reader use them instead of stats.nba.com. The home PC runs nothing on a schedule.
 #
 # This runner owns parlay_log-MLB-*.json, parlay_log-NFL-*.json, game_log.json,
-# weekly_picks.json (the NFL weekly board), form_log-NFL.json, edge_log-NFL.json and favorite_log-{NFL,MLB}.json,
+# weekly_picks.json (the NFL weekly board), form_log-NFL.json, edge_log-NFL.json, favorite_log-{NFL,MLB}.json and teaser_log-NFL.json,
 # and since 2026-10-18 the NBA and WNBA files too: parlay_log-{NBA,WNBA}-*.json, tip_log.json,
 # nba_weekly_picks.json, form_log-NBA.json, favorite_log-{NBA,WNBA}.json, threes_log-NBA.json and
 # nba_data/. It commits nothing else, so edits made by hand elsewhere never ride along.
@@ -154,7 +154,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Only files that exist: form_log-NFL.json appears with the first qualifying prop,
           # and git add fails outright on a path that matches nothing.
-          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json parlay_log-NBA-*.json game_log.json weekly_picks.json \n                   form_log-NFL.json edge_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json \n                   tip_log.json nba_weekly_picks.json nba_daily_picks.json form_log-NBA.json favorite_log-NBA.json threes_log-NBA.json \n                   parlay_log-WNBA-*.json favorite_log-WNBA.json nba_data                    docs/index.html docs/about.html docs/terms.html docs/refunds.html docs/og.jpg docs/record docs/report; do
+          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json parlay_log-NBA-*.json game_log.json weekly_picks.json \n                   form_log-NFL.json edge_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json teaser_log-NFL.json \n                   tip_log.json nba_weekly_picks.json nba_daily_picks.json form_log-NBA.json favorite_log-NBA.json threes_log-NBA.json \n                   parlay_log-WNBA-*.json favorite_log-WNBA.json nba_data                    docs/index.html docs/about.html docs/terms.html docs/refunds.html docs/og.jpg docs/record docs/report; do
             if [ -e "$f" ]; then git add -- "$f"; fi
           done
           if git diff --cached --quiet; then

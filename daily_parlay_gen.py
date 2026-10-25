@@ -852,6 +852,16 @@ def run_favorite_signal(sports, month: int) -> None:
                   f"— at last price {rec['at_last_price']}, pending {rec['pending']}")
         except Exception as e:
             print(f"  Favourite signal {sport.upper()} failed ({e}) — retried next run.")
+    # The six-point dog teaser test (teaser_signal) is NFL-only and, like the favourites,
+    # bets the LAST line before kickoff, so it refreshes on every firing too.
+    if "nfl" in sports and seasons.get("nfl"):
+        try:
+            import teaser_signal
+            r = teaser_signal.run()
+            print(f"  Teaser signal NFL: graded {r['graded']}, tracking {r['tracked']} "
+                  f"— {teaser_signal.record()}")
+        except Exception as e:
+            print(f"  Teaser signal NFL failed ({e}) — retried next run.")
     # The three-point-luck test (threes_signal) is NBA-only, so it rides along with
     # whichever runner has NBA (the cloud, reading the saved league log, since 2026-10-18).
     if "nba" in sports and seasons.get("nba"):

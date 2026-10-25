@@ -147,9 +147,13 @@ def _records() -> dict:
                              ("NBA recent-form unders", "nba", "form"),
                              ("NFL model-edge overs", "nfl", "edge"),
                              ("NFL 70%+ moneyline favourites", "nfl", "fav"),
-                             ("NBA 70%+ moneyline favourites", "nba", "fav")):
+                             ("NBA 70%+ moneyline favourites", "nba", "fav"),
+                             ("NFL 6-pt teaser legs, dogs +1.5 to +2.5", "nfl", "teaser")):
         try:
-            if fn == "form":
+            if fn == "teaser":
+                import teaser_signal
+                r = teaser_signal.record()["at_last_line"]
+            elif fn == "form":
                 import form_signal
                 r = form_signal.record(sport)
             elif fn == "edge":
