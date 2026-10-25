@@ -24990,5 +24990,93 @@
   "logged_at": "2026-10-25T13:25:51",
   "outcome": null,
   "actual": null
+ },
+ "puka nacua|Receiving Yards|87.5|36189003": {
+  "player": "Puka Nacua",
+  "stat": "Receiving Yards",
+  "line": 87.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 80.0,
+  "last5": [
+   76.0,
+   74.0,
+   125.0,
+   138.0,
+   80.0
+  ],
+  "game": "LA @ LV",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T14:11:23",
+  "outcome": null,
+  "actual": null
+ },
+ "mike washington|Rushing Yards|21.5|36189003": {
+  "player": "Mike Washington Jr.",
+  "stat": "Rushing Yards",
+  "line": 21.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 18.0,
+  "last5": [
+   7.0,
+   54.0,
+   18.0,
+   5.0,
+   43.0
+  ],
+  "game": "LA @ LV",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T14:11:23",
+  "outcome": null,
+  "actual": null
+ },
+ "ashton jeanty|Rushing Yards|50.5|36189003": {
+  "player": "Ashton Jeanty",
+  "stat": "Rushing Yards",
+  "line": 50.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 48.0,
+  "last5": [
+   48.0,
+   56.0,
+   58.0,
+   27.0,
+   22.0
+  ],
+  "game": "LA @ LV",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T14:11:23",
+  "outcome": null,
+  "actual": null
+ },
+ "jalen brooks|Receiving Yards|14.5|36189004": {
+  "player": "Jalen Brooks",
+  "stat": "Receiving Yards",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   16.0,
+   30.0
+  ],
+  "game": "DEN @ ARI",
+  "start_time": "2026-10-25T20:06:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T14:11:23",
+  "outcome": null,
+  "actual": null
  }
 }

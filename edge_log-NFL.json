@@ -3130,5 +3130,23 @@
   "logged_at": "2026-10-25T13:26:16",
   "outcome": null,
   "actual": null
+ },
+ "kirk cousins|Passing Yards|240.5|36189003": {
+  "player": "Kirk Cousins",
+  "stat": "Passing Yards",
+  "line": 240.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.5393,
+  "fair_prob": 0.475,
+  "edge": 0.0643,
+  "sample_n": 16,
+  "depth": 1,
+  "game": "LA @ LV",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T14:11:43",
+  "outcome": null,
+  "actual": null
  }
 }
