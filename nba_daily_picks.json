@@ -705,9 +705,9 @@
     "edge": 10.56,
     "pick": "home",
     "pick_label": "DAL +14.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 106,
+    "away_pts": 122,
     "published": false
    },
    {
@@ -722,9 +722,9 @@
     "edge": 8.23,
     "pick": "away",
     "pick_label": "GSW +9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 131,
+    "away_pts": 122,
     "published": false
    },
    {
@@ -739,9 +739,9 @@
     "edge": 5.66,
     "pick": "home",
     "pick_label": "CHA +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 115,
+    "away_pts": 110,
     "published": true
    },
    {
@@ -756,9 +756,9 @@
     "edge": 5.29,
     "pick": "home",
     "pick_label": "ATL +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 114,
+    "away_pts": 121,
     "published": true
    },
    {
@@ -773,9 +773,9 @@
     "edge": 3.66,
     "pick": "away",
     "pick_label": "NOP +11.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 141,
+    "away_pts": 135,
     "published": true
    },
    {
@@ -790,9 +790,9 @@
     "edge": 3.06,
     "pick": "away",
     "pick_label": "MIL +12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 127,
+    "away_pts": 116,
     "published": false
    },
    {
@@ -807,9 +807,9 @@
     "edge": 1.87,
     "pick": "away",
     "pick_label": "BKN +11.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 125,
+    "away_pts": 121,
     "published": false
    },
    {
@@ -824,9 +824,9 @@
     "edge": 0.66,
     "pick": "away",
     "pick_label": "WAS +2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 120,
+    "away_pts": 124,
     "published": false
    }
   ],
@@ -846,8 +846,8 @@
     "implied_prob": 0.7071,
     "blended_prob": 0.7071,
     "edge": 0.2529,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 2.0
    },
    {
     "player": "Keon Ellis",
@@ -861,8 +861,8 @@
     "implied_prob": 0.6556,
     "blended_prob": 0.6556,
     "edge": 0.033,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Nickeil Alexander-Walker",
@@ -876,8 +876,8 @@
     "implied_prob": 0.6391,
     "blended_prob": 0.6391,
     "edge": -0.1048,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 5.0
    },
    {
     "player": "Klay Thompson",
@@ -891,8 +891,8 @@
     "implied_prob": 0.5717,
     "blended_prob": 0.5717,
     "edge": -0.0574,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 14.0
    },
    {
     "player": "Collin Gillespie",
@@ -906,8 +906,8 @@
     "implied_prob": 0.5532,
     "blended_prob": 0.5532,
     "edge": 0.0482,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 24.0
    }
   ],
   "parlay_withheld_price": {

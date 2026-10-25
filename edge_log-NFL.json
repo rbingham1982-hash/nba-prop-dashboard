@@ -2950,5 +2950,23 @@
   "logged_at": "2026-10-24T21:29:43",
   "outcome": null,
   "actual": null
+ },
+ "juwan johnson|Receiving Yards|31.5|35605985": {
+  "player": "Juwan Johnson",
+  "stat": "Receiving Yards",
+  "line": 31.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.5933,
+  "fair_prob": 0.475,
+  "edge": 0.1183,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T02:58:36",
+  "outcome": null,
+  "actual": null
  }
 }
