@@ -2914,5 +2914,41 @@
   "logged_at": "2026-10-24T16:30:18",
   "outcome": null,
   "actual": null
+ },
+ "tyler shough|Passing Yards|221.5|35605985": {
+  "player": "Tyler Shough",
+  "stat": "Passing Yards",
+  "line": 221.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.5713,
+  "fair_prob": 0.475,
+  "edge": 0.0963,
+  "sample_n": 17,
+  "depth": 1,
+  "game": "PIT @ NO",
+  "start_time": "2026-10-25T13:30:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T21:29:43",
+  "outcome": null,
+  "actual": null
+ },
+ "christian kirk|Receptions|2.5|36188996": {
+  "player": "Christian Kirk",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "over",
+  "american_odds": 128,
+  "model_prob": 0.4492,
+  "fair_prob": 0.3845,
+  "edge": 0.0647,
+  "sample_n": 11,
+  "depth": 1,
+  "game": "SF @ ATL",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T21:29:43",
+  "outcome": null,
+  "actual": null
  }
 }

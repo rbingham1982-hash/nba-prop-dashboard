@@ -24462,5 +24462,27 @@
   "logged_at": "2026-10-24T19:10:43",
   "outcome": null,
   "actual": null
+ },
+ "ashton jeanty|Rushing Yards|55.5|36189003": {
+  "player": "Ashton Jeanty",
+  "stat": "Rushing Yards",
+  "line": 55.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 48.0,
+  "last5": [
+   48.0,
+   56.0,
+   58.0,
+   27.0,
+   22.0
+  ],
+  "game": "LA @ LV",
+  "start_time": "2026-10-25T20:26:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T21:29:04",
+  "outcome": null,
+  "actual": null
  }
 }
