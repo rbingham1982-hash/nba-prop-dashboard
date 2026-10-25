@@ -93,6 +93,11 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
             g = ng.grade_week(season, done[-1])
             if not g.empty:
                 out["recap"] = _recap(g, season, done[-1])
+            try:
+                import nfl_regression
+                out["regression"] = nfl_regression.watch(season, done[-1])
+            except Exception as e:
+                out["degraded"].append(f"regression watch: {e}")
     except Exception as e:
         out["errors"].append(f"weekly grades: {e}")
 
@@ -253,7 +258,7 @@ def build_sections(nfl_limit: int = 16, dfs_sport: str = "MLB") -> dict:
 
 EDITIONS = ("full", "tuesday", "friday")
 _EDITION_KEYS = {
-    "tuesday": ("recap", "recap_picks", "sleepers", "waivers", "waiver_stats", "fantasy_record",
+    "tuesday": ("recap", "recap_picks", "regression", "sleepers", "waivers", "waiver_stats", "fantasy_record",
                 "trending", "fades"),
     "friday": ("ats", "parlay", "parlay_price", "parlay_withheld_price", "td", "td_parlay",
                "td_parlay_price", "receivers", "form_parlay", "picks_record", "form_record",
@@ -379,6 +384,38 @@ def render_markdown(data: dict) -> str:
                   + (f" Missed: {', '.join(miss)}." if miss else ""), "",
                   "One week of ten players says very little about calibration. A result this far "
                   "from expectation, in either direction, is mostly variance.", ""]
+
+    # Regression watch (nfl_regression): records that have outrun, or trailed, the passing
+    # efficiency that actually carries from one half of a season to the next.
+    rw = data.get("regression") or {}
+    if rw.get("ahead") or rw.get("behind"):
+        import nfl_regression as _nr
+        stu = _nr.STUDY
+        L += ["## Regression watch", "",
+              f"What actually predicts winning? We checked {stu['team_seasons']} team-seasons "
+              f"({stu['seasons']}): each stat over Weeks 1-8 against results from Week 9 on. "
+              f"**Point differential** (r {stu['pd_r']}) and **passing efficiency**, EPA per "
+              f"dropback on offense minus defense (r {stu['epa_r']}), led. Turnover margin "
+              f"(r {stu['to_r']}), rushing yards (r {stu['rush_r']}) and record in one-score games "
+              f"(r {stu['close_r']}) barely carry. Turnovers decide single games (+2 or better won "
+              f"{stu['to_plus2_win']:.0%} of them), but they don't repeat: a team's first-half turnover "
+              f"margin predicts its second half at r {stu['to_carry']}, against {stu['epa_carry']} for "
+              "passing efficiency.", "",
+              f"So, through Week {rw['week']}, the records furthest from how these teams have passed "
+              "and defended the pass:", ""]
+        hdr = ["| Team | Record | Pass efficiency (rank) | Turnovers / game | One-score games | Wins vs efficiency |",
+               "|---|---|---|---:|---|---:|"]
+        for key, title in (("ahead", "**Record ahead of the play**, most likely to slide:"),
+                           ("behind", "**Record behind the play**, most likely to climb:")):
+            if rw.get(key):
+                L += [title, ""] + hdr
+                for r in rw[key]:
+                    L.append(f"| {r['team']} | {r['record']} | {r['epa_db']:+.2f} (#{r['epa_rank']}) | "
+                             f"{r['to_g']:+.2f} | {r['close']} | {r['gap']:+.1f} |")
+                L.append("")
+        L += [f"*Not a betting angle: on {stu['ats_games']:,} games we found none of these gaps predicts "
+              "the cover against the closing line. The market prices them. Read it for the season, and "
+              "for fantasy schedules.*", ""]
 
     # The fantasy boards' own scoreboard, printed next to the betting one for the same
     # reason: advice published every week with no record is just content.

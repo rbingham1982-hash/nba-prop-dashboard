@@ -86,7 +86,15 @@ def build(data: dict, day: datetime.date | None = None) -> str:
         if rc.get("best_teams") and rc.get("worst_teams"):
             L += ["- **Offenses:** best by average grade " + ", ".join(f"{t} ({m:.0f})" for t, m in rc["best_teams"])
                   + "; toughest days " + ", ".join(f"{t} ({m:.0f})" for t, m in rc["worst_teams"]) + "."]
-        L += ["- **Say it:** a grade describes the week that happened. It is not a projection.", ""]
+        L += ["- **Say it:** a grade describes the week that happened. It is not a projection."]
+        rw = data.get("regression") or {}
+        if rw.get("ahead") or rw.get("behind"):
+            L += ["- **Regression watch** (records vs passing efficiency, the stat that carries; turnovers don't):"]
+            L += [f"  - Ahead of the play: {r['team']} {r['record']}, efficiency #{r['epa_rank']}, "
+                  f"{r['close']} in one-score games" for r in rw.get("ahead", [])[:2]]
+            L += [f"  - Behind the play: {r['team']} {r['record']}, efficiency #{r['epa_rank']}, "
+                  f"{r['close']} in one-score games" for r in rw.get("behind", [])[:2]]
+        L += [""]
 
     # ── 3. honest record ──
     L += ["## 3. The honest record", "",
