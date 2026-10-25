@@ -2171,8 +2171,8 @@
     "edge": -4.13,
     "pick": "away",
     "pick_label": "NYG +10.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": -6.0
    },
    {
     "game": "LA @ LV",
@@ -2195,8 +2195,8 @@
     "edge": 3.9,
     "pick": "home",
     "pick_label": "BAL -1.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -22.0
    },
    {
     "game": "IND @ MIN",
@@ -2207,8 +2207,8 @@
     "edge": -3.58,
     "pick": "away",
     "pick_label": "IND +6.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 6.0
    }
   ],
   "parlay": [],
@@ -2396,9 +2396,9 @@
     "wind_mph": 11.5,
     "expected_adj": -4.47,
     "gameday": "2026-10-25",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 49.0,
+    "residual": -0.5
    },
    {
     "game": "NYG @ HOU",
@@ -2408,9 +2408,9 @@
     "wind_mph": 10.6,
     "expected_adj": -4.12,
     "gameday": "2026-10-25",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 48.0,
+    "residual": 5.5
    }
   ],
   "parlay_gate": true,
@@ -2548,6 +2548,7 @@
    "fair_prob": 0.3107,
    "breakeven": 0.3398,
    "frozen_at": "2026-10-23T03:09:42"
-  }
+  },
+  "graded": false
  }
 }

@@ -204,8 +204,8 @@
    "home_odds": 184,
    "away_odds": -220
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "away",
    "fav_prob": 0.5707,
@@ -228,8 +228,8 @@
    "home_odds": -430,
    "away_odds": 350
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "home",
    "fav_prob": 0.8017,
@@ -252,8 +252,8 @@
    "home_odds": -225,
    "away_odds": 188
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "home",
    "fav_prob": 0.6548,
@@ -276,8 +276,8 @@
    "home_odds": -225,
    "away_odds": 188
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7369,
@@ -381,7 +381,7 @@
    "home_odds": 190,
    "away_odds": -230
   },
-  "last_seen": "2026-10-25T14:11:45"
+  "last_seen": "2026-10-25T16:03:53"
  },
  "TEN @ CIN|2026-11-01T18:01": {
   "label": "TEN @ CIN",

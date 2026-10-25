@@ -25078,5 +25078,27 @@
   "logged_at": "2026-10-25T14:11:23",
   "outcome": null,
   "actual": null
+ },
+ "dallas goedert|Receiving Yards|49.5|36189007": {
+  "player": "Dallas Goedert",
+  "stat": "Receiving Yards",
+  "line": 49.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 38.0,
+  "last5": [
+   8.0,
+   77.0,
+   4.0,
+   38.0,
+   61.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-25T16:03:38",
+  "outcome": null,
+  "actual": null
  }
 }
