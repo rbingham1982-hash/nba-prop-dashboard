@@ -136,8 +136,7 @@ def build(data: dict, day: datetime.date | None = None) -> str:
     if pz:
         L += ["| # | Read this on air |", "|---|---|"]
         for i, r in enumerate(pz["rounds"], 1):
-            L.append(f"| {i} | {r['team']} vs {r['opponent']} ({'won' if r['result'] == 'W' else 'lost'}, "
-                     f"{r['night']}): {r['line']}, {r['minutes']} min, {r['plus_minus']:+d} |")
+            L.append(f"| {i} | {r.get('sport', 'NBA')} · {games.round_clue(r)} |")
         L += ["", "*The answers are at the very bottom of this brief, so you can guess honestly on air.*", ""]
     else:
         L += ["- No graded NBA games in the past week to build a challenge from; skip the segment.", ""]
