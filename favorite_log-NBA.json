@@ -1404,7 +1404,7 @@
    "home_odds": 235,
    "away_odds": -380
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -1428,7 +1428,7 @@
    "home_odds": 195,
    "away_odds": -300
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -1452,7 +1452,7 @@
    "home_odds": -700,
    "away_odds": 370
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -1476,7 +1476,7 @@
    "home_odds": 175,
    "away_odds": -265
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -2008,12 +2008,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7864,
-   "odds": -450,
-   "home_odds": -450,
-   "away_odds": 350
+   "fav_prob": 0.7685,
+   "odds": -400,
+   "home_odds": -400,
+   "away_odds": 315
   },
-  "last_seen": "2026-10-24T16:30:20"
+  "last_seen": "2026-10-24T19:11:27"
  },
  "NOP @ DEN|2026-10-25T01:10": {
   "label": "NOP @ DEN",
@@ -2032,12 +2032,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8075,
-   "odds": -520,
-   "home_odds": -520,
-   "away_odds": 400
+   "fav_prob": 0.8038,
+   "odds": -510,
+   "home_odds": -510,
+   "away_odds": 390
   },
-  "last_seen": "2026-10-24T16:30:20"
+  "last_seen": "2026-10-24T19:11:27"
  },
  "BKN @ CLE|2026-10-24T23:40": {
   "label": "BKN @ CLE",

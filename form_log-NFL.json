@@ -24396,5 +24396,71 @@
   "logged_at": "2026-10-24T16:29:33",
   "outcome": null,
   "actual": null
+ },
+ "christian mccaffrey|Receiving Yards|46.5|36188996": {
+  "player": "Christian McCaffrey",
+  "stat": "Receiving Yards",
+  "line": 46.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 41.0,
+  "last5": [
+   43.0,
+   41.0,
+   18.0,
+   15.0,
+   53.0
+  ],
+  "game": "SF @ ATL",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T19:10:43",
+  "outcome": null,
+  "actual": null
+ },
+ "khalil herbert|Rushing Yards|7.5|36188996": {
+  "player": "Khalil Herbert",
+  "stat": "Rushing Yards",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 5.0,
+  "last5": [
+   0.0,
+   0.0,
+   5.0,
+   5.0,
+   42.0
+  ],
+  "game": "SF @ ATL",
+  "start_time": "2026-10-25T17:01:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T19:10:43",
+  "outcome": null,
+  "actual": null
+ },
+ "velus jones|Rushing Yards|9.5|36189006": {
+  "player": "Velus Jones Jr.",
+  "stat": "Rushing Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   32.0,
+   0.0,
+   20.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-24T19:10:43",
+  "outcome": null,
+  "actual": null
  }
 }
