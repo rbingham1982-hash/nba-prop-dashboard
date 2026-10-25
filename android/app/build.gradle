@@ -3,6 +3,18 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+// Release signing reads android/keystore.properties (gitignored, like the keystore itself):
+//   storeFile=../konjure-release.jks
+//   storePassword=...
+//   keyAlias=konjure
+//   keyPassword=...
+// The passwords used to sit in this file, and the repository is public.
+def keystoreProps = new Properties()
+def keystoreFile = rootProject.file("keystore.properties")
+if (keystoreFile.exists()) {
+    keystoreFile.withInputStream { keystoreProps.load(it) }
+}
+
 android {
     namespace 'com.konjure.analytics'
     compileSdk 34
@@ -11,17 +23,19 @@ android {
         applicationId "com.konjure.analytics"
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         release {
-            storeFile     file("../konjure-release.jks")
-            storePassword "konjure2024"
-            keyAlias      "konjure"
-            keyPassword   "konjure2024"
+            if (keystoreProps["storeFile"]) {
+                storeFile     file(keystoreProps["storeFile"])
+                storePassword keystoreProps["storePassword"]
+                keyAlias      keystoreProps["keyAlias"]
+                keyPassword   keystoreProps["keyPassword"]
+            }
         }
     }
 
@@ -30,10 +44,13 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
         }
         debug {
             applicationIdSuffix ".debug"
             debuggable true
+            // Plain http only for a local dev server (emulator 10.0.2.2, or a PC on the Wi-Fi).
+            manifestPlaceholders = [usesCleartextTraffic: "true"]
         }
     }
     compileOptions {
@@ -45,6 +62,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true      // BuildConfig.DEBUG gates WebView debugging and mixed content
     }
 }
 

@@ -4222,9 +4222,13 @@ with hdr_col:
     </div>""", unsafe_allow_html=True)
 with sport_col:
     _sports = ["🏀 NBA", "🏀 WNBA", "⚾ MLB", "🏈 NFL", "🏆 Fantasy", "🧮 Parlay Builder", "🎮 Games", "⭐ Pro"]
-    # A podcast challenge link (?challenge=YYYYMMDD) lands on the Games page.
-    sport = st.selectbox("Sport", _sports, key="sport_selector",
-                         index=_sports.index("🎮 Games") if st.query_params.get("challenge") else 0)
+    # A link can open a section: ?sport=nfl (the Android app's menu), or a podcast challenge
+    # (?challenge=YYYYMMDD), which lands on Games. Keys match _PAGE_KEYS below.
+    _by_key = {"nba": "🏀 NBA", "wnba": "🏀 WNBA", "mlb": "⚾ MLB", "nfl": "🏈 NFL", "fantasy": "🏆 Fantasy",
+               "builder": "🧮 Parlay Builder", "games": "🎮 Games", "pro": "⭐ Pro"}
+    _open = ("🎮 Games" if st.query_params.get("challenge")
+             else _by_key.get(str(st.query_params.get("sport", "")).lower(), _sports[0]))
+    sport = st.selectbox("Sport", _sports, key="sport_selector", index=_sports.index(_open))
     # Signed-in visitors see who they are and can sign out; the Edge Finder tabs carry the
     # sign-in forms themselves (accounts.gate), so there is nothing to show when signed out.
     if _acct.signed_in_email():

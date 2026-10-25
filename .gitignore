@@ -42,6 +42,7 @@ android/local.properties
 
 # Android release keystore (contains private key — never commit)
 android/konjure-release.jks
+android/keystore.properties
 
 # Generated newsletter output: markdown, HTML, social drafts and the .published-* channel
 # markers all regenerate, so they stay out.

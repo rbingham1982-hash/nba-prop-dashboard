@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Konjure Analytics</string>
-    <string name="nav_subtitle">PROP · PREDICTIVE · DASHBOARD</string>
+    <string name="nav_subtitle">GRADES · PROJECTIONS · TRACK RECORD</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="nav_nba_props">NBA Props</string>
-    <string name="nav_first_basket">First Basket</string>
-    <string name="nav_bet_sim">Bet Simulation</string>
-    <string name="nav_prizepicks">PrizePicks</string>
-    <string name="nav_daily_blog">Daily Blog</string>
-    <string name="nav_mlb_section">Baseball</string>
-    <string name="nav_mlb">MLB Stats</string>
-    <string name="nav_other">Info</string>
-    <string name="nav_disclaimer">Disclaimer</string>
+    <string name="nav_nba">NBA</string>
+    <string name="nav_wnba">WNBA</string>
+    <string name="nav_mlb">MLB</string>
+    <string name="nav_nfl">NFL</string>
+
+    <string name="nav_tools_section">Tools</string>
+    <string name="nav_fantasy">Fantasy</string>
+    <string name="nav_builder">Parlay Builder</string>
+    <string name="nav_games">Games</string>
+    <string name="nav_pro">Konjure Pro</string>
+
+    <string name="nav_site_section">Konjure</string>
+    <string name="nav_record">Track record</string>
+    <string name="nav_report">Past issues</string>
+    <string name="nav_about">How it works</string>
+    <string name="nav_terms">Terms, privacy and refunds</string>
 </resources>

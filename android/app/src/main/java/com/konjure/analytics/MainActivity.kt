@@ -1,7 +1,10 @@
 package com.konjure.analytics
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.webkit.ConsoleMessage
@@ -20,15 +23,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var toggle: ActionBarDrawerToggle
 
-    // Maps nav drawer item ID → Streamlit tab index
-    private val tabIndexMap = mapOf(
-        R.id.nav_nba_props    to 0,
-        R.id.nav_first_basket to 1,
-        R.id.nav_bet_sim      to 2,
-        R.id.nav_prizepicks   to 3,  // "Sportsbook" tab
-        R.id.nav_daily_blog   to 4,
-        R.id.nav_mlb          to 5,
-        R.id.nav_disclaimer   to 6,
+    // Drawer item -> the page it opens. Dashboard sections open by link (?sport=..., read by
+    // the sport menu in nba_prop_dashboard.py), not by clicking the Nth tab: the May build
+    // did that, and every later change to the tabs sent its menu to the wrong place.
+    private val pages = mapOf(
+        R.id.nav_nba     to section("nba"),
+        R.id.nav_wnba    to section("wnba"),
+        R.id.nav_mlb     to section("mlb"),
+        R.id.nav_nfl     to section("nfl"),
+        R.id.nav_fantasy to section("fantasy"),
+        R.id.nav_builder to section("builder"),
+        R.id.nav_games   to section("games"),
+        R.id.nav_pro     to section("pro"),
+        R.id.nav_record  to "$SITE_URL/record/",
+        R.id.nav_report  to "$SITE_URL/report/",
+        R.id.nav_about   to "$SITE_URL/about.html",
+        R.id.nav_terms   to "$SITE_URL/terms.html",
     )
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -51,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
 
         setupWebView()
-        binding.webview.loadUrl(BASE_URL)
+        binding.webview.loadUrl(section("nba"))
 
         // Pull-to-refresh reloads the WebView
         binding.swipeRefresh.setColorSchemeResources(R.color.konjure_primary)
@@ -67,7 +77,8 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
-        WebView.setWebContentsDebuggingEnabled(true)
+        // Remote debugging only in debug builds; a release build should not expose the page.
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
         binding.webview.apply {
             settings.apply {
                 javaScriptEnabled = true
@@ -77,11 +88,14 @@ class MainActivity : AppCompatActivity() {
                 useWideViewPort = true
                 builtInZoomControls = false
                 setSupportZoom(false)
-                cacheMode = WebSettings.LOAD_NO_CACHE
-                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                // The page is live data over a websocket, so the HTTP cache only holds the
+                // app shell and fonts; LOAD_NO_CACHE re-downloaded those on every launch.
+                cacheMode = WebSettings.LOAD_DEFAULT
+                mixedContentMode = if (BuildConfig.DEBUG) WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                                   else WebSettings.MIXED_CONTENT_NEVER_ALLOW
                 mediaPlaybackRequiresUserGesture = false
-                allowContentAccess = true
-                allowFileAccess = true
+                allowContentAccess = false
+                allowFileAccess = false
                 // Identify as Chrome so Streamlit's WebSocket handshake succeeds
                 userAgentString = "Mozilla/5.0 (Linux; Android 14; Samsung Galaxy S25) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
             }
@@ -95,10 +109,22 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             webViewClient = object : WebViewClient() {
+                // Konjure's own pages stay in the app; anything else (a sportsbook, X,
+                // beehiiv) opens in the phone's browser.
                 override fun shouldOverrideUrlLoading(
                     view: WebView?,
                     request: WebResourceRequest?
-                ) = false
+                ): Boolean {
+                    val host = request?.url?.host ?: return false
+                    if (OWN_HOSTS.any { host == it || host.endsWith(".$it") }) return false
+                    if (BuildConfig.DEBUG && host.startsWith("192.168.")) return false   // local dev server
+                    return try {
+                        startActivity(Intent(Intent.ACTION_VIEW, request.url))
+                        true
+                    } catch (e: ActivityNotFoundException) {
+                        false
+                    }
+                }
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     binding.swipeRefresh.isRefreshing = false
@@ -119,19 +145,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun navigateTo(item: MenuItem) {
-        val tabIndex = tabIndexMap[item.itemId]
-        if (tabIndex != null) {
-            val js = """
-                (function(){
-                    var tabs = document.querySelectorAll('[data-baseweb="tab"]');
-                    if (tabs.length > $tabIndex) {
-                        tabs[$tabIndex].click();
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                })();
-            """.trimIndent()
-            binding.webview.evaluateJavascript(js, null)
-        }
+        pages[item.itemId]?.let { binding.webview.loadUrl(it) }
         item.isChecked = true
         binding.drawerLayout.closeDrawer(GravityCompat.START)
     }
@@ -183,17 +197,20 @@ class MainActivity : AppCompatActivity() {
         <body>
           <div class="logo">🏆</div>
           <h2>Konjure Analytics</h2>
-          <p>Could not reach the dashboard server.<br>Make sure the Streamlit app is running, then pull down to refresh.</p>
-          <button onclick="location.reload()">Retry</button>
+          <p>The dashboard is waking up or your connection dropped.<br>After a quiet spell the first load can take up to a minute. Pull down or tap Retry.</p>
+          <button onclick="location.href='${section("nba")}'">Retry</button>
         </body>
         </html>
     """.trimIndent()
 
     companion object {
-        // TODO: Update to your Streamlit Cloud URL before Play Store submission
-        //   e.g. "https://your-app-name.streamlit.app"
-        // Local dev: physical device on same Wi-Fi → "http://192.168.X.X:8501"
-        // Local dev: emulator → "http://10.0.2.2:8501"
+        // The hosted dashboard. Local dev: emulator "http://10.0.2.2:8501", a phone on the same
+        // Wi-Fi "http://192.168.X.X:8501" (debug builds allow plain http for this).
         const val BASE_URL = "https://nba-prop-dashboard-dhmu5b4fonzesfkydqwznu.streamlit.app/"
+        const val SITE_URL = "https://konjureanalytics.com"
+        val OWN_HOSTS = listOf("streamlit.app", "konjureanalytics.com", "10.0.2.2", "localhost")
+
+        // embed=true drops Streamlit's own header and "Manage app" button, as the website does.
+        fun section(key: String) = "${BASE_URL}?embed=true&embed_options=dark_theme&sport=$key"
     }
 }

@@ -1,53 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Each dashboard item opens the section by link (?sport=...), see MainActivity.SECTIONS. -->
     <group
-        android:id="@+id/group_nba"
+        android:id="@+id/group_sports"
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_nba_props"
-            android:icon="@drawable/ic_nav_props"
-            android:title="@string/nav_nba_props"
+            android:id="@+id/nav_nba"
+            android:icon="@drawable/ic_nav_basket"
+            android:title="@string/nav_nba"
             android:checked="true" />
 
         <item
-            android:id="@+id/nav_first_basket"
+            android:id="@+id/nav_wnba"
             android:icon="@drawable/ic_nav_basket"
-            android:title="@string/nav_first_basket" />
+            android:title="@string/nav_wnba" />
 
         <item
-            android:id="@+id/nav_bet_sim"
-            android:icon="@drawable/ic_nav_sim"
-            android:title="@string/nav_bet_sim" />
+            android:id="@+id/nav_mlb"
+            android:icon="@drawable/ic_nav_mlb"
+            android:title="@string/nav_mlb" />
 
         <item
-            android:id="@+id/nav_prizepicks"
-            android:icon="@drawable/ic_nav_prize"
-            android:title="@string/nav_prizepicks" />
-
-        <item
-            android:id="@+id/nav_daily_blog"
-            android:icon="@drawable/ic_nav_blog"
-            android:title="@string/nav_daily_blog" />
+            android:id="@+id/nav_nfl"
+            android:icon="@drawable/ic_nav_props"
+            android:title="@string/nav_nfl" />
 
     </group>
 
-    <item android:title="@string/nav_mlb_section">
+    <item android:title="@string/nav_tools_section">
         <menu>
-            <item
-                android:id="@+id/nav_mlb"
-                android:icon="@drawable/ic_nav_mlb"
-                android:title="@string/nav_mlb" />
+            <group
+                android:id="@+id/group_tools"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_fantasy"
+                    android:icon="@drawable/ic_nav_prize"
+                    android:title="@string/nav_fantasy" />
+                <item
+                    android:id="@+id/nav_builder"
+                    android:icon="@drawable/ic_nav_sim"
+                    android:title="@string/nav_builder" />
+                <item
+                    android:id="@+id/nav_games"
+                    android:icon="@drawable/ic_nav_prize"
+                    android:title="@string/nav_games" />
+                <item
+                    android:id="@+id/nav_pro"
+                    android:icon="@drawable/ic_nav_props"
+                    android:title="@string/nav_pro" />
+            </group>
         </menu>
     </item>
 
-    <item android:title="@string/nav_other">
+    <item android:title="@string/nav_site_section">
         <menu>
-            <item
-                android:id="@+id/nav_disclaimer"
-                android:icon="@drawable/ic_nav_info"
-                android:title="@string/nav_disclaimer" />
+            <group
+                android:id="@+id/group_site"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_record"
+                    android:icon="@drawable/ic_nav_blog"
+                    android:title="@string/nav_record" />
+                <item
+                    android:id="@+id/nav_report"
+                    android:icon="@drawable/ic_nav_blog"
+                    android:title="@string/nav_report" />
+                <item
+                    android:id="@+id/nav_about"
+                    android:icon="@drawable/ic_nav_info"
+                    android:title="@string/nav_about" />
+                <item
+                    android:id="@+id/nav_terms"
+                    android:icon="@drawable/ic_nav_info"
+                    android:title="@string/nav_terms" />
+            </group>
         </menu>
     </item>
 
