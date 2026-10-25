@@ -9022,6 +9022,116 @@ elif sport == "🏈 NFL":
                 st.caption("Projection is a recency-weighted mean (last 5 games ×2). A matchup/pace-adjusted "
                            "model model is a later refinement; live prop scoring is in the Edge Finder tab.")
 
+                # ══ Matchup: how a defense has played against his role ══
+                #
+                # Split by the role of the player each defense faced (nfl_matchup), so an RB2
+                # reads a defense against RB2s rather than against every back. Defaults to his
+                # role on today's depth chart and the team's next opponent; both can be changed
+                # to research any matchup.
+                st.markdown("---")
+                st.markdown("**🛡️ Matchup: the defense against his role**")
+                import nfl_matchup as _nm
+
+                @st.cache_data(ttl=3600, show_spinner=False)
+                def _nfl_roles(season):
+                    return _nm.role_games(season)
+
+                @st.cache_data(ttl=3600, show_spinner=False)
+                def _nfl_role_now(season, pid):
+                    try:
+                        return _nm.player_role(season, pid)
+                    except Exception:
+                        return None
+
+                @st.cache_data(ttl=3600, show_spinner=False)
+                def _nfl_next(season, team):
+                    try:
+                        return _nm.next_game(season, team)
+                    except Exception:
+                        return None
+
+                try:
+                    with st.spinner("Splitting every defense by the role it faced…"):
+                        _rg = _nfl_roles(_season)
+                except Exception as _e:
+                    _rg = None
+                    st.caption(f"Matchup data unavailable right now ({_e}).")
+                if _rg is not None and not _rg.empty and _ppos in _nm.ROLES:
+                    _pid = str(_wk.loc[_wk["player_display_name"] == _player, "player_id"].iloc[-1])
+                    _now = _nfl_role_now(_season, _pid)
+                    _mine = _rg[_rg["player_id"] == _pid].sort_values("week")
+                    _last_role = _mine["role"].iloc[-1] if not _mine.empty else None
+                    _roles = [f"{_ppos}{i}" for i in range(1, _nm.ROLES[_ppos] + 1)]
+                    _listed = f"{_now[0]}{_now[1]}" if _now and _now[0] == _ppos else None
+                    if _listed in _roles:
+                        _role0 = _listed
+                    elif _listed:                       # listed deeper than the split goes
+                        _role0 = _roles[-1]
+                    else:
+                        _role0 = _last_role if _last_role in _roles else _roles[0]
+                    _nx = _nfl_next(_season, _team)
+                    _defs = sorted(_rg["opponent"].dropna().unique())
+                    _def0 = _nx["opponent"] if _nx and _nx["opponent"] in _defs else _defs[0]
+                    _mc1, _mc2 = st.columns(2)
+                    _role = _mc1.selectbox("Role", _roles, index=_roles.index(_role0), key=f"nfl_mu_role_{_pid}")
+                    _def = _mc2.selectbox("Defense", _defs, index=_defs.index(_def0), key=f"nfl_mu_def_{_pid}")
+                    _ctx = [f"{_player} is listed **{_listed}** on {_team}'s depth chart today" if _listed
+                            else f"{_player} isn't on {_team}'s current depth chart at {_ppos}"]
+                    if _last_role:
+                        _ctx.append(f"in his last game (Week {int(_mine['week'].iloc[-1])}) he played as {_last_role}")
+                    if _nx:
+                        _ctx.append(f"next: {'vs' if _nx['home'] else '@'} {_nx['opponent']}, "
+                                    f"Week {_nx['week']} ({_nx['gameday']})")
+                    st.caption("; ".join(_ctx) + ".")
+
+                    _dvr = _nm.defense_vs_role(_rg, _role)
+                    _lg = _nm.league_avg(_rg, _role)
+                    _stats = _nm.ROLE_STATS[_ppos]
+                    if _def in _dvr.index:
+                        _r = _dvr.loc[_def]
+                        st.markdown(f"**{_def} against {_role}s** · {int(_r['G'])} games")
+                        _mcols = st.columns(len(_stats))
+                        for _col, (_lab, _) in zip(_mcols, _stats):
+                            _col.metric(f"{_lab} · #{int(_r[_lab + ' rk'])}", f"{_r[_lab]:.1f}",
+                                        f"{_r[_lab] - _lg[_lab]:+.1f} vs avg",
+                                        delta_color="inverse" if _lab in _nm._LOWER_IS_BETTER else "normal")
+                    _ps = _nm.position_summary(_rg, _ppos)
+                    if _def in _ps.index:
+                        _p = _ps.loc[_def]
+                        _pc = [c for c in _ps.columns if c != "G" and not c.endswith(" rk")]
+                        st.markdown(f"**{_def} against {' + '.join(r + 's' for r in _roles)}** · per game, combined, "
+                                    "with the efficiency numbers one role is too thin for")
+                        _pcols = st.columns(len(_pc))
+                        for _col, _c in zip(_pcols, _pc):
+                            _dp = 2 if "EPA" in _c else 1
+                            _diff = _p[_c] - float(_ps[_c].mean())
+                            _col.metric(f"{_c} · #{int(_p[_c + ' rk'])}", f"{_p[_c]:.{_dp}f}",
+                                        f"{_diff:+.{_dp}f} vs avg",
+                                        delta_color="inverse" if _c in ("INT/g", "Sacks/g") else "normal")
+                    _ml, _mr = st.columns([1.2, 1])
+                    with _ml:
+                        st.markdown(f"**Week by week: who played {_role} against {_def}**")
+                        _rl = _nm.role_log(_rg, _def, _role)
+                        if _rl.empty:
+                            st.caption("No games at this role yet.")
+                        else:
+                            st.dataframe(_rl.round(1), width="stretch", hide_index=True,
+                                         height=min(320, 40 + 34 * len(_rl)))
+                    with _mr:
+                        st.markdown(f"**Every defense against {_role}s**")
+                        if not _dvr.empty:
+                            _all = _dvr[["G"] + [lab for lab, _ in _stats] + ["PPR rk"]].round(1)
+                            _all = _all.rename(columns={"PPR rk": "Rank"}).reset_index().rename(columns={"opponent": "Defense"})
+                            st.dataframe(_all, width="stretch", hide_index=True, height=320)
+                    st.caption(
+                        "Ranks run from 1, the toughest defense (the fewest allowed, or the most "
+                        "interceptions and sacks), and the arrows compare with the league average for "
+                        "that role: green is better than average for the player, red worse. **Role in a game** is set before it, among the players who actually "
+                        "played: by work per game in the team's earlier games, then by the depth chart as "
+                        "it stood before kickoff. So when an RB1 sits, the back who replaces him counts "
+                        "as that game's RB1. These are a few games per defense, and every number carries "
+                        "the offenses that defense happened to face; the week-by-week table shows who they were.")
+
                 # ══ Did we call it, and how did he actually play ══
                 #
                 # Two different questions sitting side by side on purpose. "Beat" is the
