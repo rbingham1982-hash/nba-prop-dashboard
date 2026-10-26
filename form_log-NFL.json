@@ -25606,5 +25606,137 @@
   "logged_at": "2026-10-26T15:52:49",
   "outcome": null,
   "actual": null
+ },
+ "brevyn spann-ford|Receiving Yards|13.5|36189007": {
+  "player": "Brevyn Spann-Ford",
+  "stat": "Receiving Yards",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   19.0,
+   0.0,
+   0.0,
+   35.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T18:05:56",
+  "outcome": null,
+  "actual": null
+ },
+ "elijah moore|Receptions|1.5|36189007": {
+  "player": "Elijah Moore",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   1.0,
+   2.0,
+   1.0,
+   1.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T18:05:56",
+  "outcome": null,
+  "actual": null
+ },
+ "elijah moore|Receiving Yards|9.5|36189007": {
+  "player": "Elijah Moore",
+  "stat": "Receiving Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 9.0,
+  "last5": [
+   14.0,
+   28.0,
+   9.0,
+   -3.0,
+   4.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T18:05:56",
+  "outcome": null,
+  "actual": null
+ },
+ "dameon pierce|Receiving Yards|1.5|36189007": {
+  "player": "Dameon Pierce",
+  "stat": "Receiving Yards",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5581,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   -2.0,
+   15.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T18:05:56",
+  "outcome": null,
+  "actual": null
+ },
+ "dameon pierce|Rushing Yards|19.5|36189007": {
+  "player": "Dameon Pierce",
+  "stat": "Rushing Yards",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 10.0,
+  "last5": [
+   0.0,
+   0.0,
+   10.0,
+   14.0,
+   35.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T18:05:56",
+  "outcome": null,
+  "actual": null
+ },
+ "christian watson|Receiving Yards|68.5|36215311": {
+  "player": "Christian Watson",
+  "stat": "Receiving Yards",
+  "line": 68.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 64.0,
+  "last5": [
+   96.0,
+   47.0,
+   143.0,
+   64.0,
+   57.0
+  ],
+  "game": "CAR @ GB",
+  "start_time": "2026-10-30T00:16:00.000Z",
+  "game_day": "2026-10-29",
+  "logged_at": "2026-10-26T18:05:56",
+  "outcome": null,
+  "actual": null
  }
 }
