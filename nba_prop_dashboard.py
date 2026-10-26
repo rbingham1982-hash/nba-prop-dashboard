@@ -3236,89 +3236,110 @@ def _scout_card_mlb(text): return _scout_card(text)
 
 def nba_scout_report(player_name, team_code, df, next_opp, prop_type, rolling_window,
                      line=None, ud_line=None, ud_odds=None, ud_implied=None):
+    # Every figure names its season. This used to average every ticked season and call it
+    # "this season", so in October last year's numbers read as current form and a matchup
+    # count could mix the two seasons without saying so (see nba_scout).
+    import nba_scout as _nsc
     if df.empty or not next_opp:
         return None
     stat_col = STAT_MAP.get(prop_type, "PTS")
-    season_stat = df[stat_col].mean() if stat_col in df.columns else 0
-    season_pts  = df["PTS"].mean()
-    season_reb  = df["REB"].mean()
-    season_ast  = df["AST"].mean()
-    last10 = df.tail(10)
-    recent_stat = last10[stat_col].mean() if stat_col in last10.columns else season_stat
-    delta = recent_stat - season_stat
-    thresh = max(season_stat * 0.08, 1.0)
-    if delta > thresh:
-        trend = f"trending upward at {recent_stat:.1f} {prop_type}/G over the last 10 ({delta:+.1f} vs season avg)"
-    elif delta < -thresh:
-        trend = f"trending downward at {recent_stat:.1f} {prop_type}/G over the last 10 ({delta:+.1f} vs season avg)"
-    else:
-        trend = f"consistent at {recent_stat:.1f} {prop_type}/G over the last 10 games"
-    # Opponent history for the selected prop
-    opp_df = df[df["OPPONENT"].str.upper() == next_opp.upper()]
+    if stat_col not in df.columns:
+        return None
+    cur, _prev = _nsc.seasons()
+    d = df.copy()
+    if "SEASON" not in d.columns:
+        d["SEASON"] = cur
+    has_po = "SEASON_TYPE" in d.columns and (d["SEASON_TYPE"] == "Playoffs").any()
+    by_season = sorted(d["SEASON"].unique(), reverse=True)
+
+    # Season by season, newest first.
+    lines = []
+    for s in by_season:
+        g = d[d["SEASON"] == s]
+        lines.append(f"{_nsc.season_word(s, cur)}: {g[stat_col].mean():.1f} {prop_type}/G over {len(g)} games "
+                     f"({g['PTS'].mean():.1f} PPG / {g['REB'].mean():.1f} RPG / {g['AST'].mean():.1f} APG).")
+    if cur not in by_season:
+        lines.insert(0, f"No {cur} games in the selected seasons — tick {cur} to see this season.")
+    head = f"{player_name} ({team_code}) heads into the matchup vs {next_opp}. " + " ".join(lines)
+    if has_po:
+        head += " Playoff games are included in these figures."
+
+    last10 = d.tail(10)
+    last5 = d.tail(5)
+    base = d[d["SEASON"] == by_season[0]][stat_col].mean()
+    base_lbl = _nsc.season_word(by_season[0], cur).split(" (")[0].lower()
+    recent = last10[stat_col].mean()
+    delta = recent - base
+    thresh = max(base * 0.08, 1.0)
+    shape = ("trending upward" if delta > thresh else "trending downward" if delta < -thresh
+             else "steady")
+    trend = (f"Last 10 games ({_nsc.span(last10['SEASON'], cur)}): {recent:.1f} {prop_type}/G, "
+             f"{shape} ({delta:+.1f} vs {base_lbl} avg). "
+             f"Last 5 ({_nsc.span(last5['SEASON'], cur)}): {last5[stat_col].mean():.1f}.")
+
+    # Matchup history, by season, every game dated.
+    opp_df = d[d["OPPONENT"].str.upper() == next_opp.upper()]
     if not opp_df.empty:
-        op_stat = opp_df[stat_col].mean() if stat_col in opp_df.columns else 0
-        n = len(opp_df)
-        quality = ("favorable" if op_stat > season_stat * 1.08
-                   else "difficult" if op_stat < season_stat * 0.92 else "neutral")
-        opp_str = (f"In {n} game(s) vs {next_opp}, {player_name} averaged "
-                   f"{op_stat:.1f} {prop_type} — a historically {quality} matchup for this prop.")
+        parts = []
+        for s in by_season:
+            g = opp_df[opp_df["SEASON"] == s]
+            if g.empty:
+                continue
+            games = ", ".join(f"{pd.Timestamp(r['GAME_DATE']).strftime('%b')} {pd.Timestamp(r['GAME_DATE']).day}: "
+                              f"{r[stat_col]:g}" for _, r in g.iterrows())
+            parts.append(f"{s} — {len(g)} game(s), {g[stat_col].mean():.1f} avg ({games})")
+        op_stat = opp_df[stat_col].mean()
+        all_avg = d[stat_col].mean()
+        quality = ("favorable" if op_stat > all_avg * 1.08
+                   else "difficult" if op_stat < all_avg * 0.92 else "neutral")
+        opp_str = (f"Vs {next_opp}: " + "; ".join(parts) + f". A {quality} matchup by that history"
+                   + (f", which has no {cur} games yet." if cur not in set(opp_df["SEASON"]) else "."))
     else:
-        opp_str = f"No prior matchup data vs {next_opp} in the selected seasons."
-    # Streak and hit rate vs line
+        opp_str = f"No games vs {next_opp} in the selected seasons."
+
     streak_str = hit_rate_str = ""
-    if line is not None and stat_col in df.columns:
-        over_series = (df[stat_col] > line).tolist()
-        streak_over = 0
+    if line is not None:
+        over_series = (d[stat_col] > line).tolist()
+        streak_over = streak_under = 0
         for v in reversed(over_series):
             if v: streak_over += 1
             else: break
-        streak_under = 0
         for v in reversed(over_series):
             if not v: streak_under += 1
             else: break
-        last10_hit = (last10[stat_col] > line).mean() if stat_col in last10.columns else 0
-        hit_rate_str = f"Hit rate vs {line} over the last 10 games: {last10_hit:.0%}."
+        rates = []
+        for s in by_season:
+            g = d[d["SEASON"] == s]
+            rates.append(f"{int((g[stat_col] > line).sum())} of {len(g)} in {s}")
+        hit_rate_str = (f"Over {line}: {', '.join(rates)}; last 10 ({_nsc.span(last10['SEASON'], cur)}) "
+                        f"{(last10[stat_col] > line).mean():.0%}.")
         if streak_over >= 3:
-            streak_str = f" {player_name} has cleared {line} in {streak_over} straight games — a hot streak."
+            streak_str = f"{player_name} has cleared {line} in {streak_over} straight games."
         elif streak_under >= 3:
-            streak_str = f" Warning: {player_name} has missed {line} in {streak_under} consecutive games."
-    # Home/away split for the prop
+            streak_str = f"Warning: {player_name} has missed {line} in {streak_under} consecutive games."
+
     ha_str = ""
-    if "IS_HOME" in df.columns and stat_col in df.columns:
-        home_avg = df.loc[df["IS_HOME"], stat_col].mean()
-        away_avg = df.loc[~df["IS_HOME"], stat_col].mean()
+    if "IS_HOME" in d.columns:
+        g = d[d["SEASON"] == by_season[0]]
+        home_avg = g.loc[g["IS_HOME"], stat_col].mean()
+        away_avg = g.loc[~g["IS_HOME"], stat_col].mean()
         if pd.notna(home_avg) and pd.notna(away_avg):
-            ha_str = f"Home/away split: {home_avg:.1f} at home vs {away_avg:.1f} on the road."
-    # Form last 5
-    last5_stat = df.tail(5)[stat_col].mean() if stat_col in df.columns else season_stat
-    if last5_stat > season_stat * 1.1:
-        form = f"Running hot over the last 5 games ({last5_stat:.1f} {prop_type}/G)."
-    elif last5_stat < season_stat * 0.9:
-        form = f"Cooled over the last 5 ({last5_stat:.1f} {prop_type}/G vs {season_stat:.1f} season avg)."
-    else:
-        form = f"Steady form over the last 5 games ({last5_stat:.1f} {prop_type}/G)."
-    # Rolling model prediction
+            ha_str = (f"Home/away ({by_season[0]}): {home_avg:.1f} at home vs {away_avg:.1f} on the road.")
+
     pred_str = ""
-    if len(df) >= rolling_window and stat_col in df.columns:
-        pred_val = df[stat_col].rolling(rolling_window).mean().iloc[-1]
-        pred_pts = df["PTS"].rolling(rolling_window).mean().iloc[-1]
-        pred_reb = df["REB"].rolling(rolling_window).mean().iloc[-1]
-        pred_ast = df["AST"].rolling(rolling_window).mean().iloc[-1]
-        pred_str = (f"A {rolling_window}-game rolling model projects {pred_val:.1f} {prop_type} "
-                    f"({pred_pts:.1f} pts / {pred_reb:.1f} reb / {pred_ast:.1f} ast).")
-    # Underdog market signal
+    if len(d) >= rolling_window:
+        win = d.tail(rolling_window)
+        pred_str = (f"A {rolling_window}-game rolling average ({_nsc.span(win['SEASON'], cur)}) projects "
+                    f"{win[stat_col].mean():.1f} {prop_type} ({win['PTS'].mean():.1f} pts / "
+                    f"{win['REB'].mean():.1f} reb / {win['AST'].mean():.1f} ast).")
+
     ud_str = ""
     if ud_line is not None and ud_odds is not None and ud_implied is not None:
         odds_fmt = f"+{ud_odds}" if ud_odds > 0 else str(ud_odds)
         lean = "leaning OVER" if ud_implied < 0.50 else "implying slight UNDER value"
         ud_str = (f"Underdog Fantasy has this prop at {ud_line} ({odds_fmt}, {ud_implied:.0%} implied) "
                   f"— the market is {lean}.")
-    parts = [
-        f"{player_name} ({team_code}) heads into the matchup vs {next_opp} averaging {season_stat:.1f} {prop_type}/G "
-        f"(context: {season_pts:.1f} PPG / {season_reb:.1f} RPG / {season_ast:.1f} APG) this season. "
-        f"Scoring is {trend}.",
-        opp_str, hit_rate_str, streak_str, ha_str, form, pred_str, ud_str,
-    ]
+    parts = [head, trend, opp_str, hit_rate_str, streak_str, ha_str, pred_str, ud_str]
     return " ".join(p for p in parts if p)
 
 def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id,

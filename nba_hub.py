@@ -224,6 +224,15 @@ def _daily() -> None:
         st.caption("The daily NBA board saves each afternoon once the regular season starts.")
 
 
+def _scouting() -> None:
+    nh._sec("Tonight's scouting", "every player with a line tonight, this season and last season kept apart")
+    try:
+        import nba_scout
+        nba_scout.render_hub_section()
+    except Exception:
+        st.caption("Scouting write-ups appear here on game days, rebuilt on every board run.")
+
+
 def _board() -> None:
     nh._sec("This week's board", "logged before tip-off, graded after")
     try:
@@ -290,5 +299,6 @@ def render() -> None:
         _table(g, nightly)
     _tipoff(season)
     _daily()
+    _scouting()
     _board()
     _method()

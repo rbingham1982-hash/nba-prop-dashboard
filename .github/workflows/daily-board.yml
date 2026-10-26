@@ -143,6 +143,12 @@ jobs:
           print(e.get("date"), "saved" if e.get("generated") else e.get("note"))
           EOF
 
+      # Tonight's NBA scouting write-ups (nba_scout.py), rebuilt every run from the current
+      # lines and the game logs nba_espn just refreshed, so the Hub never shows a stale night.
+      - name: NBA scouting write-ups
+        if: always()
+        run: python nba_scout.py
+
       - name: Rebuild the website
         if: always()
         run: python site_build.py
@@ -154,7 +160,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Only files that exist: form_log-NFL.json appears with the first qualifying prop,
           # and git add fails outright on a path that matches nothing.
-          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json parlay_log-NBA-*.json game_log.json weekly_picks.json \n                   form_log-NFL.json edge_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json teaser_log-NFL.json \n                   tip_log.json nba_weekly_picks.json nba_daily_picks.json form_log-NBA.json favorite_log-NBA.json threes_log-NBA.json \n                   parlay_log-WNBA-*.json favorite_log-WNBA.json nba_data                    docs/index.html docs/about.html docs/terms.html docs/refunds.html docs/og.jpg docs/record docs/report; do
+          for f in parlay_log-MLB-*.json parlay_log-NFL-*.json parlay_log-NBA-*.json game_log.json weekly_picks.json \n                   form_log-NFL.json edge_log-NFL.json favorite_log-NFL.json favorite_log-MLB.json teaser_log-NFL.json \n                   tip_log.json nba_weekly_picks.json nba_daily_picks.json form_log-NBA.json favorite_log-NBA.json threes_log-NBA.json nba_scout.json \n                   parlay_log-WNBA-*.json favorite_log-WNBA.json nba_data                    docs/index.html docs/about.html docs/terms.html docs/refunds.html docs/og.jpg docs/record docs/report; do
             if [ -e "$f" ]; then git add -- "$f"; fi
           done
           if git diff --cached --quiet; then
