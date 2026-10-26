@@ -1788,7 +1788,7 @@
    "home_odds": 325,
    "away_odds": -600
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -1812,7 +1812,7 @@
    "home_odds": 280,
    "away_odds": -480
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -2512,12 +2512,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8566,
-   "odds": -820,
-   "home_odds": -820,
-   "away_odds": 570
+   "fav_prob": 0.8499,
+   "odds": -770,
+   "home_odds": -770,
+   "away_odds": 540
   },
-  "last_seen": "2026-10-26T03:20:11"
+  "last_seen": "2026-10-26T15:53:06"
  },
  "DAL @ MIA|2026-10-26T23:40": {
   "label": "DAL @ MIA",
@@ -2536,12 +2536,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7328,
-   "odds": -320,
-   "home_odds": -320,
-   "away_odds": 260
+   "fav_prob": 0.7044,
+   "odds": -275,
+   "home_odds": -275,
+   "away_odds": 225
   },
-  "last_seen": "2026-10-26T03:20:11"
+  "last_seen": "2026-10-26T15:53:06"
  },
  "GSW @ DEN|2026-10-27T02:10": {
   "label": "GSW @ DEN",
@@ -2560,12 +2560,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7175,
-   "odds": -295,
-   "home_odds": -295,
-   "away_odds": 240
+   "fav_prob": 0.6947,
+   "odds": -260,
+   "home_odds": -260,
+   "away_odds": 215
   },
-  "last_seen": "2026-10-26T03:20:11"
+  "last_seen": "2026-10-26T15:53:06"
  },
  "PHX @ OKC|2026-10-27T00:10": {
   "label": "PHX @ OKC",
@@ -2584,11 +2584,11 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7567,
-   "odds": -370,
-   "home_odds": -370,
-   "away_odds": 295
+   "fav_prob": 0.7258,
+   "odds": -310,
+   "home_odds": -310,
+   "away_odds": 250
   },
-  "last_seen": "2026-10-26T03:20:11"
+  "last_seen": "2026-10-26T15:53:06"
  }
 }

@@ -3220,5 +3220,23 @@
   "logged_at": "2026-10-26T03:20:10",
   "outcome": null,
   "actual": null
+ },
+ "dak prescott|Passing Yards|265.5|36189007": {
+  "player": "Dak Prescott",
+  "stat": "Passing Yards",
+  "line": 265.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.5669,
+  "fair_prob": 0.475,
+  "edge": 0.0919,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T15:53:04",
+  "outcome": null,
+  "actual": null
  }
 }

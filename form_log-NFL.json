@@ -25518,5 +25518,93 @@
   "logged_at": "2026-10-26T03:19:53",
   "outcome": null,
   "actual": null
+ },
+ "brevyn spann-ford|Receiving Yards|12.5|36189007": {
+  "player": "Brevyn Spann-Ford",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   19.0,
+   0.0,
+   0.0,
+   35.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T15:52:49",
+  "outcome": null,
+  "actual": null
+ },
+ "dameon pierce|Rushing Yards|18.5|36189007": {
+  "player": "Dameon Pierce",
+  "stat": "Rushing Yards",
+  "line": 18.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 10.0,
+  "last5": [
+   0.0,
+   0.0,
+   10.0,
+   14.0,
+   35.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T15:52:49",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler goodson|Rushing Yards|13.5|36189007": {
+  "player": "Tyler Goodson",
+  "stat": "Rushing Yards",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 9.0,
+  "last5": [
+   9.0,
+   3.0,
+   22.0,
+   12.0,
+   0.0
+  ],
+  "game": "DAL @ PHI",
+  "start_time": "2026-10-27T00:16:00.000Z",
+  "game_day": "2026-10-26",
+  "logged_at": "2026-10-26T15:52:49",
+  "outcome": null,
+  "actual": null
+ },
+ "marshawn lloyd|Rushing Yards|18.5|36215311": {
+  "player": "MarShawn Lloyd",
+  "stat": "Rushing Yards",
+  "line": 18.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 13.0,
+  "last5": [
+   11.0,
+   13.0,
+   31.0,
+   10.0,
+   20.0
+  ],
+  "game": "CAR @ GB",
+  "start_time": "2026-10-30T00:16:00.000Z",
+  "game_day": "2026-10-29",
+  "logged_at": "2026-10-26T15:52:49",
+  "outcome": null,
+  "actual": null
  }
 }
