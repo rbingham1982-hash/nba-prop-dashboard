@@ -935,9 +935,9 @@
     "edge": 7.84,
     "pick": "away",
     "pick_label": "LAC +15.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 108,
+    "away_pts": 101,
     "published": false
    },
    {
@@ -952,9 +952,9 @@
     "edge": 7.45,
     "pick": "home",
     "pick_label": "BKN +6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 109,
+    "away_pts": 136,
     "published": false
    },
    {
@@ -969,9 +969,9 @@
     "edge": 2.58,
     "pick": "away",
     "pick_label": "ORL +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 102,
+    "away_pts": 111,
     "published": true
    },
    {
@@ -986,9 +986,9 @@
     "edge": 2.11,
     "pick": "away",
     "pick_label": "LAL -6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 123,
+    "away_pts": 132,
     "published": true
    },
    {
@@ -1003,9 +1003,9 @@
     "edge": 1.88,
     "pick": "away",
     "pick_label": "DET -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 93,
+    "away_pts": 106,
     "published": false
    },
    {
@@ -1020,9 +1020,9 @@
     "edge": 1.17,
     "pick": "away",
     "pick_label": "MEM -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 112,
+    "away_pts": 123,
     "published": false
    },
    {
@@ -1037,9 +1037,9 @@
     "edge": 0.12,
     "pick": "home",
     "pick_label": "MIN -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 117,
+    "away_pts": 94,
     "published": false
    }
   ],
@@ -1059,8 +1059,8 @@
     "implied_prob": 0.7111,
     "blended_prob": 0.7111,
     "edge": -0.0425,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Jaren Jackson Jr.",
@@ -1074,8 +1074,8 @@
     "implied_prob": 0.6592,
     "blended_prob": 0.6592,
     "edge": -0.0435,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Tristan da Silva",
@@ -1089,8 +1089,8 @@
     "implied_prob": 0.6287,
     "blended_prob": 0.6287,
     "edge": 0.1484,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Jonathan Kuminga",
@@ -1104,8 +1104,8 @@
     "implied_prob": 0.5573,
     "blended_prob": 0.5573,
     "edge": 0.0184,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 13.0
    },
    {
     "player": "Keegan Murray",
@@ -1119,7 +1119,7 @@
     "implied_prob": 0.5532,
     "blended_prob": 0.5532,
     "edge": 0.0268,
-    "outcome": null,
+    "outcome": "dnp",
     "actual": null
    }
   ],
