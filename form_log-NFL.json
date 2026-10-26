@@ -25100,5 +25100,27 @@
   "logged_at": "2026-10-25T16:03:38",
   "outcome": null,
   "actual": null
+ },
+ "emanuel wilson|Receiving Yards|6.5|36189006": {
+  "player": "Emanuel Wilson",
+  "stat": "Receiving Yards",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5489,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   39.0,
+   11.0,
+   0.0
+  ],
+  "game": "KC @ SEA",
+  "start_time": "2026-10-26T00:21:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T19:02:45",
+  "outcome": null,
+  "actual": null
  }
 }

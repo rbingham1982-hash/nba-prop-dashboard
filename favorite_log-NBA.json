@@ -1740,7 +1740,7 @@
    "home_odds": 190,
    "away_odds": -290
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -2446,5 +2446,53 @@
    "away_odds": -290
   },
   "last_seen": "2026-10-25T16:37:34"
+ },
+ "MIA @ TOR|2026-10-26T00:55": {
+  "label": "MIA @ TOR",
+  "home_name": "Toronto Raptors",
+  "away_name": "Miami Heat",
+  "start_time": "2026-10-26T00:55:00.000Z",
+  "first_seen": "2026-10-25T19:03:04",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6991,
+   "odds": -320,
+   "home_odds": 205,
+   "away_odds": -320
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6991,
+   "odds": -320,
+   "home_odds": 205,
+   "away_odds": -320
+  },
+  "last_seen": "2026-10-25T19:03:04"
+ },
+ "CLE @ MEM|2026-10-26T00:59": {
+  "label": "CLE @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Cleveland Cavaliers",
+  "start_time": "2026-10-26T00:59:00.000Z",
+  "first_seen": "2026-10-25T19:03:04",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.7387,
+   "odds": -420,
+   "home_odds": 250,
+   "away_odds": -420
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.7387,
+   "odds": -420,
+   "home_odds": 250,
+   "away_odds": -420
+  },
+  "last_seen": "2026-10-25T19:03:04"
  }
 }

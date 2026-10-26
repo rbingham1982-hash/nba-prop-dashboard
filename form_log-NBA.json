@@ -61576,5 +61576,49 @@
   "logged_at": "2026-10-25T16:37:22",
   "outcome": null,
   "actual": null
+ },
+ "precious achiuwa|Rebounds|7.5|36229337": {
+  "player": "Precious Achiuwa",
+  "stat": "Rebounds",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -140,
+  "fair_prob": 0.5756,
+  "med5": 6.0,
+  "last5": [
+   6.0,
+   6.0,
+   11.0,
+   5.0,
+   6.0
+  ],
+  "game": "MEM @ SAC",
+  "start_time": "2026-10-26T01:10:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T19:02:51",
+  "outcome": null,
+  "actual": null
+ },
+ "ty jerome|Pts+Asts|30.5|36229337": {
+  "player": "Ty Jerome",
+  "stat": "Pts+Asts",
+  "line": 30.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 30.0,
+  "last5": [
+   30.0,
+   23.0,
+   21.0,
+   51.0,
+   33.0
+  ],
+  "game": "MEM @ SAC",
+  "start_time": "2026-10-26T01:10:00.000Z",
+  "game_day": "2026-10-25",
+  "logged_at": "2026-10-25T19:02:51",
+  "outcome": null,
+  "actual": null
  }
 }

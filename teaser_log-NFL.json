@@ -115,8 +115,8 @@
   "first_line": 3.0,
   "outcome": null,
   "last_line": 3.0,
-  "last_odds": -110,
-  "last_seen": "2026-10-25T16:37:35"
+  "last_odds": -108,
+  "last_seen": "2026-10-25T19:03:05"
  },
  "Carolina Panthers @ Green Bay Packers|2026-10-30T00:16": {
   "dog": "Carolina Panthers",
@@ -129,7 +129,7 @@
   "outcome": null,
   "last_line": 3.5,
   "last_odds": -110,
-  "last_seen": "2026-10-25T16:37:35"
+  "last_seen": "2026-10-25T19:03:05"
  },
  "Baltimore Ravens @ Buffalo Bills|2026-11-01T18:01": {
   "dog": "Baltimore Ravens",
@@ -140,9 +140,9 @@
   "first_seen": "2026-10-25T10:31:22",
   "first_line": 3.0,
   "outcome": null,
-  "last_line": 3.0,
-  "last_odds": -104,
-  "last_seen": "2026-10-25T16:37:35"
+  "last_line": 3.5,
+  "last_odds": -118,
+  "last_seen": "2026-10-25T19:03:05"
  },
  "Minnesota Vikings @ Detroit Lions|2026-11-01T18:01": {
   "dog": "Minnesota Vikings",
@@ -154,8 +154,8 @@
   "first_line": 3.0,
   "outcome": null,
   "last_line": 3.0,
-  "last_odds": -108,
-  "last_seen": "2026-10-25T10:31:22"
+  "last_odds": -118,
+  "last_seen": "2026-10-25T19:03:05"
  },
  "Atlanta Falcons @ Tampa Bay Buccaneers|2026-11-01T18:01": {
   "dog": "Atlanta Falcons",
@@ -168,7 +168,7 @@
   "outcome": null,
   "last_line": 1.5,
   "last_odds": -115,
-  "last_seen": "2026-10-25T10:31:22"
+  "last_seen": "2026-10-25T19:03:05"
  },
  "Las Vegas Raiders @ New York Jets|2026-11-01T18:01": {
   "dog": "Las Vegas Raiders",
@@ -180,8 +180,8 @@
   "first_line": 1.5,
   "outcome": null,
   "last_line": 1.5,
-  "last_odds": -115,
-  "last_seen": "2026-10-25T10:31:22"
+  "last_odds": -118,
+  "last_seen": "2026-10-25T19:03:05"
  },
  "Kansas City Chiefs @ Denver Broncos|2026-11-01T21:26": {
   "dog": "Denver Broncos",
@@ -193,8 +193,8 @@
   "first_line": 1.5,
   "outcome": null,
   "last_line": 1.5,
-  "last_odds": -106,
-  "last_seen": "2026-10-25T10:31:22"
+  "last_odds": -105,
+  "last_seen": "2026-10-25T19:03:05"
  },
  "Chicago Bears @ Seattle Seahawks|2026-11-03T01:16": {
   "dog": "Chicago Bears",
@@ -206,8 +206,8 @@
   "first_line": 3.0,
   "outcome": null,
   "last_line": 3.0,
-  "last_odds": -114,
-  "last_seen": "2026-10-25T10:31:22"
+  "last_odds": -105,
+  "last_seen": "2026-10-25T19:03:05"
  },
  "Philadelphia Eagles @ Washington Commanders|2026-11-02T01:21": {
   "dog": "Philadelphia Eagles",
@@ -220,6 +220,19 @@
   "outcome": null,
   "last_line": 3.5,
   "last_odds": -102,
-  "last_seen": "2026-10-25T10:31:22"
+  "last_seen": "2026-10-25T19:03:05"
+ },
+ "Cleveland Browns @ Pittsburgh Steelers|2026-11-01T18:01": {
+  "dog": "Cleveland Browns",
+  "dog_home": false,
+  "home_name": "Pittsburgh Steelers",
+  "away_name": "Cleveland Browns",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "first_seen": "2026-10-25T19:03:05",
+  "first_line": 3.5,
+  "outcome": null,
+  "last_line": 3.5,
+  "last_odds": -104,
+  "last_seen": "2026-10-25T19:03:05"
  }
 }
