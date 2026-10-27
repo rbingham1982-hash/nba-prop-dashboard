@@ -2196,7 +2196,7 @@
    "home_odds": 165,
    "away_odds": -250
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -2220,7 +2220,7 @@
    "home_odds": 185,
    "away_odds": -290
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -2608,12 +2608,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.911,
-   "odds": -1800,
-   "home_odds": -1800,
-   "away_odds": 980
+   "fav_prob": 0.9199,
+   "odds": -2200,
+   "home_odds": -2200,
+   "away_odds": 1100
   },
-  "last_seen": "2026-10-27T04:29:21"
+  "last_seen": "2026-10-27T17:56:57"
  },
  "BKN @ BOS|2026-10-27T23:40": {
   "label": "BKN @ BOS",
@@ -2632,12 +2632,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8192,
-   "odds": -590,
-   "home_odds": -590,
-   "away_odds": 430
+   "fav_prob": 0.8341,
+   "odds": -650,
+   "home_odds": -650,
+   "away_odds": 480
   },
-  "last_seen": "2026-10-27T04:29:21"
+  "last_seen": "2026-10-27T17:56:57"
  },
  "DEN @ ORL|2026-10-27T03:11": {
   "label": "DEN @ ORL",
@@ -2734,5 +2734,77 @@
    "away_odds": 235
   },
   "last_seen": "2026-10-27T04:29:21"
+ },
+ "WAS @ CLE|2026-10-28T23:10": {
+  "label": "WAS @ CLE",
+  "home_name": "Cleveland Cavaliers",
+  "away_name": "Washington Wizards",
+  "start_time": "2026-10-28T23:10:00.000Z",
+  "first_seen": "2026-10-27T17:56:57",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7472,
+   "odds": -350,
+   "home_odds": -350,
+   "away_odds": 280
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7472,
+   "odds": -350,
+   "home_odds": -350,
+   "away_odds": 280
+  },
+  "last_seen": "2026-10-27T17:56:57"
+ },
+ "CHA @ DET|2026-10-28T23:10": {
+  "label": "CHA @ DET",
+  "home_name": "Detroit Pistons",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-10-28T23:10:00.000Z",
+  "first_seen": "2026-10-27T17:56:57",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7002,
+   "odds": -270,
+   "home_odds": -270,
+   "away_odds": 220
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7002,
+   "odds": -270,
+   "home_odds": -270,
+   "away_odds": 220
+  },
+  "last_seen": "2026-10-27T17:56:57"
+ },
+ "HOU @ MIL|2026-10-29T00:10": {
+  "label": "HOU @ MIL",
+  "home_name": "Milwaukee Bucks",
+  "away_name": "Houston Rockets",
+  "start_time": "2026-10-29T00:10:00.000Z",
+  "first_seen": "2026-10-27T17:56:57",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.7136,
+   "odds": -290,
+   "home_odds": 235,
+   "away_odds": -290
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.7136,
+   "odds": -290,
+   "home_odds": 235,
+   "away_odds": -290
+  },
+  "last_seen": "2026-10-27T17:56:57"
  }
 }
