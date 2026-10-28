@@ -3526,5 +3526,23 @@
   "logged_at": "2026-10-27T17:56:55",
   "outcome": null,
   "actual": null
+ },
+ "james cook|Rushing Yards|88.5|36215313": {
+  "player": "James Cook",
+  "stat": "Rushing Yards",
+  "line": 88.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5569,
+  "fair_prob": 0.475,
+  "edge": 0.0819,
+  "sample_n": 23,
+  "depth": null,
+  "game": "BAL @ BUF",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-27T21:07:00",
+  "outcome": null,
+  "actual": null
  }
 }
