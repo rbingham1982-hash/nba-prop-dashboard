@@ -20830,7 +20830,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-22T17:17:35",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "olamide zaccheaus|Receiving Yards|7.5|36188996": {
@@ -20852,7 +20852,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-22T17:17:35",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "bijan robinson|Rushing Yards|87.5|36188996": {
@@ -20940,7 +20940,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-22T17:17:35",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "dalton schultz|Receptions|3.5|36188999": {
@@ -21908,7 +21908,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-22T20:23:04",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "tyjae spears|Receptions|2.5|36189001": {
@@ -21930,7 +21930,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-22T20:23:04",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "tyjae spears|Rushing Yards|10.5|36189001": {
@@ -21952,7 +21952,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-22T20:23:04",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "ashton jeanty|Rushing Yards|52.5|36189003": {
@@ -22568,7 +22568,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-23T17:01:32",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "christian kirk|Receiving Yards|25.5|36188996": {
@@ -22590,7 +22590,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-23T17:01:32",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "bijan robinson|Rushing Yards|88.5|36188996": {
@@ -22832,7 +22832,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-23T17:01:32",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "josh downs|Receiving Yards|48.5|36189002": {
@@ -23316,7 +23316,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-23T19:31:44",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "kaelon black|Rushing Yards|28.5|36188996": {
@@ -23668,7 +23668,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-24T14:15:19",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "christian kirk|Receiving Yards|22.5|36188996": {
@@ -23690,7 +23690,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-24T14:15:19",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "jahan dotson|Receptions|2.5|36188996": {
@@ -24570,7 +24570,7 @@
   "start_time": "2026-10-25T17:01:00.000Z",
   "game_day": "2026-10-25",
   "logged_at": "2026-10-25T02:57:52",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "quinshon judkins|Rushing Yards|47.5|36189001": {
@@ -26968,6 +26968,270 @@
   "start_time": "2026-11-01T21:26:00.000Z",
   "game_day": "2026-11-01",
   "logged_at": "2026-10-27T22:15:12",
+  "outcome": null,
+  "actual": null
+ },
+ "tommy tremble|Receiving Yards|15.5|36215311": {
+  "player": "Tommy Tremble",
+  "stat": "Receiving Yards",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   4.0,
+   41.0,
+   12.0,
+   46.0,
+   8.0
+  ],
+  "game": "CAR @ GB",
+  "start_time": "2026-10-30T00:16:00.000Z",
+  "game_day": "2026-10-29",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "daniel jones|Passing TDs|0.5|36215317": {
+  "player": "Daniel Jones",
+  "stat": "Passing TDs",
+  "line": 0.5,
+  "side": "under",
+  "american_odds": 148,
+  "fair_prob": 0.4019,
+  "med5": 0.0,
+  "last5": [
+   1.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "trevor lawrence|Passing Yards|245.5|36215317": {
+  "player": "Trevor Lawrence",
+  "stat": "Passing Yards",
+  "line": 245.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 227.0,
+  "last5": [
+   189.0,
+   182.0,
+   227.0,
+   331.0,
+   306.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "jonathan taylor|Receptions|2.5|36215317": {
+  "player": "Jonathan Taylor",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   1.0,
+   3.0,
+   2.0,
+   2.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "parker washington|Receiving Yards|65.5|36215317": {
+  "player": "Parker Washington",
+  "stat": "Receiving Yards",
+  "line": 65.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 64.0,
+  "last5": [
+   98.0,
+   40.0,
+   7.0,
+   124.0,
+   64.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "parker washington|Receptions|4.5|36215317": {
+  "player": "Parker Washington",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 4.0,
+  "last5": [
+   7.0,
+   3.0,
+   1.0,
+   6.0,
+   4.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "jakobi meyers|Receiving Yards|39.5|36215317": {
+  "player": "Jakobi Meyers",
+  "stat": "Receiving Yards",
+  "line": 39.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 37.0,
+  "last5": [
+   28.0,
+   64.0,
+   33.0,
+   37.0,
+   83.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "jonathan taylor|Receiving Yards|17.5|36215317": {
+  "player": "Jonathan Taylor",
+  "stat": "Receiving Yards",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 15.0,
+  "last5": [
+   4.0,
+   2.0,
+   37.0,
+   57.0,
+   15.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "jakobi meyers|Receptions|3.5|36215317": {
+  "player": "Jakobi Meyers",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -136,
+  "fair_prob": 0.5629,
+  "med5": 3.0,
+  "last5": [
+   1.0,
+   7.0,
+   3.0,
+   2.0,
+   5.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "bhayshul tuten|Receptions|2.5|36215317": {
+  "player": "Bhayshul Tuten",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -160,
+  "fair_prob": 0.6002,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   2.0,
+   2.0,
+   2.0,
+   4.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "daniel jones|Rushing Yards|8.5|36215317": {
+  "player": "Daniel Jones",
+  "stat": "Rushing Yards",
+  "line": 8.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 5.0,
+  "last5": [
+   5.0,
+   2.0,
+   4.0,
+   30.0,
+   13.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-28T05:12:20",
+  "outcome": null,
+  "actual": null
+ },
+ "caleb williams|Rushing Yards|21.5|36215323": {
+  "player": "Caleb Williams",
+  "stat": "Rushing Yards",
+  "line": 21.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 18.0,
+  "last5": [
+   1.0,
+   65.0,
+   42.0,
+   3.0,
+   18.0
+  ],
+  "game": "CHI @ SEA",
+  "start_time": "2026-11-03T01:16:00.000Z",
+  "game_day": "2026-11-02",
+  "logged_at": "2026-10-28T05:12:20",
   "outcome": null,
   "actual": null
  }

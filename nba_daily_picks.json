@@ -1395,9 +1395,9 @@
     "edge": 8.45,
     "pick": "away",
     "pick_label": "DET +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 111,
+    "away_pts": 97,
     "published": false
    },
    {
@@ -1412,9 +1412,9 @@
     "edge": 6.31,
     "pick": "away",
     "pick_label": "SAC +19.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 130,
+    "away_pts": 103,
     "published": false
    },
    {
@@ -1429,9 +1429,9 @@
     "edge": 2.45,
     "pick": "home",
     "pick_label": "BOS -12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 125,
+    "away_pts": 124,
     "published": true
    },
    {
@@ -1446,9 +1446,9 @@
     "edge": 0.73,
     "pick": "away",
     "pick_label": "POR +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 129,
+    "away_pts": 136,
     "published": false
    }
   ],
@@ -1468,8 +1468,8 @@
     "implied_prob": 0.6842,
     "blended_prob": 0.6842,
     "edge": -0.1942,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Paul Reed",
@@ -1483,8 +1483,8 @@
     "implied_prob": 0.6317,
     "blended_prob": 0.6317,
     "edge": 0.104,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Daniss Jenkins",
@@ -1498,8 +1498,8 @@
     "implied_prob": 0.6317,
     "blended_prob": 0.6317,
     "edge": -0.3431,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Noah Clowney",
@@ -1513,8 +1513,8 @@
     "implied_prob": 0.5622,
     "blended_prob": 0.5622,
     "edge": -0.1622,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    },
    {
     "player": "Mikal Bridges",
@@ -1528,8 +1528,8 @@
     "implied_prob": 0.5581,
     "blended_prob": 0.5581,
     "edge": 0.1248,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 19.0
    }
   ],
   "parlay_withheld_price": {
