@@ -5250,7 +5250,7 @@ if sport == "🏀 NBA":
     # body is unchanged — only where it sits.
     _nba_tabs_iter = _grouped_tabs([
         ("🏠 Hub",             []),
-        ("🔬 Player Analysis", ["Player Stats", "Opponent Breakdown", "vs. Opponent",
+        ("🔬 Player Analysis", ["Analysis", "Player Stats", "Opponent Breakdown", "vs. Opponent",
                                "Bet Simulation", "First Basket"]),
         ("💰 Edge Finder",     ["Sportsbook", "Parlays"]),
         *( [("📈 Track", ["Accuracy"])] if _IS_LOCAL else [] ),
@@ -5258,6 +5258,7 @@ if sport == "🏀 NBA":
         ("About",             ["Daily Blog", "Disclaimer"]),
     ], key_prefix="nba")
     tab_hub         = next(_nba_tabs_iter)
+    tab_analysis    = next(_nba_tabs_iter)
     tab_stats       = next(_nba_tabs_iter)
     tab_opp         = next(_nba_tabs_iter)
     tab_vs_opp_nba  = next(_nba_tabs_iter)
@@ -5285,6 +5286,11 @@ if sport == "🏀 NBA":
             )
         import nba_hub as _nba_hub
         _nba_hub.render()
+
+    # ── PLAYER ANALYSIS: the NFL page's layout (nba_analysis_page) ─────────────
+    with tab_analysis:
+        import nba_analysis_page as _nba_ap
+        _nba_ap.render()
 
     # ── DRAFT BOARD ───────────────────────────────────────────────────────────
     with tab_home:
