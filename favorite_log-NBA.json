@@ -2796,8 +2796,8 @@
    "home_odds": 235,
    "away_odds": -290
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.7402,
@@ -2820,8 +2820,8 @@
    "home_odds": 184,
    "away_odds": -220
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.622,
@@ -2844,8 +2844,8 @@
    "home_odds": 188,
    "away_odds": -225
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "away",
    "fav_prob": 0.6411,
@@ -2868,8 +2868,8 @@
    "home_odds": 200,
    "away_odds": -245
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.7002,
@@ -2892,8 +2892,8 @@
    "home_odds": 410,
    "away_odds": -550
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.8475,
@@ -3016,12 +3016,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7002,
-   "odds": -270,
-   "home_odds": -270,
-   "away_odds": 220
+   "fav_prob": 0.7136,
+   "odds": -290,
+   "home_odds": -290,
+   "away_odds": 235
   },
-  "last_seen": "2026-10-28T22:41:28"
+  "last_seen": "2026-10-29T05:37:55"
  },
  "LAL @ OKC|2026-10-28T23:27": {
   "label": "LAL @ OKC",
@@ -3118,5 +3118,77 @@
    "away_odds": -600
   },
   "last_seen": "2026-10-28T22:41:28"
+ },
+ "SAC @ NOP|2026-10-30T00:10": {
+  "label": "SAC @ NOP",
+  "home_name": "New Orleans Pelicans",
+  "away_name": "Sacramento Kings",
+  "start_time": "2026-10-30T00:10:00.000Z",
+  "first_seen": "2026-10-29T05:37:55",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.666,
+   "odds": -225,
+   "home_odds": -225,
+   "away_odds": 188
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.666,
+   "odds": -225,
+   "home_odds": -225,
+   "away_odds": 188
+  },
+  "last_seen": "2026-10-29T05:37:55"
+ },
+ "LAL @ OKC|2026-10-29T11:11": {
+  "label": "LAL @ OKC",
+  "home_name": "Oklahoma City Thunder",
+  "away_name": "Los Angeles Lakers",
+  "start_time": "2026-10-29T11:11:00.000Z",
+  "first_seen": "2026-10-29T05:37:55",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6832,
+   "odds": -290,
+   "home_odds": -290,
+   "away_odds": 190
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6832,
+   "odds": -290,
+   "home_odds": -290,
+   "away_odds": 190
+  },
+  "last_seen": "2026-10-29T05:37:55"
+ },
+ "BOS @ NYK|2026-10-29T10:39": {
+  "label": "BOS @ NYK",
+  "home_name": "New York Knicks",
+  "away_name": "Boston Celtics",
+  "start_time": "2026-10-29T10:39:00.000Z",
+  "first_seen": "2026-10-29T05:37:55",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6991,
+   "odds": -320,
+   "home_odds": 205,
+   "away_odds": -320
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6991,
+   "odds": -320,
+   "home_odds": 205,
+   "away_odds": -320
+  },
+  "last_seen": "2026-10-29T05:37:55"
  }
 }

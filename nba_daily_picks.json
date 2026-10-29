@@ -1557,9 +1557,9 @@
     "edge": 6.34,
     "pick": "home",
     "pick_label": "ATL -2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 117,
+    "away_pts": 129,
     "published": false
    },
    {
@@ -1574,9 +1574,9 @@
     "edge": 4.83,
     "pick": "home",
     "pick_label": "MIN -4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 114,
+    "away_pts": 119,
     "published": true
    },
    {
@@ -1591,9 +1591,9 @@
     "edge": 4.41,
     "pick": "away",
     "pick_label": "OKC -5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 120,
+    "away_pts": 96,
     "published": true
    },
    {
@@ -1608,9 +1608,9 @@
     "edge": 3.67,
     "pick": "away",
     "pick_label": "NYK -6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 127,
+    "away_pts": 133,
     "published": true
    },
    {
@@ -1625,9 +1625,9 @@
     "edge": 3.43,
     "pick": "home",
     "pick_label": "IND +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 109,
+    "away_pts": 114,
     "published": false
    },
    {
@@ -1642,9 +1642,9 @@
     "edge": 2.56,
     "pick": "home",
     "pick_label": "UTA +13.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 111,
+    "away_pts": 117,
     "published": false
    },
    {
@@ -1659,9 +1659,9 @@
     "edge": 2.48,
     "pick": "away",
     "pick_label": "HOU -8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 100,
+    "away_pts": 132,
     "published": false
    },
    {
@@ -1676,9 +1676,9 @@
     "edge": 1.95,
     "pick": "away",
     "pick_label": "LAL +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 87,
+    "away_pts": 103,
     "published": false
    },
    {
@@ -1693,9 +1693,9 @@
     "edge": 1.85,
     "pick": "home",
     "pick_label": "NOP +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 91,
+    "away_pts": 104,
     "published": false
    },
    {
@@ -1710,9 +1710,9 @@
     "edge": 1.32,
     "pick": "away",
     "pick_label": "WAS +9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 121,
+    "away_pts": 111,
     "published": false
    },
    {
@@ -1727,9 +1727,9 @@
     "edge": 0.72,
     "pick": "home",
     "pick_label": "DET -7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 97,
+    "away_pts": 89,
     "published": false
    },
    {
@@ -1744,9 +1744,9 @@
     "edge": 0.11,
     "pick": "away",
     "pick_label": "ORL +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 129,
+    "away_pts": 99,
     "published": false
    }
   ],
