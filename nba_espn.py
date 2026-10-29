@@ -35,6 +35,10 @@ import requests
 import nba_snapshot as ns
 
 _SITE = "https://site.api.espn.com/apis/site/v2/sports/basketball/{path}"
+# The same API on a second host. From 2026-10-28 the runner's scoreboard calls to the first
+# started coming back as empty 200s (JSONDecodeError) while every local call worked, which
+# stopped the NBA log for two days; trying the other host gets the same JSON.
+_SITE_ALT = "https://site.web.api.espn.com/apis/site/v2/sports/basketball/{path}"
 _CROSSWALK = ("https://github.com/sportsdataverse/sportsdataverse-data/releases/download/"
               "nba_crosswalk/nba_player_crosswalk_{year}.parquet")
 _LEAGUES = {"00": "nba", "10": "wnba"}
@@ -50,14 +54,15 @@ _COLS = ["SEASON_ID", "PLAYER_ID", "PLAYER_NAME", "TEAM_ID", "TEAM_ABBREVIATION"
 
 
 def _get(league: str, path: str, **params) -> dict:
-    for attempt in range(3):
+    hosts = (_SITE, _SITE_ALT, _SITE, _SITE_ALT)
+    for attempt, host in enumerate(hosts):
         try:
-            r = requests.get(_SITE.format(path=f"{_LEAGUES[league]}/{path}"), params=params,
+            r = requests.get(host.format(path=f"{_LEAGUES[league]}/{path}"), params=params,
                              timeout=20, headers={"User-Agent": "Mozilla/5.0"})
             r.raise_for_status()
             return r.json()
         except Exception:
-            if attempt == 2:
+            if attempt == len(hosts) - 1:
                 raise
             time.sleep(2.0 * (attempt + 1))
 
@@ -247,7 +252,14 @@ def refresh(league: str = "00", today: datetime.date | None = None, max_days: in
     new = {st: [] for st, _p in _TYPES.values()}
     day = start
     while day <= today:
-        board = _get(league, "scoreboard", dates=day.strftime("%Y%m%d"))
+        try:
+            board = _get(league, "scoreboard", dates=day.strftime("%Y%m%d"))
+        except Exception as ex:
+            # Stop here rather than skip the day: the next run re-reads from two days before
+            # the newest saved game, so a hole left behind a later day would never be filled.
+            # Everything before this day is still written below.
+            print(f"  scoreboard {day} unreadable ({type(ex).__name__}); stopping at {day}")
+            break
         for e in board.get("events", []):
             kind = _TYPES.get(int(e.get("season", {}).get("type", 0)))
             if kind is None or not e["status"]["type"].get("completed"):

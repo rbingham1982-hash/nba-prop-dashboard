@@ -13,21 +13,22 @@
 # day in both CDT and CST: 19-23 + 0-4 UTC is 14:00-23:00 CDT and 13:00-22:00 CST. A
 # firing at 05 UTC would be midnight CDT and build tomorrow's board at 00:00, the exact
 # bug parlay-runner scheduling had at home. GitHub can start a scheduled run late or drop
-# one under load; the hourly repeats and already_ran_today() absorb that.
+# one under load; the half-hourly repeats and already_ran_today() absorb that.
+#
+# At :17 and :47, not :00. Top-of-hour schedules are the ones GitHub drops first: from
+# 2026-10-26 the hourly "0 19-23" window was getting 2-3 runs a day, so the noon NBA board
+# saved at 15:47 or not until a manual dispatch.
 name: daily board
 
 on:
   schedule:
-    - cron: "0 19-23 * * *"   # daily window, first half
-    - cron: "0 0-4 * * *"     # daily window, second half (still the same Chicago day)
+    - cron: "17,47 19-23 * * *"   # daily window, first half
+    - cron: "17,47 0-4 * * *"     # daily window, second half (still the same Chicago day)
     - cron: "0 14 * * 0"      # Sunday early: 09:00 CDT, board up before the noon kickoffs
     # Saturday noon (12:00 CDT, 11:00 CST): weekend NBA games tip from early afternoon,
     # before the 2 PM window opens. Sunday needs no twin: the 9 AM run builds every board.
     - cron: "0 17 * * 6"
     - cron: "30 18 * * 0"     # Sunday late, forced: prices the late games off current lines
-    # NBA opening day 2026-10-20: BOS @ DET tips at 2 PM Central, the hour the daily window
-    # opens, so build that day's boards at 12:30 CDT. Fires once; remove after the opener.
-    - cron: "30 17 20 10 *"
     # Closing prices for the noon kickoffs. CLV only counts a snapshot taken within 2h of
     # the start, and nothing ran between the 9:00 board and 13:30, so the whole early
     # slate went without a close (46 of 1,142 NFL props had one by 2026-10-11). These are
