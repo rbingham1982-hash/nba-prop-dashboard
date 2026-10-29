@@ -81,7 +81,8 @@ def _fmt(v: float) -> str:
 # ── the write-up ────────────────────────────────────────────────────────────
 
 def write_up(name: str, team: str, opp: str, home: bool, cur_df: pd.DataFrame,
-             prev_df: pd.DataFrame, props: list, cur: str, prev: str) -> list[str]:
+             prev_df: pd.DataFrame, props: list, cur: str, prev: str,
+             when: str = "tonight") -> list[str]:
     """
     Paragraphs for one player. cur_df / prev_df are his regular-season games, oldest first,
     with PRA added. props: [{stat, line, over, under}] from the book.
@@ -91,7 +92,7 @@ def write_up(name: str, team: str, opp: str, home: bool, cur_df: pd.DataFrame,
     n, m = len(cur_df), len(prev_df)
 
     # 1. Who he is this season, then last season, each named.
-    lead = f"{name} ({team}) {where} {opp} tonight."
+    lead = f"{name} ({team}) {where} {opp} {when}."
     if n:
         lead += (f" This season ({cur}): {_fmt(cur_df['PTS'].mean())} pts, {_fmt(cur_df['REB'].mean())} reb, "
                  f"{_fmt(cur_df['AST'].mean())} ast in {_fmt(cur_df['MIN'].mean())} min over {n} "

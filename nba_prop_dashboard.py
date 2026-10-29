@@ -650,28 +650,6 @@ def get_team_players(team_abbr):
     except Exception:
         return []
 
-@st.cache_data(ttl=900)
-def get_next_opponent(team_code):
-    try:
-        slug = ESPN_SLUG_MAP.get(team_code.upper(), team_code.lower())
-        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{slug}/schedule"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            now = datetime.now()
-            for event in data.get("events", []):
-                date_str = event.get("date")
-                game_date = datetime.fromisoformat(date_str.replace("Z", ""))
-                if game_date > now:
-                    competitors = event["competitions"][0]["competitors"]
-                    for team in competitors:
-                        abbrev = team["team"]["abbreviation"].upper()
-                        if abbrev != team_code.upper():
-                            return abbrev
-    except Exception as e:
-        st.warning(f"Opponent detection failed: {e}")
-    return None
-
 _PP_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
     "Accept": "application/json, text/plain, */*",
@@ -1423,12 +1401,6 @@ _UD_MLB_STAT_MAP = {
     "Walks Allowed": "Walks Allowed", "Pitching Outs": "Pitching Outs",
 }
 
-# Dashboard stat selector → Underdog stat_type (as returned by get_underdog_props)
-_UD_NBA_PROP_LOOKUP = {
-    "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
-    "PRA": "Pts+Rebs+Asts", "3PM": "3-PT Made",
-    "Steals": "Steals", "Blocks": "Blocked Shots", "Turnovers": "Turnovers",
-}
 _UD_MLB_HITTER_LOOKUP = {
     "H": "Hits", "HR": "Home Runs", "RBI": "RBIs",
     "K": "Hitter Strikeouts", "BB": "Walks",
@@ -3231,116 +3203,7 @@ def _scout_card(text):
     )
 
 # Aliases kept for compatibility with existing call sites
-def _scout_card_nba(text): return _scout_card(text)
 def _scout_card_mlb(text): return _scout_card(text)
-
-def nba_scout_report(player_name, team_code, df, next_opp, prop_type, rolling_window,
-                     line=None, ud_line=None, ud_odds=None, ud_implied=None):
-    # Every figure names its season. This used to average every ticked season and call it
-    # "this season", so in October last year's numbers read as current form and a matchup
-    # count could mix the two seasons without saying so (see nba_scout).
-    import nba_scout as _nsc
-    if df.empty or not next_opp:
-        return None
-    stat_col = STAT_MAP.get(prop_type, "PTS")
-    if stat_col not in df.columns:
-        return None
-    cur, _prev = _nsc.seasons()
-    d = df.copy()
-    if "SEASON" not in d.columns:
-        d["SEASON"] = cur
-    has_po = "SEASON_TYPE" in d.columns and (d["SEASON_TYPE"] == "Playoffs").any()
-    by_season = sorted(d["SEASON"].unique(), reverse=True)
-
-    # Season by season, newest first.
-    lines = []
-    for s in by_season:
-        g = d[d["SEASON"] == s]
-        lines.append(f"{_nsc.season_word(s, cur)}: {g[stat_col].mean():.1f} {prop_type}/G over {len(g)} games "
-                     f"({g['PTS'].mean():.1f} PPG / {g['REB'].mean():.1f} RPG / {g['AST'].mean():.1f} APG).")
-    if cur not in by_season:
-        lines.insert(0, f"No {cur} games in the selected seasons — tick {cur} to see this season.")
-    head = f"{player_name} ({team_code}) heads into the matchup vs {next_opp}. " + " ".join(lines)
-    if has_po:
-        head += " Playoff games are included in these figures."
-
-    last10 = d.tail(10)
-    last5 = d.tail(5)
-    base = d[d["SEASON"] == by_season[0]][stat_col].mean()
-    base_lbl = _nsc.season_word(by_season[0], cur).split(" (")[0].lower()
-    recent = last10[stat_col].mean()
-    delta = recent - base
-    thresh = max(base * 0.08, 1.0)
-    shape = ("trending upward" if delta > thresh else "trending downward" if delta < -thresh
-             else "steady")
-    trend = (f"Last 10 games ({_nsc.span(last10['SEASON'], cur)}): {recent:.1f} {prop_type}/G, "
-             f"{shape} ({delta:+.1f} vs {base_lbl} avg). "
-             f"Last 5 ({_nsc.span(last5['SEASON'], cur)}): {last5[stat_col].mean():.1f}.")
-
-    # Matchup history, by season, every game dated.
-    opp_df = d[d["OPPONENT"].str.upper() == next_opp.upper()]
-    if not opp_df.empty:
-        parts = []
-        for s in by_season:
-            g = opp_df[opp_df["SEASON"] == s]
-            if g.empty:
-                continue
-            games = ", ".join(f"{pd.Timestamp(r['GAME_DATE']).strftime('%b')} {pd.Timestamp(r['GAME_DATE']).day}: "
-                              f"{r[stat_col]:g}" for _, r in g.iterrows())
-            parts.append(f"{s} — {len(g)} game(s), {g[stat_col].mean():.1f} avg ({games})")
-        op_stat = opp_df[stat_col].mean()
-        all_avg = d[stat_col].mean()
-        quality = ("favorable" if op_stat > all_avg * 1.08
-                   else "difficult" if op_stat < all_avg * 0.92 else "neutral")
-        opp_str = (f"Vs {next_opp}: " + "; ".join(parts) + f". A {quality} matchup by that history"
-                   + (f", which has no {cur} games yet." if cur not in set(opp_df["SEASON"]) else "."))
-    else:
-        opp_str = f"No games vs {next_opp} in the selected seasons."
-
-    streak_str = hit_rate_str = ""
-    if line is not None:
-        over_series = (d[stat_col] > line).tolist()
-        streak_over = streak_under = 0
-        for v in reversed(over_series):
-            if v: streak_over += 1
-            else: break
-        for v in reversed(over_series):
-            if not v: streak_under += 1
-            else: break
-        rates = []
-        for s in by_season:
-            g = d[d["SEASON"] == s]
-            rates.append(f"{int((g[stat_col] > line).sum())} of {len(g)} in {s}")
-        hit_rate_str = (f"Over {line}: {', '.join(rates)}; last 10 ({_nsc.span(last10['SEASON'], cur)}) "
-                        f"{(last10[stat_col] > line).mean():.0%}.")
-        if streak_over >= 3:
-            streak_str = f"{player_name} has cleared {line} in {streak_over} straight games."
-        elif streak_under >= 3:
-            streak_str = f"Warning: {player_name} has missed {line} in {streak_under} consecutive games."
-
-    ha_str = ""
-    if "IS_HOME" in d.columns:
-        g = d[d["SEASON"] == by_season[0]]
-        home_avg = g.loc[g["IS_HOME"], stat_col].mean()
-        away_avg = g.loc[~g["IS_HOME"], stat_col].mean()
-        if pd.notna(home_avg) and pd.notna(away_avg):
-            ha_str = (f"Home/away ({by_season[0]}): {home_avg:.1f} at home vs {away_avg:.1f} on the road.")
-
-    pred_str = ""
-    if len(d) >= rolling_window:
-        win = d.tail(rolling_window)
-        pred_str = (f"A {rolling_window}-game rolling average ({_nsc.span(win['SEASON'], cur)}) projects "
-                    f"{win[stat_col].mean():.1f} {prop_type} ({win['PTS'].mean():.1f} pts / "
-                    f"{win['REB'].mean():.1f} reb / {win['AST'].mean():.1f} ast).")
-
-    ud_str = ""
-    if ud_line is not None and ud_odds is not None and ud_implied is not None:
-        odds_fmt = f"+{ud_odds}" if ud_odds > 0 else str(ud_odds)
-        lean = "leaning OVER" if ud_implied < 0.50 else "implying slight UNDER value"
-        ud_str = (f"Underdog Fantasy has this prop at {ud_line} ({odds_fmt}, {ud_implied:.0%} implied) "
-                  f"— the market is {lean}.")
-    parts = [head, trend, opp_str, hit_rate_str, streak_str, ha_str, pred_str, ud_str]
-    return " ".join(p for p in parts if p)
 
 def mlb_hitter_scout_report(hitter_name, team_abbr, df, team_id,
                              line=None, prop_stat=None, ud_line=None, ud_odds=None, ud_implied=None,
@@ -4049,20 +3912,7 @@ def generate_mlb_blog():
 # ══════════════════════════════════════════════════════════════════════════════
 # CONSTANTS & CHART HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
-STAT_MAP = {"Points": "PTS", "Rebounds": "REB", "Assists": "AST", "PRA": "PRA", "3PM": "FG3M"}
-PP_STAT_MAP = {
-    "Points": "Points", "Rebounds": "Rebounds", "Assists": "Assists",
-    "PRA": "Pts+Rebs+Asts", "3PM": "3-PT Made",
-}
-# Built from the date, not typed in: the hard-coded list stopped at 2025-26, so from
-# October 2026 the analysis tabs could not show a single game of the season being played.
 _NBA_CUR, _NBA_PREV = _pm.nba_season_strings()
-SEASONS = [f"{y}-{str(y + 1)[-2:]}" for y in range(int(_NBA_CUR[:4]) - 3, int(_NBA_CUR[:4]) + 1)]
-# Last season in front of this one until about the 30-game mark, the same rule the props
-# scorer follows (nba_eval: one to four games of history priced worse than a coin flip).
-_NBA_DEFAULT_SEASONS = ([_NBA_PREV, _NBA_CUR]
-                        if datetime.now().month not in (12, 1, 2, 3, 4, 5, 6)
-                        else [_NBA_CUR])
 
 # ── Chart palette ───────────────────────────────────────────────────────────
 # Validated against this dashboard's own dark chart surface (#191c23), not a generic
@@ -5236,10 +5086,14 @@ if sport == "🏀 NBA":
         _nba_scores = get_nba_scoreboard(_scoreboard_date())
     render_score_ticker(_nba_scores, "NBA")
 
-    # ── Ticker click: set game + flag, then rerun to let home tab fire nav JS ──
+    # ── Ticker click: pick the game's team on Analysis, then rerun so the Hub fires nav JS ──
     if (st.query_params.get("ticker_sport") == "NBA"
             and st.query_params.get("ticker_game")):
-        st.session_state["nvo_game"] = st.query_params["ticker_game"]
+        _tg = [t.strip() for t in str(st.query_params["ticker_game"]).split("@")]
+        if len(_tg) == 2:
+            _away, _home = (_resolve_nba_abbr(t) for t in _tg)
+            st.session_state["nba_an_team"] = _away
+            st.session_state["nba_an_game"] = (_away, _home)
         st.session_state["_nav_vs_nba"] = True
         del st.query_params["ticker_game"]
         del st.query_params["ticker_sport"]
@@ -5250,8 +5104,7 @@ if sport == "🏀 NBA":
     # body is unchanged — only where it sits.
     _nba_tabs_iter = _grouped_tabs([
         ("🏠 Hub",             []),
-        ("🔬 Player Analysis", ["Analysis", "Player Stats", "Opponent Breakdown", "vs. Opponent",
-                               "Bet Simulation", "First Basket"]),
+        ("🔬 Player Analysis", ["Analysis", "First Basket"]),
         ("💰 Edge Finder",     ["Sportsbook", "Parlays"]),
         *( [("📈 Track", ["Accuracy"])] if _IS_LOCAL else [] ),
         ("📊 Draft Board",     []),
@@ -5259,10 +5112,6 @@ if sport == "🏀 NBA":
     ], key_prefix="nba")
     tab_hub         = next(_nba_tabs_iter)
     tab_analysis    = next(_nba_tabs_iter)
-    tab_stats       = next(_nba_tabs_iter)
-    tab_opp         = next(_nba_tabs_iter)
-    tab_vs_opp_nba  = next(_nba_tabs_iter)
-    tab_sim         = next(_nba_tabs_iter)
     tab_fb          = next(_nba_tabs_iter)
     tab_pp          = next(_nba_tabs_iter)
     tab_parlays     = next(_nba_tabs_iter)
@@ -5273,15 +5122,15 @@ if sport == "🏀 NBA":
 
     # ── HUB ───────────────────────────────────────────────────────────────────
     with tab_hub:
-        # A ticker click lands on vs. Opponent. Tabs are found by LABEL: this clicked the
-        # fourth [role=tab] on the page, which was vs. Opponent while the tabs were flat and
-        # silently became an outer tab once they were grouped.
+        # A ticker click lands on Analysis with that game's team picked. Tabs are found by
+        # LABEL (the fourth [role=tab] silently changed meaning once the tabs were grouped),
+        # and the sub-tab by its exact text: "Analysis" is also the end of "Player Analysis".
         if st.session_state.pop("_nav_vs_nba", False):
             components.html(
-                "<script>function c(l){var t=[...window.parent.document.querySelectorAll('[role=\"tab\"]')]"
-                ".find(e=>e.innerText.trim().endsWith(l));if(t)t.click();}"
+                "<script>function c(l,x){var t=[...window.parent.document.querySelectorAll('[role=\"tab\"]')]"
+                ".find(e=>x?e.innerText.trim()===l:e.innerText.trim().endsWith(l));if(t)t.click();}"
                 "setTimeout(function(){c('Player Analysis');"
-                "setTimeout(function(){c('vs. Opponent');},250);},300);</script>",
+                "setTimeout(function(){c('Analysis',true);},250);},300);</script>",
                 height=0,
             )
         import nba_hub as _nba_hub
@@ -5428,394 +5277,6 @@ if sport == "🏀 NBA":
                         f"</div>",
                         unsafe_allow_html=True,
                     )
-
-    # ── PLAYER STATS ──────────────────────────────────────────────────────────
-    with tab_stats:
-        ctrl_col, main_col = st.columns([1, 2.8])
-        with ctrl_col:
-            section("Select Player")
-            team_names = sorted([t["full_name"] for t in teams.get_teams()])
-            selected_team = st.selectbox("Team", team_names, key="ps_team")
-            team_code = get_team_abbreviation(selected_team)
-            player_list = get_team_players(team_code)
-            _ps_hint = st.session_state.pop("_ps_player_hint", None)
-            if _ps_hint and _ps_hint in player_list:
-                st.session_state["ps_player"] = _ps_hint
-            player_name = st.selectbox("Player", player_list, key="ps_player")
-            if player_name:
-                nba_player_card(player_name, team_code)
-            section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=_NBA_DEFAULT_SEASONS, key="ps_seasons")
-            prop_type = st.selectbox("Prop Type", list(STAT_MAP.keys()), key="ps_prop")
-            line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ps_line")
-            rolling_window = st.slider("Rolling Window", 1, 10, 5, key="ps_roll")
-            teammate_filter = st.text_input("Matchup Filter (optional)", key="ps_filter")
-
-        with main_col:
-            if not player_name or not seasons:
-                st.info("Select a player and season from the sidebar to view stats.")
-            elif player_name and seasons:
-                player_id = get_player_id(player_name)
-                if not player_id:
-                    st.warning(f"Could not find player ID for **{player_name}**. Try searching by full name.")
-                else:
-                    with st.spinner("Loading..."):
-                        df = get_gamelogs(player_id, tuple(seasons))
-                    if df.empty:
-                        st.warning("No game log data found.")
-                    else:
-                        if teammate_filter:
-                            df = df[df["MATCHUP"].str.contains(teammate_filter, case=False, na=False)]
-                        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-                        df["TARGET"] = df[STAT_MAP[prop_type]]
-                        df["HIT"] = df["TARGET"] > line_value
-                        df["MARGIN"] = df["TARGET"] - line_value
-                        df["ROLLING_AVG"] = df["TARGET"].rolling(window=rolling_window).mean()
-
-                        pp_df = get_prizepicks_with_team()
-                        pp_stat = PP_STAT_MAP.get(prop_type)
-                        ud_df_nba = get_underdog_props("nba")
-                        ud_stat_nba = _UD_NBA_PROP_LOOKUP.get(prop_type)
-
-                        # ── Market Lines ──────────────────────────────────
-                        section("Market Lines")
-                        _pp_line_val = None
-                        if not pp_df.empty and pp_stat:
-                            _pp_match = pp_df[
-                                (pp_df["player_name"].str.lower() == player_name.lower()) &
-                                (pp_df["stat_type"] == pp_stat)
-                            ]
-                            if not _pp_match.empty:
-                                _pp_line_val = _pp_match.iloc[0]["line_score"]
-                                df["PP_HIT"] = df["TARGET"] > _pp_line_val
-                        _ud_line_val = _ud_odds_val = _ud_implied_val = None
-                        if not ud_df_nba.empty and ud_stat_nba:
-                            _ud_match = ud_df_nba[
-                                (ud_df_nba["player_name"].str.lower() == player_name.lower()) &
-                                (ud_df_nba["stat_type"] == ud_stat_nba)
-                            ]
-                            if not _ud_match.empty:
-                                _ud_row = _ud_match.iloc[0]
-                                _ud_line_val   = float(_ud_row["line_score"])
-                                _ud_odds_val   = int(_ud_row["american_odds"])
-                                _ud_implied_val = float(_ud_row["implied_prob"])
-                                df["UD_HIT"] = df["TARGET"] > _ud_line_val
-                        def _fmt_odds(o): return f"+{o}" if o is not None and o > 0 else (str(o) if o is not None else "—")
-                        def _fmt_hr(col): return f"{df[col].mean():.1%}" if col in df.columns else "—"
-
-                        _ud_odds_disp = _fmt_odds(_ud_odds_val)
-                        _bcs = st.columns(6)
-                        _bcs[0].metric("PrizePicks Line", _pp_line_val if _pp_line_val is not None else "—")
-                        _bcs[1].metric("Hit Rate vs PP",  f"{df['PP_HIT'].mean():.1%}" if _pp_line_val is not None else "—")
-                        _bcs[2].metric("Underdog Line",   _ud_line_val if _ud_line_val is not None else "—")
-                        _bcs[3].metric("UD Odds",         _ud_odds_disp)
-                        _bcs[4].metric("UD Implied",      f"{_ud_implied_val:.0%}" if _ud_implied_val is not None else "—")
-                        _bcs[5].metric("Hit Rate vs UD",  _fmt_hr("UD_HIT") if _ud_line_val is not None else "—")
-
-                        # ── Model Prediction ────────────────────────────────
-                        _nba_tab_cal_f = _load_calibration("NBA").get(prop_type, 1.0)
-                        _nba_tab_imp   = _ud_implied_val if _ud_implied_val is not None else -1.0
-                        _model_rate, _ = _nba_hit_rate(
-                            player_name, prop_type, line_value,
-                            odds_type="standard", implied_override=_nba_tab_imp,
-                            cal_factor=_nba_tab_cal_f,
-                        )
-                        _raw_rate = df["HIT"].mean()
-                        _edge = _model_rate - _ud_implied_val if _ud_implied_val is not None else None
-                        _bcs2 = st.columns(4)
-                        _bcs2[0].metric("Model Hit Rate",      f"{_model_rate:.1%}", help="Calibrated blend: 70% historical + 30% market implied")
-                        _bcs2[1].metric("Raw Historical",      f"{_raw_rate:.1%}",   help="Simple binary hit rate from game log")
-                        _bcs2[2].metric("Calibration Factor",  f"{_nba_tab_cal_f:.3f}", help="Accuracy adjustment for this stat type based on resolved parlays")
-                        _bcs2[3].metric("Edge vs Market",      f"{_edge:+.1%}" if _edge is not None else "—", help="Model rate minus Underdog implied. Positive = model sees value.")
-
-                        # ── Scout Report ──────────────────────────────────
-                        df["IS_HOME"] = df["MATCHUP"].str.contains(r"vs\.", na=False)
-                        _nxt = get_next_opponent(team_code)
-                        _report = nba_scout_report(player_name, team_code, df, _nxt, prop_type, rolling_window,
-                                                   line=line_value, ud_line=_ud_line_val,
-                                                   ud_odds=_ud_odds_val, ud_implied=_ud_implied_val)
-                        if _report:
-                            section("Scout Report")
-                            st.markdown(_scout_card_nba(_report), unsafe_allow_html=True)
-
-                        # ── Analytical Breakdown ──────────────────────────
-                        section("Analytical Breakdown")
-                        ab_c = st.columns(5)
-                        for _c, _s, _l in zip(ab_c,
-                                ["PTS", "REB", "AST", "FG3M", "STL"],
-                                ["PPG", "RPG", "APG", "3PM", "SPG"]):
-                            if _s in df.columns:
-                                _c.metric(_l, f"{df[_s].mean():.1f}")
-
-                        section("Recent Form — Last 10 Games vs Season Avg")
-                        _last10 = df.tail(10)
-                        rf_c = st.columns(4)
-                        for _c, _s, _l in zip(rf_c,
-                                ["PTS", "REB", "AST", "FG3M"],
-                                ["Points", "Rebounds", "Assists", "3PM"]):
-                            if _s in df.columns:
-                                _sa = df[_s].mean()
-                                _ra = _last10[_s].mean()
-                                _c.metric(_l, f"{_ra:.1f}", delta=f"{_ra - _sa:+.1f}")
-
-                        section("Splits & Consistency")
-                        df["IS_HOME"] = df["MATCHUP"].str.contains(r"vs\.", na=False)
-                        _tgt_s = STAT_MAP[prop_type]
-                        _home_a = df.loc[df["IS_HOME"], _tgt_s].mean()
-                        _away_a = df.loc[~df["IS_HOME"], _tgt_s].mean()
-                        _cv = (df[_tgt_s].std() / df[_tgt_s].mean() * 100
-                               if df[_tgt_s].mean() > 0 else 0)
-                        _cons = max(0, 100 - _cv)
-                        _last5 = df.tail(5)
-                        _above = (_last5[_tgt_s] > df[_tgt_s].mean()).sum()
-                        _form = ("Hot (4-5 over avg)" if _above >= 4
-                                 else "Cold (0-1 over avg)" if _above <= 1
-                                 else "Neutral")
-                        sp_c = st.columns(4)
-                        sp_c[0].metric(f"Home {prop_type}", f"{_home_a:.1f}" if pd.notna(_home_a) else "—")
-                        sp_c[1].metric(f"Away {prop_type}", f"{_away_a:.1f}" if pd.notna(_away_a) else "—")
-                        sp_c[2].metric("Consistency", f"{_cons:.0f}/100")
-                        sp_c[3].metric("Form (L5)", _form)
-
-                        section("Performance Summary")
-                        m1, m2, m3 = st.columns(3)
-                        m1.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
-                        m2.metric("Avg Margin", f"{df['MARGIN'].mean():.2f}")
-                        m3.metric("Games", len(df))
-
-                        section("Trend")
-                        fig = px.line(df.reset_index(), y=["TARGET", "ROLLING_AVG"],
-                                      labels={"value": prop_type, "index": "Game"},
-                                      color_discrete_map={"TARGET": "#818cf8", "ROLLING_AVG": "#a78bfa"})
-                        fig.add_hline(y=line_value, line_dash="dot", line_color="#3a4055",
-                                      annotation_text=f"Line {line_value}", annotation_font_color="#5c6272")
-                        st.plotly_chart(nba_fig(fig), width="stretch", config=_CHART_CFG)
-
-                        section("Predictive Stat Line")
-                        if len(df) >= rolling_window:
-                            pred = {c: df[c].rolling(rolling_window).mean().iloc[-1]
-                                    for c in ["PTS", "REB", "AST", "FG3M"]}
-                            c1, c2, c3, c4 = st.columns(4)
-                            c1.metric("Points", f"{pred['PTS']:.1f}")
-                            c2.metric("Rebounds", f"{pred['REB']:.1f}")
-                            c3.metric("Assists", f"{pred['AST']:.1f}")
-                            c4.metric("3PM", f"{pred['FG3M']:.1f}")
-                        else:
-                            st.warning(f"Not enough games for rolling window of {rolling_window}.")
-
-                        next_opp_code = get_next_opponent(team_code)
-                        if next_opp_code:
-                            section(f"vs {next_opp_code} (Next Opponent)")
-                            df_opp = df[df["OPPONENT"].str.upper() == next_opp_code]
-                            if not df_opp.empty:
-                                o1, o2, o3 = st.columns(3)
-                                o1.metric("Avg Points", f"{df_opp['PTS'].mean():.1f}")
-                                o2.metric("Avg Rebounds", f"{df_opp['REB'].mean():.1f}")
-                                o3.metric("Avg Assists", f"{df_opp['AST'].mean():.1f}")
-                                st.caption(f"Based on {len(df_opp)} game(s)")
-                            else:
-                                st.info(f"No historical data vs {next_opp_code}.")
-
-    # ── OPPONENT BREAKDOWN ────────────────────────────────────────────────────
-    with tab_opp:
-        ctrl_col, main_col = st.columns([1, 2.8])
-        with ctrl_col:
-            section("Select Player")
-            team_names = sorted([t["full_name"] for t in teams.get_teams()])
-            selected_team = st.selectbox("Team", team_names, key="ob_team")
-            team_code = get_team_abbreviation(selected_team)
-            player_list = get_team_players(team_code)
-            player_name = st.selectbox("Player", player_list, key="ob_player")
-            if player_name:
-                nba_player_card(player_name, team_code)
-            section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=_NBA_DEFAULT_SEASONS, key="ob_seasons")
-            line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="ob_line")
-            prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="ob_prop")
-
-        with main_col:
-            if player_name and seasons:
-                player_id = get_player_id(player_name)
-                if player_id:
-                    with st.spinner("Loading..."):
-                        df = get_gamelogs(player_id, tuple(seasons))
-                    if df.empty:
-                        st.warning("No data found.")
-                    else:
-                        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-                        df["TARGET"] = df[STAT_MAP[prop_type]]
-                        df["HIT"] = df["TARGET"] > line_value
-                        df["MARGIN"] = df["TARGET"] - line_value
-                        opp_stats = (
-                            df.groupby("OPPONENT")[["HIT", "MARGIN", "TARGET"]]
-                            .agg({"HIT": "mean", "MARGIN": "mean", "TARGET": ["mean", "count"]})
-                        )
-                        opp_stats.columns = ["Hit Rate", "Avg Margin", "Avg Stat", "Games"]
-                        opp_stats = opp_stats.sort_values("Hit Rate", ascending=False)
-                        section("Hit Rate by Opponent")
-                        fig = px.bar(opp_stats.reset_index(), x="Hit Rate", y="OPPONENT",
-                                     orientation="h", color="Hit Rate",
-                                     color_continuous_scale=VIZ_SEQUENTIAL,
-                                     text=opp_stats["Games"].astype(str).values + " G")
-                        fig.add_vline(x=0.5, line_dash="dot", line_color="#3a4055")
-                        fig.update_coloraxes(showscale=False)
-                        st.plotly_chart(nba_fig(fig), width="stretch", config=_CHART_CFG)
-                        section("Data Table")
-                        st.dataframe(opp_stats.style.format(
-                            {"Hit Rate": "{:.1%}", "Avg Margin": "{:.2f}", "Avg Stat": "{:.1f}", "Games": "{:.0f}"}
-                        ), width="stretch")
-
-    # ── VS. OPPONENT ──────────────────────────────────────────────────────────
-    with tab_vs_opp_nba:
-        with st.spinner("Loading today's games..."):
-            _nba_today_sched = get_nba_scoreboard(_scoreboard_date())
-
-        if not _nba_today_sched:
-            st.info("No NBA games scheduled for today.")
-        else:
-            nvo_ctrl, nvo_main = st.columns([1, 2.8])
-            with nvo_ctrl:
-                section("Today's Games")
-                nvo_seasons = st.multiselect("Seasons", SEASONS, default=_NBA_DEFAULT_SEASONS, key="nvo_seasons")
-                game_opts = [f"{g['away']} @ {g['home']}" for g in _nba_today_sched]
-                nvo_game_label = st.selectbox("Select Game", game_opts, key="nvo_game")
-                nvo_game = next(g for g in _nba_today_sched if f"{g['away']} @ {g['home']}" == nvo_game_label)
-                nvo_team_code = st.radio("Analyze Team",
-                    [nvo_game["away"], nvo_game["home"]], key="nvo_team_side", horizontal=True)
-                nvo_opp_code = nvo_game["home"] if nvo_team_code == nvo_game["away"] else nvo_game["away"]
-                # Resolve ESPN abbreviations (e.g. "NY"→"NYK", "SA"→"SAS") for nba_api calls
-                nvo_team_code = _resolve_nba_abbr(nvo_team_code)
-                nvo_opp_code = _resolve_nba_abbr(nvo_opp_code)
-
-                section("Player")
-                nvo_players = get_team_players(nvo_team_code)
-                if not nvo_players:
-                    st.warning(f"Could not load roster for {nvo_team_code}.")
-                else:
-                    nvo_player = st.selectbox("Player", nvo_players, key="nvo_player")
-                    nba_player_card(nvo_player, nvo_team_code)
-                    section("Parameters")
-                    nvo_prop = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="nvo_prop")
-                    nvo_line = st.number_input("Prop Line", value=25.5, step=0.5, key="nvo_line")
-                    nvo_window = st.slider("Rolling Window", 3, 20, 10, key="nvo_window")
-
-            with nvo_main:
-                if nvo_players and nvo_seasons:
-                    nvo_pid = get_player_id(nvo_player)
-                    if nvo_pid:
-                        with st.spinner("Loading game logs..."):
-                            nvo_df = get_gamelogs(nvo_pid, tuple(nvo_seasons))
-                        if nvo_df.empty:
-                            st.warning("No stats found for this player.")
-                        else:
-                            nvo_df = nvo_df.copy()
-                            nvo_df["PRA"] = nvo_df["PTS"] + nvo_df["REB"] + nvo_df["AST"]
-                            nvo_col = STAT_MAP[nvo_prop]
-                            nvo_df["ROLLING"] = nvo_df[nvo_col].rolling(nvo_window).mean()
-                            nvo_df["IS_HOME"] = nvo_df["MATCHUP"].str.contains(r"vs\.", na=False)
-                            opp_mask = nvo_df["OPPONENT"].str.upper() == nvo_opp_code.upper()
-                            vs_opp_df = nvo_df[opp_mask]
-                            proj_all = rolling_projection(nvo_df, nvo_col, nvo_window)
-                            hit_all = (nvo_df[nvo_col] > nvo_line).mean()
-
-                            # ── Scout Report ──────────────────────────────────
-                            _nvo_report = nba_scout_report(
-                                nvo_player, nvo_team_code, nvo_df, nvo_opp_code,
-                                nvo_prop, nvo_window, line=nvo_line,
-                            )
-                            if _nvo_report:
-                                section("Scout Report")
-                                st.markdown(_scout_card_nba(_nvo_report), unsafe_allow_html=True)
-
-                            section(f"Projection vs {nvo_opp_code} — Today")
-                            c1, c2, c3, c4 = st.columns(4)
-                            c1.metric("Season Rolling Avg", f"{proj_all:.1f}")
-                            c2.metric("Season Hit Rate", f"{hit_all:.1%}")
-                            if not vs_opp_df.empty:
-                                avg_vs = vs_opp_df[nvo_col].mean()
-                                hit_vs = (vs_opp_df[nvo_col] > nvo_line).mean()
-                                c3.metric(f"Avg vs {nvo_opp_code}",
-                                          f"{avg_vs:.1f}",
-                                          delta=f"{avg_vs - proj_all:+.1f} vs season",
-                                          delta_color="normal")
-                                c4.metric(f"Hit Rate vs {nvo_opp_code}",
-                                          f"{hit_vs:.1%}",
-                                          delta=f"{hit_vs - hit_all:+.1%} vs season",
-                                          delta_color="normal")
-                            else:
-                                c3.metric(f"vs {nvo_opp_code}", "—", help="No historical matchup data")
-                                c4.metric("Games vs opp", "0")
-
-                            section(f"{nvo_prop} Trend — {nvo_opp_code} Games Highlighted")
-                            fig_nvo = px.line(nvo_df.reset_index(), y=nvo_col,
-                                              labels={nvo_col: nvo_prop, "index": "Game"},
-                                              color_discrete_sequence=["#3a4055"])
-                            fig_nvo.add_scatter(x=nvo_df.reset_index().index,
-                                                y=nvo_df["ROLLING"],
-                                                mode="lines", name="Rolling Avg",
-                                                line=dict(color="#818cf8", width=2))
-                            if opp_mask.any():
-                                opp_idx = nvo_df.reset_index().index[opp_mask.values]
-                                fig_nvo.add_scatter(x=opp_idx,
-                                                    y=vs_opp_df[nvo_col].values,
-                                                    mode="markers",
-                                                    name=f"vs {nvo_opp_code}",
-                                                    marker=dict(color="#a78bfa", size=10, symbol="diamond"))
-                            fig_nvo.add_hline(y=nvo_line, line_dash="dot", line_color="#3a4055",
-                                              annotation_text=f"Line {nvo_line}",
-                                              annotation_font_color="#5c6272")
-                            st.plotly_chart(nba_fig(fig_nvo), width="stretch", config=_CHART_CFG)
-
-                            if not vs_opp_df.empty:
-                                section(f"Game Log vs {nvo_opp_code}")
-                                st.dataframe(
-                                    vs_opp_df[["GAME_DATE", "MATCHUP", nvo_col]].rename(columns={
-                                        "GAME_DATE": "Date", "MATCHUP": "Matchup", nvo_col: nvo_prop
-                                    }),
-                                    width="stretch", hide_index=True,
-                                )
-
-    # ── BET SIMULATION ────────────────────────────────────────────────────────
-    with tab_sim:
-        ctrl_col, main_col = st.columns([1, 2.8])
-        with ctrl_col:
-            section("Select Player")
-            team_names = sorted([t["full_name"] for t in teams.get_teams()])
-            selected_team = st.selectbox("Team", team_names, key="sim_team")
-            team_code = get_team_abbreviation(selected_team)
-            player_list = get_team_players(team_code)
-            player_name = st.selectbox("Player", player_list, key="sim_player")
-            if player_name:
-                nba_player_card(player_name, team_code)
-            section("Parameters")
-            seasons = st.multiselect("Seasons", SEASONS, default=_NBA_DEFAULT_SEASONS, key="sim_seasons")
-            line_value = st.number_input("Prop Line", value=25.5, step=0.5, key="sim_line")
-            prop_type = st.selectbox("Stat Type", list(STAT_MAP.keys()), key="sim_prop")
-
-        with main_col:
-            if player_name and seasons:
-                player_id = get_player_id(player_name)
-                if player_id:
-                    with st.spinner("Running simulation..."):
-                        df = get_gamelogs(player_id, tuple(seasons))
-                    if df.empty:
-                        st.warning("No data found.")
-                    else:
-                        df["PRA"] = df["PTS"] + df["REB"] + df["AST"]
-                        df["TARGET"] = df[STAT_MAP[prop_type]]
-                        df["HIT"] = df["TARGET"] > line_value
-                        df["CUMULATIVE_PROFIT"] = simulate_bets(df)
-                        section("Results")
-                        col1, col2, col3 = st.columns(3)
-                        col1.metric("Total Profit", f"{df['CUMULATIVE_PROFIT'].iloc[-1]:.0f} units")
-                        col2.metric("Hit Rate", f"{df['HIT'].mean():.1%}")
-                        col3.metric("Games", len(df))
-                        section("Cumulative P&L")
-                        fig = px.line(df.reset_index(), y="CUMULATIVE_PROFIT",
-                                      labels={"CUMULATIVE_PROFIT": "Units", "index": "Game"},
-                                      color_discrete_sequence=[VIZ_SERIES[0]])
-                        fig.add_hline(y=0, line_dash="dot", line_color="#3a4055")
-                        st.plotly_chart(nba_fig(fig), width="stretch", config=_CHART_CFG)
 
     # ── FIRST BASKET ──────────────────────────────────────────────────────────
     with tab_fb:

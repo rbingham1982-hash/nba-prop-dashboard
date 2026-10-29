@@ -88,9 +88,15 @@ def render() -> None:
         + (f"  Early-season samples are small — read them beside {prev}, which is one click away."
            if season == cur and ngames.median() < 15 else ""))
 
+    tg = st.session_state.get(_K + "game")
+    if tg:
+        st.caption(f"From the score ticker: **{tg[0]} @ {tg[1]}**. Switch Team to read the other side.")
     q1, q2, q3 = st.columns([1, 1.5, 1.4])
+    teams = na.teams_in(rost)
+    if st.session_state.get(_K + "team") not in teams:      # a ticker code the roster lacks
+        st.session_state.pop(_K + "team", None)
     with q1:
-        team = st.selectbox("Team", na.teams_in(rost), key=_K + "team")
+        team = st.selectbox("Team", teams, key=_K + "team")
     plist = na.players_on_team(df, rost, team)
     with q2:
         labels = [f"{n}  ·  {p}" for n, _, p in plist]
@@ -123,6 +129,8 @@ def render() -> None:
 
     _chart(log, stat, line)
     _tables(log, stat, season)
+    if season == cur:
+        _scout(team, player, pid)
     st.markdown("---")
     _matchup(season, team, player, pid, pos)
     st.markdown("---")
@@ -168,6 +176,43 @@ def _tables(log: list, stat: str, season: str) -> None:
         st.caption(f"Per-game average of the selected stat by opponent ({season} only).")
     st.caption("Projection is a recency-weighted mean (last 5 games ×2), the NFL tab's rule. "
                "Live prop pricing is in the Edge Finder tab.")
+
+
+def _scout(team: str, player: str, pid: int) -> None:
+    """The season-labelled write-up (nba_scout): tonight's, with FanDuel's lines, when he is
+    on the slate; otherwise built here for his next game, without lines."""
+    import datetime
+    import nba_scout
+    st.markdown("**Scout Report**")
+    data = nba_scout.load()
+    paras = None
+    if data.get("date") == datetime.date.today().isoformat():
+        hit = next((p for p in data.get("players", []) if nba_scout._norm(p["player"]) == nba_scout._norm(player)), None)
+        paras = hit["text"] if hit else None
+    if paras is None:
+        nx = _next(team)
+        if not nx:
+            st.caption(f"No upcoming game found for {team}.")
+            return
+        cur, prev = na.seasons()
+        cur_df, prev_df = _season(cur), _season(prev)
+        mine_c = cur_df[cur_df["PLAYER_ID"] == pid] if not cur_df.empty else cur_df
+        mine_p = prev_df[prev_df["PLAYER_ID"] == pid] if not prev_df.empty else prev_df
+        day = datetime.date.fromisoformat(nx["date"])
+        when = "tonight" if day == datetime.date.today() else f"on {day.strftime('%a %b')} {day.day}"
+        paras = nba_scout.write_up(player, team, nx["opponent"], nx["home"], mine_c, mine_p, [],
+                                   cur, prev, when=when)
+        paras.append("No FanDuel lines for him on the board yet; they appear here once posted.")
+    st.markdown(
+        "<div style='background:#191c23;border:1px solid #252a35;border-left:3px solid #818cf8;"
+        "border-radius:10px;padding:1rem 1.25rem;margin:0.3rem 0 0.8rem;'>"
+        + "".join(f"<p style='font-size:0.86rem;color:#c8cad4;line-height:1.75;margin:0 0 0.5rem;'>"
+                  f"{_esc(t)}</p>" for t in paras) + "</div>", unsafe_allow_html=True)
+
+
+def _esc(s) -> str:
+    import html
+    return html.escape(str(s)).replace("$", "&#36;")
 
 
 def _matchup(season: str, team: str, player: str, pid: int, pos: str) -> None:
