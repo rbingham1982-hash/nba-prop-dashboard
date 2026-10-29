@@ -266,18 +266,38 @@ class _Box:
         if day is None:
             return None
         if leg["sport"] == "nfl":
+            if leg["stat_type"] == "Spread":
+                return self._nfl_margin(leg["team"], day)
             if self._nfl is None:
                 self._nfl = fs._nfl_actuals()
             actuals, week_of_day = self._nfl
             wk = week_of_day.get(day.isoformat())
             vals = actuals.get((fs._norm(leg["player_name"]), wk)) if wk else None
-            return vals.get(leg["stat_type"]) if vals else None
+            if not vals:
+                return None
+            if leg["stat_type"] == "Anytime TD":         # FanDuel pays rushing or receiving
+                return vals.get("Rushing TDs", 0.0) + vals.get("Receiving TDs", 0.0)
+            return vals.get(leg["stat_type"])
         if leg["sport"] == "nba":
             if self._nba is None:
                 self._nba = fs._nba_history()
             games = [v for d, v in self._nba.get(fs._norm(leg["player_name"]), []) if d == day]
             return games[0].get(leg["stat_type"]) if games else None
         return None
+
+    @staticmethod
+    def _nfl_margin(team: str, day):
+        """`team`'s final margin on `day` from nflverse's schedule; None until scored.
+        A spread leg is stored as over (minus its handicap): GB -3.5 is margin over 3.5."""
+        import nfl_game_model as gm
+        s = gm.schedule()
+        g = s[(s["gameday"].astype(str).str[:10] == day.isoformat())
+              & ((s["home_team"] == team) | (s["away_team"] == team))]
+        if g.empty or g["home_score"].isna().iloc[0]:
+            return None
+        r = g.iloc[0]
+        m = float(r["home_score"]) - float(r["away_score"])
+        return m if r["home_team"] == team else -m
 
 
 def _ticket_result(legs: list):
