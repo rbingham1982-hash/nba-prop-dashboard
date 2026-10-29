@@ -30798,5 +30798,49 @@
   "logged_at": "2026-10-29T15:58:00",
   "outcome": null,
   "actual": null
+ },
+ "dylan sampson|Receiving Yards|16.5|36215315": {
+  "player": "Dylan Sampson",
+  "stat": "Receiving Yards",
+  "line": 16.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   64.0,
+   0.0,
+   12.0,
+   0.0,
+   32.0
+  ],
+  "game": "CLE @ PIT",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-29T16:05:37",
+  "outcome": null,
+  "actual": null
+ },
+ "rico dowdle|Receptions|2.5|36215315": {
+  "player": "Rico Dowdle",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": 124,
+  "fair_prob": 0.442,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   2.0,
+   2.0,
+   3.0,
+   6.0
+  ],
+  "game": "CLE @ PIT",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-29T16:05:37",
+  "outcome": null,
+  "actual": null
  }
 }

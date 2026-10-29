@@ -1766,8 +1766,8 @@
     "implied_prob": 0.6951,
     "blended_prob": 0.6951,
     "edge": 0.112,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 2.0
    },
    {
     "player": "Naz Reid",
@@ -1781,8 +1781,8 @@
     "implied_prob": 0.6476,
     "blended_prob": 0.6476,
     "edge": 0.0624,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Jamal Shead",
@@ -1796,8 +1796,8 @@
     "implied_prob": 0.6412,
     "blended_prob": 0.6412,
     "edge": 0.3259,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 4.0
    },
    {
     "player": "VJ Edgecombe",
@@ -1811,8 +1811,8 @@
     "implied_prob": 0.5678,
     "blended_prob": 0.5678,
     "edge": -0.2564,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 8.0
    },
    {
     "player": "Sion James",
@@ -1826,8 +1826,8 @@
     "implied_prob": 0.5581,
     "blended_prob": 0.5581,
     "edge": 0.0276,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 10.0
    }
   ],
   "parlay_withheld_price": {
