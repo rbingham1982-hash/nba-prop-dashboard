@@ -98624,5 +98624,71 @@
   "logged_at": "2026-10-29T16:05:43",
   "outcome": null,
   "actual": null
+ },
+ "toumani camara|Rebounds|4.5|36245924": {
+  "player": "Toumani Camara",
+  "stat": "Rebounds",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -138,
+  "fair_prob": 0.5717,
+  "med5": 3.0,
+  "last5": [
+   5.0,
+   8.0,
+   2.0,
+   3.0,
+   1.0
+  ],
+  "game": "MEM @ POR",
+  "start_time": "2026-10-30T02:10:00.000Z",
+  "game_day": "2026-10-29",
+  "logged_at": "2026-10-29T20:07:34",
+  "outcome": null,
+  "actual": null
+ },
+ "ja morant|Pts+Rebs+Asts|28.5|36245924": {
+  "player": "Ja Morant",
+  "stat": "Pts+Rebs+Asts",
+  "line": 28.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5419,
+  "med5": 27.0,
+  "last5": [
+   42.0,
+   37.0,
+   27.0,
+   22.0,
+   27.0
+  ],
+  "game": "MEM @ POR",
+  "start_time": "2026-10-30T02:10:00.000Z",
+  "game_day": "2026-10-29",
+  "logged_at": "2026-10-29T20:07:34",
+  "outcome": null,
+  "actual": null
+ },
+ "donovan clingan|Rebs+Asts|13.5|36245924": {
+  "player": "Donovan Clingan",
+  "stat": "Rebs+Asts",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -138,
+  "fair_prob": 0.5717,
+  "med5": 11.0,
+  "last5": [
+   6.0,
+   11.0,
+   9.0,
+   13.0,
+   11.0
+  ],
+  "game": "MEM @ POR",
+  "start_time": "2026-10-30T02:10:00.000Z",
+  "game_day": "2026-10-29",
+  "logged_at": "2026-10-29T20:07:34",
+  "outcome": null,
+  "actual": null
  }
 }

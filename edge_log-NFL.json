@@ -4570,5 +4570,23 @@
   "logged_at": "2026-10-29T15:58:37",
   "outcome": null,
   "actual": null
+ },
+ "jonathan taylor|Rushing Yards|56.5|36215317": {
+  "player": "Jonathan Taylor",
+  "stat": "Rushing Yards",
+  "line": 56.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.6447,
+  "fair_prob": 0.475,
+  "edge": 0.1697,
+  "sample_n": 24,
+  "depth": 1,
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-29T20:08:06",
+  "outcome": null,
+  "actual": null
  }
 }
