@@ -56,12 +56,19 @@ _COLS = ["SEASON_ID", "PLAYER_ID", "PLAYER_NAME", "TEAM_ID", "TEAM_ABBREVIATION"
 def _get(league: str, path: str, **params) -> dict:
     hosts = (_SITE, _SITE_ALT, _SITE, _SITE_ALT)
     for attempt, host in enumerate(hosts):
+        # The empty 200s hit some dates and not others, on both hosts, run after run: a bad
+        # copy cached at ESPN's edge. Retries add a throwaway parameter so they miss that copy.
+        q = dict(params, _=int(time.time() * 1000)) if attempt else params
+        r = None
         try:
-            r = requests.get(host.format(path=f"{_LEAGUES[league]}/{path}"), params=params,
-                             timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+            r = requests.get(host.format(path=f"{_LEAGUES[league]}/{path}"), params=q,
+                             timeout=20, headers={"User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache"})
             r.raise_for_status()
             return r.json()
-        except Exception:
+        except Exception as ex:
+            if r is not None:
+                print(f"  ESPN {path} {params} try {attempt + 1}: {type(ex).__name__}, HTTP {r.status_code}, "
+                      f"{len(r.content)} bytes, {r.headers.get('content-type')}")
             if attempt == len(hosts) - 1:
                 raise
             time.sleep(2.0 * (attempt + 1))
