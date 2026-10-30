@@ -74,6 +74,35 @@ def _get(league: str, path: str, **params) -> dict:
             time.sleep(2.0 * (attempt + 1))
 
 
+_CORE = "https://sports.core.api.espn.com/v2/sports/basketball/leagues/{lg}/events"
+
+
+def _day_events(league: str, day: datetime.date) -> list:
+    """
+    The day's games as scoreboard events (id, shortName, season.type, status.type.completed).
+    From 2026-10-28 the runner gets 0-byte 200s for some dates' scoreboards on every try and
+    every host, while summaries still come through; then the ids come from ESPN's core API
+    and each game's season type and status from its summary.
+    """
+    try:
+        return _get(league, "scoreboard", dates=day.strftime("%Y%m%d")).get("events", [])
+    except Exception as ex:
+        print(f"  scoreboard {day} unreadable ({type(ex).__name__}); listing games from the core API")
+    r = requests.get(_CORE.format(lg=_LEAGUES[league]), params={"dates": day.strftime("%Y%m%d"), "limit": 100},
+                     timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+    r.raise_for_status()
+    events = []
+    for item in r.json().get("items", []):
+        eid = item["$ref"].split("/events/")[1].split("?")[0]
+        h = _get(league, "summary", event=eid)["header"]
+        comp = h["competitions"][0]
+        events.append({"id": eid, "season": {"type": h.get("season", {}).get("type", 0)},
+                       "status": comp["status"],
+                       "shortName": " @ ".join(c["team"]["abbreviation"] for c in
+                                               sorted(comp["competitors"], key=lambda c: c["homeAway"] == "home"))})
+    return events
+
+
 def _norm(name: str) -> str:
     s = unicodedata.normalize("NFKD", str(name)).encode("ascii", "ignore").decode().lower()
     s = s.replace(".", "").replace("'", "").replace(",", "").replace("-", " ").strip()
@@ -260,14 +289,14 @@ def refresh(league: str = "00", today: datetime.date | None = None, max_days: in
     day = start
     while day <= today:
         try:
-            board = _get(league, "scoreboard", dates=day.strftime("%Y%m%d"))
+            events = _day_events(league, day)
         except Exception as ex:
             # Stop here rather than skip the day: the next run re-reads from two days before
             # the newest saved game, so a hole left behind a later day would never be filled.
             # Everything before this day is still written below.
-            print(f"  scoreboard {day} unreadable ({type(ex).__name__}); stopping at {day}")
+            print(f"  games on {day} unreadable ({type(ex).__name__}); stopping at {day}")
             break
-        for e in board.get("events", []):
+        for e in events:
             kind = _TYPES.get(int(e.get("season", {}).get("type", 0)))
             if kind is None or not e["status"]["type"].get("completed"):
                 continue                        # preseason, play-in, all-star, or not over yet
