@@ -3182,8 +3182,8 @@
   "start_time": "2026-10-30T00:16:00.000Z",
   "game_day": "2026-10-29",
   "logged_at": "2026-10-26T03:20:10",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 288.0
  },
  "darren waller|Receiving Yards|18.5|36215311": {
   "player": "Darren Waller",
@@ -3200,8 +3200,8 @@
   "start_time": "2026-10-30T00:16:00.000Z",
   "game_day": "2026-10-29",
   "logged_at": "2026-10-26T03:20:10",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 11.0
  },
  "darren waller|Receptions|2.5|36215311": {
   "player": "Darren Waller",
@@ -3218,8 +3218,8 @@
   "start_time": "2026-10-30T00:16:00.000Z",
   "game_day": "2026-10-29",
   "logged_at": "2026-10-26T03:20:10",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "dak prescott|Passing Yards|265.5|36189007": {
   "player": "Dak Prescott",
@@ -3326,8 +3326,8 @@
   "start_time": "2026-10-30T00:16:00.000Z",
   "game_day": "2026-10-29",
   "logged_at": "2026-10-27T17:56:55",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 11.0
  },
  "jared goff|Passing Yards|263.5|36215318": {
   "player": "Jared Goff",
@@ -4280,8 +4280,8 @@
   "start_time": "2026-10-30T00:16:00.000Z",
   "game_day": "2026-10-29",
   "logged_at": "2026-10-29T05:37:53",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "aaron rodgers|Passing TDs|1.5|36215315": {
   "player": "Aaron Rodgers",
@@ -4586,6 +4586,78 @@
   "start_time": "2026-11-01T18:01:00.000Z",
   "game_day": "2026-11-01",
   "logged_at": "2026-10-29T20:08:06",
+  "outcome": null,
+  "actual": null
+ },
+ "elijah higgins|Receptions|2.5|36215314": {
+  "player": "Elijah Higgins",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "over",
+  "american_odds": 140,
+  "model_prob": 0.4233,
+  "fair_prob": 0.3646,
+  "edge": 0.0587,
+  "sample_n": 23,
+  "depth": 2,
+  "game": "ARI @ DAL",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-30T00:57:17",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler higbee|Receptions|3.5|36215316": {
+  "player": "Tyler Higbee",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "over",
+  "american_odds": -140,
+  "model_prob": 0.5945,
+  "fair_prob": 0.5208,
+  "edge": 0.0737,
+  "sample_n": 16,
+  "depth": 1,
+  "game": "LAC @ LA",
+  "start_time": "2026-11-01T21:06:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-30T00:57:17",
+  "outcome": null,
+  "actual": null
+ },
+ "trevor lawrence|Passing Yards|240.5|36215317": {
+  "player": "Trevor Lawrence",
+  "stat": "Passing Yards",
+  "line": 240.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5339,
+  "fair_prob": 0.475,
+  "edge": 0.0589,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-30T00:57:17",
+  "outcome": null,
+  "actual": null
+ },
+ "rashee rice|Receptions|4.5|36215321": {
+  "player": "Rashee Rice",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "over",
+  "american_odds": -120,
+  "model_prob": 0.5575,
+  "fair_prob": 0.4851,
+  "edge": 0.0724,
+  "sample_n": 11,
+  "depth": 1,
+  "game": "KC @ DEN",
+  "start_time": "2026-11-01T21:26:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-30T00:57:17",
   "outcome": null,
   "actual": null
  }

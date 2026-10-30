@@ -2550,5 +2550,422 @@
    "frozen_at": "2026-10-23T03:09:42"
   },
   "graded": true
+ },
+ "2026-08": {
+  "season": 2026,
+  "week": 8,
+  "generated": "2026-10-30T00:58:12",
+  "ats": [
+   {
+    "game": "PHI @ WAS",
+    "away_team": "PHI",
+    "home_team": "WAS",
+    "spread_line": 6.0,
+    "pred_margin": -1.11,
+    "edge": -7.11,
+    "pick": "away",
+    "pick_label": "PHI +6.0",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "TEN @ CIN",
+    "away_team": "TEN",
+    "home_team": "CIN",
+    "spread_line": 12.5,
+    "pred_margin": 8.96,
+    "edge": -3.54,
+    "pick": "away",
+    "pick_label": "TEN +12.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "KC @ DEN",
+    "away_team": "KC",
+    "home_team": "DEN",
+    "spread_line": -1.5,
+    "pred_margin": 1.42,
+    "edge": 2.92,
+    "pick": "home",
+    "pick_label": "DEN +1.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "IND @ JAX",
+    "away_team": "IND",
+    "home_team": "JAX",
+    "spread_line": 10.0,
+    "pred_margin": 7.35,
+    "edge": -2.65,
+    "pick": "away",
+    "pick_label": "IND +10.0",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "ARI @ DAL",
+    "away_team": "ARI",
+    "home_team": "DAL",
+    "spread_line": 7.0,
+    "pred_margin": 4.75,
+    "edge": -2.25,
+    "pick": "away",
+    "pick_label": "ARI +7.0",
+    "outcome": null,
+    "result": null
+   }
+  ],
+  "parlay": [],
+  "td": [
+   {
+    "player": "Jahmyr Gibbs",
+    "game": "Minnesota Vikings @ Detroit Lions",
+    "american_odds": -290,
+    "model_prob": 0.6254,
+    "fair_prob": 0.7044,
+    "blended_prob": 0.6254,
+    "edge": -0.079,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jonathan Taylor",
+    "game": "Indianapolis Colts @ Jacksonville Jaguars",
+    "american_odds": -110,
+    "model_prob": 0.5745,
+    "fair_prob": 0.4855,
+    "blended_prob": 0.5745,
+    "edge": 0.089,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Derrick Henry",
+    "game": "Baltimore Ravens @ Buffalo Bills",
+    "american_odds": -240,
+    "model_prob": 0.5518,
+    "fair_prob": 0.6663,
+    "blended_prob": 0.5518,
+    "edge": -0.1145,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Javonte Williams",
+    "game": "Arizona Cardinals @ Dallas Cowboys",
+    "american_odds": -240,
+    "model_prob": 0.5475,
+    "fair_prob": 0.6663,
+    "blended_prob": 0.5475,
+    "edge": -0.1188,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "James Cook",
+    "game": "Baltimore Ravens @ Buffalo Bills",
+    "american_odds": -165,
+    "model_prob": 0.5236,
+    "fair_prob": 0.5788,
+    "blended_prob": 0.5236,
+    "edge": -0.0551,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jordan Mason",
+    "game": "Minnesota Vikings @ Detroit Lions",
+    "american_odds": -105,
+    "model_prob": 0.5095,
+    "fair_prob": 0.4754,
+    "blended_prob": 0.5095,
+    "edge": 0.0341,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kyren Williams",
+    "game": "Los Angeles Chargers @ Los Angeles Rams",
+    "american_odds": -135,
+    "model_prob": 0.4942,
+    "fair_prob": 0.5294,
+    "blended_prob": 0.4942,
+    "edge": -0.0351,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Ollie Gordon II",
+    "game": "New England Patriots @ Miami Dolphins",
+    "american_odds": 130,
+    "model_prob": 0.4852,
+    "fair_prob": 0.4071,
+    "blended_prob": 0.4852,
+    "edge": 0.0781,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Bhayshul Tuten",
+    "game": "Indianapolis Colts @ Jacksonville Jaguars",
+    "american_odds": -125,
+    "model_prob": 0.4818,
+    "fair_prob": 0.5131,
+    "blended_prob": 0.4818,
+    "edge": -0.0313,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "D'Andre Swift",
+    "game": "Chicago Bears @ Seattle Seahawks",
+    "american_odds": -115,
+    "model_prob": 0.4698,
+    "fair_prob": 0.4951,
+    "blended_prob": 0.4698,
+    "edge": -0.0254,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "receivers_rule": "edge",
+  "receivers": [
+   {
+    "player": "CeeDee Lamb",
+    "game": "Arizona Cardinals @ Dallas Cowboys",
+    "position": "WR",
+    "american_odds": -135,
+    "model_prob": 0.3295,
+    "fair_prob": 0.5294,
+    "blended_prob": 0.3295,
+    "edge": -0.1999,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Ja'Marr Chase",
+    "game": "Tennessee Titans @ Cincinnati Bengals",
+    "position": "WR",
+    "american_odds": -125,
+    "model_prob": 0.3181,
+    "fair_prob": 0.5131,
+    "blended_prob": 0.3181,
+    "edge": -0.195,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kendrick Bourne",
+    "game": "Arizona Cardinals @ Dallas Cowboys",
+    "position": "WR",
+    "american_odds": 300,
+    "model_prob": 0.0652,
+    "fair_prob": 0.242,
+    "blended_prob": 0.0652,
+    "edge": -0.1768,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Justin Jefferson",
+    "game": "Minnesota Vikings @ Detroit Lions",
+    "position": "WR",
+    "american_odds": 175,
+    "model_prob": 0.1839,
+    "fair_prob": 0.3455,
+    "blended_prob": 0.1839,
+    "edge": -0.1616,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "George Pickens",
+    "game": "Arizona Cardinals @ Dallas Cowboys",
+    "position": "WR",
+    "american_odds": 100,
+    "model_prob": 0.3072,
+    "fair_prob": 0.4647,
+    "blended_prob": 0.3072,
+    "edge": -0.1575,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "wind": [
+   {
+    "game": "NE @ MIA",
+    "home_team": "MIA",
+    "away_team": "NE",
+    "total_line": 43.5,
+    "wind_mph": 19.1,
+    "expected_adj": -7.43,
+    "gameday": "2026-11-01",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "ATL @ TB",
+    "home_team": "TB",
+    "away_team": "ATL",
+    "total_line": 44.5,
+    "wind_mph": 17.0,
+    "expected_adj": -6.61,
+    "gameday": "2026-11-01",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "IND @ JAX",
+    "home_team": "JAX",
+    "away_team": "IND",
+    "total_line": 46.5,
+    "wind_mph": 15.1,
+    "expected_adj": -5.87,
+    "gameday": "2026-11-01",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   }
+  ],
+  "parlay_gate": true,
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Bo Nix",
+    "stat_type": "Passing TDs",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -245,
+    "model_prob": 0.5991,
+    "blended_prob": 0.6888,
+    "implied_prob": 0.6888,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Josh Palmer",
+    "stat_type": "Receptions",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -230,
+    "model_prob": 0.5613,
+    "blended_prob": 0.6763,
+    "implied_prob": 0.6763,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Matthew Stafford",
+    "stat_type": "Rushing Yards",
+    "line": 0.5,
+    "side": "under",
+    "american_odds": -165,
+    "model_prob": 0.9128,
+    "blended_prob": 0.6096,
+    "implied_prob": 0.6096,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Cam Ward",
+    "stat_type": "Passing Yards",
+    "line": 192.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.5219,
+    "blended_prob": 0.525,
+    "implied_prob": 0.525,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Samaje Perine",
+    "stat_type": "Receiving Yards",
+    "line": 7.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.7223,
+    "blended_prob": 0.525,
+    "implied_prob": 0.525,
+    "team": "",
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 11.435,
+   "american": 1043,
+   "model_prob": 0.11571,
+   "blended_prob": 0.07827,
+   "fair_prob": 0.07827,
+   "breakeven_prob": 0.08745
+  },
+  "td_parlay": [
+   "Jahmyr Gibbs",
+   "Jonathan Taylor",
+   "Derrick Henry"
+  ],
+  "td_parlay_price": {
+   "decimal": 3.637,
+   "american": 264,
+   "model_prob": 0.19826,
+   "blended_prob": 0.19826,
+   "fair_prob": 0.22787,
+   "breakeven_prob": 0.27494
+  },
+  "td_rule": "model",
+  "form_parlay": {
+   "day": "2026-11-01",
+   "keys": [
+    "bo nix|Passing TDs|1.5|36215321",
+    "justin herbert|Passing TDs|1.5|36215316",
+    "dawson knox|Receptions|1.5|36215313"
+   ],
+   "legs": [
+    {
+     "player": "Bo Nix",
+     "stat": "Passing TDs",
+     "line": 1.5,
+     "american_odds": -270,
+     "fair_prob": 0.7071,
+     "med5": 1.0,
+     "game": "KC @ DEN",
+     "start_time": "2026-11-01T21:26:00.000Z"
+    },
+    {
+     "player": "Justin Herbert",
+     "stat": "Passing TDs",
+     "line": 1.5,
+     "american_odds": -220,
+     "fair_prob": 0.668,
+     "med5": 1.0,
+     "game": "LAC @ LA",
+     "start_time": "2026-11-01T21:06:00.000Z"
+    },
+    {
+     "player": "Dawson Knox",
+     "stat": "Receptions",
+     "line": 1.5,
+     "american_odds": -205,
+     "fair_prob": 0.6538,
+     "med5": 1.0,
+     "game": "BAL @ BUF",
+     "start_time": "2026-11-01T18:01:00.000Z"
+    }
+   ],
+   "decimal": 2.966,
+   "american": 197,
+   "fair_prob": 0.3088,
+   "breakeven": 0.3372,
+   "frozen_at": "2026-10-30T00:58:12"
+  }
  }
 }

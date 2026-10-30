@@ -1855,9 +1855,9 @@
     "edge": 3.09,
     "pick": "home",
     "pick_label": "ATL -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 114,
+    "away_pts": 111,
     "published": true
    },
    {
@@ -1872,9 +1872,9 @@
     "edge": 1.28,
     "pick": "away",
     "pick_label": "MEM +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 103,
+    "away_pts": 124,
     "published": false
    },
    {
@@ -1889,9 +1889,9 @@
     "edge": 0.29,
     "pick": "away",
     "pick_label": "SAC +6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 132,
+    "away_pts": 120,
     "published": false
    }
   ],
