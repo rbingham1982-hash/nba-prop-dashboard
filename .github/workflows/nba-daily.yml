@@ -1,0 +1,140 @@
+# The nightly NBA post (nba_daily_post.py): tonight's board, last night's results and a
+# research card, built at 4:30 PM Chicago and published by hand.
+#
+# A scheduled run is a DRY RUN: it builds the cards and posts nothing. The headline and
+# notes land on the run's summary page and the cards are attached as an artifact. To send:
+# Actions -> nba daily -> Run workflow, tick "publish". That posts the headline and cards
+# to Discord (DISCORD_WEBHOOK_URL secret) and commits the cards and the marker that stops a
+# second post the same day.
+name: nba daily
+
+on:
+  schedule:
+    # 16:30 Chicago in both CDT (21:30 UTC) and CST (22:30 UTC); the gate lets one through.
+    - cron: "30 21 * * *"
+    - cron: "30 22 * * *"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Post to Discord (unticked = dry run for review)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: read
+
+# Shares the daily board's queue: both read and may write nba_daily_picks.json.
+concurrency:
+  group: daily-board
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: America/Chicago
+      PYTHONUTF8: "1"
+      KONJURE_NBA_SNAPSHOT: "1"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Decide whether to build
+        id: plan
+        run: |
+          echo "stamp=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "publish=${{ inputs.publish }}" >> "$GITHUB_OUTPUT"
+            echo "go=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          hour=$(date +%-H)
+          # One of the pair fires an hour early for the season's clock; GitHub can also start
+          # a run late, so 16:00-19:59 counts.
+          if [ "$hour" -lt 16 ] || [ "$hour" -gt 19 ]; then
+            echo "go=false" >> "$GITHUB_OUTPUT"; echo "$hour:00 is outside the window"; exit 0
+          fi
+          done_today=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=nba-daily&per_page=20" \
+                         --jq "[.artifacts[] | select(.created_at > \"$(date -u -d '-20 hours' +%Y-%m-%dT%H:%M:%SZ)\")] | length")
+          if [ "${done_today:-0}" -gt 0 ]; then
+            echo "go=false" >> "$GITHUB_OUTPUT"; echo "already built today"; exit 0
+          fi
+          echo "publish=false" >> "$GITHUB_OUTPUT"
+          echo "go=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v7
+        if: steps.plan.outputs.go == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        if: steps.plan.outputs.go == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Refresh NBA data from ESPN
+        if: steps.plan.outputs.go == 'true'
+        run: python nba_espn.py
+
+      - name: Build the post
+        if: steps.plan.outputs.go == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ steps.plan.outputs.publish == 'true' && secrets.DISCORD_WEBHOOK_URL || '' }}
+        run: |
+          python - <<'EOF'
+          import json, os
+          import nba_daily_post as p
+          live = "${{ steps.plan.outputs.publish }}" == "true"
+          if live and not os.environ.get("DISCORD_WEBHOOK_URL"):
+              raise SystemExit("publish was ticked but the DISCORD_WEBHOOK_URL secret is not set")
+          r = p.run(publish_now=live)
+          print(json.dumps(r, indent=1, default=str))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as s:
+              s.write(f"## NBA daily, {r['day']}: {r['action']}\n\n")
+              s.write("**Discord headline:**\n\n```\n" + r["headline"] + "\n```\n\n")
+              s.write(f"**Cards ({len(r['cards'])}):** " + ", ".join(os.path.basename(c) for c in r["cards"])
+                      + " (download them from Artifacts below)\n\n")
+              for n in r["notes"]:
+                  s.write(f"- {n}\n")
+              if r.get("posted"):
+                  s.write(f"\n**Posted:** `{json.dumps(r['posted'], default=str)}`\n")
+          if live and r["action"] not in ("posted", "already posted today: skipped", "nothing to post"):
+              raise SystemExit(f"Discord post did not go through: {r['action']} {r.get('posted')}")
+          EOF
+
+      - name: Attach the cards
+        if: steps.plan.outputs.go == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nba-daily
+          path: newsletter_out/${{ steps.plan.outputs.stamp }}-nba-daily-*
+          retention-days: 14
+          if-no-files-found: ignore
+
+      # nba_daily_picks.json if the board was saved here (the daily board missed its run),
+      # and after a live post the cards that went out plus the marker.
+      - name: Commit
+        if: steps.plan.outputs.go == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          stamp=$(date +%Y-%m-%d)
+          git add nba_daily_picks.json
+          if [ "${{ steps.plan.outputs.publish }}" = "true" ]; then
+            git add -f newsletter_out/${stamp}-nba-daily-*.jpg
+            [ -e newsletter_out/.published-${stamp}-nba-daily-discord ] && git add -f newsletter_out/.published-${stamp}-nba-daily-discord
+          fi
+          if git diff --cached --quiet; then echo "Nothing to commit."; exit 0; fi
+          git commit -q -m "chore: nba daily post ${stamp}"
+          git restore .
+          for i in 1 2 3; do
+            git pull --rebase -q && git push -q && exit 0
+            sleep $((i * 15))
+          done
+          echo "Push failed after three tries."
+          exit 1
