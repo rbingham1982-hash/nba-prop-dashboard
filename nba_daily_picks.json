@@ -1911,8 +1911,8 @@
     "implied_prob": 0.6994,
     "blended_prob": 0.6994,
     "edge": 0.1506,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Jaylen Wells",
@@ -1926,8 +1926,8 @@
     "implied_prob": 0.6462,
     "blended_prob": 0.6462,
     "edge": 0.0038,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Cam Spencer",
@@ -1941,8 +1941,8 @@
     "implied_prob": 0.6257,
     "blended_prob": 0.6257,
     "edge": -0.29,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 8.0
    },
    {
     "player": "Zach Edey",
@@ -1956,8 +1956,8 @@
     "implied_prob": 0.5669,
     "blended_prob": 0.5669,
     "edge": -0.1626,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 13.0
    },
    {
     "player": "Dyson Daniels",
@@ -1971,8 +1971,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": -0.1996,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 15.0
    }
   ],
   "parlay_withheld_price": {
