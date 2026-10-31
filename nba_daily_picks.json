@@ -2000,9 +2000,9 @@
     "edge": 4.96,
     "pick": "away",
     "pick_label": "IND +8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 145,
+    "away_pts": 125,
     "published": true
    },
    {
@@ -2017,9 +2017,9 @@
     "edge": 3.6,
     "pick": "away",
     "pick_label": "DET -8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 94,
+    "away_pts": 110,
     "published": true
    },
    {
@@ -2034,9 +2034,9 @@
     "edge": 2.86,
     "pick": "home",
     "pick_label": "PHI +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 98,
+    "away_pts": 93,
     "published": true
    },
    {
@@ -2051,9 +2051,9 @@
     "edge": 2.66,
     "pick": "home",
     "pick_label": "TOR -5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 114,
+    "away_pts": 121,
     "published": false
    },
    {
@@ -2068,9 +2068,9 @@
     "edge": 2.15,
     "pick": "away",
     "pick_label": "CHA -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 95,
+    "away_pts": 79,
     "published": false
    },
    {
@@ -2085,9 +2085,9 @@
     "edge": 1.05,
     "pick": "home",
     "pick_label": "PHX +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 120,
+    "away_pts": 127,
     "published": false
    },
    {
@@ -2102,9 +2102,9 @@
     "edge": 0.86,
     "pick": "away",
     "pick_label": "CHI +14.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 125,
+    "away_pts": 111,
     "published": false
    },
    {
@@ -2119,9 +2119,9 @@
     "edge": 0.79,
     "pick": "away",
     "pick_label": "LAC +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 127,
+    "away_pts": 101,
     "published": false
    },
    {
@@ -2136,9 +2136,9 @@
     "edge": 0.66,
     "pick": "away",
     "pick_label": "HOU -6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 116,
+    "away_pts": 111,
     "published": false
    },
    {
@@ -2153,9 +2153,9 @@
     "edge": 0.18,
     "pick": "home",
     "pick_label": "GSW +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 112,
+    "away_pts": 95,
     "published": false
    }
   ],
@@ -2175,8 +2175,8 @@
     "implied_prob": 0.7103,
     "blended_prob": 0.7103,
     "edge": 0.1397,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Kentavious Caldwell-Pope",
@@ -2190,8 +2190,8 @@
     "implied_prob": 0.6681,
     "blended_prob": 0.6681,
     "edge": 0.0748,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Tre Johnson",
@@ -2205,8 +2205,8 @@
     "implied_prob": 0.6592,
     "blended_prob": 0.6592,
     "edge": -0.1806,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Kris Dunn",
@@ -2220,8 +2220,8 @@
     "implied_prob": 0.5717,
     "blended_prob": 0.5717,
     "edge": 0.1954,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 5.0
    },
    {
     "player": "Al Horford",
@@ -2235,8 +2235,8 @@
     "implied_prob": 0.5573,
     "blended_prob": 0.5573,
     "edge": -0.1887,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 5.0
    }
   ],
   "parlay_withheld_price": {

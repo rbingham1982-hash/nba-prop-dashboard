@@ -33636,5 +33636,49 @@
   "logged_at": "2026-10-30T21:29:16",
   "outcome": null,
   "actual": null
+ },
+ "michael carter|Receiving Yards|7.5|36215312": {
+  "player": "Michael Carter",
+  "stat": "Receiving Yards",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   7.0
+  ],
+  "game": "TEN @ CIN",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T00:51:58",
+  "outcome": null,
+  "actual": null
+ },
+ "jauan jennings|Receiving Yards|12.5|36215318": {
+  "player": "Jauan Jennings",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   8.0,
+   0.0,
+   34.0
+  ],
+  "game": "MIN @ DET",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T00:51:58",
+  "outcome": null,
+  "actual": null
  }
 }

@@ -62,11 +62,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": -104,
-   "away_odds": -112,
-   "home_prob": 0.4911
+   "home_odds": -102,
+   "away_odds": -116,
+   "home_prob": 0.4846
   },
-  "last_seen": "2026-10-30T21:29:59"
+  "last_seen": "2026-10-31T00:52:44"
  },
  "SAC @ MEM|2026-11-01T00:10": {
   "label": "SAC @ MEM",
@@ -85,11 +85,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": -430,
-   "away_odds": 340,
-   "home_prob": 0.7812
+   "home_odds": -450,
+   "away_odds": 350,
+   "home_prob": 0.7864
   },
-  "last_seen": "2026-10-30T21:29:59"
+  "last_seen": "2026-10-31T00:52:44"
  },
  "CHA @ DAL|2026-10-31T02:55": {
   "label": "CHA @ DAL",
@@ -113,5 +113,28 @@
    "home_prob": 0.4064
   },
   "last_seen": "2026-10-30T21:29:59"
+ },
+ "DAL @ CHA|2026-10-31T06:23": {
+  "label": "DAL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-10-31T06:23:00.000Z",
+  "luck_home": -3.15,
+  "luck_away": 0.14,
+  "bet": "home",
+  "first_seen": "2026-10-31T00:52:44",
+  "first": {
+   "home_odds": 205,
+   "away_odds": -320,
+   "home_prob": 0.3009
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 205,
+   "away_odds": -320,
+   "home_prob": 0.3009
+  },
+  "last_seen": "2026-10-31T00:52:44"
  }
 }
