@@ -142,6 +142,60 @@ def position_summary(rg: pd.DataFrame, pos: str) -> pd.DataFrame:
     return out
 
 
+# A prop leg's matchup, for the Sunday board's veto (weekly_picks.parlay_legs).
+#
+# Backtest 2026-10-31: 1,251 graded FanDuel legs from Weeks 4-8, each defence's split built
+# only from the games before that leg's week, 3+ games required. Legs whose defence allowed
+# their role 25%+ less than league average (tilted against an over, or for an under) hit
+# 45.1% at 49.1% implied (-4.0 +/- 2.7 points); legs tilted 25%+ their way hit 51.7% at
+# 49.7% (+1.9 +/- 3.1). The direction held at a 2-game minimum (-2.8 vs +1.4) but neither
+# split is significant, receptions ran the other way, and the legs kept still lost money at
+# the price. So it only vetoes the worst matchups, it never ranks, and each leg's tilt is
+# logged so the weeks ahead can confirm or retire it.
+VETO_TILT, VETO_MIN_G = -0.25, 3
+LEG_STATS = {"Passing Yards": ("Pass yds", "passing_yards"), "Passing TDs": ("Pass TD", "passing_tds"),
+             "Rushing Yards": ("Rush yds", "rushing_yards"), "Receiving Yards": ("Rec yds", "receiving_yards"),
+             "Receptions": ("Rec", "receptions"), "Rushing TDs": ("Rush TD", "rushing_tds"),
+             "Receiving TDs": ("Rec TD", "receiving_tds")}
+
+
+def leg_matchup(rg: pd.DataFrame, player: str, stat_type: str, side: str, game_label: str,
+                min_games: int = VETO_MIN_G) -> dict | None:
+    """
+    How the leg's opponent has played the player's role on the leg's stat, against the
+    league: tilt = (allowed - league average) / league average, signed so + favours the leg.
+    The role is the one he held in his latest game. None when the player, the stat for his
+    position, or min_games of that defence against the role can't be found.
+    """
+    import nfl_analysis as nfl
+    if rg.empty or stat_type not in LEG_STATS or "@" not in str(game_label):
+        return None
+    if "_key" not in rg:
+        rg["_key"] = rg["player"].map(nfl._name_key)
+    me = rg[rg["_key"] == nfl._name_key(player)]
+    if me.empty:
+        return None
+    me = me.sort_values("week").iloc[-1]
+    away, home = [t.strip() for t in str(game_label).split("@")]
+    if me["team"] not in (away, home):
+        return None                                 # traded, or a namesake on another club
+    opp = home if me["team"] == away else away
+    lab, col = LEG_STATS[stat_type]
+    pos = me["role"].rstrip("0123456789")
+    if lab not in [x for x, _ in ROLE_STATS[pos]]:
+        return None
+    role = rg[rg["role"] == me["role"]]
+    d = role[role["opponent"] == opp]
+    if d["week"].nunique() < min_games:
+        return None
+    allowed, avg = float(d[col].mean()), float(role[col].mean())
+    if not avg:
+        return None
+    tilt = (allowed - avg) / avg * (1 if side == "over" else -1)
+    return {"role": me["role"], "opp": opp, "allowed": round(allowed, 2), "avg": round(avg, 2),
+            "games": int(d["week"].nunique()), "tilt": round(tilt, 3)}
+
+
 def player_role(season: int, player_id) -> tuple | None:
     """(position, rank on the newest depth chart, team) for a player, or None if unlisted."""
     import nfl_analysis as nfl

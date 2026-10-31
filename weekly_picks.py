@@ -201,6 +201,15 @@ def parlay_legs(n: int = 5) -> list:
         pass
 
     depths = _depth_lookup()
+    # The matchup veto (nfl_matchup.VETO_TILT): a leg whose defence has held its role 25%+
+    # under the league average is dropped. A veto only, never a ranking; see the backtest
+    # note there. Without the role data the board runs as it did before.
+    try:
+        import nfl_matchup as nm
+        rg = nm.role_games(current_week()[0])
+    except Exception:
+        nm, rg = None, None
+    parlay_legs.vetoed = []
     scored = []
     for lg in legs:
         model = lg.get("hit_rate")
@@ -219,9 +228,14 @@ def parlay_legs(n: int = 5) -> list:
         d = depths.get(lg["player_name"])
         if d is not None and d > _MAX_DEPTH:
             continue
+        m = (nm.leg_matchup(rg, lg["player_name"], lg["stat_type"], lg["side"], lg.get("game_label", ""))
+             if rg is not None else None)
+        if m and m["tilt"] <= nm.VETO_TILT:
+            parlay_legs.vetoed.append({**lg, "matchup": m})
+            continue
         scored.append({**lg, "model_prob": round(float(model), 4),
                        "blended_prob": round(blended, 4),
-                       "edge": round(edge, 4), "depth": d})
+                       "edge": round(edge, 4), "depth": d, "matchup": m})
 
     # One leg per category and one per player, most LIKELY first — not most disagreed-with.
     #
@@ -730,6 +744,7 @@ def log_picks(season: int | None = None, week: int | None = None,
                  "american_odds": r.get("american_odds"),
                  "model_prob": r.get("model_prob"), "blended_prob": r.get("blended_prob"),
                  "implied_prob": r.get("implied_prob"), "team": r.get("team", ""),
+                 "matchup": r.get("matchup"),
                  "outcome": None, "actual": None} for r in rows]
 
     tdp = td_parlay(td)
