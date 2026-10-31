@@ -34186,5 +34186,203 @@
   "logged_at": "2026-10-31T12:17:24",
   "outcome": null,
   "actual": null
+ },
+ "rico dowdle|Rushing Yards|31.5|36215315": {
+  "player": "Rico Dowdle",
+  "stat": "Rushing Yards",
+  "line": 31.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 22.0,
+  "last5": [
+   10.0,
+   15.0,
+   22.0,
+   40.0,
+   41.0
+  ],
+  "game": "CLE @ PIT",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
+ },
+ "tj hockenson|Receiving Yards|40.5|36215318": {
+  "player": "T.J. Hockenson",
+  "stat": "Receiving Yards",
+  "line": 40.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 29.0,
+  "last5": [
+   29.0,
+   11.0,
+   119.0,
+   7.0,
+   35.0
+  ],
+  "game": "MIN @ DET",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
+ },
+ "michael penix|Rushing Yards|2.5|36215319": {
+  "player": "Michael Penix Jr.",
+  "stat": "Rushing Yards",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4961,
+  "med5": -1.0,
+  "last5": [
+   -2.0,
+   -2.0,
+   8.0,
+   1.0,
+   -1.0
+  ],
+  "game": "ATL @ TB",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
+ },
+ "courtland sutton|Receiving Yards|42.5|36215321": {
+  "player": "Courtland Sutton",
+  "stat": "Receiving Yards",
+  "line": 42.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   46.0,
+   4.0,
+   18.0,
+   19.0,
+   45.0
+  ],
+  "game": "KC @ DEN",
+  "start_time": "2026-11-01T21:26:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
+ },
+ "efton chism|Receiving Yards|29.5|36215322": {
+  "player": "Efton Chism III",
+  "stat": "Receiving Yards",
+  "line": 29.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 16.0,
+  "last5": [
+   1.0,
+   42.0,
+   57.0,
+   0.0,
+   16.0
+  ],
+  "game": "NE @ MIA",
+  "start_time": "2026-11-01T21:26:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
+ },
+ "efton chism|Receptions|2.5|36215322": {
+  "player": "Efton Chism III",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   2.0,
+   5.0,
+   0.0,
+   1.0
+  ],
+  "game": "NE @ MIA",
+  "start_time": "2026-11-01T21:26:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
+ },
+ "rhamondre stevenson|Rushing Yards|58.5|36215322": {
+  "player": "Rhamondre Stevenson",
+  "stat": "Rushing Yards",
+  "line": 58.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 36.0,
+  "last5": [
+   22.0,
+   47.0,
+   64.0,
+   36.0,
+   22.0
+  ],
+  "game": "NE @ MIA",
+  "start_time": "2026-11-01T21:26:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
+ },
+ "marquise brown|Receiving Yards|22.5|36215324": {
+  "player": "Marquise Brown",
+  "stat": "Receiving Yards",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 22.0,
+  "last5": [
+   22.0,
+   7.0,
+   64.0,
+   0.0,
+   30.0
+  ],
+  "game": "PHI @ WAS",
+  "start_time": "2026-11-02T01:21:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
+ },
+ "rachaad white|Rushing Yards|39.5|36215324": {
+  "player": "Rachaad White",
+  "stat": "Rushing Yards",
+  "line": 39.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 27.0,
+  "last5": [
+   22.0,
+   43.0,
+   35.0,
+   18.0,
+   27.0
+  ],
+  "game": "PHI @ WAS",
+  "start_time": "2026-11-02T01:21:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T15:23:15",
+  "outcome": null,
+  "actual": null
  }
 }
