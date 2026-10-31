@@ -862,6 +862,14 @@ def run_favorite_signal(sports, month: int) -> None:
                   f"— {teaser_signal.record()}")
         except Exception as e:
             print(f"  Teaser signal NFL failed ({e}) — retried next run.")
+        # Every anytime-TD price, so the TD board can be tested against its market
+        # (td_market). The last price before kickoff is the one graded, so every firing.
+        try:
+            import td_market
+            r = td_market.run()
+            print(f"  TD market NFL: graded {r['graded']}, logged {r['logged']} — {td_market.record()}")
+        except Exception as e:
+            print(f"  TD market NFL failed ({e}) — retried next run.")
     # The three-point-luck test (threes_signal) is NBA-only, so it rides along with
     # whichever runner has NBA (the cloud, reading the saved league log, since 2026-10-18).
     if "nba" in sports and seasons.get("nba"):
