@@ -2916,7 +2916,7 @@
    "home_odds": 180,
    "away_odds": -280
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -3502,5 +3502,101 @@
    "away_odds": 185
   },
   "last_seen": "2026-10-30T18:01:37"
+ },
+ "SAC @ MEM|2026-11-01T00:10": {
+  "label": "SAC @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Sacramento Kings",
+  "start_time": "2026-11-01T00:10:00.000Z",
+  "first_seen": "2026-10-30T21:29:57",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7812,
+   "odds": -430,
+   "home_odds": -430,
+   "away_odds": 340
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7812,
+   "odds": -430,
+   "home_odds": -430,
+   "away_odds": 340
+  },
+  "last_seen": "2026-10-30T21:29:57"
+ },
+ "POR @ UTA|2026-10-31T19:10": {
+  "label": "POR @ UTA",
+  "home_name": "Utah Jazz",
+  "away_name": "Portland Trail Blazers",
+  "start_time": "2026-10-31T19:10:00.000Z",
+  "first_seen": "2026-10-30T21:29:57",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6613,
+   "odds": -220,
+   "home_odds": 184,
+   "away_odds": -220
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6613,
+   "odds": -220,
+   "home_odds": 184,
+   "away_odds": -220
+  },
+  "last_seen": "2026-10-30T21:29:57"
+ },
+ "MIN @ SAS|2026-11-01T00:10": {
+  "label": "MIN @ SAS",
+  "home_name": "San Antonio Spurs",
+  "away_name": "Minnesota Timberwolves",
+  "start_time": "2026-11-01T00:10:00.000Z",
+  "first_seen": "2026-10-30T21:29:57",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.8119,
+   "odds": -550,
+   "home_odds": -550,
+   "away_odds": 410
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.8119,
+   "odds": -550,
+   "home_odds": -550,
+   "away_odds": 410
+  },
+  "last_seen": "2026-10-30T21:29:57"
+ },
+ "CLE @ MIL|2026-11-01T00:10": {
+  "label": "CLE @ MIL",
+  "home_name": "Milwaukee Bucks",
+  "away_name": "Cleveland Cavaliers",
+  "start_time": "2026-11-01T00:10:00.000Z",
+  "first_seen": "2026-10-30T21:29:57",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": 265,
+   "away_odds": -330
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": 265,
+   "away_odds": -330
+  },
+  "last_seen": "2026-10-30T21:29:57"
  }
 }

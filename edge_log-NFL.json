@@ -5056,5 +5056,41 @@
   "logged_at": "2026-10-30T17:48:38",
   "outcome": null,
   "actual": null
+ },
+ "michael carter|Receiving Yards|8.5|36215312": {
+  "player": "Michael Carter",
+  "stat": "Receiving Yards",
+  "line": 8.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5945,
+  "fair_prob": 0.475,
+  "edge": 0.1195,
+  "sample_n": 14,
+  "depth": 2,
+  "game": "TEN @ CIN",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-30T21:29:55",
+  "outcome": null,
+  "actual": null
+ },
+ "michael carter|Rushing Yards|12.5|36215312": {
+  "player": "Michael Carter",
+  "stat": "Rushing Yards",
+  "line": 12.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5675,
+  "fair_prob": 0.475,
+  "edge": 0.0925,
+  "sample_n": 14,
+  "depth": 2,
+  "game": "TEN @ CIN",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-30T21:29:55",
+  "outcome": null,
+  "actual": null
  }
 }
