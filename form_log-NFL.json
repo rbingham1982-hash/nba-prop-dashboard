@@ -34384,5 +34384,49 @@
   "logged_at": "2026-10-31T15:23:15",
   "outcome": null,
   "actual": null
+ },
+ "khalil herbert|Rushing Yards|7.5|36215319": {
+  "player": "Khalil Herbert",
+  "stat": "Rushing Yards",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 5.0,
+  "last5": [
+   0.0,
+   5.0,
+   5.0,
+   42.0,
+   9.0
+  ],
+  "game": "ATL @ TB",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-10-31T17:33:07",
+  "outcome": null,
+  "actual": null
+ },
+ "dandre swift|Rushing Yards|61.5|36215323": {
+  "player": "D'Andre Swift",
+  "stat": "Rushing Yards",
+  "line": 61.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 58.0,
+  "last5": [
+   84.0,
+   58.0,
+   43.0,
+   44.0,
+   78.0
+  ],
+  "game": "CHI @ SEA",
+  "start_time": "2026-11-03T01:16:00.000Z",
+  "game_day": "2026-11-02",
+  "logged_at": "2026-10-31T17:33:07",
+  "outcome": null,
+  "actual": null
  }
 }
