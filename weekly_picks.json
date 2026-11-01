@@ -2577,8 +2577,8 @@
     "edge": -3.54,
     "pick": "away",
     "pick_label": "TEN +12.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 7.0
    },
    {
     "game": "KC @ DEN",
@@ -2601,8 +2601,8 @@
     "edge": -2.65,
     "pick": "away",
     "pick_label": "IND +10.0",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": 35.0
    },
    {
     "game": "ARI @ DAL",
@@ -2613,8 +2613,8 @@
     "edge": -2.25,
     "pick": "away",
     "pick_label": "ARI +7.0",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": -3.0
    }
   ],
   "parlay": [],
@@ -2814,9 +2814,9 @@
     "wind_mph": 17.0,
     "expected_adj": -6.61,
     "gameday": "2026-11-01",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 16.0,
+    "residual": -28.5
    },
    {
     "game": "IND @ JAX",
@@ -2826,9 +2826,9 @@
     "wind_mph": 15.1,
     "expected_adj": -5.87,
     "gameday": "2026-11-01",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 49.0,
+    "residual": 2.5
    }
   ],
   "parlay_gate": true,
@@ -2966,6 +2966,7 @@
    "fair_prob": 0.3088,
    "breakeven": 0.3372,
    "frozen_at": "2026-10-30T00:58:12"
-  }
+  },
+  "graded": false
  }
 }

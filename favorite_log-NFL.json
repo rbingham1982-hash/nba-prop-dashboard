@@ -396,8 +396,8 @@
    "home_odds": -620,
    "away_odds": 460
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.8566,
@@ -420,8 +420,8 @@
    "home_odds": -310,
    "away_odds": 250
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "home",
    "fav_prob": 0.7402,
@@ -444,8 +444,8 @@
    "home_odds": -235,
    "away_odds": 194
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.6248,
@@ -492,8 +492,8 @@
    "home_odds": -390,
    "away_odds": 310
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.8105,
@@ -573,7 +573,7 @@
    "home_odds": -270,
    "away_odds": 220
   },
-  "last_seen": "2026-11-01T14:43:59"
+  "last_seen": "2026-11-01T16:17:21"
  },
  "NYJ @ KC|2026-11-08T18:01": {
   "label": "NYJ @ KC",
