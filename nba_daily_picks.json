@@ -2264,9 +2264,9 @@
     "edge": 13.49,
     "pick": "away",
     "pick_label": "MIN +12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 121,
+    "away_pts": 111,
     "published": false
    },
    {
@@ -2281,9 +2281,9 @@
     "edge": 3.89,
     "pick": "home",
     "pick_label": "MEM -8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 136,
+    "away_pts": 105,
     "published": true
    },
    {
@@ -2298,9 +2298,9 @@
     "edge": 2.07,
     "pick": "home",
     "pick_label": "MIL +9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 111,
+    "away_pts": 136,
     "published": true
    },
    {
@@ -2315,9 +2315,9 @@
     "edge": 1.58,
     "pick": "away",
     "pick_label": "ATL -4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 121,
+    "away_pts": 99,
     "published": false
    },
    {
@@ -2332,9 +2332,9 @@
     "edge": 1.09,
     "pick": "home",
     "pick_label": "UTA +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 90,
+    "away_pts": 112,
     "published": false
    },
    {
@@ -2349,9 +2349,9 @@
     "edge": 0.94,
     "pick": "away",
     "pick_label": "PHI -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 104,
+    "away_pts": 109,
     "published": false
    },
    {
@@ -2366,9 +2366,9 @@
     "edge": 0.52,
     "pick": "away",
     "pick_label": "OKC +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 119,
+    "away_pts": 98,
     "published": false
    }
   ],
@@ -2388,8 +2388,8 @@
     "implied_prob": 0.7111,
     "blended_prob": 0.7111,
     "edge": 0.0903,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Zach LaVine",
@@ -2403,8 +2403,8 @@
     "implied_prob": 0.6391,
     "blended_prob": 0.6391,
     "edge": 0.018,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Jaylen Wells",
@@ -2418,8 +2418,8 @@
     "implied_prob": 0.6391,
     "blended_prob": 0.6391,
     "edge": -0.0105,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Donovan Clingan",
@@ -2433,8 +2433,8 @@
     "implied_prob": 0.5678,
     "blended_prob": 0.5678,
     "edge": 0.0493,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 4.0
    },
    {
     "player": "Jeremiah Fears",
@@ -2448,8 +2448,8 @@
     "implied_prob": 0.5532,
     "blended_prob": 0.5532,
     "edge": -0.1846,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 32.0
    }
   ],
   "parlay_withheld_price": {

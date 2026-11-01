@@ -34582,5 +34582,71 @@
   "logged_at": "2026-10-31T20:31:09",
   "outcome": null,
   "actual": null
+ },
+ "josh cameron|Receiving Yards|20.5|36215317": {
+  "player": "Josh Cameron",
+  "stat": "Receiving Yards",
+  "line": 20.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   0.0,
+   12.0,
+   42.0,
+   43.0,
+   0.0
+  ],
+  "game": "IND @ JAX",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-11-01T01:16:09",
+  "outcome": null,
+  "actual": null
+ },
+ "aaron jones|Receiving Yards|9.5|36215318": {
+  "player": "Aaron Jones",
+  "stat": "Receiving Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 4.0,
+  "last5": [
+   0.0,
+   34.0,
+   34.0,
+   4.0,
+   0.0
+  ],
+  "game": "MIN @ DET",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-11-01T01:16:09",
+  "outcome": null,
+  "actual": null
+ },
+ "efton chism|Receiving Yards|27.5|36215322": {
+  "player": "Efton Chism III",
+  "stat": "Receiving Yards",
+  "line": 27.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 16.0,
+  "last5": [
+   1.0,
+   42.0,
+   57.0,
+   0.0,
+   16.0
+  ],
+  "game": "NE @ MIA",
+  "start_time": "2026-11-01T21:26:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-11-01T01:16:09",
+  "outcome": null,
+  "actual": null
  }
 }

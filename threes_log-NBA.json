@@ -59,8 +59,8 @@
    "away_odds": -112,
    "home_prob": 0.4911
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "home_odds": -108,
    "away_odds": -108,
@@ -82,8 +82,8 @@
    "away_odds": 340,
    "home_prob": 0.7812
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": -340,
    "away_odds": 275,
@@ -297,5 +297,28 @@
    "home_prob": 0.6173
   },
   "last_seen": "2026-10-31T20:31:55"
+ },
+ "MEM @ MIL|2026-11-01T07:03": {
+  "label": "MEM @ MIL",
+  "home_name": "Milwaukee Bucks",
+  "away_name": "Memphis Grizzlies",
+  "start_time": "2026-11-01T07:03:00.000Z",
+  "luck_home": -1.94,
+  "luck_away": 1.79,
+  "bet": "home",
+  "first_seen": "2026-11-01T01:17:02",
+  "first": {
+   "home_odds": -180,
+   "away_odds": 125,
+   "home_prob": 0.5912
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -180,
+   "away_odds": 125,
+   "home_prob": 0.5912
+  },
+  "last_seen": "2026-11-01T01:17:02"
  }
 }

@@ -5344,5 +5344,41 @@
   "logged_at": "2026-10-31T20:31:50",
   "outcome": null,
   "actual": null
+ },
+ "michael carter|Receptions|1.5|36215312": {
+  "player": "Michael Carter",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": -118,
+  "model_prob": 0.563,
+  "fair_prob": 0.4811,
+  "edge": 0.0819,
+  "sample_n": 14,
+  "depth": 2,
+  "game": "TEN @ CIN",
+  "start_time": "2026-11-01T18:01:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-11-01T01:16:56",
+  "outcome": null,
+  "actual": null
+ },
+ "emanuel wilson|Rushing Yards|18.5|36215323": {
+  "player": "Emanuel Wilson",
+  "stat": "Rushing Yards",
+  "line": 18.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.6003,
+  "fair_prob": 0.475,
+  "edge": 0.1253,
+  "sample_n": 24,
+  "depth": 2,
+  "game": "CHI @ SEA",
+  "start_time": "2026-11-03T01:16:00.000Z",
+  "game_day": "2026-11-02",
+  "logged_at": "2026-11-01T01:16:56",
+  "outcome": null,
+  "actual": null
  }
 }
