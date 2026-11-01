@@ -5308,5 +5308,41 @@
   "logged_at": "2026-10-31T17:33:45",
   "outcome": null,
   "actual": null
+ },
+ "zach charbonnet|Receptions|1.5|36215323": {
+  "player": "Zach Charbonnet",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 134,
+  "model_prob": 0.4874,
+  "fair_prob": 0.3743,
+  "edge": 0.1131,
+  "sample_n": 16,
+  "depth": 1,
+  "game": "CHI @ SEA",
+  "start_time": "2026-11-03T01:16:00.000Z",
+  "game_day": "2026-11-02",
+  "logged_at": "2026-10-31T20:31:50",
+  "outcome": null,
+  "actual": null
+ },
+ "emanuel wilson|Rushing Yards|21.5|36215323": {
+  "player": "Emanuel Wilson",
+  "stat": "Rushing Yards",
+  "line": 21.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.566,
+  "fair_prob": 0.475,
+  "edge": 0.091,
+  "sample_n": 24,
+  "depth": 2,
+  "game": "CHI @ SEA",
+  "start_time": "2026-11-03T01:16:00.000Z",
+  "game_day": "2026-11-02",
+  "logged_at": "2026-10-31T20:31:50",
+  "outcome": null,
+  "actual": null
  }
 }

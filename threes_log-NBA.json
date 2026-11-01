@@ -251,5 +251,51 @@
    "home_prob": 0.5287
   },
   "last_seen": "2026-10-31T17:33:48"
+ },
+ "ORL @ CHA|2026-11-01T02:07": {
+  "label": "ORL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Orlando Magic",
+  "start_time": "2026-11-01T02:07:00.000Z",
+  "luck_home": -4.31,
+  "luck_away": 0.4,
+  "bet": "home",
+  "first_seen": "2026-10-31T20:31:55",
+  "first": {
+   "home_odds": -155,
+   "away_odds": 105,
+   "home_prob": 0.5548
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -155,
+   "away_odds": 105,
+   "home_prob": 0.5548
+  },
+  "last_seen": "2026-10-31T20:31:55"
+ },
+ "ORL @ CHA|2026-11-01T02:23": {
+  "label": "ORL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Orlando Magic",
+  "start_time": "2026-11-01T02:23:00.000Z",
+  "luck_home": -4.31,
+  "luck_away": 0.4,
+  "bet": "home",
+  "first_seen": "2026-10-31T20:31:55",
+  "first": {
+   "home_odds": -205,
+   "away_odds": 140,
+   "home_prob": 0.6173
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -205,
+   "away_odds": 140,
+   "home_prob": 0.6173
+  },
+  "last_seen": "2026-10-31T20:31:55"
  }
 }
