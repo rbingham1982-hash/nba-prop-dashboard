@@ -34890,5 +34890,49 @@
   "logged_at": "2026-11-01T12:51:05",
   "outcome": null,
   "actual": null
+ },
+ "kyle williams|Receiving Yards|22.5|36215322": {
+  "player": "Kyle Williams",
+  "stat": "Receiving Yards",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 12.0,
+  "last5": [
+   34.0,
+   0.0,
+   91.0,
+   12.0,
+   0.0
+  ],
+  "game": "NE @ MIA",
+  "start_time": "2026-11-01T21:26:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-11-01T13:42:35",
+  "outcome": null,
+  "actual": null
+ },
+ "ollie gordon|Receiving Yards|8.5|36215322": {
+  "player": "Ollie Gordon II",
+  "stat": "Receiving Yards",
+  "line": 8.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   14.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "game": "NE @ MIA",
+  "start_time": "2026-11-01T21:26:00.000Z",
+  "game_day": "2026-11-01",
+  "logged_at": "2026-11-01T13:42:35",
+  "outcome": null,
+  "actual": null
  }
 }
