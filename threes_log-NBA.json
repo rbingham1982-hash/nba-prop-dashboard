@@ -412,5 +412,28 @@
    "home_prob": 0.5638
   },
   "last_seen": "2026-11-01T12:51:28"
+ },
+ "BOS @ OKC|2026-11-01T20:51": {
+  "label": "BOS @ OKC",
+  "home_name": "Oklahoma City Thunder",
+  "away_name": "Boston Celtics",
+  "start_time": "2026-11-01T20:51:00.000Z",
+  "luck_home": -2.72,
+  "luck_away": 0.37,
+  "bet": "home",
+  "first_seen": "2026-11-01T14:44:01",
+  "first": {
+   "home_odds": 100,
+   "away_odds": -140,
+   "home_prob": 0.4615
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 100,
+   "away_odds": -140,
+   "home_prob": 0.4615
+  },
+  "last_seen": "2026-11-01T14:44:01"
  }
 }
