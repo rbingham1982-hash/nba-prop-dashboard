@@ -3934,5 +3934,29 @@
    "away_odds": -265
   },
   "last_seen": "2026-11-01T16:17:21"
+ },
+ "BKN @ TOR|2026-11-01T23:19": {
+  "label": "BKN @ TOR",
+  "home_name": "Toronto Raptors",
+  "away_name": "Brooklyn Nets",
+  "start_time": "2026-11-01T23:19:00.000Z",
+  "first_seen": "2026-11-01T16:53:45",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6663,
+   "odds": -265,
+   "home_odds": -265,
+   "away_odds": 175
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6663,
+   "odds": -265,
+   "home_odds": -265,
+   "away_odds": 175
+  },
+  "last_seen": "2026-11-01T16:53:45"
  }
 }
