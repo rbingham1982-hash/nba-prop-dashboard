@@ -3976,12 +3976,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7654,
-   "odds": -390,
-   "home_odds": -390,
-   "away_odds": 310
+   "fav_prob": 0.7685,
+   "odds": -400,
+   "home_odds": -400,
+   "away_odds": 315
   },
-  "last_seen": "2026-11-01T20:35:30"
+  "last_seen": "2026-11-02T00:17:20"
  },
  "BKN @ NYK|2026-11-03T00:40": {
   "label": "BKN @ NYK",
@@ -4005,7 +4005,7 @@
    "home_odds": -900,
    "away_odds": 610
   },
-  "last_seen": "2026-11-01T20:35:30"
+  "last_seen": "2026-11-02T00:17:20"
  },
  "UTA @ SAS|2026-11-03T01:40": {
   "label": "UTA @ SAS",
@@ -4024,12 +4024,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8944,
-   "odds": -1350,
-   "home_odds": -1350,
-   "away_odds": 810
+   "fav_prob": 0.887,
+   "odds": -1200,
+   "home_odds": -1200,
+   "away_odds": 750
   },
-  "last_seen": "2026-11-01T20:35:30"
+  "last_seen": "2026-11-02T00:17:20"
  },
  "MIL @ MIN|2026-11-03T01:10": {
   "label": "MIL @ MIN",
@@ -4048,12 +4048,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7907,
-   "odds": -460,
-   "home_odds": -460,
-   "away_odds": 360
+   "fav_prob": 0.7812,
+   "odds": -430,
+   "home_odds": -430,
+   "away_odds": 340
   },
-  "last_seen": "2026-11-01T20:35:30"
+  "last_seen": "2026-11-02T00:17:20"
  },
  "NOP @ MEM|2026-11-03T01:10": {
   "label": "NOP @ MEM",
@@ -4072,12 +4072,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.6565,
-   "odds": -215,
-   "home_odds": -215,
-   "away_odds": 180
+   "fav_prob": 0.6613,
+   "odds": -220,
+   "home_odds": -220,
+   "away_odds": 184
   },
-  "last_seen": "2026-11-01T20:35:30"
+  "last_seen": "2026-11-02T00:17:20"
  },
  "CHI @ PHI|2026-11-03T00:40": {
   "label": "CHI @ PHI",
@@ -4096,12 +4096,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.822,
-   "odds": -590,
-   "home_odds": -590,
-   "away_odds": 440
+   "fav_prob": 0.8119,
+   "odds": -550,
+   "home_odds": -550,
+   "away_odds": 410
   },
-  "last_seen": "2026-11-01T20:35:30"
+  "last_seen": "2026-11-02T00:17:20"
  },
  "CHA @ DAL|2026-11-02T02:39": {
   "label": "CHA @ DAL",
@@ -4126,5 +4126,29 @@
    "away_odds": 165
   },
   "last_seen": "2026-11-01T20:35:30"
+ },
+ "MIL @ CLE|2026-11-02T06:27": {
+  "label": "MIL @ CLE",
+  "home_name": "Cleveland Cavaliers",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-02T06:27:00.000Z",
+  "first_seen": "2026-11-02T00:17:20",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6794,
+   "odds": -290,
+   "home_odds": -290,
+   "away_odds": 185
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6794,
+   "odds": -290,
+   "home_odds": -290,
+   "away_odds": 185
+  },
+  "last_seen": "2026-11-02T00:17:20"
  }
 }

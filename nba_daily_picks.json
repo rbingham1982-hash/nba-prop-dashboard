@@ -2477,9 +2477,9 @@
     "edge": 3.67,
     "pick": "home",
     "pick_label": "ORL +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 97,
+    "away_pts": 108,
     "published": true
    },
    {
@@ -2494,9 +2494,9 @@
     "edge": 2.66,
     "pick": "home",
     "pick_label": "GSW -2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 124,
+    "away_pts": 112,
     "published": true
    },
    {
@@ -2511,9 +2511,9 @@
     "edge": 2.27,
     "pick": "away",
     "pick_label": "TOR +2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 131,
+    "away_pts": 125,
     "published": true
    },
    {
@@ -2528,9 +2528,9 @@
     "edge": 1.15,
     "pick": "home",
     "pick_label": "IND -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 90,
+    "away_pts": 98,
     "published": false
    }
   ],
@@ -2550,8 +2550,8 @@
     "implied_prob": 0.7071,
     "blended_prob": 0.7071,
     "edge": 0.0958,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Keaton Wagler",
@@ -2565,8 +2565,8 @@
     "implied_prob": 0.6419,
     "blended_prob": 0.6419,
     "edge": -0.0419,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 4.0
    },
    {
     "player": "Aaron Nesmith",
@@ -2580,8 +2580,8 @@
     "implied_prob": 0.6384,
     "blended_prob": 0.6384,
     "edge": 0.1059,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    },
    {
     "player": "Sandro Mamukelashvili",
@@ -2595,8 +2595,8 @@
     "implied_prob": 0.5669,
     "blended_prob": 0.5669,
     "edge": -0.2212,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 11.0
    },
    {
     "player": "De'Anthony Melton",
@@ -2610,8 +2610,8 @@
     "implied_prob": 0.5532,
     "blended_prob": 0.5532,
     "edge": 0.0854,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 30.0
    }
   ],
   "parlay_withheld_price": {
