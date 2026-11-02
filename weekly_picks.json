@@ -2589,8 +2589,8 @@
     "edge": 2.92,
     "pick": "home",
     "pick_label": "DEN +1.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 4.0
    },
    {
     "game": "IND @ JAX",
@@ -2802,9 +2802,9 @@
     "wind_mph": 19.1,
     "expected_adj": -7.43,
     "gameday": "2026-11-01",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 43.0,
+    "residual": -0.5
    },
    {
     "game": "ATL @ TB",
