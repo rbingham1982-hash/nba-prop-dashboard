@@ -17,7 +17,7 @@ import nba_matchup as nm
 _K = "nba_an_"
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
 def _season(season: str):
     return na.get_season(season)
 
@@ -32,12 +32,12 @@ def _roster():
     return na.roster()
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
 def _roles(season: str):
     return nm.role_games(season)
 
 
-@st.cache_data(ttl=1800, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False, max_entries=256)
 def _next(team: str):
     try:
         return nm.next_game(team)
@@ -45,7 +45,7 @@ def _next(team: str):
         return None
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
 def _grades(season: str, pid: int):
     try:
         return na.player_grades(season, pid)

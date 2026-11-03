@@ -177,7 +177,12 @@ def walk_forward_contexts(season: int, df=None) -> dict:
         prior = df[df["week"] < w]
         if prior.empty:
             continue
-        out[w] = {"df": prior, "idx": player_index(prior),
+        # Only the small league-level pieces are kept. Holding each week's `prior` slice
+        # and its player index cost a full copy of the season per week — 72 MB by Week 9,
+        # growing with the square of the week, in a dashboard cache that never expired —
+        # and is what pushed the Streamlit app over its memory limit (2026-11-03). The
+        # projection re-slices the one shared frame instead.
+        out[w] = {"df": df, "week": w,
                   "priors": position_priors(prior), "vol": team_volume(prior),
                   "rates": league_rates(prior)}
     return out
@@ -197,9 +202,12 @@ def walk_forward_projection(season: int, player: str, stat: str,
     contexts = contexts if contexts is not None else walk_forward_contexts(season)
     out = {}
     for w, c in contexts.items():
+        prior = c["df"][c["df"]["week"] < c["week"]]
+        rows = _rows_for(prior, player, None)
+        idx = {} if rows is None else {player: rows, _name_key(player): rows}
         try:
-            s = score_prop_nfl(c["df"], player, stat, 0.5, priors=c["priors"],
-                               vol=c["vol"], idx=c["idx"], rates=c["rates"],
+            s = score_prop_nfl(prior, player, stat, 0.5, priors=c["priors"],
+                               vol=c["vol"], idx=idx, rates=c["rates"],
                                dcache={}, cvcache={})
         except Exception:
             s = None

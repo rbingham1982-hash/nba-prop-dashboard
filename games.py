@@ -581,11 +581,11 @@ def _reveal(r: dict, guess: float) -> str:
 def _render_gtg() -> None:
     import streamlit as st
 
-    @st.cache_data(ttl=3600, show_spinner=False)
+    @st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
     def _pool(day, sport):
         return gtg_pool(day, sport)
 
-    @st.cache_data(ttl=86400, show_spinner=False)
+    @st.cache_data(ttl=86400, show_spinner=False, max_entries=256)
     def _challenge(day):
         return gtg_challenge(day)
 

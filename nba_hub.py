@@ -70,7 +70,7 @@ def _card(r, rank: int) -> str:
 
 # ── data ────────────────────────────────────────────────────────────────────
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
 def _log(season: str):
     try:
         return ng.season_log(season)
@@ -78,12 +78,12 @@ def _log(season: str):
         return pd.DataFrame()
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=16)
 def _night(season: str, day):
     return ng.grade_night(season, day)
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=16)
 def _week(season: str, end):
     return ng.grade_range(season, 7, end)
 
@@ -187,7 +187,7 @@ def _table(g: pd.DataFrame, nightly: bool) -> None:
     st.dataframe(out, hide_index=True, width="stretch", height=420, column_config=fmt)
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
 def _tips(year: int):
     import nba_tips
     return nba_tips.team_table(year)

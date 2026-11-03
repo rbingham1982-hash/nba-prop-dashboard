@@ -113,22 +113,22 @@ _CSS = """<style>
 
 # ── data ────────────────────────────────────────────────────────────────────
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
 def _weeks(season):
     return ng.weeks_available(season)
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
 def _completed(season):
     return ng.completed_weeks(season)
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=24)
 def _grades(season, week):
     return ng.grade_week(season, week)
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
 def _season_grades(season):
     return ng.grade_season(season)
 
@@ -138,7 +138,7 @@ def _teams():
     return ng.team_meta()
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
 def _picks(season, week):
     # grade() is idempotent and only writes when a result is new, so the hub keeps the
     # published record current without waiting for the next newsletter build.

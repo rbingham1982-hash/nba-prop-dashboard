@@ -397,7 +397,7 @@ def render(sports: tuple = SPORTS, key: str = "pb") -> None:
     import pandas as pd
     import streamlit as st
 
-    @st.cache_data(ttl=300, show_spinner=False)
+    @st.cache_data(ttl=300, show_spinner=False, max_entries=4)
     def _props(sport: str) -> list:
         # Five minutes, like the Edge Finder boards: a ticket priced at a stale line is a
         # ticket the book will not honour at that payout.
@@ -406,7 +406,7 @@ def render(sports: tuple = SPORTS, key: str = "pb") -> None:
         except Exception:
             return []
 
-    @st.cache_data(ttl=300, show_spinner=False)
+    @st.cache_data(ttl=300, show_spinner=False, max_entries=256)
     def _model(_sig: tuple, _legs: list) -> dict:
         # Keyed on the ticket's labels (underscore args are not hashed); a label carries the
         # line and the odds, so a moved line is a new key.

@@ -37,6 +37,9 @@ MLB_BASE = "https://statsapi.mlb.com/api/v1"
 MLB_SEASON = "2026"
 
 
+_TTL_CACHE_MAX = 512
+
+
 def _ttl_cache(ttl_seconds):
     """Per-argument cache with time-based expiry — a Streamlit-free stand-in
     for @st.cache_data(ttl=...) so this module works in both the dashboard
@@ -52,6 +55,12 @@ def _ttl_cache(ttl_seconds):
             if hit is not None and now - hit[1] < ttl_seconds:
                 return hit[0]
             value = fn(*args, **kwargs)
+            # Expired entries used to stay forever. The dashboard is one long-lived process,
+            # so every player ever looked up stayed in memory; drop them here and cap the rest.
+            for k in [k for k, (_, t) in cache.items() if now - t >= ttl_seconds]:
+                del cache[k]
+            while len(cache) >= _TTL_CACHE_MAX:
+                del cache[next(iter(cache))]
             cache[key] = (value, now)
             return value
 
@@ -1498,6 +1507,9 @@ def get_gamelogs(player_id, seasons):
     # Only cache a real answer. Caching an empty frame would make one throttled call
     # poison that player for the whole run, which is the opposite of what this is for.
     if df is not None and not df.empty:
+        # Bounded for the dashboard, which never exits; a nightly run stays well under it.
+        while len(_GAMELOG_CACHE) >= 600:
+            del _GAMELOG_CACHE[next(iter(_GAMELOG_CACHE))]
         _GAMELOG_CACHE[key] = df
     return df
 

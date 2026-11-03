@@ -179,7 +179,7 @@ def _nfl_opportunity(key: str) -> None:
     import nfl_grades as ng
     import opportunity as op
 
-    @st.cache_data(ttl=3600, show_spinner=False)
+    @st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
     def _usage(season):
         return op.nfl_usage(season)
 
@@ -228,7 +228,7 @@ def _grades_db(key: str) -> None:
     import streamlit as st
     import nfl_grades as ng
 
-    @st.cache_data(ttl=3600, show_spinner=False)
+    @st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
     def _season_grades(season):
         return ng.grade_season(season)
 

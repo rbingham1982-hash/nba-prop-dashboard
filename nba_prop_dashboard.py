@@ -610,7 +610,7 @@ def _current_nba_season() -> str:
     start = now.year if now.month >= 7 else now.year - 1
     return f"{start}-{str(start + 1)[-2:]}"
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, max_entries=256)
 def _fetch_team_players(team_abbr):
     # Raises on failure so st.cache_data never caches an error as an empty
     # roster (a cached [] used to blank every player dropdown for an hour).
@@ -2048,7 +2048,7 @@ def get_sportsbook_props(sport: str = "nba", sportsbook: str = "PrizePicks") -> 
         return get_the_odds_api_props(sport, "Bet365")
     return pd.DataFrame()
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, max_entries=4)
 def _load_calibration(sport: str | None = None) -> dict:
     """Load sport-specific per-stat calibration factors from the parlay tracker (cached 1h)."""
     try:
@@ -2476,7 +2476,7 @@ _NBA_TO_ESPN = {"GSW": "GS", "NYK": "NY", "SAS": "SA", "NOP": "NO", "UTA": "UTAH
 _ESPN_TO_NBA = {v: k for k, v in _NBA_TO_ESPN.items()}
 
 
-@st.cache_data(ttl=7200)
+@st.cache_data(ttl=7200, max_entries=256)
 def get_team_first_basket_history(team_abbr, num_games=20):
     """Pull first basket data via ESPN play-by-play (no nba_api PBP calls needed)."""
     _HDR = {"User-Agent": "Mozilla/5.0"}
@@ -2646,7 +2646,7 @@ def get_mlb_teams():
     except Exception:
         return []
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, max_entries=256)
 def _fetch_mlb_roster(team_id):
     # Raises on failure so a transient API error isn't cached as an empty
     # roster for an hour (see get_team_players for the same pattern).
@@ -2677,7 +2677,7 @@ def get_mlb_roster(team_id):
         st.warning(f"Could not load MLB roster: {e}")
         return [], []
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=900, max_entries=256)
 def get_mlb_next_opponent(team_id):
     try:
         today = datetime.now().strftime("%Y-%m-%d")
@@ -2703,7 +2703,7 @@ def mlb_headshot(player_id):
         f"v1/people/{player_id}/headshot/67/current"
     )
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=900, max_entries=256)
 def get_mlb_today_game_for_team(team_id):
     try:
         today = datetime.now().strftime("%Y-%m-%d")
@@ -2717,7 +2717,7 @@ def get_mlb_today_game_for_team(team_id):
         pass
     return None
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, max_entries=256)
 def get_mlb_pitcher_season_stats(pitcher_id):
     try:
         url = (f"{MLB_BASE}/people/{pitcher_id}/stats"
@@ -2729,7 +2729,7 @@ def get_mlb_pitcher_season_stats(pitcher_id):
         return {}
 
 
-@st.cache_data(ttl=1800, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False, max_entries=256)
 def _get_venue_weather(venue: str) -> dict:
     """Current weather for an MLB venue via Open-Meteo (free, no key)."""
     coords = _MLB_VENUE_COORDS.get(venue)
@@ -2770,7 +2770,7 @@ def _hr_context_boost(venue: str, weather: dict) -> float:
     return 1.0 + park_boost + temp_boost + wind_boost
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
 def _pitcher_hr_per9(pitcher_id: int) -> float:
     """HR/9 for a pitcher this season. Returns MLB average (1.1) if unavailable."""
     try:
@@ -2784,7 +2784,7 @@ def _pitcher_hr_per9(pitcher_id: int) -> float:
     return 1.1
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
 def _get_player_hand(player_id: int, side: str = "bat") -> str:
     """Returns 'L', 'R', or 'S' for switch hitter. side='bat' or 'pitch'."""
     try:
@@ -2797,7 +2797,7 @@ def _get_player_hand(player_id: int, side: str = "bat") -> str:
         return "R"
 
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(ttl=900, show_spinner=False, max_entries=256)
 def _score_hitter_for_hr(
     player_id: int,
     opp_pitcher_id,
@@ -2891,7 +2891,7 @@ def _score_hitter_for_hr(
     }
 
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(ttl=900, show_spinner=False, max_entries=256)
 def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
     """
     Top HR candidates for today's games. Scores every active hitter using
@@ -2990,7 +2990,7 @@ def _build_hr_power_picks(top_n: int = 6, cal_factor: float = 1.0) -> list:
     return diverse
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, max_entries=256)
 def get_mlb_team_batting_stats(team_id):
     try:
         url = (f"{MLB_BASE}/teams/{team_id}/stats"
@@ -3031,7 +3031,7 @@ def _scoreboard_date():
         cst = cst - _td(days=1)
     return cst.strftime("%Y%m%d")
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, max_entries=256)
 def get_nba_scoreboard(game_date: str):
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={game_date}"
@@ -3056,7 +3056,7 @@ def get_nba_scoreboard(game_date: str):
     except Exception:
         return []
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, max_entries=256)
 def get_mlb_scoreboard(game_date: str):
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates={game_date}"
@@ -3081,7 +3081,7 @@ def get_mlb_scoreboard(game_date: str):
     except Exception:
         return []
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, max_entries=256)
 def get_nba_scoreboard_full(game_date: str):
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={game_date}"
@@ -3142,7 +3142,7 @@ def get_mlb_today_with_pitchers():
     except Exception:
         return []
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=900, max_entries=4)
 def get_sport_news(sport="nba"):
     import re as _re
     # ESPN JSON news API — works from cloud servers (no scraping)
@@ -4884,7 +4884,7 @@ _WNBA_ABBR_TO_ESPN_SLUG = {
 def _wnba_espn_slug(abbr: str) -> str:
     return _WNBA_ABBR_TO_ESPN_SLUG.get(abbr.upper(), abbr.lower())
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, max_entries=256)
 def _fetch_wnba_team_roster_map(team_abbr: str) -> dict:
     # Raises on failure so a transient API error isn't cached as an empty
     # roster for an hour (see get_team_players for the same pattern).
@@ -4913,7 +4913,7 @@ def get_wnba_team_players(team_abbr: str):
     """Return list of player names for a WNBA team."""
     return list(_get_wnba_team_roster_map(team_abbr).keys())
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, max_entries=256)
 def get_wnba_scoreboard(game_date: str):
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard?dates={game_date}"
@@ -4938,7 +4938,7 @@ def get_wnba_scoreboard(game_date: str):
     except Exception:
         return []
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, max_entries=256)
 def get_wnba_scoreboard_full(game_date: str):
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard?dates={game_date}"
@@ -5159,7 +5159,7 @@ if sport == "🏀 NBA":
             unsafe_allow_html=True,
         )
 
-        @st.cache_data(ttl=86400, show_spinner=False)
+        @st.cache_data(ttl=86400, show_spinner=False, max_entries=4)
         def _load_9cat_board(is_proj):
             import fantasy_rankings
             return (fantasy_rankings.get_9cat_projections() if is_proj
@@ -8316,7 +8316,7 @@ elif sport == "🏈 NFL":
             unsafe_allow_html=True,
         )
 
-        @st.cache_data(ttl=86400, show_spinner=False)
+        @st.cache_data(ttl=86400, show_spinner=False, max_entries=4)
         def _load_nfl_board(is_proj):
             import nfl_fantasy_rankings as _nflf
             return _nflf.get_ppr_projections() if is_proj else _nflf.get_ppr_rankings()
@@ -8396,7 +8396,7 @@ elif sport == "🏈 NFL":
         )
         import nfl_analysis as _nfla
 
-        @st.cache_data(ttl=86400, show_spinner=False)
+        @st.cache_data(ttl=86400, show_spinner=False, max_entries=4)
         def _nfl_weekly(season=None):
             return _nfla.get_season(season)
 
@@ -8524,18 +8524,18 @@ elif sport == "🏈 NFL":
                 st.markdown("**🛡️ Matchup: the defense against his role**")
                 import nfl_matchup as _nm
 
-                @st.cache_data(ttl=3600, show_spinner=False)
+                @st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
                 def _nfl_roles(season):
                     return _nm.role_games(season)
 
-                @st.cache_data(ttl=3600, show_spinner=False)
+                @st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
                 def _nfl_role_now(season, pid):
                     try:
                         return _nm.player_role(season, pid)
                     except Exception:
                         return None
 
-                @st.cache_data(ttl=3600, show_spinner=False)
+                @st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
                 def _nfl_next(season, team):
                     try:
                         return _nm.next_game(season, team)
@@ -8636,7 +8636,7 @@ elif sport == "🏈 NFL":
                 st.markdown("---")
                 st.markdown("**Projection vs reality, week by week**")
 
-                @st.cache_data(ttl=3600, show_spinner=False)
+                @st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
                 def _nfl_player_grades(season, player):
                     import nfl_grades as _ng
                     try:
@@ -8652,11 +8652,11 @@ elif sport == "🏈 NFL":
                 # recency mean. Two projections of the same thing, so the table can show
                 # which one was actually closer instead of asserting that the more
                 # elaborate model is better.
-                @st.cache_resource(show_spinner=False)
+                @st.cache_resource(show_spinner=False, ttl=6 * 3600, max_entries=2)
                 def _nfl_wf_contexts(season):
                     return _nfla.walk_forward_contexts(season)
 
-                @st.cache_data(ttl=3600, show_spinner=False)
+                @st.cache_data(ttl=3600, show_spinner=False, max_entries=256)
                 def _nfl_engine_proj(season, player, stat):
                     try:
                         return _nfla.walk_forward_projection(
@@ -9062,7 +9062,7 @@ elif sport == "🏈 NFL":
                     # prices a prop for a player taking the field this week, so the team he is on
                     # is today's fact while the form behind the number is last season's — reading
                     # the team off the history frame instead put Geno Smith under Las Vegas.
-                    @st.cache_data(ttl=3600, show_spinner=False)
+                    @st.cache_data(ttl=3600, show_spinner=False, max_entries=4)
                     def _nfl_bet_rosters(season):
                         return _nflb.roster_teams_and_players(_nfl_bet_weekly()[1])
 
