@@ -3434,8 +3434,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-27T17:56:55",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 247.0
  },
  "caleb williams|Passing TDs|1.5|36215323": {
   "player": "Caleb Williams",
@@ -3452,8 +3452,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-27T17:56:55",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "luther burden|Receptions|4.5|36215323": {
   "player": "Luther Burden III",
@@ -3470,8 +3470,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-27T17:56:55",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "rome odunze|Receptions|3.5|36215323": {
   "player": "Rome Odunze",
@@ -3488,8 +3488,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-27T17:56:55",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "jaxon smith-njigba|Receptions|7.5|36215323": {
   "player": "Jaxon Smith-Njigba",
@@ -3506,8 +3506,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-27T17:56:55",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "jaxon smith-njigba|Receiving Yards|99.5|36215323": {
   "player": "Jaxon Smith-Njigba",
@@ -3524,8 +3524,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-27T17:56:55",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 118.0
  },
  "james cook|Rushing Yards|88.5|36215313": {
   "player": "James Cook",
@@ -5036,8 +5036,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-30T17:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 87.0
  },
  "colston loveland|Receptions|4.5|36215323": {
   "player": "Colston Loveland",
@@ -5054,8 +5054,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-30T17:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "michael carter|Receiving Yards|8.5|36215312": {
   "player": "Michael Carter",
@@ -5306,8 +5306,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-31T17:33:45",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 23.0
  },
  "zach charbonnet|Receptions|1.5|36215323": {
   "player": "Zach Charbonnet",
@@ -5324,8 +5324,8 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-31T20:31:50",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "emanuel wilson|Rushing Yards|21.5|36215323": {
   "player": "Emanuel Wilson",

@@ -592,12 +592,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8075,
-   "odds": -520,
-   "home_odds": -520,
-   "away_odds": 400
+   "fav_prob": 0.8038,
+   "odds": -510,
+   "home_odds": -510,
+   "away_odds": 390
   },
-  "last_seen": "2026-11-02T19:41:18"
+  "last_seen": "2026-11-03T00:55:24"
  },
  "DET @ MIA|2026-11-08T18:01": {
   "label": "DET @ MIA",
@@ -621,7 +621,7 @@
    "home_odds": 275,
    "away_odds": -350
   },
-  "last_seen": "2026-11-02T19:41:18"
+  "last_seen": "2026-11-03T00:55:24"
  },
  "LV @ SF|2026-11-08T21:06": {
   "label": "LV @ SF",
@@ -645,7 +645,7 @@
    "home_odds": -590,
    "away_odds": 440
   },
-  "last_seen": "2026-11-02T19:41:18"
+  "last_seen": "2026-11-03T00:55:24"
  },
  "LA @ WAS|2026-11-08T18:01": {
   "label": "LA @ WAS",
@@ -669,7 +669,7 @@
    "home_odds": 210,
    "away_odds": -255
   },
-  "last_seen": "2026-11-02T19:41:18"
+  "last_seen": "2026-11-03T00:55:24"
  },
  "ARI @ SEA|2026-11-08T21:26": {
   "label": "ARI @ SEA",
@@ -688,12 +688,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.84,
-   "odds": -700,
-   "home_odds": -700,
-   "away_odds": 500
+   "fav_prob": 0.8341,
+   "odds": -650,
+   "home_odds": -650,
+   "away_odds": 480
   },
-  "last_seen": "2026-11-02T00:17:20"
+  "last_seen": "2026-11-03T00:55:24"
  },
  "TB @ CHI|2026-11-09T01:21": {
   "label": "TB @ CHI",
@@ -712,12 +712,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7002,
-   "odds": -270,
-   "home_odds": -270,
-   "away_odds": 220
+   "fav_prob": 0.7175,
+   "odds": -295,
+   "home_odds": -295,
+   "away_odds": 240
   },
-  "last_seen": "2026-11-02T00:17:20"
+  "last_seen": "2026-11-03T00:55:24"
  },
  "DAL @ IND|2026-11-08T18:01": {
   "label": "DAL @ IND",
@@ -741,7 +741,7 @@
    "home_odds": 215,
    "away_odds": -260
   },
-  "last_seen": "2026-11-02T19:41:18"
+  "last_seen": "2026-11-03T00:55:24"
  },
  "JAX @ BAL|2026-11-06T01:16": {
   "label": "JAX @ BAL",
@@ -765,7 +765,7 @@
    "home_odds": 385,
    "away_odds": -500
   },
-  "last_seen": "2026-11-02T19:41:18"
+  "last_seen": "2026-11-03T00:55:24"
  },
  "HOU @ LAC|2026-11-08T21:06": {
   "label": "HOU @ LAC",
@@ -789,6 +789,6 @@
    "home_odds": 188,
    "away_odds": -225
   },
-  "last_seen": "2026-11-02T19:41:18"
+  "last_seen": "2026-11-03T00:55:24"
  }
 }
