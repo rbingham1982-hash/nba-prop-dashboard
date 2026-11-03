@@ -36,7 +36,7 @@
    "away_odds": 125,
    "home_prob": 0.5912
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -180,
@@ -642,5 +642,120 @@
    "home_prob": 0.6794
   },
   "last_seen": "2026-11-02T00:17:23"
+ },
+ "ORL @ CHA|2026-11-03T02:35": {
+  "label": "ORL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Orlando Magic",
+  "start_time": "2026-11-03T02:35:00.000Z",
+  "luck_home": -2.71,
+  "luck_away": 0.68,
+  "bet": "home",
+  "first_seen": "2026-11-02T19:41:20",
+  "first": {
+   "home_odds": -185,
+   "away_odds": 125,
+   "home_prob": 0.5936
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -185,
+   "away_odds": 125,
+   "home_prob": 0.5936
+  },
+  "last_seen": "2026-11-02T19:41:20"
+ },
+ "CHA @ ORL|2026-11-03T02:39": {
+  "label": "CHA @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-03T02:39:00.000Z",
+  "luck_home": 0.68,
+  "luck_away": -2.71,
+  "bet": "away",
+  "first_seen": "2026-11-02T19:41:20",
+  "first": {
+   "home_odds": -180,
+   "away_odds": 125,
+   "home_prob": 0.5912
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -180,
+   "away_odds": 125,
+   "home_prob": 0.5912
+  },
+  "last_seen": "2026-11-02T19:41:20"
+ },
+ "CHA @ ORL|2026-11-03T01:51": {
+  "label": "CHA @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-03T01:51:00.000Z",
+  "luck_home": 0.68,
+  "luck_away": -2.71,
+  "bet": "away",
+  "first_seen": "2026-11-02T19:41:20",
+  "first": {
+   "home_odds": -215,
+   "away_odds": 145,
+   "home_prob": 0.6258
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -215,
+   "away_odds": 145,
+   "home_prob": 0.6258
+  },
+  "last_seen": "2026-11-02T19:41:20"
+ },
+ "CHA @ DAL|2026-11-03T01:55": {
+  "label": "CHA @ DAL",
+  "home_name": "Dallas Mavericks",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-03T01:55:00.000Z",
+  "luck_home": 0.64,
+  "luck_away": -2.71,
+  "bet": "away",
+  "first_seen": "2026-11-02T19:41:20",
+  "first": {
+   "home_odds": -180,
+   "away_odds": 125,
+   "home_prob": 0.5912
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -180,
+   "away_odds": 125,
+   "home_prob": 0.5912
+  },
+  "last_seen": "2026-11-02T19:41:20"
+ },
+ "DAL @ CHA|2026-11-03T02:07": {
+  "label": "DAL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-11-03T02:07:00.000Z",
+  "luck_home": -2.71,
+  "luck_away": 0.64,
+  "bet": "home",
+  "first_seen": "2026-11-02T19:41:20",
+  "first": {
+   "home_odds": 105,
+   "away_odds": -155,
+   "home_prob": 0.4452
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 105,
+   "away_odds": -155,
+   "home_prob": 0.4452
+  },
+  "last_seen": "2026-11-02T19:41:20"
  }
 }

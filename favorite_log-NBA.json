@@ -3324,7 +3324,7 @@
    "home_odds": -270,
    "away_odds": 220
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -3444,7 +3444,7 @@
    "home_odds": -320,
    "away_odds": 205
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -3468,7 +3468,7 @@
    "home_odds": -340,
    "away_odds": 215
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -3492,7 +3492,7 @@
    "home_odds": -290,
    "away_odds": 185
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -4150,5 +4150,29 @@
    "away_odds": 185
   },
   "last_seen": "2026-11-02T00:17:20"
+ },
+ "NYK @ LAL|2026-11-03T02:31": {
+  "label": "NYK @ LAL",
+  "home_name": "Los Angeles Lakers",
+  "away_name": "New York Knicks",
+  "start_time": "2026-11-03T02:31:00.000Z",
+  "first_seen": "2026-11-02T19:41:18",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6543,
+   "odds": -250,
+   "home_odds": -250,
+   "away_odds": 165
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6543,
+   "odds": -250,
+   "home_odds": -250,
+   "away_odds": 165
+  },
+  "last_seen": "2026-11-02T19:41:18"
  }
 }
