@@ -163,6 +163,8 @@ def _prep(log: pd.DataFrame) -> pd.DataFrame:
 def _props(raw: pd.DataFrame) -> dict:
     """(player, game) -> [{stat, line, over, under}], one main line per stat (closest to even)."""
     out: dict = {}
+    if raw.empty:
+        return out
     for (player, game, stat), g in raw.groupby(["player_name", "game_label", "stat_type"]):
         overs = g[g["side"].str.lower() == "over"]
         if overs.empty:
@@ -200,7 +202,10 @@ def build(day: datetime.date | None = None) -> dict:
         raw = pd.DataFrame(columns=["player_name", "stat_type", "game_label", "start_time"])
     raw = raw[raw["stat_type"].isin(STATS)]
     raw = raw[raw["start_time"].map(nwp._local_date) == day]
-    raw = raw[~raw["start_time"].map(dg._has_started)]
+    # On an empty frame .map() returns float dtype, and `~` on that drops every column, so
+    # the groupby below raised KeyError 'player_name' on nights with no props left for
+    # today (cloud runs of 2026-11-03).
+    raw = raw[~raw["start_time"].map(dg._has_started).astype(bool)]
 
     cur_log = _prep(ns.league_log(cur))
     prev_log = _prep(ns.league_log(prev))
