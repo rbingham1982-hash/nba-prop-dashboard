@@ -34998,7 +34998,7 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-11-02T00:16:59",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "sam roush|Receptions|1.5|36215323": {
@@ -35020,7 +35020,7 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-11-02T00:16:59",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "dandre swift|Rushing Yards|59.5|36215323": {
@@ -39310,6 +39310,270 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-04T18:28:31",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler warren|Receiving Yards|42.5|36244868": {
+  "player": "Tyler Warren",
+  "stat": "Receiving Yards",
+  "line": 42.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 41.0,
+  "last5": [
+   21.0,
+   55.0,
+   41.0,
+   83.0,
+   18.0
+  ],
+  "game": "DAL @ IND",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "daniel jones|Rushing Yards|7.5|36244868": {
+  "player": "Daniel Jones",
+  "stat": "Rushing Yards",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   2.0,
+   4.0,
+   30.0,
+   13.0,
+   7.0
+  ],
+  "game": "DAL @ IND",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "chris olave|Receiving Yards|71.5|36244869": {
+  "player": "Chris Olave",
+  "stat": "Receiving Yards",
+  "line": 71.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 56.0,
+  "last5": [
+   107.0,
+   116.0,
+   46.0,
+   43.0,
+   56.0
+  ],
+  "game": "CLE @ NO",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "jakobi meyers|Receiving Yards|38.5|36244870": {
+  "player": "Jakobi Meyers",
+  "stat": "Receiving Yards",
+  "line": 38.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 37.0,
+  "last5": [
+   64.0,
+   33.0,
+   37.0,
+   83.0,
+   24.0
+  ],
+  "game": "JAX @ BAL",
+  "start_time": "2026-11-06T01:16:00.000Z",
+  "game_day": "2026-11-05",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "kenneth walker|Receiving Yards|17.5|36244871": {
+  "player": "Kenneth Walker III",
+  "stat": "Receiving Yards",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 11.0,
+  "last5": [
+   3.0,
+   2.0,
+   11.0,
+   21.0,
+   15.0
+  ],
+  "game": "NYJ @ KC",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "emmett johnson|Rushing Yards|11.5|36244871": {
+  "player": "Emmett Johnson",
+  "stat": "Rushing Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 6.0,
+  "last5": [
+   17.0,
+   0.0,
+   6.0,
+   0.0,
+   15.0
+  ],
+  "game": "NYJ @ KC",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "saquon barkley|Rushing Yards|60.5|36244873": {
+  "player": "Saquon Barkley",
+  "stat": "Rushing Yards",
+  "line": 60.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 30.0,
+  "last5": [
+   9.0,
+   82.0,
+   8.0,
+   62.0,
+   30.0
+  ],
+  "game": "NYG @ PHI",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "rachaad white|Receiving Yards|17.5|36244876": {
+  "player": "Rachaad White",
+  "stat": "Receiving Yards",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 6.0,
+  "last5": [
+   40.0,
+   6.0,
+   2.0,
+   30.0,
+   5.0
+  ],
+  "game": "LA @ WAS",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "rachaad white|Receptions|2.5|36244876": {
+  "player": "Rachaad White",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": 116,
+  "fair_prob": 0.458,
+  "med5": 2.0,
+  "last5": [
+   6.0,
+   1.0,
+   1.0,
+   4.0,
+   2.0
+  ],
+  "game": "LA @ WAS",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "jaxon smith-njigba|Receptions|6.5|36244878": {
+  "player": "Jaxon Smith-Njigba",
+  "stat": "Receptions",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": 118,
+  "fair_prob": 0.4533,
+  "med5": 6.0,
+  "last5": [
+   5.0,
+   5.0,
+   12.0,
+   9.0,
+   6.0
+  ],
+  "game": "ARI @ SEA",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "zach charbonnet|Rushing Yards|40.5|36244878": {
+  "player": "Zach Charbonnet",
+  "stat": "Rushing Yards",
+  "line": 40.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 32.0,
+  "last5": [
+   31.0,
+   32.0,
+   110.0,
+   74.0,
+   23.0
+  ],
+  "game": "ARI @ SEA",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:56:40",
+  "outcome": null,
+  "actual": null
+ },
+ "tj hockenson|Receiving Yards|41.5|36244880": {
+  "player": "T.J. Hockenson",
+  "stat": "Receiving Yards",
+  "line": 41.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 35.0,
+  "last5": [
+   11.0,
+   119.0,
+   7.0,
+   35.0,
+   58.0
+  ],
+  "game": "BUF @ MIN",
+  "start_time": "2026-11-10T01:16:00.000Z",
+  "game_day": "2026-11-09",
+  "logged_at": "2026-11-05T00:56:40",
   "outcome": null,
   "actual": null
  }

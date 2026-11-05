@@ -542,7 +542,7 @@
    "away_odds": 165,
    "home_prob": 0.6543
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -250,
@@ -565,7 +565,7 @@
    "away_odds": 125,
    "home_prob": 0.5912
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -180,
@@ -611,7 +611,7 @@
    "away_odds": 160,
    "home_prob": 0.6487
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -245,
@@ -634,7 +634,7 @@
    "away_odds": 185,
    "home_prob": 0.6794
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -290,
@@ -772,8 +772,8 @@
    "away_odds": -138,
    "home_prob": 0.4417
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": 140,
    "away_odds": -166,
@@ -841,8 +841,8 @@
    "away_odds": 112,
    "home_prob": 0.5467
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": -172,
    "away_odds": 144,
@@ -933,8 +933,8 @@
    "away_odds": 205,
    "home_prob": 0.6854
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "home_odds": -230,
    "away_odds": 190,
@@ -1033,5 +1033,74 @@
    "home_prob": 0.5638
   },
   "last_seen": "2026-11-04T18:29:01"
+ },
+ "MIA @ GSW|2026-11-06T03:10": {
+  "label": "MIA @ GSW",
+  "home_name": "Golden State Warriors",
+  "away_name": "Miami Heat",
+  "start_time": "2026-11-06T03:10:00.000Z",
+  "luck_home": 2.66,
+  "luck_away": -0.12,
+  "bet": "away",
+  "first_seen": "2026-11-05T00:57:20",
+  "first": {
+   "home_odds": -290,
+   "away_odds": 235,
+   "home_prob": 0.7136
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -290,
+   "away_odds": 235,
+   "home_prob": 0.7136
+  },
+  "last_seen": "2026-11-05T00:57:20"
+ },
+ "DAL @ CHA|2026-11-05T07:31": {
+  "label": "DAL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-11-05T07:31:00.000Z",
+  "luck_home": -3.39,
+  "luck_away": -0.73,
+  "bet": "home",
+  "first_seen": "2026-11-05T00:57:20",
+  "first": {
+   "home_odds": -135,
+   "away_odds": -105,
+   "home_prob": 0.5287
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -135,
+   "away_odds": -105,
+   "home_prob": 0.5287
+  },
+  "last_seen": "2026-11-05T00:57:20"
+ },
+ "MEM @ MIL|2026-11-05T07:35": {
+  "label": "MEM @ MIL",
+  "home_name": "Milwaukee Bucks",
+  "away_name": "Memphis Grizzlies",
+  "start_time": "2026-11-05T07:35:00.000Z",
+  "luck_home": -3.35,
+  "luck_away": 3.21,
+  "bet": "home",
+  "first_seen": "2026-11-05T00:57:20",
+  "first": {
+   "home_odds": 140,
+   "away_odds": -205,
+   "home_prob": 0.3827
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 140,
+   "away_odds": -205,
+   "home_prob": 0.3827
+  },
+  "last_seen": "2026-11-05T00:57:20"
  }
 }

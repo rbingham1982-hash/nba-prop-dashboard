@@ -2801,9 +2801,9 @@
     "edge": 6.51,
     "pick": "home",
     "pick_label": "LAC +5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 116,
+    "away_pts": 117,
     "published": false
    },
    {
@@ -2818,9 +2818,9 @@
     "edge": 5.91,
     "pick": "away",
     "pick_label": "TOR +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 128,
+    "away_pts": 109,
     "published": true
    },
    {
@@ -2835,9 +2835,9 @@
     "edge": 4.23,
     "pick": "away",
     "pick_label": "MIN +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 107,
+    "away_pts": 117,
     "published": true
    },
    {
@@ -2852,9 +2852,9 @@
     "edge": 3.98,
     "pick": "home",
     "pick_label": "MEM -5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 103,
+    "away_pts": 107,
     "published": true
    },
    {
@@ -2869,9 +2869,9 @@
     "edge": 3.6,
     "pick": "away",
     "pick_label": "DAL +12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 112,
+    "away_pts": 111,
     "published": false
    },
    {
@@ -2886,9 +2886,9 @@
     "edge": 2.41,
     "pick": "home",
     "pick_label": "BKN +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 114,
+    "away_pts": 104,
     "published": false
    },
    {
@@ -2903,9 +2903,9 @@
     "edge": 2.29,
     "pick": "away",
     "pick_label": "POR -2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 119,
+    "away_pts": 132,
     "published": false
    },
    {
@@ -2920,9 +2920,9 @@
     "edge": 1.43,
     "pick": "home",
     "pick_label": "BOS -12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 109,
+    "away_pts": 102,
     "published": false
    },
    {
@@ -2937,9 +2937,9 @@
     "edge": 1.4,
     "pick": "home",
     "pick_label": "SAC +12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 103,
+    "away_pts": 116,
     "published": false
    },
    {
@@ -2954,9 +2954,9 @@
     "edge": 1.14,
     "pick": "home",
     "pick_label": "NOP -5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 120,
+    "away_pts": 113,
     "published": false
    },
    {
@@ -2971,9 +2971,9 @@
     "edge": 0.83,
     "pick": "home",
     "pick_label": "NYK -11.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 135,
+    "away_pts": 105,
     "published": false
    },
    {
@@ -2988,9 +2988,9 @@
     "edge": 0.13,
     "pick": "home",
     "pick_label": "OKC -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 124,
+    "away_pts": 116,
     "published": false
    }
   ],
@@ -3010,8 +3010,8 @@
     "implied_prob": 0.7103,
     "blended_prob": 0.7103,
     "edge": 0.0397,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Tre Jones",
@@ -3025,8 +3025,8 @@
     "implied_prob": 0.6646,
     "blended_prob": 0.6646,
     "edge": -0.3303,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Naz Reid",
@@ -3040,8 +3040,8 @@
     "implied_prob": 0.6646,
     "blended_prob": 0.6646,
     "edge": 0.1111,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "AJ Green",
@@ -3055,8 +3055,8 @@
     "implied_prob": 0.5717,
     "blended_prob": 0.5717,
     "edge": -0.2903,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 5.0
    },
    {
     "player": "Hugo Gonzalez",
@@ -3070,8 +3070,8 @@
     "implied_prob": 0.5581,
     "blended_prob": 0.5581,
     "edge": 0.2748,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 6.0
    }
   ],
   "parlay_withheld_price": {

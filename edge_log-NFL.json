@@ -5288,7 +5288,7 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-31T17:33:45",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "zach charbonnet|Rushing Yards|32.5|36215323": {
@@ -5342,7 +5342,7 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-10-31T20:31:50",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "michael carter|Receptions|1.5|36215312": {
@@ -5378,7 +5378,7 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-11-01T01:16:56",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "malik willis|Passing TDs|0.5|36215322": {
@@ -5486,7 +5486,7 @@
   "start_time": "2026-11-03T01:16:00.000Z",
   "game_day": "2026-11-02",
   "logged_at": "2026-11-02T00:17:19",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "brenton strange|Receptions|3.5|36244870": {
@@ -6620,6 +6620,78 @@
   "start_time": "2026-11-08T21:26:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-04T18:28:57",
+  "outcome": null,
+  "actual": null
+ },
+ "jakobi meyers|Receiving Yards|38.5|36244870": {
+  "player": "Jakobi Meyers",
+  "stat": "Receiving Yards",
+  "line": 38.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.6109,
+  "fair_prob": 0.475,
+  "edge": 0.1359,
+  "sample_n": 23,
+  "depth": 2,
+  "game": "JAX @ BAL",
+  "start_time": "2026-11-06T01:16:00.000Z",
+  "game_day": "2026-11-05",
+  "logged_at": "2026-11-05T00:57:16",
+  "outcome": null,
+  "actual": null
+ },
+ "noah gray|Receptions|1.5|36244871": {
+  "player": "Noah Gray",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 118,
+  "model_prob": 0.5765,
+  "fair_prob": 0.4033,
+  "edge": 0.1732,
+  "sample_n": 21,
+  "depth": 2,
+  "game": "NYJ @ KC",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:57:16",
+  "outcome": null,
+  "actual": null
+ },
+ "noah gray|Receiving Yards|11.5|36244871": {
+  "player": "Noah Gray",
+  "stat": "Receiving Yards",
+  "line": 11.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5357,
+  "fair_prob": 0.475,
+  "edge": 0.0607,
+  "sample_n": 21,
+  "depth": 2,
+  "game": "NYJ @ KC",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:57:16",
+  "outcome": null,
+  "actual": null
+ },
+ "jaxon smith-njigba|Receiving Yards|92.5|36244878": {
+  "player": "Jaxon Smith-Njigba",
+  "stat": "Receiving Yards",
+  "line": 92.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.6432,
+  "fair_prob": 0.475,
+  "edge": 0.1682,
+  "sample_n": 25,
+  "depth": 1,
+  "game": "ARI @ SEA",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-05T00:57:16",
   "outcome": null,
   "actual": null
  }
