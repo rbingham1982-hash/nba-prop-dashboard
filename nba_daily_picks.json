@@ -3082,5 +3082,133 @@
    "fair_prob": 0.1001,
    "breakeven_prob": 0.10919
   }
+ },
+ "2026-11-05": {
+  "date": "2026-11-05",
+  "generated": "2026-11-05T18:26:12",
+  "ats": [
+   {
+    "event": "401909937",
+    "game": "MIA @ GSW",
+    "home": "GSW",
+    "away": "MIA",
+    "start_time": "2026-11-06T03:00Z",
+    "home_spread": -3.5,
+    "book": "Draft Kings",
+    "pred_margin": 4.56,
+    "edge": 1.06,
+    "pick": "home",
+    "pick_label": "GSW -3.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": false
+   },
+   {
+    "event": "401909936",
+    "game": "ORL @ PHX",
+    "home": "PHX",
+    "away": "ORL",
+    "start_time": "2026-11-06T02:00Z",
+    "home_spread": -1.5,
+    "book": "Draft Kings",
+    "pred_margin": 1.37,
+    "edge": 0.13,
+    "pick": "away",
+    "pick_label": "ORL +1.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": false
+   }
+  ],
+  "ats_rule": "published when the model and the line differ by 2-6 points",
+  "parlay": [],
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Bam Adebayo",
+    "stat_type": "3-PT Made",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -250,
+    "game": "MIA @ GSW",
+    "start_time": "2026-11-06T03:10:00.000Z",
+    "model_prob": 0.6586,
+    "implied_prob": 0.6994,
+    "blended_prob": 0.6994,
+    "edge": -0.0408,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Georges Niang",
+    "stat_type": "Rebounds",
+    "line": 3.5,
+    "side": "under",
+    "american_odds": -174,
+    "game": "MIA @ GSW",
+    "start_time": "2026-11-06T03:10:00.000Z",
+    "model_prob": 0.6457,
+    "implied_prob": 0.6248,
+    "blended_prob": 0.6248,
+    "edge": 0.0209,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Dillon Brooks",
+    "stat_type": "Assists",
+    "line": 2.5,
+    "side": "under",
+    "american_odds": -162,
+    "game": "ORL @ PHX",
+    "start_time": "2026-11-06T02:10:00.000Z",
+    "model_prob": 0.5629,
+    "implied_prob": 0.6079,
+    "blended_prob": 0.6079,
+    "edge": -0.045,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jamal Cain",
+    "stat_type": "Points",
+    "line": 6.5,
+    "side": "under",
+    "american_odds": -138,
+    "game": "ORL @ PHX",
+    "start_time": "2026-11-06T02:10:00.000Z",
+    "model_prob": 0.4657,
+    "implied_prob": 0.5717,
+    "blended_prob": 0.5717,
+    "edge": -0.106,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Wendell Carter Jr.",
+    "stat_type": "Pts+Rebs+Asts",
+    "line": 23.5,
+    "side": "under",
+    "american_odds": -128,
+    "game": "ORL @ PHX",
+    "start_time": "2026-11-06T02:10:00.000Z",
+    "model_prob": 0.6514,
+    "implied_prob": 0.5539,
+    "blended_prob": 0.5539,
+    "edge": 0.0975,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 10.953,
+   "american": 995,
+   "model_prob": 0.07262,
+   "blended_prob": 0.08412,
+   "fair_prob": 0.08412,
+   "breakeven_prob": 0.0913
+  }
  }
 }
