@@ -3099,9 +3099,9 @@
     "edge": 1.06,
     "pick": "home",
     "pick_label": "GSW -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 120,
+    "away_pts": 100,
     "published": false
    },
    {
@@ -3116,9 +3116,9 @@
     "edge": 0.13,
     "pick": "away",
     "pick_label": "ORL +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 117,
+    "away_pts": 104,
     "published": false
    }
   ],
@@ -3138,8 +3138,8 @@
     "implied_prob": 0.6994,
     "blended_prob": 0.6994,
     "edge": -0.0408,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Georges Niang",
@@ -3153,8 +3153,8 @@
     "implied_prob": 0.6248,
     "blended_prob": 0.6248,
     "edge": 0.0209,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 4.0
    },
    {
     "player": "Dillon Brooks",
@@ -3168,8 +3168,8 @@
     "implied_prob": 0.6079,
     "blended_prob": 0.6079,
     "edge": -0.045,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Jamal Cain",
@@ -3183,8 +3183,8 @@
     "implied_prob": 0.5717,
     "blended_prob": 0.5717,
     "edge": -0.106,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 5.0
    },
    {
     "player": "Wendell Carter Jr.",
@@ -3198,8 +3198,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": 0.0975,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 42.0
    }
   ],
   "parlay_withheld_price": {

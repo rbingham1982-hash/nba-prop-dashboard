@@ -5504,8 +5504,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-02T00:17:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "jakobi meyers|Receptions|3.5|36244870": {
   "player": "Jakobi Meyers",
@@ -5522,8 +5522,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-02T00:17:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "joe burrow|Passing Yards|268.5|35603243": {
   "player": "Joe Burrow",
@@ -5630,8 +5630,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-02T19:41:16",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "jakobi meyers|Receiving Yards|40.5|36244870": {
   "player": "Jakobi Meyers",
@@ -5648,8 +5648,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-02T19:41:16",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 65.0
  },
  "drake maye|Passing TDs|1.5|36244877": {
   "player": "Drake Maye",
@@ -5792,8 +5792,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-03T18:04:20",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "rashod bateman|Receptions|1.5|36244870": {
   "player": "Rashod Bateman",
@@ -5810,8 +5810,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-03T18:04:20",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "mark andrews|Receptions|2.5|36244870": {
   "player": "Mark Andrews",
@@ -5828,8 +5828,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-03T18:04:20",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "justin herbert|Passing Yards|208.5|36244874": {
   "player": "Justin Herbert",
@@ -6386,8 +6386,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-04T18:28:57",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "geno smith|Passing TDs|1.5|36244871": {
   "player": "Geno Smith",
@@ -6638,8 +6638,8 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-05T00:57:16",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 65.0
  },
  "noah gray|Receptions|1.5|36244871": {
   "player": "Noah Gray",
