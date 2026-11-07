@@ -4356,7 +4356,7 @@
    "home_odds": 200,
    "away_odds": -310
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -4476,8 +4476,8 @@
    "home_odds": 750,
    "away_odds": -1200
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.8967,
@@ -4524,8 +4524,8 @@
    "home_odds": 870,
    "away_odds": -1500
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.9009,
@@ -4552,12 +4552,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.669,
-   "odds": -230,
-   "home_odds": -230,
-   "away_odds": 190
+   "fav_prob": 0.6901,
+   "odds": -255,
+   "home_odds": -255,
+   "away_odds": 210
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "DEN @ IND|2026-11-07T22:10": {
   "label": "DEN @ IND",
@@ -4576,12 +4576,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7044,
-   "odds": -275,
-   "home_odds": 225,
-   "away_odds": -275
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": 265,
+   "away_odds": -330
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "WAS @ OKC|2026-11-08T01:10": {
   "label": "WAS @ OKC",
@@ -4600,12 +4600,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7907,
-   "odds": -460,
-   "home_odds": -460,
-   "away_odds": 360
+   "fav_prob": 0.8152,
+   "odds": -560,
+   "home_odds": -560,
+   "away_odds": 420
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "BKN @ ATL|2026-11-08T00:40": {
   "label": "BKN @ ATL",
@@ -4624,12 +4624,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.6854,
-   "odds": -250,
-   "home_odds": -250,
-   "away_odds": 205
+   "fav_prob": 0.6947,
+   "odds": -260,
+   "home_odds": -260,
+   "away_odds": 215
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "HOU @ PHX|2026-11-08T02:10": {
   "label": "HOU @ PHX",
@@ -4648,12 +4648,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7002,
-   "odds": -270,
-   "home_odds": 220,
-   "away_odds": -270
+   "fav_prob": 0.6806,
+   "odds": -245,
+   "home_odds": 200,
+   "away_odds": -245
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "DEN @ ORL|2026-11-07T06:11": {
   "label": "DEN @ ORL",
@@ -4678,5 +4678,101 @@
    "away_odds": 165
   },
   "last_seen": "2026-11-07T00:07:21"
+ },
+ "SAS @ POR|2026-11-08T03:10": {
+  "label": "SAS @ POR",
+  "home_name": "Portland Trail Blazers",
+  "away_name": "San Antonio Spurs",
+  "start_time": "2026-11-08T03:10:00.000Z",
+  "first_seen": "2026-11-07T14:42:05",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.669,
+   "odds": -230,
+   "home_odds": 190,
+   "away_odds": -230
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.669,
+   "odds": -230,
+   "home_odds": 190,
+   "away_odds": -230
+  },
+  "last_seen": "2026-11-07T14:42:05"
+ },
+ "NYK @ CLE|2026-11-08T01:10": {
+  "label": "NYK @ CLE",
+  "home_name": "Cleveland Cavaliers",
+  "away_name": "New York Knicks",
+  "start_time": "2026-11-08T01:10:00.000Z",
+  "first_seen": "2026-11-07T14:42:05",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6565,
+   "odds": -215,
+   "home_odds": 180,
+   "away_odds": -215
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6565,
+   "odds": -215,
+   "home_odds": 180,
+   "away_odds": -215
+  },
+  "last_seen": "2026-11-07T14:42:05"
+ },
+ "BKN @ MIA|2026-11-07T21:11": {
+  "label": "BKN @ MIA",
+  "home_name": "Miami Heat",
+  "away_name": "Brooklyn Nets",
+  "start_time": "2026-11-07T21:11:00.000Z",
+  "first_seen": "2026-11-07T14:42:05",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7221,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 230
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7221,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 230
+  },
+  "last_seen": "2026-11-07T14:42:05"
+ },
+ "BOS @ OKC|2026-11-07T21:19": {
+  "label": "BOS @ OKC",
+  "home_name": "Oklahoma City Thunder",
+  "away_name": "Boston Celtics",
+  "start_time": "2026-11-07T21:19:00.000Z",
+  "first_seen": "2026-11-07T14:42:05",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6598,
+   "odds": -255,
+   "home_odds": -255,
+   "away_odds": 170
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6598,
+   "odds": -255,
+   "home_odds": -255,
+   "away_odds": 170
+  },
+  "last_seen": "2026-11-07T14:42:05"
  }
 }

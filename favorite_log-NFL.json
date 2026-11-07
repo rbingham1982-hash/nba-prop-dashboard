@@ -597,7 +597,7 @@
    "home_odds": -520,
    "away_odds": 400
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "DET @ MIA|2026-11-08T18:01": {
   "label": "DET @ MIA",
@@ -616,12 +616,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7369,
-   "odds": -330,
-   "home_odds": 265,
-   "away_odds": -330
+   "fav_prob": 0.7175,
+   "odds": -295,
+   "home_odds": 240,
+   "away_odds": -295
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "LV @ SF|2026-11-08T21:06": {
   "label": "LV @ SF",
@@ -669,7 +669,7 @@
    "home_odds": 194,
    "away_odds": -235
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "ARI @ SEA|2026-11-08T21:26": {
   "label": "ARI @ SEA",
@@ -693,7 +693,7 @@
    "home_odds": -450,
    "away_odds": 350
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "TB @ CHI|2026-11-09T01:21": {
   "label": "TB @ CHI",
@@ -717,7 +717,7 @@
    "home_odds": -270,
    "away_odds": 220
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "DAL @ IND|2026-11-08T18:01": {
   "label": "DAL @ IND",
@@ -736,12 +736,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.669,
-   "odds": -230,
-   "home_odds": 190,
-   "away_odds": -230
+   "fav_prob": 0.6613,
+   "odds": -220,
+   "home_odds": 184,
+   "away_odds": -220
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "JAX @ BAL|2026-11-06T01:16": {
   "label": "JAX @ BAL",
@@ -789,7 +789,7 @@
    "home_odds": 198,
    "away_odds": -240
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "JAX @ TEN|2026-11-15T18:01": {
   "label": "JAX @ TEN",
@@ -813,7 +813,7 @@
    "home_odds": 460,
    "away_odds": -620
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "BUF @ NYJ|2026-11-15T18:01": {
   "label": "BUF @ NYJ",
@@ -837,7 +837,7 @@
    "home_odds": 380,
    "away_odds": -490
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "SF @ DAL|2026-11-15T21:26": {
   "label": "SF @ DAL",
@@ -861,7 +861,7 @@
    "home_odds": 176,
    "away_odds": -210
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "LA @ ARI|2026-11-15T21:06": {
   "label": "LA @ ARI",
@@ -885,7 +885,7 @@
    "home_odds": 290,
    "away_odds": -360
   },
-  "last_seen": "2026-11-07T00:07:21"
+  "last_seen": "2026-11-07T14:42:05"
  },
  "SEA @ LV|2026-11-15T21:06": {
   "label": "SEA @ LV",
@@ -910,5 +910,29 @@
    "away_odds": -245
   },
   "last_seen": "2026-11-04T00:34:26"
+ },
+ "LV @ SF|2026-11-08T21:26": {
+  "label": "LV @ SF",
+  "home_name": "San Francisco 49ers",
+  "away_name": "Las Vegas Raiders",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "first_seen": "2026-11-07T14:42:05",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7955,
+   "odds": -480,
+   "home_odds": -480,
+   "away_odds": 370
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7955,
+   "odds": -480,
+   "home_odds": -480,
+   "away_odds": 370
+  },
+  "last_seen": "2026-11-07T14:42:05"
  }
 }
