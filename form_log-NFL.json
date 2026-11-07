@@ -42546,5 +42546,27 @@
   "logged_at": "2026-11-06T17:48:29",
   "outcome": null,
   "actual": null
+ },
+ "christian watson|Receiving Yards|72.5|36244877": {
+  "player": "Christian Watson",
+  "stat": "Receiving Yards",
+  "line": 72.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 64.0,
+  "last5": [
+   47.0,
+   143.0,
+   64.0,
+   57.0,
+   113.0
+  ],
+  "game": "GB @ NE",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-06T21:18:12",
+  "outcome": null,
+  "actual": null
  }
 }
