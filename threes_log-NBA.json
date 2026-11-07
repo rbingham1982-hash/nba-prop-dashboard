@@ -1562,5 +1562,28 @@
    "home_prob": 0.4452
   },
   "last_seen": "2026-11-07T14:42:08"
+ },
+ "CLE @ MIL|2026-11-07T23:23": {
+  "label": "CLE @ MIL",
+  "home_name": "Milwaukee Bucks",
+  "away_name": "Cleveland Cavaliers",
+  "start_time": "2026-11-07T23:23:00.000Z",
+  "luck_home": -2.96,
+  "luck_away": 0.78,
+  "bet": "home",
+  "first_seen": "2026-11-07T16:49:17",
+  "first": {
+   "home_odds": -250,
+   "away_odds": 165,
+   "home_prob": 0.6543
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -250,
+   "away_odds": 165,
+   "home_prob": 0.6543
+  },
+  "last_seen": "2026-11-07T16:49:17"
  }
 }
