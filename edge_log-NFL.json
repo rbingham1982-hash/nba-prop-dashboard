@@ -7324,5 +7324,23 @@
   "logged_at": "2026-11-06T17:49:11",
   "outcome": null,
   "actual": null
+ },
+ "kendre miller|Receptions|1.5|36244869": {
+  "player": "Kendre Miller",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 144,
+  "model_prob": 0.46,
+  "fair_prob": 0.3581,
+  "edge": 0.1019,
+  "sample_n": 13,
+  "depth": 2,
+  "game": "CLE @ NO",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-07T00:07:20",
+  "outcome": null,
+  "actual": null
  }
 }

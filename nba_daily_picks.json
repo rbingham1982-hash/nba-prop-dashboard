@@ -3227,9 +3227,9 @@
     "edge": 5.29,
     "pick": "away",
     "pick_label": "TOR -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 107,
+    "away_pts": 121,
     "published": true
    },
    {
@@ -3244,9 +3244,9 @@
     "edge": 4.17,
     "pick": "home",
     "pick_label": "SAC +17.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 109,
+    "away_pts": 124,
     "published": true
    },
    {
@@ -3261,9 +3261,9 @@
     "edge": 3.73,
     "pick": "home",
     "pick_label": "CLE +2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 119,
+    "away_pts": 95,
     "published": true
    },
    {
@@ -3278,9 +3278,9 @@
     "edge": 3.73,
     "pick": "away",
     "pick_label": "MIN -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 109,
+    "away_pts": 115,
     "published": false
    },
    {
@@ -3295,9 +3295,9 @@
     "edge": 3.05,
     "pick": "home",
     "pick_label": "CHA +10.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 80,
+    "away_pts": 119,
     "published": false
    },
    {
@@ -3312,9 +3312,9 @@
     "edge": 2.68,
     "pick": "home",
     "pick_label": "MEM +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 97,
+    "away_pts": 128,
     "published": false
    },
    {
@@ -3329,9 +3329,9 @@
     "edge": 2.65,
     "pick": "away",
     "pick_label": "POR +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 124,
+    "away_pts": 118,
     "published": false
    },
    {
@@ -3346,9 +3346,9 @@
     "edge": 1.23,
     "pick": "home",
     "pick_label": "DAL -6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 112,
+    "away_pts": 100,
     "published": false
    },
    {
@@ -3363,9 +3363,9 @@
     "edge": 0.15,
     "pick": "home",
     "pick_label": "ATL -8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 139,
+    "away_pts": 132,
     "published": false
    }
   ],
@@ -3385,8 +3385,8 @@
     "implied_prob": 0.7103,
     "blended_prob": 0.7103,
     "edge": 0.0383,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Brandon Miller",
@@ -3400,8 +3400,8 @@
     "implied_prob": 0.6412,
     "blended_prob": 0.6412,
     "edge": 0.1031,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Malik Monk",
@@ -3415,8 +3415,8 @@
     "implied_prob": 0.6248,
     "blended_prob": 0.6248,
     "edge": 0.2281,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Brice Sensabaugh",
@@ -3430,8 +3430,8 @@
     "implied_prob": 0.5717,
     "blended_prob": 0.5717,
     "edge": -0.286,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Naji Marshall",
@@ -3445,8 +3445,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": -0.2053,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 13.0
    }
   ],
   "parlay_withheld_price": {

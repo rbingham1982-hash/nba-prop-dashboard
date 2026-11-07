@@ -4404,8 +4404,8 @@
    "home_odds": 220,
    "away_odds": -270
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.5934,
@@ -4428,8 +4428,8 @@
    "home_odds": 275,
    "away_odds": -340
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.7764,
@@ -4452,8 +4452,8 @@
    "home_odds": -270,
    "away_odds": 220
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7044,
@@ -4500,8 +4500,8 @@
    "home_odds": -260,
    "away_odds": 215
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7328,
@@ -4557,7 +4557,7 @@
    "home_odds": -230,
    "away_odds": 190
   },
-  "last_seen": "2026-11-06T21:18:59"
+  "last_seen": "2026-11-07T00:07:21"
  },
  "DEN @ IND|2026-11-07T22:10": {
   "label": "DEN @ IND",
@@ -4576,12 +4576,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.6854,
-   "odds": -250,
-   "home_odds": 205,
-   "away_odds": -250
+   "fav_prob": 0.7044,
+   "odds": -275,
+   "home_odds": 225,
+   "away_odds": -275
   },
-  "last_seen": "2026-11-06T21:18:59"
+  "last_seen": "2026-11-07T00:07:21"
  },
  "WAS @ OKC|2026-11-08T01:10": {
   "label": "WAS @ OKC",
@@ -4600,12 +4600,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7955,
-   "odds": -480,
-   "home_odds": -480,
-   "away_odds": 370
+   "fav_prob": 0.7907,
+   "odds": -460,
+   "home_odds": -460,
+   "away_odds": 360
   },
-  "last_seen": "2026-11-06T21:18:59"
+  "last_seen": "2026-11-07T00:07:21"
  },
  "BKN @ ATL|2026-11-08T00:40": {
   "label": "BKN @ ATL",
@@ -4624,12 +4624,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.6947,
-   "odds": -260,
-   "home_odds": -260,
-   "away_odds": 215
+   "fav_prob": 0.6854,
+   "odds": -250,
+   "home_odds": -250,
+   "away_odds": 205
   },
-  "last_seen": "2026-11-06T21:18:59"
+  "last_seen": "2026-11-07T00:07:21"
  },
  "HOU @ PHX|2026-11-08T02:10": {
   "label": "HOU @ PHX",
@@ -4648,11 +4648,35 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.6806,
-   "odds": -245,
-   "home_odds": 200,
-   "away_odds": -245
+   "fav_prob": 0.7002,
+   "odds": -270,
+   "home_odds": 220,
+   "away_odds": -270
   },
-  "last_seen": "2026-11-06T21:18:59"
+  "last_seen": "2026-11-07T00:07:21"
+ },
+ "DEN @ ORL|2026-11-07T06:11": {
+  "label": "DEN @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-07T06:11:00.000Z",
+  "first_seen": "2026-11-07T00:07:21",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6543,
+   "odds": -250,
+   "home_odds": -250,
+   "away_odds": 165
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6543,
+   "odds": -250,
+   "home_odds": -250,
+   "away_odds": 165
+  },
+  "last_seen": "2026-11-07T00:07:21"
  }
 }

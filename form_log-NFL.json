@@ -42568,5 +42568,49 @@
   "logged_at": "2026-11-06T21:18:12",
   "outcome": null,
   "actual": null
+ },
+ "josh downs|Receiving Yards|44.5|36244868": {
+  "player": "Josh Downs",
+  "stat": "Receiving Yards",
+  "line": 44.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 23.0,
+  "last5": [
+   16.0,
+   47.0,
+   40.0,
+   18.0,
+   23.0
+  ],
+  "game": "DAL @ IND",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-07T00:06:39",
+  "outcome": null,
+  "actual": null
+ },
+ "kendre miller|Receiving Yards|5.5|36244869": {
+  "player": "Kendre Miller",
+  "stat": "Receiving Yards",
+  "line": 5.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 5.0,
+  "last5": [
+   5.0,
+   10.0,
+   0.0,
+   0.0,
+   22.0
+  ],
+  "game": "CLE @ NO",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-07T00:06:39",
+  "outcome": null,
+  "actual": null
  }
 }

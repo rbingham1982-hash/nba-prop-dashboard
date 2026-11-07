@@ -1117,8 +1117,8 @@
    "away_odds": -172,
    "home_prob": 0.3932
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "home_odds": 148,
    "away_odds": -176,
@@ -1140,8 +1140,8 @@
    "away_odds": -270,
    "home_prob": 0.2998
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "home_odds": 140,
    "away_odds": -166,
@@ -1516,5 +1516,28 @@
    "home_prob": 0.5638
   },
   "last_seen": "2026-11-06T21:19:03"
+ },
+ "DEN @ CHA|2026-11-07T06:59": {
+  "label": "DEN @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-07T06:59:00.000Z",
+  "luck_home": -3.43,
+  "luck_away": 0.66,
+  "bet": "home",
+  "first_seen": "2026-11-07T00:07:23",
+  "first": {
+   "home_odds": -180,
+   "away_odds": 125,
+   "home_prob": 0.5912
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -180,
+   "away_odds": 125,
+   "home_prob": 0.5912
+  },
+  "last_seen": "2026-11-07T00:07:23"
  }
 }
