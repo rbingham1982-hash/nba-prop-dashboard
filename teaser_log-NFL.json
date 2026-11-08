@@ -279,10 +279,13 @@
   "start_time": "2026-11-08T14:30:00.000Z",
   "first_seen": "2026-10-27T17:56:57",
   "first_line": 3.0,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 3.0,
   "last_odds": 100,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T00:11:03",
+  "margin": -17.0,
+  "last_result": "loss",
+  "first_result": "loss"
  },
  "Denver Broncos @ Carolina Panthers|2026-11-08T18:01": {
   "dog": "Carolina Panthers",
@@ -363,7 +366,7 @@
   "outcome": null,
   "last_line": 5.5,
   "last_odds": -110,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T12:46:56"
  },
  "Green Bay Packers @ New England Patriots|2026-11-08T21:26": {
   "dog": "Green Bay Packers",
@@ -375,8 +378,8 @@
   "first_line": 2.5,
   "outcome": null,
   "last_line": 3.0,
-  "last_odds": -110,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_odds": -105,
+  "last_seen": "2026-11-08T12:46:56"
  },
  "Buffalo Bills @ Minnesota Vikings|2026-11-10T01:16": {
   "dog": "Minnesota Vikings",
@@ -389,7 +392,7 @@
   "outcome": null,
   "last_line": 3.0,
   "last_odds": -105,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T12:46:56"
  },
  "Washington Commanders @ New York Giants|2026-11-13T01:16": {
   "dog": "Washington Commanders",

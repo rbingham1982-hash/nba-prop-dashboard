@@ -3019,8 +3019,8 @@
     "edge": 4.07,
     "pick": "home",
     "pick_label": "ATL +3.0",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -17.0
    },
    {
     "game": "DET @ MIA",
@@ -3453,6 +3453,7 @@
    "fair_prob": 0.3388,
    "breakeven": 0.372,
    "frozen_at": "2026-11-06T00:57:13"
-  }
+  },
+  "graded": false
  }
 }
