@@ -4548,8 +4548,8 @@
    "home_odds": -230,
    "away_odds": 190
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7136,
@@ -4596,8 +4596,8 @@
    "home_odds": -480,
    "away_odds": 370
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.8192,
@@ -4620,8 +4620,8 @@
    "home_odds": -260,
    "away_odds": 215
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7086,
@@ -4644,8 +4644,8 @@
    "home_odds": 200,
    "away_odds": -245
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "away",
    "fav_prob": 0.6901,
@@ -4716,8 +4716,8 @@
    "home_odds": 180,
    "away_odds": -215
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.6301,
@@ -4792,12 +4792,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7567,
-   "odds": -370,
-   "home_odds": 295,
-   "away_odds": -370
+   "fav_prob": 0.7764,
+   "odds": -420,
+   "home_odds": 330,
+   "away_odds": -420
   },
-  "last_seen": "2026-11-07T20:33:57"
+  "last_seen": "2026-11-08T00:11:03"
  },
  "UTA @ MIN|2026-11-09T00:10": {
   "label": "UTA @ MIN",
@@ -4816,12 +4816,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8119,
-   "odds": -550,
-   "home_odds": -550,
-   "away_odds": 410
+   "fav_prob": 0.8192,
+   "odds": -590,
+   "home_odds": -590,
+   "away_odds": 430
   },
-  "last_seen": "2026-11-07T20:33:57"
+  "last_seen": "2026-11-08T00:11:03"
  },
  "BOS @ LAL|2026-11-07T23:11": {
   "label": "BOS @ LAL",
@@ -4960,12 +4960,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.8341,
-   "odds": -650,
-   "home_odds": 480,
-   "away_odds": -650
+   "fav_prob": 0.8544,
+   "odds": -800,
+   "home_odds": 560,
+   "away_odds": -800
   },
-  "last_seen": "2026-11-07T20:33:57"
+  "last_seen": "2026-11-08T00:11:03"
  },
  "MIA @ SAC|2026-11-09T02:10": {
   "label": "MIA @ SAC",
@@ -4984,12 +4984,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7402,
-   "odds": -335,
-   "home_odds": 270,
-   "away_odds": -335
+   "fav_prob": 0.7532,
+   "odds": -360,
+   "home_odds": 290,
+   "away_odds": -360
   },
-  "last_seen": "2026-11-07T20:33:57"
+  "last_seen": "2026-11-08T00:11:03"
  },
  "ORL @ DEN|2026-11-08T03:11": {
   "label": "ORL @ DEN",
@@ -5038,5 +5038,53 @@
    "away_odds": 175
   },
   "last_seen": "2026-11-07T20:33:57"
+ },
+ "BKN @ DAL|2026-11-09T00:40": {
+  "label": "BKN @ DAL",
+  "home_name": "Dallas Mavericks",
+  "away_name": "Brooklyn Nets",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "first_seen": "2026-11-08T00:11:03",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7532,
+   "odds": -360,
+   "home_odds": -360,
+   "away_odds": 290
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7532,
+   "odds": -360,
+   "home_odds": -360,
+   "away_odds": 290
+  },
+  "last_seen": "2026-11-08T00:11:03"
+ },
+ "DAL @ ORL|2026-11-08T06:23": {
+  "label": "DAL @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-11-08T06:23:00.000Z",
+  "first_seen": "2026-11-08T00:11:03",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7114,
+   "odds": -360,
+   "home_odds": -360,
+   "away_odds": 215
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7114,
+   "odds": -360,
+   "home_odds": -360,
+   "away_odds": 215
+  },
+  "last_seen": "2026-11-08T00:11:03"
  }
 }

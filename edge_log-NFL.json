@@ -7540,5 +7540,41 @@
   "logged_at": "2026-11-07T16:49:15",
   "outcome": null,
   "actual": null
+ },
+ "konata mumpfield|Receptions|1.5|36244876": {
+  "player": "Konata Mumpfield",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 106,
+  "model_prob": 0.4976,
+  "fair_prob": 0.4292,
+  "edge": 0.0684,
+  "sample_n": 17,
+  "depth": 2,
+  "game": "LA @ WAS",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:11:02",
+  "outcome": null,
+  "actual": null
+ },
+ "zach charbonnet|Rushing Yards|32.5|36244878": {
+  "player": "Zach Charbonnet",
+  "stat": "Rushing Yards",
+  "line": 32.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.5697,
+  "fair_prob": 0.475,
+  "edge": 0.0947,
+  "sample_n": 17,
+  "depth": 1,
+  "game": "ARI @ SEA",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:11:02",
+  "outcome": null,
+  "actual": null
  }
 }

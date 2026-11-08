@@ -175754,8 +175754,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 19.0
  },
  "jamal murray|Points|23.5|36282776": {
   "player": "Jamal Murray",
@@ -175776,8 +175776,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 16.0
  },
  "ivica zubac|Points|9.5|36282776": {
   "player": "Ivica Zubac",
@@ -175798,8 +175798,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 10.0
  },
  "demar derozan|Points|11.5|36282776": {
   "player": "DeMar DeRozan",
@@ -175820,8 +175820,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "pascal siakam|Points|20.5|36282776": {
   "player": "Pascal Siakam",
@@ -175842,8 +175842,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 23.0
  },
  "aaron gordon|Assists|2.5|36282776": {
   "player": "Aaron Gordon",
@@ -175864,8 +175864,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "andrew nembhard|Assists|6.5|36282776": {
   "player": "Andrew Nembhard",
@@ -175886,8 +175886,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 8.0
  },
  "jamal murray|Assists|6.5|36282776": {
   "player": "Jamal Murray",
@@ -175908,8 +175908,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 8.0
  },
  "christian braun|Rebounds|4.5|36282776": {
   "player": "Christian Braun",
@@ -175930,8 +175930,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "demar derozan|Rebounds|2.5|36282776": {
   "player": "DeMar DeRozan",
@@ -175952,8 +175952,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "aaron gordon|Rebounds|5.5|36282776": {
   "player": "Aaron Gordon",
@@ -175974,8 +175974,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "pascal siakam|Rebounds|6.5|36282776": {
   "player": "Pascal Siakam",
@@ -175996,8 +175996,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "andrew nembhard|Rebounds|2.5|36282776": {
   "player": "Andrew Nembhard",
@@ -176018,8 +176018,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "aaron nesmith|Rebounds|3.5|36282776": {
   "player": "Aaron Nesmith",
@@ -176040,8 +176040,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 5.0
  },
  "kelly oubre|Rebounds|3.5|36282776": {
   "player": "Kelly Oubre Jr.",
@@ -176062,8 +176062,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "nikola jokic|Rebounds|11.5|36282776": {
   "player": "Nikola Jokic",
@@ -176084,8 +176084,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 13.0
  },
  "nikola jokic|Pts+Rebs|38.5|36282776": {
   "player": "Nikola Jokic",
@@ -176106,8 +176106,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 32.0
  },
  "jamal murray|Pts+Rebs|27.5|36282776": {
   "player": "Jamal Murray",
@@ -176128,8 +176128,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 22.0
  },
  "andrew nembhard|Rebs+Asts|9.5|36282776": {
   "player": "Andrew Nembhard",
@@ -176150,8 +176150,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "christian braun|Pts+Rebs|17.5|36282776": {
   "player": "Christian Braun",
@@ -176172,8 +176172,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 10.0
  },
  "aaron gordon|Rebs+Asts|8.5|36282776": {
   "player": "Aaron Gordon",
@@ -176194,8 +176194,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "pascal siakam|Pts+Rebs+Asts|31.5|36282776": {
   "player": "Pascal Siakam",
@@ -176216,8 +176216,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 30.0
  },
  "aaron gordon|Pts+Rebs+Asts|21.5|36282776": {
   "player": "Aaron Gordon",
@@ -176238,8 +176238,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 17.0
  },
  "pascal siakam|Pts+Asts|24.5|36282776": {
   "player": "Pascal Siakam",
@@ -176260,8 +176260,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 28.0
  },
  "aaron gordon|Pts+Rebs|18.5|36282776": {
   "player": "Aaron Gordon",
@@ -176282,8 +176282,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 17.0
  },
  "christian braun|Rebs+Asts|6.5|36282776": {
   "player": "Christian Braun",
@@ -176304,8 +176304,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "christian braun|Pts+Rebs+Asts|19.5|36282776": {
   "player": "Christian Braun",
@@ -176326,8 +176326,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "pascal siakam|Rebs+Asts|10.5|36282776": {
   "player": "Pascal Siakam",
@@ -176348,8 +176348,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "pascal siakam|Pts+Rebs|27.5|36282776": {
   "player": "Pascal Siakam",
@@ -176370,8 +176370,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 25.0
  },
  "jamal murray|Pts+Asts|29.5|36282776": {
   "player": "Jamal Murray",
@@ -176392,8 +176392,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 24.0
  },
  "jamal murray|Pts+Rebs+Asts|34.5|36282776": {
   "player": "Jamal Murray",
@@ -176414,8 +176414,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 30.0
  },
  "demar derozan|Pts+Asts|14.5|36282776": {
   "player": "DeMar DeRozan",
@@ -176436,8 +176436,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 16.0
  },
  "demar derozan|Pts+Rebs|14.5|36282776": {
   "player": "DeMar DeRozan",
@@ -176458,8 +176458,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 12.0
  },
  "nikola jokic|Rebs+Asts|21.5|36282776": {
   "player": "Nikola Jokic",
@@ -176480,8 +176480,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 21.0
  },
  "nikola jokic|Pts+Asts|36.5|36282776": {
   "player": "Nikola Jokic",
@@ -176502,8 +176502,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 27.0
  },
  "aaron nesmith|Pts+Rebs|15.5|36282776": {
   "player": "Aaron Nesmith",
@@ -176524,8 +176524,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 13.0
  },
  "demar derozan|Pts+Rebs+Asts|17.5|36282776": {
   "player": "DeMar DeRozan",
@@ -176546,8 +176546,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 17.0
  },
  "nikola jokic|Pts+Rebs+Asts|48.5|36282776": {
   "player": "Nikola Jokic",
@@ -176568,8 +176568,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 40.0
  },
  "obi toppin|3-PT Made|1.5|36282776": {
   "player": "Obi Toppin",
@@ -176590,8 +176590,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "nikola jokic|3-PT Made|1.5|36282776": {
   "player": "Nikola Jokic",
@@ -176612,8 +176612,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "aaron gordon|3-PT Made|1.5|36282776": {
   "player": "Aaron Gordon",
@@ -176634,8 +176634,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "pascal siakam|3-PT Made|1.5|36282776": {
   "player": "Pascal Siakam",
@@ -176656,8 +176656,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "aaron nesmith|3-PT Made|2.5|36282776": {
   "player": "Aaron Nesmith",
@@ -176678,8 +176678,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "christian braun|3-PT Made|1.5|36282776": {
   "player": "Christian Braun",
@@ -176700,8 +176700,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "kelly oubre|3-PT Made|1.5|36282776": {
   "player": "Kelly Oubre Jr.",
@@ -176722,8 +176722,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-06T21:18:17",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "wendell carter|Points|12.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -176744,8 +176744,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "draymond green|Points|5.5|36282775": {
   "player": "Draymond Green",
@@ -176766,8 +176766,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "yaxel lendeborg|Points|17.5|36282775": {
   "player": "Yaxel Lendeborg",
@@ -176788,8 +176788,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 23.0
  },
  "franz wagner|Points|21.5|36282775": {
   "player": "Franz Wagner",
@@ -176810,8 +176810,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "desmond bane|Points|19.5|36282775": {
   "player": "Desmond Bane",
@@ -176854,8 +176854,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "wendell carter|Assists|1.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -176876,8 +176876,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "desmond bane|Rebounds|4.5|36282775": {
   "player": "Desmond Bane",
@@ -176920,8 +176920,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "franz wagner|Rebounds|5.5|36282775": {
   "player": "Franz Wagner",
@@ -176942,8 +176942,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "yaxel lendeborg|Rebounds|7.5|36282775": {
   "player": "Yaxel Lendeborg",
@@ -176964,8 +176964,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 8.0
  },
  "tristan da silva|Rebounds|3.5|36282775": {
   "player": "Tristan da Silva",
@@ -176986,8 +176986,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "draymond green|Rebounds|5.5|36282775": {
   "player": "Draymond Green",
@@ -177008,8 +177008,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "jase richardson|Rebounds|2.5|36282775": {
   "player": "Jase Richardson",
@@ -177030,8 +177030,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "yaxel lendeborg|Pts+Rebs|25.5|36282775": {
   "player": "Yaxel Lendeborg",
@@ -177052,8 +177052,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 31.0
  },
  "jase richardson|Rebs+Asts|5.5|36282775": {
   "player": "Jase Richardson",
@@ -177074,8 +177074,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 8.0
  },
  "wendell carter|Pts+Asts|14.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -177096,8 +177096,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "yaxel lendeborg|Rebs+Asts|11.5|36282775": {
   "player": "Yaxel Lendeborg",
@@ -177118,8 +177118,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "tristan da silva|Rebs+Asts|5.5|36282775": {
   "player": "Tristan da Silva",
@@ -177140,8 +177140,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "wendell carter|Pts+Rebs|21.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -177162,8 +177162,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "wendell carter|Pts+Rebs+Asts|23.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -177184,8 +177184,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "jase richardson|Pts+Rebs|10.5|36282775": {
   "player": "Jase Richardson",
@@ -177206,8 +177206,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 6.0
  },
  "jase richardson|Pts+Rebs+Asts|13.5|36282775": {
   "player": "Jase Richardson",
@@ -177228,8 +177228,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 10.0
  },
  "desmond bane|Pts+Rebs+Asts|26.5|36282775": {
   "player": "Desmond Bane",
@@ -177272,8 +177272,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 36.0
  },
  "draymond green|Pts+Rebs+Asts|17.5|36282775": {
   "player": "Draymond Green",
@@ -177294,8 +177294,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 21.0
  },
  "draymond green|Pts+Rebs|10.5|36282775": {
   "player": "Draymond Green",
@@ -177316,8 +177316,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 8.0
  },
  "wendell carter|Rebs+Asts|10.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -177338,8 +177338,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 11.0
  },
  "desmond bane|Rebs+Asts|6.5|36282775": {
   "player": "Desmond Bane",
@@ -177426,8 +177426,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "franz wagner|Pts+Rebs+Asts|35.5|36282775": {
   "player": "Franz Wagner",
@@ -177448,8 +177448,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 47.0
  },
  "franz wagner|3-PT Made|1.5|36282775": {
   "player": "Franz Wagner",
@@ -177470,8 +177470,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "brandin podziemski|3-PT Made|2.5|36282775": {
   "player": "Brandin Podziemski",
@@ -177492,8 +177492,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "jase richardson|3-PT Made|1.5|36282775": {
   "player": "Jase Richardson",
@@ -177514,8 +177514,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "anthony black|3-PT Made|1.5|36282775": {
   "player": "Anthony Black",
@@ -177536,8 +177536,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "ivica zubac|Points|10.5|36282776": {
   "player": "Ivica Zubac",
@@ -177558,8 +177558,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 10.0
  },
  "demar derozan|Points|12.5|36282776": {
   "player": "DeMar DeRozan",
@@ -177580,8 +177580,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "andrew nembhard|Assists|7.5|36282776": {
   "player": "Andrew Nembhard",
@@ -177602,8 +177602,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 8.0
  },
  "ivica zubac|Rebounds|8.5|36282776": {
   "player": "Ivica Zubac",
@@ -177624,8 +177624,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 12.0
  },
  "andrew nembhard|Rebs+Asts|10.5|36282776": {
   "player": "Andrew Nembhard",
@@ -177646,8 +177646,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "jamal murray|Pts+Rebs+Asts|33.5|36282776": {
   "player": "Jamal Murray",
@@ -177668,8 +177668,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 30.0
  },
  "demar derozan|Pts+Asts|15.5|36282776": {
   "player": "DeMar DeRozan",
@@ -177690,8 +177690,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 16.0
  },
  "scoot henderson|Points|11.5|36282779": {
   "player": "Scoot Henderson",
@@ -177712,8 +177712,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 13.0
  },
  "damian lillard|Assists|4.5|36282779": {
   "player": "Damian Lillard",
@@ -177734,8 +177734,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "donovan clingan|Assists|1.5|36282779": {
   "player": "Donovan Clingan",
@@ -177756,8 +177756,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "scoot henderson|Assists|2.5|36282779": {
   "player": "Scoot Henderson",
@@ -177778,8 +177778,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "jrue holiday|Assists|4.5|36282779": {
   "player": "Jrue Holiday",
@@ -177800,8 +177800,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "toumani camara|Assists|1.5|36282779": {
   "player": "Toumani Camara",
@@ -177822,8 +177822,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "jrue holiday|Rebounds|4.5|36282779": {
   "player": "Jrue Holiday",
@@ -177844,8 +177844,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "scoot henderson|Rebounds|2.5|36282779": {
   "player": "Scoot Henderson",
@@ -177866,8 +177866,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "damian lillard|Rebounds|3.5|36282779": {
   "player": "Damian Lillard",
@@ -177888,8 +177888,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "jrue holiday|Pts+Asts|17.5|36282779": {
   "player": "Jrue Holiday",
@@ -177910,8 +177910,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "jrue holiday|Rebs+Asts|8.5|36282779": {
   "player": "Jrue Holiday",
@@ -177932,8 +177932,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "toumani camara|Pts+Rebs|15.5|36282779": {
   "player": "Toumani Camara",
@@ -177954,8 +177954,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 8.0
  },
  "donovan clingan|Rebs+Asts|12.5|36282779": {
   "player": "Donovan Clingan",
@@ -177976,8 +177976,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "scoot henderson|Rebs+Asts|5.5|36282779": {
   "player": "Scoot Henderson",
@@ -177998,8 +177998,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "scoot henderson|Pts+Rebs+Asts|17.5|36282779": {
   "player": "Scoot Henderson",
@@ -178020,8 +178020,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 16.0
  },
  "scoot henderson|Pts+Asts|14.5|36282779": {
   "player": "Scoot Henderson",
@@ -178042,8 +178042,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 14.0
  },
  "jrue holiday|Pts+Rebs+Asts|21.5|36282779": {
   "player": "Jrue Holiday",
@@ -178064,8 +178064,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "damian lillard|Rebs+Asts|8.5|36282779": {
   "player": "Damian Lillard",
@@ -178086,8 +178086,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "scoot henderson|Pts+Rebs|13.5|36282779": {
   "player": "Scoot Henderson",
@@ -178108,8 +178108,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "damian lillard|3-PT Made|2.5|36282779": {
   "player": "Damian Lillard",
@@ -178130,8 +178130,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "deni avdija|3-PT Made|1.5|36282779": {
   "player": "Deni Avdija",
@@ -178152,8 +178152,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "donovan clingan|3-PT Made|1.5|36282779": {
   "player": "Donovan Clingan",
@@ -178174,8 +178174,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "scoot henderson|3-PT Made|1.5|36282779": {
   "player": "Scoot Henderson",
@@ -178196,8 +178196,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "mikal bridges|Points|9.5|36282780": {
   "player": "Mikal Bridges",
@@ -178218,8 +178218,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "miles mcbride|Points|7.5|36282780": {
   "player": "Miles McBride",
@@ -178240,8 +178240,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "karl-anthony towns|Points|20.5|36282780": {
   "player": "Karl-Anthony Towns",
@@ -178262,8 +178262,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 29.0
  },
  "jalen brunson|Points|26.5|36282780": {
   "player": "Jalen Brunson",
@@ -178284,8 +178284,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 31.0
  },
  "jalen brunson|Assists|6.5|36282780": {
   "player": "Jalen Brunson",
@@ -178306,8 +178306,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "karl-anthony towns|Assists|3.5|36282780": {
   "player": "Karl-Anthony Towns",
@@ -178328,8 +178328,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "mikal bridges|Assists|2.5|36282780": {
   "player": "Mikal Bridges",
@@ -178350,8 +178350,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "og anunoby|Assists|2.5|36282780": {
   "player": "OG Anunoby",
@@ -178372,8 +178372,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "mikal bridges|Rebounds|3.5|36282780": {
   "player": "Mikal Bridges",
@@ -178394,8 +178394,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "jalen brunson|Rebounds|3.5|36282780": {
   "player": "Jalen Brunson",
@@ -178416,8 +178416,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "landry shamet|Rebounds|2.5|36282780": {
   "player": "Landry Shamet",
@@ -178438,8 +178438,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "karl-anthony towns|Rebounds|13.5|36282780": {
   "player": "Karl-Anthony Towns",
@@ -178460,8 +178460,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 13.0
  },
  "og anunoby|Rebounds|5.5|36282780": {
   "player": "OG Anunoby",
@@ -178482,8 +178482,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "jalen brunson|Rebs+Asts|9.5|36282780": {
   "player": "Jalen Brunson",
@@ -178504,8 +178504,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "jalen brunson|Pts+Rebs|29.5|36282780": {
   "player": "Jalen Brunson",
@@ -178526,8 +178526,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 37.0
  },
  "mikal bridges|Pts+Asts|12.5|36282780": {
   "player": "Mikal Bridges",
@@ -178548,8 +178548,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 13.0
  },
  "karl-anthony towns|Pts+Rebs|33.5|36282780": {
   "player": "Karl-Anthony Towns",
@@ -178570,8 +178570,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 42.0
  },
  "karl-anthony towns|Pts+Rebs+Asts|37.5|36282780": {
   "player": "Karl-Anthony Towns",
@@ -178592,8 +178592,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 45.0
  },
  "jalen brunson|Pts+Rebs+Asts|36.5|36282780": {
   "player": "Jalen Brunson",
@@ -178614,8 +178614,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 46.0
  },
  "og anunoby|Pts+Rebs+Asts|25.5|36282780": {
   "player": "OG Anunoby",
@@ -178636,8 +178636,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 23.0
  },
  "karl-anthony towns|Pts+Asts|24.5|36282780": {
   "player": "Karl-Anthony Towns",
@@ -178658,8 +178658,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 32.0
  },
  "og anunoby|Pts+Rebs|22.5|36282780": {
   "player": "OG Anunoby",
@@ -178680,8 +178680,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 21.0
  },
  "mikal bridges|Pts+Rebs+Asts|16.5|36282780": {
   "player": "Mikal Bridges",
@@ -178702,8 +178702,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "jalen brunson|Pts+Asts|32.5|36282780": {
   "player": "Jalen Brunson",
@@ -178724,8 +178724,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 40.0
  },
  "og anunoby|Rebs+Asts|8.5|36282780": {
   "player": "OG Anunoby",
@@ -178746,8 +178746,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 8.0
  },
  "mikal bridges|Pts+Rebs|12.5|36282780": {
   "player": "Mikal Bridges",
@@ -178768,8 +178768,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "miles mcbride|Pts+Rebs+Asts|10.5|36282780": {
   "player": "Miles McBride",
@@ -178790,8 +178790,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "og anunoby|3-PT Made|2.5|36282780": {
   "player": "OG Anunoby",
@@ -178812,8 +178812,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "mikal bridges|3-PT Made|1.5|36282780": {
   "player": "Mikal Bridges",
@@ -178834,8 +178834,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "jalen green|Points|14.5|36282781": {
   "player": "Jalen Green",
@@ -178856,8 +178856,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 16.0
  },
  "kevin durant|Points|22.5|36282781": {
   "player": "Kevin Durant",
@@ -178878,8 +178878,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 21.0
  },
  "alperen sengun|Points|20.5|36282781": {
   "player": "Alperen Sengun",
@@ -178900,8 +178900,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 15.0
  },
  "collin gillespie|Points|8.5|36282781": {
   "player": "Collin Gillespie",
@@ -178922,8 +178922,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "amen thompson|Points|14.5|36282781": {
   "player": "Amen Thompson",
@@ -178944,8 +178944,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 17.0
  },
  "jabari smith|Points|14.5|36282781": {
   "player": "Jabari Smith",
@@ -178966,8 +178966,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "tari eason|Points|9.5|36282781": {
   "player": "Tari Eason",
@@ -178988,8 +178988,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "dillon brooks|Assists|2.5|36282781": {
   "player": "Dillon Brooks",
@@ -179010,8 +179010,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "fred vanvleet|Assists|5.5|36282781": {
   "player": "Fred VanVleet",
@@ -179032,8 +179032,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "kevin durant|Assists|3.5|36282781": {
   "player": "Kevin Durant",
@@ -179054,8 +179054,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "devin booker|Assists|5.5|36282781": {
   "player": "Devin Booker",
@@ -179076,8 +179076,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "amen thompson|Assists|3.5|36282781": {
   "player": "Amen Thompson",
@@ -179098,8 +179098,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "collin gillespie|Assists|3.5|36282781": {
   "player": "Collin Gillespie",
@@ -179120,8 +179120,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "oso ighodaro|Rebounds|5.5|36282781": {
   "player": "Oso Ighodaro",
@@ -179142,8 +179142,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "kevin durant|Rebounds|5.5|36282781": {
   "player": "Kevin Durant",
@@ -179164,8 +179164,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 10.0
  },
  "alperen sengun|Rebounds|9.5|36282781": {
   "player": "Alperen Sengun",
@@ -179186,8 +179186,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 6.0
  },
  "jabari smith|Rebounds|6.5|36282781": {
   "player": "Jabari Smith",
@@ -179208,8 +179208,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "amen thompson|Rebounds|6.5|36282781": {
   "player": "Amen Thompson",
@@ -179230,8 +179230,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "jalen green|Rebounds|3.5|36282781": {
   "player": "Jalen Green",
@@ -179252,8 +179252,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "devin booker|Rebounds|3.5|36282781": {
   "player": "Devin Booker",
@@ -179274,8 +179274,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "collin gillespie|Rebounds|2.5|36282781": {
   "player": "Collin Gillespie",
@@ -179296,8 +179296,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "oso ighodaro|Pts+Rebs|12.5|36282781": {
   "player": "Oso Ighodaro",
@@ -179318,8 +179318,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 10.0
  },
  "collin gillespie|Rebs+Asts|6.5|36282781": {
   "player": "Collin Gillespie",
@@ -179340,8 +179340,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "collin gillespie|Pts+Asts|12.5|36282781": {
   "player": "Collin Gillespie",
@@ -179362,8 +179362,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "alperen sengun|Pts+Rebs|29.5|36282781": {
   "player": "Alperen Sengun",
@@ -179384,8 +179384,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 21.0
  },
  "amen thompson|Pts+Asts|18.5|36282781": {
   "player": "Amen Thompson",
@@ -179406,8 +179406,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 17.0
  },
  "kevin durant|Pts+Asts|25.5|36282781": {
   "player": "Kevin Durant",
@@ -179428,8 +179428,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 24.0
  },
  "devin booker|Rebs+Asts|8.5|36282781": {
   "player": "Devin Booker",
@@ -179450,8 +179450,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "alperen sengun|Pts+Asts|27.5|36282781": {
   "player": "Alperen Sengun",
@@ -179472,8 +179472,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 20.0
  },
  "amen thompson|Pts+Rebs|21.5|36282781": {
   "player": "Amen Thompson",
@@ -179494,8 +179494,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 24.0
  },
  "amen thompson|Pts+Rebs+Asts|25.5|36282781": {
   "player": "Amen Thompson",
@@ -179516,8 +179516,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 24.0
  },
  "amen thompson|Rebs+Asts|10.5|36282781": {
   "player": "Amen Thompson",
@@ -179538,8 +179538,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "kevin durant|Pts+Rebs+Asts|30.5|36282781": {
   "player": "Kevin Durant",
@@ -179560,8 +179560,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 34.0
  },
  "kevin durant|Pts+Rebs|27.5|36282781": {
   "player": "Kevin Durant",
@@ -179582,8 +179582,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 31.0
  },
  "oso ighodaro|Rebs+Asts|8.5|36282781": {
   "player": "Oso Ighodaro",
@@ -179604,8 +179604,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "collin gillespie|Pts+Rebs+Asts|15.5|36282781": {
   "player": "Collin Gillespie",
@@ -179626,8 +179626,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 14.0
  },
  "collin gillespie|Pts+Rebs|11.5|36282781": {
   "player": "Collin Gillespie",
@@ -179648,8 +179648,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 10.0
  },
  "kevin durant|Rebs+Asts|8.5|36282781": {
   "player": "Kevin Durant",
@@ -179670,8 +179670,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 13.0
  },
  "jalen green|Rebs+Asts|6.5|36282781": {
   "player": "Jalen Green",
@@ -179692,8 +179692,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "tari eason|3-PT Made|1.5|36282781": {
   "player": "Tari Eason",
@@ -179714,8 +179714,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "kevin durant|3-PT Made|1.5|36282781": {
   "player": "Kevin Durant",
@@ -179736,8 +179736,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "collin gillespie|3-PT Made|2.5|36282781": {
   "player": "Collin Gillespie",
@@ -179758,8 +179758,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "jalen green|3-PT Made|1.5|36282781": {
   "player": "Jalen Green",
@@ -179780,8 +179780,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "marcus smart|3-PT Made|1.5|36282781": {
   "player": "Marcus Smart",
@@ -179802,8 +179802,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T00:06:43",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "wendell carter|Points|13.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -179824,8 +179824,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "jase richardson|Points|10.5|36282775": {
   "player": "Jase Richardson",
@@ -179846,8 +179846,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "franz wagner|Points|24.5|36282775": {
   "player": "Franz Wagner",
@@ -179868,8 +179868,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "anthony black|Points|17.5|36282775": {
   "player": "Anthony Black",
@@ -179890,8 +179890,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 18.0
  },
  "jase richardson|Assists|3.5|36282775": {
   "player": "Jase Richardson",
@@ -179912,8 +179912,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "anthony black|Assists|5.5|36282775": {
   "player": "Anthony Black",
@@ -179934,8 +179934,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "tristan da silva|Rebounds|4.5|36282775": {
   "player": "Tristan da Silva",
@@ -179956,8 +179956,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "jase richardson|Rebounds|3.5|36282775": {
   "player": "Jase Richardson",
@@ -179978,8 +179978,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "anthony black|Pts+Rebs|22.5|36282775": {
   "player": "Anthony Black",
@@ -180000,8 +180000,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 26.0
  },
  "tristan da silva|Rebs+Asts|6.5|36282775": {
   "player": "Tristan da Silva",
@@ -180022,8 +180022,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "franz wagner|Pts+Rebs|30.5|36282775": {
   "player": "Franz Wagner",
@@ -180044,8 +180044,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 36.0
  },
  "draymond green|Pts+Rebs+Asts|16.5|36282775": {
   "player": "Draymond Green",
@@ -180066,8 +180066,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 21.0
  },
  "brandin podziemski|Pts+Rebs+Asts|25.5|36282775": {
   "player": "Brandin Podziemski",
@@ -180088,8 +180088,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 23.0
  },
  "draymond green|Pts+Asts|10.5|36282775": {
   "player": "Draymond Green",
@@ -180110,8 +180110,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "jase richardson|Rebs+Asts|6.5|36282775": {
   "player": "Jase Richardson",
@@ -180132,8 +180132,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 8.0
  },
  "wendell carter|Pts+Rebs|22.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -180154,8 +180154,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "wendell carter|Pts+Rebs+Asts|24.5|36282775": {
   "player": "Wendell Carter Jr.",
@@ -180176,8 +180176,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "jase richardson|Pts+Rebs|13.5|36282775": {
   "player": "Jase Richardson",
@@ -180198,8 +180198,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 6.0
  },
  "jase richardson|Pts+Rebs+Asts|16.5|36282775": {
   "player": "Jase Richardson",
@@ -180220,8 +180220,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 10.0
  },
  "anthony black|Pts+Asts|23.5|36282775": {
   "player": "Anthony Black",
@@ -180242,8 +180242,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 24.0
  },
  "anthony black|Pts+Rebs+Asts|28.5|36282775": {
   "player": "Anthony Black",
@@ -180264,8 +180264,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 32.0
  },
  "jase richardson|Pts+Asts|13.5|36282775": {
   "player": "Jase Richardson",
@@ -180286,8 +180286,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 6.0
  },
  "franz wagner|Pts+Asts|31.5|36282775": {
   "player": "Franz Wagner",
@@ -180308,8 +180308,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 41.0
  },
  "franz wagner|Pts+Rebs+Asts|37.5|36282775": {
   "player": "Franz Wagner",
@@ -180330,8 +180330,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 47.0
  },
  "nikola jokic|Points|25.5|36282776": {
   "player": "Nikola Jokic",
@@ -180352,8 +180352,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 19.0
  },
  "nikola jokic|Pts+Asts|34.5|36282776": {
   "player": "Nikola Jokic",
@@ -180374,8 +180374,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 27.0
  },
  "nikola jokic|Pts+Rebs+Asts|46.5|36282776": {
   "player": "Nikola Jokic",
@@ -180396,8 +180396,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 40.0
  },
  "nikola jokic|Pts+Rebs|37.5|36282776": {
   "player": "Nikola Jokic",
@@ -180418,8 +180418,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 32.0
  },
  "nikola jokic|Rebs+Asts|20.5|36282776": {
   "player": "Nikola Jokic",
@@ -180440,8 +180440,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 21.0
  },
  "aaron nesmith|Pts+Rebs|16.5|36282776": {
   "player": "Aaron Nesmith",
@@ -180462,8 +180462,8 @@
   "start_time": "2026-11-07T22:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 13.0
  },
  "shai gilgeous-alexander|Points|31.5|36282777": {
   "player": "Shai Gilgeous-Alexander",
@@ -180484,8 +180484,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 30.0
  },
  "jared mccain|Points|13.5|36282777": {
   "player": "Jared McCain",
@@ -180506,8 +180506,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "isaiah hartenstein|Points|8.5|36282777": {
   "player": "Isaiah Hartenstein",
@@ -180528,8 +180528,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "aj dybantsa|Points|17.5|36282777": {
   "player": "AJ Dybantsa",
@@ -180550,8 +180550,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "bilal coulibaly|Points|7.5|36282777": {
   "player": "Bilal Coulibaly",
@@ -180572,8 +180572,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "alex caruso|Points|7.5|36282777": {
   "player": "Alex Caruso",
@@ -180594,8 +180594,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "trae young|Points|18.5|36282777": {
   "player": "Trae Young",
@@ -180616,8 +180616,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "aj dybantsa|Assists|2.5|36282777": {
   "player": "AJ Dybantsa",
@@ -180638,8 +180638,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "shai gilgeous-alexander|Assists|5.5|36282777": {
   "player": "Shai Gilgeous-Alexander",
@@ -180660,8 +180660,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "bilal coulibaly|Rebounds|3.5|36282777": {
   "player": "Bilal Coulibaly",
@@ -180682,8 +180682,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 5.0
  },
  "shai gilgeous-alexander|Rebounds|4.5|36282777": {
   "player": "Shai Gilgeous-Alexander",
@@ -180704,8 +180704,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "kenrich williams|Rebounds|4.5|36282777": {
   "player": "Kenrich Williams",
@@ -180726,8 +180726,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "ajay mitchell|Rebounds|4.5|36282777": {
   "player": "Ajay Mitchell",
@@ -180748,8 +180748,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "kyshawn george|Rebounds|4.5|36282777": {
   "player": "Kyshawn George",
@@ -180770,8 +180770,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "shai gilgeous-alexander|Pts+Rebs+Asts|41.5|36282777": {
   "player": "Shai Gilgeous-Alexander",
@@ -180792,8 +180792,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 41.0
  },
  "aj dybantsa|Pts+Asts|19.5|36282777": {
   "player": "AJ Dybantsa",
@@ -180814,8 +180814,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 22.0
  },
  "aj dybantsa|Pts+Rebs+Asts|25.5|36282777": {
   "player": "AJ Dybantsa",
@@ -180836,8 +180836,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 28.0
  },
  "aj dybantsa|Pts+Rebs|22.5|36282777": {
   "player": "AJ Dybantsa",
@@ -180858,8 +180858,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 25.0
  },
  "shai gilgeous-alexander|Pts+Asts|36.5|36282777": {
   "player": "Shai Gilgeous-Alexander",
@@ -180880,8 +180880,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 39.0
  },
  "trae young|Pts+Asts|27.5|36282777": {
   "player": "Trae Young",
@@ -180902,8 +180902,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "jared mccain|Pts+Rebs|16.5|36282777": {
   "player": "Jared McCain",
@@ -180924,8 +180924,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 24.0
  },
  "jared mccain|Pts+Rebs+Asts|18.5|36282777": {
   "player": "Jared McCain",
@@ -180946,8 +180946,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 26.0
  },
  "isaiah hartenstein|Pts+Rebs+Asts|21.5|36282777": {
   "player": "Isaiah Hartenstein",
@@ -180968,8 +180968,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 22.0
  },
  "jared mccain|Pts+Asts|15.5|36282777": {
   "player": "Jared McCain",
@@ -180990,8 +180990,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 21.0
  },
  "shai gilgeous-alexander|Pts+Rebs|35.5|36282777": {
   "player": "Shai Gilgeous-Alexander",
@@ -181012,8 +181012,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 32.0
  },
  "isaiah hartenstein|Pts+Asts|11.5|36282777": {
   "player": "Isaiah Hartenstein",
@@ -181034,8 +181034,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 8.0
  },
  "isaiah hartenstein|Pts+Rebs|18.5|36282777": {
   "player": "Isaiah Hartenstein",
@@ -181056,8 +181056,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 16.0
  },
  "ajay mitchell|Rebs+Asts|8.5|36282777": {
   "player": "Ajay Mitchell",
@@ -181078,8 +181078,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "trae young|Pts+Rebs+Asts|31.5|36282777": {
   "player": "Trae Young",
@@ -181100,8 +181100,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 12.0
  },
  "trae young|Pts+Rebs|21.5|36282777": {
   "player": "Trae Young",
@@ -181122,8 +181122,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "bilal coulibaly|Pts+Rebs|10.5|36282777": {
   "player": "Bilal Coulibaly",
@@ -181144,8 +181144,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "shai gilgeous-alexander|Rebs+Asts|9.5|36282777": {
   "player": "Shai Gilgeous-Alexander",
@@ -181166,8 +181166,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 11.0
  },
  "ajay mitchell|3-PT Made|1.5|36282777": {
   "player": "Ajay Mitchell",
@@ -181188,8 +181188,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "jared mccain|3-PT Made|1.5|36282777": {
   "player": "Jared McCain",
@@ -181210,8 +181210,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "alex caruso|3-PT Made|1.5|36282777": {
   "player": "Alex Caruso",
@@ -181232,8 +181232,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "jalen johnson|Points|20.5|36282778": {
   "player": "Jalen Johnson",
@@ -181254,8 +181254,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "dyson daniels|Points|10.5|36282778": {
   "player": "Dyson Daniels",
@@ -181276,8 +181276,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "cj mccollum|Points|13.5|36282778": {
   "player": "CJ McCollum",
@@ -181298,8 +181298,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "dayron sharpe|Points|8.5|36282778": {
   "player": "Day'Ron Sharpe",
@@ -181320,8 +181320,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 12.0
  },
  "nickeil alexander-walker|Assists|3.5|36282778": {
   "player": "Nickeil Alexander-Walker",
@@ -181342,8 +181342,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "jalen johnson|Assists|7.5|36282778": {
   "player": "Jalen Johnson",
@@ -181364,8 +181364,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 6.0
  },
  "julius randle|Assists|4.5|36282778": {
   "player": "Julius Randle",
@@ -181386,8 +181386,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 8.0
  },
  "nolan traore|Assists|4.5|36282778": {
   "player": "Nolan Traore",
@@ -181408,8 +181408,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "onyeka okongwu|Assists|2.5|36282778": {
   "player": "Onyeka Okongwu",
@@ -181430,8 +181430,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 5.0
  },
  "jalen johnson|Rebounds|9.5|36282778": {
   "player": "Jalen Johnson",
@@ -181452,8 +181452,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "moritz wagner|Rebounds|4.5|36282778": {
   "player": "Moritz Wagner",
@@ -181474,8 +181474,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "kingston flemings|Rebounds|2.5|36282778": {
   "player": "Kingston Flemings",
@@ -181496,8 +181496,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "dayron sharpe|Rebounds|8.5|36282778": {
   "player": "Day'Ron Sharpe",
@@ -181518,8 +181518,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 10.0
  },
  "luguentz dort|Rebounds|3.5|36282778": {
   "player": "Luguentz Dort",
@@ -181540,8 +181540,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "nickeil alexander-walker|Rebounds|3.5|36282778": {
   "player": "Nickeil Alexander-Walker",
@@ -181562,8 +181562,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "mikel brown|Rebounds|2.5|36282778": {
   "player": "Mikel Brown Jr.",
@@ -181584,8 +181584,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "nolan traore|Rebs+Asts|6.5|36282778": {
   "player": "Nolan Traore",
@@ -181606,8 +181606,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "kingston flemings|Rebs+Asts|7.5|36282778": {
   "player": "Kingston Flemings",
@@ -181628,8 +181628,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "mikel brown|Pts+Rebs+Asts|19.5|36282778": {
   "player": "Mikel Brown Jr.",
@@ -181650,8 +181650,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 22.0
  },
  "jalen johnson|Pts+Rebs|29.5|36282778": {
   "player": "Jalen Johnson",
@@ -181672,8 +181672,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 37.0
  },
  "julius randle|Rebs+Asts|11.5|36282778": {
   "player": "Julius Randle",
@@ -181694,8 +181694,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "jalen johnson|Pts+Asts|27.5|36282778": {
   "player": "Jalen Johnson",
@@ -181716,8 +181716,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 36.0
  },
  "dyson daniels|Pts+Rebs+Asts|22.5|36282778": {
   "player": "Dyson Daniels",
@@ -181738,8 +181738,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 26.0
  },
  "cj mccollum|Pts+Asts|16.5|36282778": {
   "player": "CJ McCollum",
@@ -181760,8 +181760,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 12.0
  },
  "dyson daniels|Pts+Rebs|17.5|36282778": {
   "player": "Dyson Daniels",
@@ -181782,8 +181782,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "dyson daniels|Pts+Asts|15.5|36282778": {
   "player": "Dyson Daniels",
@@ -181804,8 +181804,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 16.0
  },
  "cj mccollum|Pts+Rebs+Asts|19.5|36282778": {
   "player": "CJ McCollum",
@@ -181826,8 +181826,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 16.0
  },
  "dayron sharpe|Pts+Rebs|17.5|36282778": {
   "player": "Day'Ron Sharpe",
@@ -181848,8 +181848,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 22.0
  },
  "nickeil alexander-walker|Rebs+Asts|6.5|36282778": {
   "player": "Nickeil Alexander-Walker",
@@ -181870,8 +181870,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "dayron sharpe|Pts+Rebs+Asts|19.5|36282778": {
   "player": "Day'Ron Sharpe",
@@ -181892,8 +181892,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 35.0
  },
  "jalen johnson|Rebs+Asts|16.5|36282778": {
   "player": "Jalen Johnson",
@@ -181914,8 +181914,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 13.0
  },
  "jalen johnson|Pts+Rebs+Asts|37.5|36282778": {
   "player": "Jalen Johnson",
@@ -181936,8 +181936,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 43.0
  },
  "dayron sharpe|Rebs+Asts|10.5|36282778": {
   "player": "Day'Ron Sharpe",
@@ -181958,8 +181958,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 23.0
  },
  "mikel brown|Pts+Asts|16.5|36282778": {
   "player": "Mikel Brown Jr.",
@@ -181980,8 +181980,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 21.0
  },
  "mikel brown|Rebs+Asts|6.5|36282778": {
   "player": "Mikel Brown Jr.",
@@ -182002,8 +182002,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "mikel brown|Pts+Rebs|15.5|36282778": {
   "player": "Mikel Brown Jr.",
@@ -182024,8 +182024,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "julius randle|Pts+Rebs+Asts|32.5|36282778": {
   "player": "Julius Randle",
@@ -182046,8 +182046,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 34.0
  },
  "dayron sharpe|Pts+Asts|11.5|36282778": {
   "player": "Day'Ron Sharpe",
@@ -182068,8 +182068,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 25.0
  },
  "julius randle|Pts+Rebs|27.5|36282778": {
   "player": "Julius Randle",
@@ -182090,8 +182090,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 26.0
  },
  "stephon castle|Points|16.5|36282779": {
   "player": "Stephon Castle",
@@ -182112,8 +182112,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 14.0
  },
  "julian champagnie|Points|8.5|36282779": {
   "player": "Julian Champagnie",
@@ -182134,8 +182134,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 14.0
  },
  "keldon johnson|Points|9.5|36282779": {
   "player": "Keldon Johnson",
@@ -182156,8 +182156,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 10.0
  },
  "scoot henderson|Points|13.5|36282779": {
   "player": "Scoot Henderson",
@@ -182178,8 +182178,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 13.0
  },
  "deaaron fox|Points|14.5|36282779": {
   "player": "De'Aaron Fox",
@@ -182200,8 +182200,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 8.0
  },
  "devin vassell|Points|11.5|36282779": {
   "player": "Devin Vassell",
@@ -182222,8 +182222,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "deaaron fox|Assists|5.5|36282779": {
   "player": "De'Aaron Fox",
@@ -182244,8 +182244,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 6.0
  },
  "scoot henderson|Assists|3.5|36282779": {
   "player": "Scoot Henderson",
@@ -182266,8 +182266,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "stephon castle|Assists|6.5|36282779": {
   "player": "Stephon Castle",
@@ -182288,8 +182288,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "devin vassell|Assists|2.5|36282779": {
   "player": "Devin Vassell",
@@ -182310,8 +182310,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "deaaron fox|Rebounds|3.5|36282779": {
   "player": "De'Aaron Fox",
@@ -182332,8 +182332,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "stephon castle|Rebounds|5.5|36282779": {
   "player": "Stephon Castle",
@@ -182354,8 +182354,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "dylan harper|Rebounds|5.5|36282779": {
   "player": "Dylan Harper",
@@ -182376,8 +182376,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "deaaron fox|Pts+Asts|20.5|36282779": {
   "player": "De'Aaron Fox",
@@ -182398,8 +182398,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 14.0
  },
  "deaaron fox|Pts+Rebs|17.5|36282779": {
   "player": "De'Aaron Fox",
@@ -182420,8 +182420,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "deaaron fox|Rebs+Asts|8.5|36282779": {
   "player": "De'Aaron Fox",
@@ -182442,8 +182442,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "scoot henderson|Rebs+Asts|6.5|36282779": {
   "player": "Scoot Henderson",
@@ -182464,8 +182464,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "deaaron fox|Pts+Rebs+Asts|23.5|36282779": {
   "player": "De'Aaron Fox",
@@ -182486,8 +182486,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 17.0
  },
  "scoot henderson|Pts+Rebs+Asts|19.5|36282779": {
   "player": "Scoot Henderson",
@@ -182508,8 +182508,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 16.0
  },
  "scoot henderson|Pts+Asts|16.5|36282779": {
   "player": "Scoot Henderson",
@@ -182530,8 +182530,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 14.0
  },
  "devin vassell|Pts+Rebs|15.5|36282779": {
   "player": "Devin Vassell",
@@ -182552,8 +182552,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 17.0
  },
  "stephon castle|Rebs+Asts|11.5|36282779": {
   "player": "Stephon Castle",
@@ -182574,8 +182574,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 12.0
  },
  "stephon castle|Pts+Rebs|21.5|36282779": {
   "player": "Stephon Castle",
@@ -182596,8 +182596,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 21.0
  },
  "keldon johnson|Pts+Rebs|14.5|36282779": {
   "player": "Keldon Johnson",
@@ -182618,8 +182618,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 17.0
  },
  "dylan harper|Pts+Rebs+Asts|27.5|36282779": {
   "player": "Dylan Harper",
@@ -182640,8 +182640,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 23.0
  },
  "scoot henderson|Pts+Rebs|15.5|36282779": {
   "player": "Scoot Henderson",
@@ -182662,8 +182662,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 15.0
  },
  "stephon castle|Pts+Asts|22.5|36282779": {
   "player": "Stephon Castle",
@@ -182684,8 +182684,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 19.0
  },
  "devin vassell|Pts+Rebs+Asts|18.5|36282779": {
   "player": "Devin Vassell",
@@ -182706,8 +182706,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 20.0
  },
  "devin vassell|Pts+Asts|13.5|36282779": {
   "player": "Devin Vassell",
@@ -182728,8 +182728,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 18.0
  },
  "deaaron fox|3-PT Made|1.5|36282779": {
   "player": "De'Aaron Fox",
@@ -182750,8 +182750,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "devin vassell|3-PT Made|1.5|36282779": {
   "player": "Devin Vassell",
@@ -182772,8 +182772,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "stephon castle|3-PT Made|1.5|36282779": {
   "player": "Stephon Castle",
@@ -182794,8 +182794,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "dylan harper|3-PT Made|1.5|36282779": {
   "player": "Dylan Harper",
@@ -182816,8 +182816,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "james harden|Points|17.5|36282780": {
   "player": "James Harden",
@@ -182838,8 +182838,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "donovan mitchell|Points|23.5|36282780": {
   "player": "Donovan Mitchell",
@@ -182860,8 +182860,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 37.0
  },
  "evan mobley|Points|17.5|36282780": {
   "player": "Evan Mobley",
@@ -182882,8 +182882,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 12.0
  },
  "karl-anthony towns|Points|19.5|36282780": {
   "player": "Karl-Anthony Towns",
@@ -182904,8 +182904,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 29.0
  },
  "jalen brunson|Points|25.5|36282780": {
   "player": "Jalen Brunson",
@@ -182926,8 +182926,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 31.0
  },
  "james harden|Assists|6.5|36282780": {
   "player": "James Harden",
@@ -182948,8 +182948,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "peyton watson|Assists|2.5|36282780": {
   "player": "Peyton Watson",
@@ -182970,8 +182970,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "donovan mitchell|Rebounds|4.5|36282780": {
   "player": "Donovan Mitchell",
@@ -182992,8 +182992,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "meleek thomas|Rebounds|2.5|36282780": {
   "player": "Meleek Thomas",
@@ -183014,8 +183014,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "evan mobley|Rebounds|9.5|36282780": {
   "player": "Evan Mobley",
@@ -183036,8 +183036,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "james harden|Rebs+Asts|10.5|36282780": {
   "player": "James Harden",
@@ -183058,8 +183058,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "james harden|Pts+Rebs+Asts|28.5|36282780": {
   "player": "James Harden",
@@ -183080,8 +183080,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 14.0
  },
  "james harden|Pts+Asts|23.5|36282780": {
   "player": "James Harden",
@@ -183102,8 +183102,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 12.0
  },
  "donovan mitchell|Pts+Rebs|28.5|36282780": {
   "player": "Donovan Mitchell",
@@ -183124,8 +183124,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 41.0
  },
  "evan mobley|Pts+Rebs+Asts|30.5|36282780": {
   "player": "Evan Mobley",
@@ -183146,8 +183146,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 26.0
  },
  "evan mobley|Pts+Rebs|27.5|36282780": {
   "player": "Evan Mobley",
@@ -183168,8 +183168,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 21.0
  },
  "mikal bridges|Pts+Rebs|13.5|36282780": {
   "player": "Mikal Bridges",
@@ -183190,8 +183190,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "karl-anthony towns|Pts+Rebs|32.5|36282780": {
   "player": "Karl-Anthony Towns",
@@ -183212,8 +183212,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 42.0
  },
  "jalen brunson|Pts+Rebs+Asts|35.5|36282780": {
   "player": "Jalen Brunson",
@@ -183234,8 +183234,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 46.0
  },
  "og anunoby|Pts+Rebs+Asts|24.5|36282780": {
   "player": "OG Anunoby",
@@ -183256,8 +183256,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 23.0
  },
  "evan mobley|Pts+Asts|21.5|36282780": {
   "player": "Evan Mobley",
@@ -183278,8 +183278,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 17.0
  },
  "donovan mitchell|Pts+Asts|28.5|36282780": {
   "player": "Donovan Mitchell",
@@ -183300,8 +183300,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 41.0
  },
  "donovan mitchell|Rebs+Asts|9.5|36282780": {
   "player": "Donovan Mitchell",
@@ -183322,8 +183322,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 8.0
  },
  "evan mobley|Rebs+Asts|12.5|36282780": {
   "player": "Evan Mobley",
@@ -183344,8 +183344,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 14.0
  },
  "donovan mitchell|Pts+Rebs+Asts|33.5|36282780": {
   "player": "Donovan Mitchell",
@@ -183366,8 +183366,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 45.0
  },
  "og anunoby|Rebs+Asts|7.5|36282780": {
   "player": "OG Anunoby",
@@ -183388,8 +183388,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 8.0
  },
  "donovan mitchell|3-PT Made|2.5|36282780": {
   "player": "Donovan Mitchell",
@@ -183410,8 +183410,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 5.0
  },
  "evan mobley|3-PT Made|1.5|36282780": {
   "player": "Evan Mobley",
@@ -183432,8 +183432,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "peyton watson|3-PT Made|1.5|36282780": {
   "player": "Peyton Watson",
@@ -183454,8 +183454,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "kevin durant|Points|21.5|36282781": {
   "player": "Kevin Durant",
@@ -183476,8 +183476,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 21.0
  },
  "tari eason|Pts+Rebs|15.5|36282781": {
   "player": "Tari Eason",
@@ -183498,8 +183498,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T14:41:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "anthony black|Pts+Rebs+Asts|27.5|36282775": {
   "player": "Anthony Black",
@@ -183520,8 +183520,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 32.0
  },
  "franz wagner|Pts+Asts|32.5|36282775": {
   "player": "Franz Wagner",
@@ -183542,8 +183542,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 41.0
  },
  "tristan da silva|Pts+Rebs+Asts|21.5|36282775": {
   "player": "Tristan da Silva",
@@ -183564,8 +183564,8 @@
   "start_time": "2026-11-08T01:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 28.0
  },
  "shai gilgeous-alexander|Pts+Rebs+Asts|40.5|36282777": {
   "player": "Shai Gilgeous-Alexander",
@@ -183586,8 +183586,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 41.0
  },
  "trae young|Pts+Asts|28.5|36282777": {
   "player": "Trae Young",
@@ -183608,8 +183608,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 7.0
  },
  "isaiah hartenstein|Pts+Rebs+Asts|22.5|36282777": {
   "player": "Isaiah Hartenstein",
@@ -183630,8 +183630,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 22.0
  },
  "trae young|Pts+Rebs+Asts|30.5|36282777": {
   "player": "Trae Young",
@@ -183652,8 +183652,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 12.0
  },
  "alex sarr|Pts+Rebs+Asts|21.5|36282777": {
   "player": "Alex Sarr",
@@ -183674,8 +183674,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "jalen johnson|Points|19.5|36282778": {
   "player": "Jalen Johnson",
@@ -183696,8 +183696,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 30.0
  },
  "dayron sharpe|Rebounds|7.5|36282778": {
   "player": "Day'Ron Sharpe",
@@ -183718,8 +183718,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 10.0
  },
  "mikel brown|Pts+Rebs+Asts|18.5|36282778": {
   "player": "Mikel Brown Jr.",
@@ -183740,8 +183740,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 22.0
  },
  "dayron sharpe|Pts+Rebs|16.5|36282778": {
   "player": "Day'Ron Sharpe",
@@ -183762,8 +183762,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 22.0
  },
  "jalen johnson|Pts+Rebs+Asts|36.5|36282778": {
   "player": "Jalen Johnson",
@@ -183784,8 +183784,8 @@
   "start_time": "2026-11-08T00:40:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 43.0
  },
  "stephon castle|Assists|5.5|36282779": {
   "player": "Stephon Castle",
@@ -183806,8 +183806,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "donovan clingan|Rebounds|11.5|36282779": {
   "player": "Donovan Clingan",
@@ -183828,8 +183828,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "scoot henderson|Pts+Rebs|14.5|36282779": {
   "player": "Scoot Henderson",
@@ -183850,8 +183850,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 15.0
  },
  "devin vassell|Pts+Asts|14.5|36282779": {
   "player": "Devin Vassell",
@@ -183872,8 +183872,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 18.0
  },
  "donovan mitchell|Points|22.5|36282780": {
   "player": "Donovan Mitchell",
@@ -183894,8 +183894,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 37.0
  },
  "miles mcbride|Points|6.5|36282780": {
   "player": "Miles McBride",
@@ -183916,8 +183916,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "tyrese proctor|Assists|2.5|36282780": {
   "player": "Tyrese Proctor",
@@ -183938,8 +183938,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "evan mobley|Rebounds|8.5|36282780": {
   "player": "Evan Mobley",
@@ -183960,8 +183960,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "donovan mitchell|Pts+Rebs|27.5|36282780": {
   "player": "Donovan Mitchell",
@@ -183982,8 +183982,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 41.0
  },
  "evan mobley|Pts+Rebs+Asts|29.5|36282780": {
   "player": "Evan Mobley",
@@ -184004,8 +184004,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 26.0
  },
  "evan mobley|Pts+Rebs|26.5|36282780": {
   "player": "Evan Mobley",
@@ -184026,8 +184026,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 21.0
  },
  "mikal bridges|Pts+Rebs+Asts|15.5|36282780": {
   "player": "Mikal Bridges",
@@ -184048,8 +184048,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "meleek thomas|Pts+Rebs|14.5|36282780": {
   "player": "Meleek Thomas",
@@ -184070,8 +184070,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 13.0
  },
  "evan mobley|Pts+Asts|20.5|36282780": {
   "player": "Evan Mobley",
@@ -184092,8 +184092,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 17.0
  },
  "evan mobley|Rebs+Asts|11.5|36282780": {
   "player": "Evan Mobley",
@@ -184114,8 +184114,8 @@
   "start_time": "2026-11-08T01:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 14.0
  },
  "alperen sengun|Points|19.5|36282781": {
   "player": "Alperen Sengun",
@@ -184136,8 +184136,8 @@
   "start_time": "2026-11-08T02:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T16:48:38",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 15.0
  },
  "keldon johnson|Points|8.5|36282779": {
   "player": "Keldon Johnson",
@@ -184158,8 +184158,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T20:33:15",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 10.0
  },
  "keldon johnson|Pts+Rebs|12.5|36282779": {
   "player": "Keldon Johnson",
@@ -184180,8 +184180,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T20:33:15",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 17.0
  },
  "stephon castle|Pts+Asts|21.5|36282779": {
   "player": "Stephon Castle",
@@ -184202,8 +184202,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T20:33:15",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 19.0
  },
  "deaaron fox|Pts+Rebs|18.5|36282779": {
   "player": "De'Aaron Fox",
@@ -184224,8 +184224,8 @@
   "start_time": "2026-11-08T03:10:00.000Z",
   "game_day": "2026-11-07",
   "logged_at": "2026-11-07T20:33:15",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "payton pritchard|Points|13.5|36286504": {
   "player": "Payton Pritchard",
@@ -186908,6 +186908,2866 @@
   "start_time": "2026-11-08T23:10:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-07T20:33:15",
+  "outcome": null,
+  "actual": null
+ },
+ "brayden burries|Points|10.5|36286504": {
+  "player": "Brayden Burries",
+  "stat": "Points",
+  "line": 10.5,
+  "side": "under",
+  "american_odds": -110,
+  "fair_prob": 0.5149,
+  "med5": 10.0,
+  "last5": [
+   10.0,
+   14.0,
+   9.0,
+   9.0,
+   21.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle kuzma|Points|9.5|36286504": {
+  "player": "Kyle Kuzma",
+  "stat": "Points",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5311,
+  "med5": 6.0,
+  "last5": [
+   4.0,
+   14.0,
+   2.0,
+   6.0,
+   13.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler herro|Assists|4.5|36286504": {
+  "player": "Tyler Herro",
+  "stat": "Assists",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -168,
+  "fair_prob": 0.6112,
+  "med5": 3.0,
+  "last5": [
+   0.0,
+   2.0,
+   3.0,
+   3.0,
+   10.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "jaime jaquez|Assists|3.5|36286504": {
+  "player": "Jaime Jaquez Jr.",
+  "stat": "Assists",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -198,
+  "fair_prob": 0.6454,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   5.0,
+   2.0,
+   2.0,
+   3.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "jaime jaquez|Rebounds|4.5|36286504": {
+  "player": "Jaime Jaquez Jr.",
+  "stat": "Rebounds",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 4.0,
+  "last5": [
+   4.0,
+   7.0,
+   8.0,
+   2.0,
+   3.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle kuzma|Rebounds|4.5|36286504": {
+  "player": "Kyle Kuzma",
+  "stat": "Rebounds",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 4.0,
+  "last5": [
+   6.0,
+   3.0,
+   2.0,
+   5.0,
+   4.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "myles turner|Rebs+Asts|7.5|36286504": {
+  "player": "Myles Turner",
+  "stat": "Rebs+Asts",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -144,
+  "fair_prob": 0.5761,
+  "med5": 7.0,
+  "last5": [
+   4.0,
+   9.0,
+   7.0,
+   15.0,
+   7.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler herro|Rebs+Asts|8.5|36286504": {
+  "player": "Tyler Herro",
+  "stat": "Rebs+Asts",
+  "line": 8.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 8.0,
+  "last5": [
+   3.0,
+   5.0,
+   9.0,
+   8.0,
+   15.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "brayden burries|Pts+Rebs+Asts|18.5|36286504": {
+  "player": "Brayden Burries",
+  "stat": "Pts+Rebs+Asts",
+  "line": 18.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5392,
+  "med5": 18.0,
+  "last5": [
+   17.0,
+   18.0,
+   19.0,
+   17.0,
+   38.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "brayden burries|Pts+Asts|13.5|36286504": {
+  "player": "Brayden Burries",
+  "stat": "Pts+Asts",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 12.0,
+  "last5": [
+   11.0,
+   15.0,
+   10.0,
+   12.0,
+   27.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "tyler herro|Pts+Asts|24.5|36286504": {
+  "player": "Tyler Herro",
+  "stat": "Pts+Asts",
+  "line": 24.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 24.0,
+  "last5": [
+   23.0,
+   17.0,
+   24.0,
+   28.0,
+   33.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "jaime jaquez|Rebs+Asts|7.5|36286504": {
+  "player": "Jaime Jaquez Jr.",
+  "stat": "Rebs+Asts",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4927,
+  "med5": 6.0,
+  "last5": [
+   6.0,
+   12.0,
+   10.0,
+   4.0,
+   6.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle kuzma|Pts+Asts|12.5|36286504": {
+  "player": "Kyle Kuzma",
+  "stat": "Pts+Asts",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 10.0,
+  "last5": [
+   5.0,
+   17.0,
+   5.0,
+   10.0,
+   16.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "jaime jaquez|Pts+Rebs+Asts|22.5|36286504": {
+  "player": "Jaime Jaquez Jr.",
+  "stat": "Pts+Rebs+Asts",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 22.0,
+  "last5": [
+   25.0,
+   20.0,
+   29.0,
+   22.0,
+   20.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "ryan rollins|Pts+Asts|12.5|36286504": {
+  "player": "Ryan Rollins",
+  "stat": "Pts+Asts",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -112,
+  "fair_prob": 0.5189,
+  "med5": 12.0,
+  "last5": [
+   9.0,
+   16.0,
+   12.0,
+   18.0,
+   11.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "ryan rollins|Pts+Rebs|12.5|36286504": {
+  "player": "Ryan Rollins",
+  "stat": "Pts+Rebs",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 12.0,
+  "last5": [
+   8.0,
+   12.0,
+   13.0,
+   22.0,
+   11.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "ryan rollins|Pts+Rebs+Asts|15.5|36286504": {
+  "player": "Ryan Rollins",
+  "stat": "Pts+Rebs+Asts",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 15.0,
+  "last5": [
+   13.0,
+   19.0,
+   15.0,
+   27.0,
+   12.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle kuzma|Pts+Rebs+Asts|16.5|36286504": {
+  "player": "Kyle Kuzma",
+  "stat": "Pts+Rebs+Asts",
+  "line": 16.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 15.0,
+  "last5": [
+   11.0,
+   20.0,
+   7.0,
+   15.0,
+   20.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle kuzma|Pts+Rebs|14.5|36286504": {
+  "player": "Kyle Kuzma",
+  "stat": "Pts+Rebs",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 11.0,
+  "last5": [
+   10.0,
+   17.0,
+   4.0,
+   11.0,
+   17.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle kuzma|Rebs+Asts|7.5|36286504": {
+  "player": "Kyle Kuzma",
+  "stat": "Rebs+Asts",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -152,
+  "fair_prob": 0.5885,
+  "med5": 7.0,
+  "last5": [
+   7.0,
+   6.0,
+   5.0,
+   9.0,
+   7.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "myles turner|3-PT Made|1.5|36286504": {
+  "player": "Myles Turner",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": 106,
+  "fair_prob": 0.4792,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   3.0,
+   4.0,
+   0.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "ryan rollins|3-PT Made|1.5|36286504": {
+  "player": "Ryan Rollins",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -210,
+  "fair_prob": 0.6574,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   1.0,
+   2.0,
+   1.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "brayden burries|3-PT Made|1.5|36286504": {
+  "player": "Brayden Burries",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -192,
+  "fair_prob": 0.6391,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   1.0,
+   0.0,
+   1.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle kuzma|3-PT Made|1.5|36286504": {
+  "player": "Kyle Kuzma",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -230,
+  "fair_prob": 0.6763,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   2.0,
+   0.0,
+   1.0,
+   1.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keegan murray|Points|9.5|36286505": {
+  "player": "Keegan Murray",
+  "stat": "Points",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 6.0,
+  "last5": [
+   20.0,
+   6.0,
+   3.0,
+   2.0,
+   12.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "precious achiuwa|Points|8.5|36286505": {
+  "player": "Precious Achiuwa",
+  "stat": "Points",
+  "line": 8.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 7.0,
+  "last5": [
+   24.0,
+   6.0,
+   6.0,
+   7.0,
+   9.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "malik monk|Assists|3.5|36286505": {
+  "player": "Malik Monk",
+  "stat": "Assists",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -138,
+  "fair_prob": 0.5669,
+  "med5": 3.0,
+  "last5": [
+   1.0,
+   3.0,
+   7.0,
+   3.0,
+   7.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keegan murray|Rebounds|4.5|36286505": {
+  "player": "Keegan Murray",
+  "stat": "Rebounds",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   5.0,
+   1.0,
+   4.0,
+   2.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "precious achiuwa|Rebounds|5.5|36286505": {
+  "player": "Precious Achiuwa",
+  "stat": "Rebounds",
+  "line": 5.5,
+  "side": "under",
+  "american_odds": 116,
+  "fair_prob": 0.458,
+  "med5": 5.0,
+  "last5": [
+   9.0,
+   5.0,
+   10.0,
+   3.0,
+   4.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keegan murray|Pts+Rebs|13.5|36286505": {
+  "player": "Keegan Murray",
+  "stat": "Pts+Rebs",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 11.0,
+  "last5": [
+   22.0,
+   11.0,
+   4.0,
+   6.0,
+   14.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "andrew wiggins|Rebs+Asts|4.5|36286505": {
+  "player": "Andrew Wiggins",
+  "stat": "Rebs+Asts",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": 122,
+  "fair_prob": 0.4465,
+  "med5": 4.0,
+  "last5": [
+   4.0,
+   3.0,
+   2.0,
+   5.0,
+   10.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "pelle larsson|Pts+Rebs|15.5|36286505": {
+  "player": "Pelle Larsson",
+  "stat": "Pts+Rebs",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 14.0,
+  "last5": [
+   23.0,
+   21.0,
+   12.0,
+   10.0,
+   14.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "andrew wiggins|Pts+Rebs|14.5|36286505": {
+  "player": "Andrew Wiggins",
+  "stat": "Pts+Rebs",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 8.0,
+  "last5": [
+   20.0,
+   14.0,
+   7.0,
+   7.0,
+   8.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "precious achiuwa|Pts+Rebs|14.5|36286505": {
+  "player": "Precious Achiuwa",
+  "stat": "Pts+Rebs",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 13.0,
+  "last5": [
+   33.0,
+   11.0,
+   16.0,
+   10.0,
+   13.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "zach lavine|Pts+Rebs+Asts|26.5|36286505": {
+  "player": "Zach LaVine",
+  "stat": "Pts+Rebs+Asts",
+  "line": 26.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 26.0,
+  "last5": [
+   29.0,
+   12.0,
+   28.0,
+   26.0,
+   21.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "zach lavine|Pts+Asts|23.5|36286505": {
+  "player": "Zach LaVine",
+  "stat": "Pts+Asts",
+  "line": 23.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5392,
+  "med5": 22.0,
+  "last5": [
+   26.0,
+   12.0,
+   24.0,
+   22.0,
+   17.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "davion mitchell|Pts+Rebs|15.5|36286505": {
+  "player": "Davion Mitchell",
+  "stat": "Pts+Rebs",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 15.0,
+  "last5": [
+   11.0,
+   21.0,
+   15.0,
+   13.0,
+   24.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keegan murray|3-PT Made|1.5|36286505": {
+  "player": "Keegan Murray",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -160,
+  "fair_prob": 0.6002,
+  "med5": 0.0,
+  "last5": [
+   2.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "vj edgecombe|Pts+Asts|16.5|36286506": {
+  "player": "VJ Edgecombe",
+  "stat": "Pts+Asts",
+  "line": 16.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 15.0,
+  "last5": [
+   15.0,
+   13.0,
+   26.0,
+   14.0,
+   21.0
+  ],
+  "game": "PHI @ CHI",
+  "start_time": "2026-11-08T20:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "norman powell|Pts+Rebs|21.5|36286506": {
+  "player": "Norman Powell",
+  "stat": "Pts+Rebs",
+  "line": 21.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 21.0,
+  "last5": [
+   21.0,
+   32.0,
+   18.0,
+   21.0,
+   13.0
+  ],
+  "game": "PHI @ CHI",
+  "start_time": "2026-11-08T20:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyrie irving|Points|20.5|36286507": {
+  "player": "Kyrie Irving",
+  "stat": "Points",
+  "line": 20.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 18.0,
+  "last5": [
+   18.0,
+   15.0,
+   35.0,
+   29.0,
+   14.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "cooper flagg|Points|24.5|36286507": {
+  "player": "Cooper Flagg",
+  "stat": "Points",
+  "line": 24.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 21.0,
+  "last5": [
+   26.0,
+   33.0,
+   17.0,
+   19.0,
+   21.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "cooper flagg|Assists|6.5|36286507": {
+  "player": "Cooper Flagg",
+  "stat": "Assists",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -166,
+  "fair_prob": 0.608,
+  "med5": 6.0,
+  "last5": [
+   8.0,
+   6.0,
+   6.0,
+   5.0,
+   7.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "cooper flagg|Pts+Rebs|31.5|36286507": {
+  "player": "Cooper Flagg",
+  "stat": "Pts+Rebs",
+  "line": 31.5,
+  "side": "under",
+  "american_odds": -112,
+  "fair_prob": 0.5189,
+  "med5": 31.0,
+  "last5": [
+   31.0,
+   42.0,
+   21.0,
+   29.0,
+   31.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "cooper flagg|Pts+Asts|30.5|36286507": {
+  "player": "Cooper Flagg",
+  "stat": "Pts+Asts",
+  "line": 30.5,
+  "side": "under",
+  "american_odds": -112,
+  "fair_prob": 0.5189,
+  "med5": 28.0,
+  "last5": [
+   34.0,
+   39.0,
+   23.0,
+   24.0,
+   28.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyrie irving|Pts+Asts|25.5|36286507": {
+  "player": "Kyrie Irving",
+  "stat": "Pts+Asts",
+  "line": 25.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 24.0,
+  "last5": [
+   24.0,
+   19.0,
+   44.0,
+   34.0,
+   16.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kyrie irving|Pts+Rebs|24.5|36286507": {
+  "player": "Kyrie Irving",
+  "stat": "Pts+Rebs",
+  "line": 24.5,
+  "side": "under",
+  "american_odds": -110,
+  "fair_prob": 0.5149,
+  "med5": 24.0,
+  "last5": [
+   24.0,
+   17.0,
+   39.0,
+   36.0,
+   16.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "cooper flagg|3-PT Made|1.5|36286507": {
+  "player": "Cooper Flagg",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -152,
+  "fair_prob": 0.5885,
+  "med5": 0.0,
+  "last5": [
+   2.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "john collins|Points|11.5|36286508": {
+  "player": "John Collins",
+  "stat": "Points",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5392,
+  "med5": 4.0,
+  "last5": [
+   2.0,
+   4.0,
+   4.0,
+   4.0,
+   16.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "austin reaves|Points|23.5|36286508": {
+  "player": "Austin Reaves",
+  "stat": "Points",
+  "line": 23.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 21.0,
+  "last5": [
+   21.0,
+   19.0,
+   27.0,
+   21.0,
+   25.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "daniss jenkins|Points|9.5|36286508": {
+  "player": "Daniss Jenkins",
+  "stat": "Points",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 6.0,
+  "last5": [
+   11.0,
+   14.0,
+   6.0,
+   2.0,
+   5.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "matisse thybulle|Points|6.5|36286508": {
+  "player": "Matisse Thybulle",
+  "stat": "Points",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -112,
+  "fair_prob": 0.5189,
+  "med5": 6.0,
+  "last5": [
+   10.0,
+   6.0,
+   6.0,
+   3.0,
+   2.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "paul reed|Points|13.5|36286508": {
+  "player": "Paul Reed",
+  "stat": "Points",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5311,
+  "med5": 12.0,
+  "last5": [
+   22.0,
+   16.0,
+   12.0,
+   11.0,
+   8.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "ausar thompson|Assists|4.5|36286508": {
+  "player": "Ausar Thompson",
+  "stat": "Assists",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -136,
+  "fair_prob": 0.5629,
+  "med5": 4.0,
+  "last5": [
+   2.0,
+   8.0,
+   6.0,
+   4.0,
+   3.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "duncan robinson|Assists|2.5|36286508": {
+  "player": "Duncan Robinson",
+  "stat": "Assists",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -198,
+  "fair_prob": 0.6454,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   2.0,
+   2.0,
+   3.0,
+   2.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "austin reaves|Assists|5.5|36286508": {
+  "player": "Austin Reaves",
+  "stat": "Assists",
+  "line": 5.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 4.0,
+  "last5": [
+   5.0,
+   4.0,
+   5.0,
+   4.0,
+   2.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "duncan robinson|Rebounds|2.5|36286508": {
+  "player": "Duncan Robinson",
+  "stat": "Rebounds",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 2.0,
+  "last5": [
+   0.0,
+   2.0,
+   4.0,
+   2.0,
+   1.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "john collins|Rebounds|5.5|36286508": {
+  "player": "John Collins",
+  "stat": "Rebounds",
+  "line": 5.5,
+  "side": "under",
+  "american_odds": 104,
+  "fair_prob": 0.4831,
+  "med5": 3.0,
+  "last5": [
+   9.0,
+   2.0,
+   9.0,
+   3.0,
+   1.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "paul reed|Rebounds|7.5|36286508": {
+  "player": "Paul Reed",
+  "stat": "Rebounds",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": 102,
+  "fair_prob": 0.4871,
+  "med5": 5.0,
+  "last5": [
+   9.0,
+   4.0,
+   4.0,
+   5.0,
+   7.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "jake laravia|Rebounds|3.5|36286508": {
+  "player": "Jake Laravia",
+  "stat": "Rebounds",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   2.0,
+   4.0,
+   2.0,
+   8.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "matisse thybulle|Rebounds|2.5|36286508": {
+  "player": "Matisse Thybulle",
+  "stat": "Rebounds",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 2.0,
+  "last5": [
+   3.0,
+   2.0,
+   1.0,
+   1.0,
+   2.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "daniss jenkins|Rebounds|2.5|36286508": {
+  "player": "Daniss Jenkins",
+  "stat": "Rebounds",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": 108,
+  "fair_prob": 0.4739,
+  "med5": 2.0,
+  "last5": [
+   3.0,
+   2.0,
+   3.0,
+   1.0,
+   1.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "austin reaves|Rebounds|3.5|36286508": {
+  "player": "Austin Reaves",
+  "stat": "Rebounds",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": 122,
+  "fair_prob": 0.4465,
+  "med5": 3.0,
+  "last5": [
+   4.0,
+   3.0,
+   2.0,
+   3.0,
+   3.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "john collins|Pts+Rebs|17.5|36286508": {
+  "player": "John Collins",
+  "stat": "Pts+Rebs",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 11.0,
+  "last5": [
+   11.0,
+   6.0,
+   13.0,
+   7.0,
+   17.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "paul reed|Pts+Rebs+Asts|23.5|36286508": {
+  "player": "Paul Reed",
+  "stat": "Pts+Rebs+Asts",
+  "line": 23.5,
+  "side": "under",
+  "american_odds": -110,
+  "fair_prob": 0.5149,
+  "med5": 20.0,
+  "last5": [
+   34.0,
+   20.0,
+   17.0,
+   20.0,
+   19.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "daniss jenkins|Pts+Rebs|12.5|36286508": {
+  "player": "Daniss Jenkins",
+  "stat": "Pts+Rebs",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 9.0,
+  "last5": [
+   14.0,
+   16.0,
+   9.0,
+   3.0,
+   6.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "austin reaves|Pts+Rebs|27.5|36286508": {
+  "player": "Austin Reaves",
+  "stat": "Pts+Rebs",
+  "line": 27.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 25.0,
+  "last5": [
+   25.0,
+   22.0,
+   29.0,
+   24.0,
+   28.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "austin reaves|Rebs+Asts|9.5|36286508": {
+  "player": "Austin Reaves",
+  "stat": "Rebs+Asts",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5086,
+  "med5": 7.0,
+  "last5": [
+   9.0,
+   7.0,
+   7.0,
+   7.0,
+   5.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "austin reaves|Pts+Rebs+Asts|33.5|36286508": {
+  "player": "Austin Reaves",
+  "stat": "Pts+Rebs+Asts",
+  "line": 33.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 30.0,
+  "last5": [
+   30.0,
+   26.0,
+   34.0,
+   28.0,
+   30.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "austin reaves|Pts+Asts|29.5|36286508": {
+  "player": "Austin Reaves",
+  "stat": "Pts+Asts",
+  "line": 29.5,
+  "side": "under",
+  "american_odds": -110,
+  "fair_prob": 0.5149,
+  "med5": 26.0,
+  "last5": [
+   26.0,
+   23.0,
+   32.0,
+   25.0,
+   27.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "paul reed|Rebs+Asts|10.5|36286508": {
+  "player": "Paul Reed",
+  "stat": "Rebs+Asts",
+  "line": 10.5,
+  "side": "under",
+  "american_odds": -138,
+  "fair_prob": 0.5669,
+  "med5": 9.0,
+  "last5": [
+   12.0,
+   4.0,
+   5.0,
+   9.0,
+   11.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "paul reed|Pts+Rebs|21.5|36286508": {
+  "player": "Paul Reed",
+  "stat": "Pts+Rebs",
+  "line": 21.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5311,
+  "med5": 16.0,
+  "last5": [
+   31.0,
+   20.0,
+   16.0,
+   16.0,
+   15.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "paul reed|Pts+Asts|15.5|36286508": {
+  "player": "Paul Reed",
+  "stat": "Pts+Asts",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 15.0,
+  "last5": [
+   25.0,
+   16.0,
+   13.0,
+   15.0,
+   12.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "ausar thompson|Pts+Asts|15.5|36286508": {
+  "player": "Ausar Thompson",
+  "stat": "Pts+Asts",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 15.0,
+  "last5": [
+   13.0,
+   15.0,
+   17.0,
+   18.0,
+   14.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "duncan robinson|Rebs+Asts|4.5|36286508": {
+  "player": "Duncan Robinson",
+  "stat": "Rebs+Asts",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 4.0,
+  "last5": [
+   2.0,
+   4.0,
+   6.0,
+   5.0,
+   3.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "daniss jenkins|Pts+Rebs+Asts|17.5|36286508": {
+  "player": "Daniss Jenkins",
+  "stat": "Pts+Rebs+Asts",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 14.0,
+  "last5": [
+   16.0,
+   19.0,
+   14.0,
+   10.0,
+   10.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "daniss jenkins|Rebs+Asts|6.5|36286508": {
+  "player": "Daniss Jenkins",
+  "stat": "Rebs+Asts",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": 114,
+  "fair_prob": 0.4615,
+  "med5": 5.0,
+  "last5": [
+   5.0,
+   5.0,
+   8.0,
+   8.0,
+   5.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "matisse thybulle|Pts+Rebs|9.5|36286508": {
+  "player": "Matisse Thybulle",
+  "stat": "Pts+Rebs",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5311,
+  "med5": 7.0,
+  "last5": [
+   13.0,
+   8.0,
+   7.0,
+   4.0,
+   4.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "daniss jenkins|Pts+Asts|14.5|36286508": {
+  "player": "Daniss Jenkins",
+  "stat": "Pts+Asts",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 11.0,
+  "last5": [
+   13.0,
+   17.0,
+   11.0,
+   9.0,
+   9.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "daniss jenkins|3-PT Made|1.5|36286508": {
+  "player": "Daniss Jenkins",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -210,
+  "fair_prob": 0.6574,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   2.0,
+   2.0,
+   0.0,
+   1.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "john collins|3-PT Made|0.5|36286508": {
+  "player": "John Collins",
+  "stat": "3-PT Made",
+  "line": 0.5,
+  "side": "under",
+  "american_odds": 148,
+  "fair_prob": 0.4019,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "matisse thybulle|3-PT Made|1.5|36286508": {
+  "player": "Matisse Thybulle",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -136,
+  "fair_prob": 0.5654,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   2.0,
+   2.0,
+   1.0,
+   0.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "austin reaves|3-PT Made|2.5|36286508": {
+  "player": "Austin Reaves",
+  "stat": "3-PT Made",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -180,
+  "fair_prob": 0.6257,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   2.0,
+   4.0,
+   1.0,
+   1.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "duncan robinson|3-PT Made|3.5|36286508": {
+  "player": "Duncan Robinson",
+  "stat": "3-PT Made",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -144,
+  "fair_prob": 0.5761,
+  "med5": 3.0,
+  "last5": [
+   2.0,
+   3.0,
+   2.0,
+   6.0,
+   7.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "rui hachimura|Points|17.5|36286509": {
+  "player": "Rui Hachimura",
+  "stat": "Points",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 16.0,
+  "last5": [
+   16.0,
+   5.0,
+   12.0,
+   24.0,
+   21.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keaton wagler|Points|12.5|36286509": {
+  "player": "Keaton Wagler",
+  "stat": "Points",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -128,
+  "fair_prob": 0.5491,
+  "med5": 11.0,
+  "last5": [
+   21.0,
+   12.0,
+   7.0,
+   6.0,
+   11.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kris dunn|Points|8.5|36286509": {
+  "player": "Kris Dunn",
+  "stat": "Points",
+  "line": 8.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5311,
+  "med5": 5.0,
+  "last5": [
+   5.0,
+   5.0,
+   12.0,
+   12.0,
+   5.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "max strus|Points|11.5|36286509": {
+  "player": "Max Strus",
+  "stat": "Points",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -138,
+  "fair_prob": 0.5669,
+  "med5": 9.0,
+  "last5": [
+   5.0,
+   13.0,
+   5.0,
+   11.0,
+   9.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "derrick jones|Points|11.5|36286509": {
+  "player": "Derrick Jones Jr.",
+  "stat": "Points",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 11.0,
+  "last5": [
+   11.0,
+   15.0,
+   10.0,
+   9.0,
+   12.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "darius garland|Points|21.5|36286509": {
+  "player": "Darius Garland",
+  "stat": "Points",
+  "line": 21.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 16.0,
+  "last5": [
+   14.0,
+   24.0,
+   15.0,
+   16.0,
+   26.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "trey murphy|Points|15.5|36286509": {
+  "player": "Trey Murphy III",
+  "stat": "Points",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 15.0,
+  "last5": [
+   6.0,
+   19.0,
+   15.0,
+   18.0,
+   10.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "dejounte murray|Points|16.5|36286509": {
+  "player": "Dejounte Murray",
+  "stat": "Points",
+  "line": 16.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 16.0,
+  "last5": [
+   16.0,
+   22.0,
+   10.0,
+   20.0,
+   7.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "rui hachimura|Assists|1.5|36286509": {
+  "player": "Rui Hachimura",
+  "stat": "Assists",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -158,
+  "fair_prob": 0.5967,
+  "med5": 0.0,
+  "last5": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   7.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kris dunn|Assists|4.5|36286509": {
+  "player": "Kris Dunn",
+  "stat": "Assists",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": 104,
+  "fair_prob": 0.4831,
+  "med5": 3.0,
+  "last5": [
+   3.0,
+   7.0,
+   4.0,
+   1.0,
+   3.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "brook lopez|Assists|1.5|36286509": {
+  "player": "Brook Lopez",
+  "stat": "Assists",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 1.0,
+  "last5": [
+   3.0,
+   0.0,
+   0.0,
+   1.0,
+   1.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "dejounte murray|Assists|5.5|36286509": {
+  "player": "Dejounte Murray",
+  "stat": "Assists",
+  "line": 5.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5392,
+  "med5": 5.0,
+  "last5": [
+   6.0,
+   6.0,
+   5.0,
+   4.0,
+   4.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kris dunn|Rebounds|4.5|36286509": {
+  "player": "Kris Dunn",
+  "stat": "Rebounds",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -154,
+  "fair_prob": 0.592,
+  "med5": 4.0,
+  "last5": [
+   3.0,
+   5.0,
+   2.0,
+   4.0,
+   5.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "max strus|Rebounds|4.5|36286509": {
+  "player": "Max Strus",
+  "stat": "Rebounds",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -160,
+  "fair_prob": 0.6002,
+  "med5": 4.0,
+  "last5": [
+   4.0,
+   7.0,
+   2.0,
+   4.0,
+   5.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "karlo matkovic|Rebounds|4.5|36286509": {
+  "player": "Karlo Matkovic",
+  "stat": "Rebounds",
+  "line": 4.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 4.0,
+  "last5": [
+   4.0,
+   10.0,
+   6.0,
+   4.0,
+   3.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "darius garland|Rebounds|2.5|36286509": {
+  "player": "Darius Garland",
+  "stat": "Rebounds",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": 102,
+  "fair_prob": 0.4871,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   2.0,
+   0.0,
+   4.0,
+   1.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "dejounte murray|Pts+Asts|22.5|36286509": {
+  "player": "Dejounte Murray",
+  "stat": "Pts+Asts",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -112,
+  "fair_prob": 0.5189,
+  "med5": 22.0,
+  "last5": [
+   22.0,
+   28.0,
+   15.0,
+   24.0,
+   11.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "rui hachimura|Pts+Rebs+Asts|23.5|36286509": {
+  "player": "Rui Hachimura",
+  "stat": "Pts+Rebs+Asts",
+  "line": 23.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 23.0,
+  "last5": [
+   23.0,
+   9.0,
+   17.0,
+   31.0,
+   37.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "brook lopez|Pts+Asts|13.5|36286509": {
+  "player": "Brook Lopez",
+  "stat": "Pts+Asts",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 13.0,
+  "last5": [
+   5.0,
+   13.0,
+   7.0,
+   13.0,
+   21.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "zion williamson|Pts+Rebs+Asts|29.5|36286509": {
+  "player": "Zion Williamson",
+  "stat": "Pts+Rebs+Asts",
+  "line": 29.5,
+  "side": "under",
+  "american_odds": -128,
+  "fair_prob": 0.5491,
+  "med5": 29.0,
+  "last5": [
+   30.0,
+   25.0,
+   40.0,
+   29.0,
+   25.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keaton wagler|Pts+Rebs|16.5|36286509": {
+  "player": "Keaton Wagler",
+  "stat": "Pts+Rebs",
+  "line": 16.5,
+  "side": "under",
+  "american_odds": -130,
+  "fair_prob": 0.5532,
+  "med5": 13.0,
+  "last5": [
+   25.0,
+   18.0,
+   11.0,
+   10.0,
+   13.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kris dunn|Pts+Rebs+Asts|17.5|36286509": {
+  "player": "Kris Dunn",
+  "stat": "Pts+Rebs+Asts",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 17.0,
+  "last5": [
+   11.0,
+   17.0,
+   18.0,
+   17.0,
+   13.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kris dunn|Pts+Rebs|12.5|36286509": {
+  "player": "Kris Dunn",
+  "stat": "Pts+Rebs",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 10.0,
+  "last5": [
+   8.0,
+   10.0,
+   14.0,
+   16.0,
+   10.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "dejounte murray|Pts+Rebs|22.5|36286509": {
+  "player": "Dejounte Murray",
+  "stat": "Pts+Rebs",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 22.0,
+  "last5": [
+   22.0,
+   28.0,
+   18.0,
+   28.0,
+   9.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kris dunn|Pts+Asts|13.5|36286509": {
+  "player": "Kris Dunn",
+  "stat": "Pts+Asts",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5311,
+  "med5": 12.0,
+  "last5": [
+   8.0,
+   12.0,
+   16.0,
+   13.0,
+   8.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "rui hachimura|Pts+Rebs|22.5|36286509": {
+  "player": "Rui Hachimura",
+  "stat": "Pts+Rebs",
+  "line": 22.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5311,
+  "med5": 22.0,
+  "last5": [
+   22.0,
+   9.0,
+   17.0,
+   31.0,
+   30.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "darius garland|Pts+Rebs+Asts|31.5|36286509": {
+  "player": "Darius Garland",
+  "stat": "Pts+Rebs+Asts",
+  "line": 31.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5086,
+  "med5": 28.0,
+  "last5": [
+   20.0,
+   31.0,
+   22.0,
+   28.0,
+   34.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "dejounte murray|Pts+Rebs+Asts|28.5|36286509": {
+  "player": "Dejounte Murray",
+  "stat": "Pts+Rebs+Asts",
+  "line": 28.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 28.0,
+  "last5": [
+   28.0,
+   34.0,
+   23.0,
+   32.0,
+   13.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "darius garland|Pts+Rebs|24.5|36286509": {
+  "player": "Darius Garland",
+  "stat": "Pts+Rebs",
+  "line": 24.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5108,
+  "med5": 20.0,
+  "last5": [
+   15.0,
+   26.0,
+   15.0,
+   20.0,
+   27.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "trey murphy|Pts+Rebs|20.5|36286509": {
+  "player": "Trey Murphy III",
+  "stat": "Pts+Rebs",
+  "line": 20.5,
+  "side": "under",
+  "american_odds": -104,
+  "fair_prob": 0.5009,
+  "med5": 20.0,
+  "last5": [
+   7.0,
+   24.0,
+   20.0,
+   23.0,
+   14.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "max strus|Pts+Rebs|15.5|36286509": {
+  "player": "Max Strus",
+  "stat": "Pts+Rebs",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -122,
+  "fair_prob": 0.5414,
+  "med5": 14.0,
+  "last5": [
+   9.0,
+   20.0,
+   7.0,
+   15.0,
+   14.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keaton wagler|Pts+Rebs+Asts|19.5|36286509": {
+  "player": "Keaton Wagler",
+  "stat": "Pts+Rebs+Asts",
+  "line": 19.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 15.0,
+  "last5": [
+   27.0,
+   21.0,
+   15.0,
+   14.0,
+   14.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "darius garland|Rebs+Asts|9.5|36286509": {
+  "player": "Darius Garland",
+  "stat": "Rebs+Asts",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 7.0,
+  "last5": [
+   6.0,
+   7.0,
+   7.0,
+   12.0,
+   8.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "darius garland|Pts+Asts|28.5|36286509": {
+  "player": "Darius Garland",
+  "stat": "Pts+Asts",
+  "line": 28.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 24.0,
+  "last5": [
+   19.0,
+   29.0,
+   22.0,
+   24.0,
+   33.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keaton wagler|Pts+Asts|15.5|36286509": {
+  "player": "Keaton Wagler",
+  "stat": "Pts+Asts",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -120,
+  "fair_prob": 0.5351,
+  "med5": 12.0,
+  "last5": [
+   23.0,
+   15.0,
+   11.0,
+   10.0,
+   12.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "brook lopez|Rebs+Asts|6.5|36286509": {
+  "player": "Brook Lopez",
+  "stat": "Rebs+Asts",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -118,
+  "fair_prob": 0.5311,
+  "med5": 6.0,
+  "last5": [
+   6.0,
+   6.0,
+   2.0,
+   7.0,
+   9.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "rui hachimura|Pts+Asts|18.5|36286509": {
+  "player": "Rui Hachimura",
+  "stat": "Pts+Asts",
+  "line": 18.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 17.0,
+  "last5": [
+   17.0,
+   5.0,
+   12.0,
+   24.0,
+   28.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kris dunn|Rebs+Asts|9.5|36286509": {
+  "player": "Kris Dunn",
+  "stat": "Rebs+Asts",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -144,
+  "fair_prob": 0.5761,
+  "med5": 6.0,
+  "last5": [
+   6.0,
+   12.0,
+   6.0,
+   5.0,
+   8.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "keaton wagler|3-PT Made|1.5|36286509": {
+  "player": "Keaton Wagler",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -138,
+  "fair_prob": 0.5669,
+  "med5": 1.0,
+  "last5": [
+   3.0,
+   1.0,
+   0.0,
+   0.0,
+   3.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "trey murphy|3-PT Made|2.5|36286509": {
+  "player": "Trey Murphy III",
+  "stat": "3-PT Made",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -138,
+  "fair_prob": 0.5669,
+  "med5": 2.0,
+  "last5": [
+   2.0,
+   2.0,
+   1.0,
+   3.0,
+   1.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "jeremiah fears|3-PT Made|1.5|36286509": {
+  "player": "Jeremiah Fears",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -154,
+  "fair_prob": 0.592,
+  "med5": 1.0,
+  "last5": [
+   3.0,
+   1.0,
+   0.0,
+   1.0,
+   0.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "rui hachimura|3-PT Made|2.5|36286509": {
+  "player": "Rui Hachimura",
+  "stat": "3-PT Made",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -194,
+  "fair_prob": 0.6419,
+  "med5": 2.0,
+  "last5": [
+   3.0,
+   1.0,
+   2.0,
+   4.0,
+   1.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "darius garland|3-PT Made|2.5|36286509": {
+  "player": "Darius Garland",
+  "stat": "3-PT Made",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -128,
+  "fair_prob": 0.5491,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   4.0,
+   1.0,
+   1.0,
+   4.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "kris dunn|3-PT Made|1.5|36286509": {
+  "player": "Kris Dunn",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -230,
+  "fair_prob": 0.6763,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   0.0,
+   0.0,
+   1.0,
+   1.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "dejounte murray|3-PT Made|1.5|36286509": {
+  "player": "Dejounte Murray",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -158,
+  "fair_prob": 0.5967,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   0.0,
+   1.0,
+   1.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
+  "outcome": null,
+  "actual": null
+ },
+ "brook lopez|3-PT Made|1.5|36286509": {
+  "player": "Brook Lopez",
+  "stat": "3-PT Made",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -138,
+  "fair_prob": 0.5669,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   1.0,
+   1.0,
+   2.0
+  ],
+  "game": "NOP @ LAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:22",
   "outcome": null,
   "actual": null
  }

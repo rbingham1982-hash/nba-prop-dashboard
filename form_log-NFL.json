@@ -35482,7 +35482,7 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-02T19:41:04",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "parker washington|Receiving Yards|63.5|36244870": {
@@ -35570,7 +35570,7 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-02T19:41:04",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "trevor lawrence|Rushing Yards|12.5|36244870": {
@@ -37022,7 +37022,7 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-04T00:33:54",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "jared goff|Passing TDs|2.5|36244872": {
@@ -40168,7 +40168,7 @@
   "start_time": "2026-11-06T01:16:00.000Z",
   "game_day": "2026-11-05",
   "logged_at": "2026-11-05T18:25:25",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "parker washington|Receiving Yards|60.5|36244870": {
@@ -43358,6 +43358,116 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-07T20:33:10",
+  "outcome": null,
+  "actual": null
+ },
+ "audric estime|Rushing Yards|28.5|36244869": {
+  "player": "Audric Estime",
+  "stat": "Rushing Yards",
+  "line": 28.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 19.0,
+  "last5": [
+   11.0,
+   19.0,
+   94.0,
+   63.0,
+   19.0
+  ],
+  "game": "CLE @ NO",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:16",
+  "outcome": null,
+  "actual": null
+ },
+ "austin ekeler|Receptions|1.5|36244876": {
+  "player": "Austin Ekeler",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -180,
+  "fair_prob": 0.6257,
+  "med5": 1.0,
+  "last5": [
+   2.0,
+   1.0,
+   1.0,
+   2.0,
+   0.0
+  ],
+  "game": "LA @ WAS",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:16",
+  "outcome": null,
+  "actual": null
+ },
+ "konata mumpfield|Receptions|1.5|36244876": {
+  "player": "Konata Mumpfield",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -140,
+  "fair_prob": 0.5708,
+  "med5": 1.0,
+  "last5": [
+   4.0,
+   1.0,
+   2.0,
+   1.0,
+   0.0
+  ],
+  "game": "LA @ WAS",
+  "start_time": "2026-11-08T18:01:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:16",
+  "outcome": null,
+  "actual": null
+ },
+ "drew lock|Passing Yards|198.5|36244878": {
+  "player": "Drew Lock",
+  "stat": "Passing Yards",
+  "line": 198.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 15.0,
+  "last5": [
+   15.0,
+   0.0,
+   0.0,
+   187.0,
+   235.0
+  ],
+  "game": "ARI @ SEA",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:16",
+  "outcome": null,
+  "actual": null
+ },
+ "zach charbonnet|Rushing Yards|32.5|36244878": {
+  "player": "Zach Charbonnet",
+  "stat": "Rushing Yards",
+  "line": 32.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 32.0,
+  "last5": [
+   31.0,
+   32.0,
+   110.0,
+   74.0,
+   23.0
+  ],
+  "game": "ARI @ SEA",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T00:10:16",
   "outcome": null,
   "actual": null
  }

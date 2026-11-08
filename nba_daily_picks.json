@@ -3474,9 +3474,9 @@
     "edge": 7.29,
     "pick": "home",
     "pick_label": "CLE +5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 97,
+    "away_pts": 109,
     "published": false
    },
    {
@@ -3491,9 +3491,9 @@
     "edge": 4.66,
     "pick": "home",
     "pick_label": "POR +5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 103,
+    "away_pts": 125,
     "published": true
    },
    {
@@ -3508,9 +3508,9 @@
     "edge": 3.03,
     "pick": "home",
     "pick_label": "ATL -6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 124,
+    "away_pts": 121,
     "published": true
    },
    {
@@ -3525,9 +3525,9 @@
     "edge": 2.15,
     "pick": "home",
     "pick_label": "IND +8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 102,
+    "away_pts": 114,
     "published": true
    },
    {
@@ -3542,9 +3542,9 @@
     "edge": 2.04,
     "pick": "away",
     "pick_label": "HOU -6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 102,
+    "away_pts": 99,
     "published": false
    },
    {
@@ -3559,9 +3559,9 @@
     "edge": 1.55,
     "pick": "home",
     "pick_label": "OKC -11.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 114,
+    "away_pts": 75,
     "published": false
    },
    {
@@ -3576,9 +3576,9 @@
     "edge": 0.04,
     "pick": "home",
     "pick_label": "GSW -7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 126,
+    "away_pts": 119,
     "published": false
    }
   ],
@@ -3598,8 +3598,8 @@
     "implied_prob": 0.6932,
     "blended_prob": 0.6932,
     "edge": -0.0718,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Marcus Smart",
@@ -3613,8 +3613,8 @@
     "implied_prob": 0.6481,
     "blended_prob": 0.6481,
     "edge": -0.0967,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "AJ Dybantsa",
@@ -3628,8 +3628,8 @@
     "implied_prob": 0.6454,
     "blended_prob": 0.6454,
     "edge": -0.0454,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Isaiah Hartenstein",
@@ -3643,8 +3643,8 @@
     "implied_prob": 0.5669,
     "blended_prob": 0.5669,
     "edge": 0.0245,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Mikal Bridges",
@@ -3658,8 +3658,8 @@
     "implied_prob": 0.5573,
     "blended_prob": 0.5573,
     "edge": 0.0841,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 19.0
    }
   ],
   "parlay_withheld_price": {
