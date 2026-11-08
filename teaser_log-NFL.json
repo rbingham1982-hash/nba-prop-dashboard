@@ -295,10 +295,13 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "first_seen": "2026-10-27T17:56:57",
   "first_line": 2.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 2.5,
   "last_odds": 100,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T00:11:03",
+  "margin": -5.0,
+  "last_result": "win",
+  "first_result": "win"
  },
  "Dallas Cowboys @ Indianapolis Colts|2026-11-08T18:01": {
   "dog": "Indianapolis Colts",
@@ -308,10 +311,13 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "first_seen": "2026-10-27T17:56:57",
   "first_line": 3.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 4.5,
   "last_odds": -110,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T00:11:03",
+  "margin": -4.0,
+  "last_result": "win",
+  "first_result": "win"
  },
  "Cleveland Browns @ New Orleans Saints|2026-11-08T18:01": {
   "dog": "Cleveland Browns",
@@ -321,10 +327,13 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "first_seen": "2026-10-27T17:56:57",
   "first_line": 2.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 3.0,
   "last_odds": -105,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T00:11:03",
+  "margin": -1.0,
+  "last_result": "win",
+  "first_result": "win"
  },
  "Jacksonville Jaguars @ Baltimore Ravens|2026-11-06T01:16": {
   "dog": "Baltimore Ravens",
@@ -350,10 +359,13 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "first_seen": "2026-10-27T17:56:57",
   "first_line": 1.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 3.0,
   "last_odds": -110,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T00:11:03",
+  "margin": -8.0,
+  "last_result": "win",
+  "first_result": "loss"
  },
  "Houston Texans @ Los Angeles Chargers|2026-11-08T21:06": {
   "dog": "Los Angeles Chargers",
@@ -392,7 +404,7 @@
   "outcome": null,
   "last_line": 3.0,
   "last_odds": -105,
-  "last_seen": "2026-11-08T14:42:01"
+  "last_seen": "2026-11-08T16:21:35"
  },
  "Washington Commanders @ New York Giants|2026-11-13T01:16": {
   "dog": "Washington Commanders",

@@ -2983,8 +2983,8 @@
     "edge": 7.87,
     "pick": "home",
     "pick_label": "IND +5.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": -4.0
    },
    {
     "game": "NYG @ PHI",
@@ -2995,8 +2995,8 @@
     "edge": 4.92,
     "pick": "home",
     "pick_label": "PHI +3.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -8.0
    },
    {
     "game": "HOU @ LAC",
@@ -3031,8 +3031,8 @@
     "edge": 2.91,
     "pick": "home",
     "pick_label": "MIA +7.0",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -10.0
    }
   ],
   "parlay": [],
@@ -3256,9 +3256,9 @@
     "wind_mph": 10.6,
     "expected_adj": -4.12,
     "gameday": "2026-11-08",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 33.0,
+    "residual": -15.5
    },
    {
     "game": "DET @ MIA",
@@ -3268,9 +3268,9 @@
     "wind_mph": 10.5,
     "expected_adj": -4.08,
     "gameday": "2026-11-08",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 28.0,
+    "residual": -22.5
    },
    {
     "game": "DAL @ IND",
@@ -3280,9 +3280,9 @@
     "wind_mph": 10.2,
     "expected_adj": -3.97,
     "gameday": "2026-11-08",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 50.0,
+    "residual": -1.5
    }
   ],
   "parlay_gate": true,
