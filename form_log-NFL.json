@@ -43756,5 +43756,27 @@
   "logged_at": "2026-11-08T12:46:34",
   "outcome": null,
   "actual": null
+ },
+ "zach charbonnet|Rushing Yards|35.5|36244878": {
+  "player": "Zach Charbonnet",
+  "stat": "Rushing Yards",
+  "line": 35.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 32.0,
+  "last5": [
+   31.0,
+   32.0,
+   110.0,
+   74.0,
+   23.0
+  ],
+  "game": "ARI @ SEA",
+  "start_time": "2026-11-08T21:26:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T13:42:58",
+  "outcome": null,
+  "actual": null
  }
 }
