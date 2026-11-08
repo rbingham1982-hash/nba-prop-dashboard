@@ -7648,5 +7648,23 @@
   "logged_at": "2026-11-08T12:46:54",
   "outcome": null,
   "actual": null
+ },
+ "justin herbert|Passing TDs|0.5|36244874": {
+  "player": "Justin Herbert",
+  "stat": "Passing TDs",
+  "line": 0.5,
+  "side": "over",
+  "american_odds": -270,
+  "model_prob": 0.7644,
+  "fair_prob": 0.66,
+  "edge": 0.1044,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "HOU @ LAC",
+  "start_time": "2026-11-08T21:06:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:42:00",
+  "outcome": null,
+  "actual": null
  }
 }

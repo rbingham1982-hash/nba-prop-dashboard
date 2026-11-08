@@ -1603,11 +1603,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": 520,
-   "away_odds": -720,
-   "home_prob": 0.1552
+   "home_odds": 530,
+   "away_odds": -750,
+   "home_prob": 0.1525
   },
-  "last_seen": "2026-11-08T13:43:24"
+  "last_seen": "2026-11-08T14:42:04"
  },
  "CHA @ DAL|2026-11-08T03:07": {
   "label": "CHA @ DAL",
@@ -1792,5 +1792,51 @@
    "home_prob": 0.6322
   },
   "last_seen": "2026-11-08T12:46:58"
+ },
+ "MIL @ MEM|2026-11-08T21:15": {
+  "label": "MIL @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-08T21:15:00.000Z",
+  "luck_home": 0.59,
+  "luck_away": -2.96,
+  "bet": "away",
+  "first_seen": "2026-11-08T14:42:04",
+  "first": {
+   "home_odds": -450,
+   "away_odds": 270,
+   "home_prob": 0.7517
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -450,
+   "away_odds": 270,
+   "home_prob": 0.7517
+  },
+  "last_seen": "2026-11-08T14:42:04"
+ },
+ "CLE @ MIL|2026-11-08T20:43": {
+  "label": "CLE @ MIL",
+  "home_name": "Milwaukee Bucks",
+  "away_name": "Cleveland Cavaliers",
+  "start_time": "2026-11-08T20:43:00.000Z",
+  "luck_home": -2.96,
+  "luck_away": 0.84,
+  "bet": "home",
+  "first_seen": "2026-11-08T14:42:04",
+  "first": {
+   "home_odds": 370,
+   "away_odds": -700,
+   "home_prob": 0.1956
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 370,
+   "away_odds": -700,
+   "home_prob": 0.1956
+  },
+  "last_seen": "2026-11-08T14:42:04"
  }
 }

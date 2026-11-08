@@ -193488,5 +193488,181 @@
   "logged_at": "2026-11-08T13:43:01",
   "outcome": null,
   "actual": null
+ },
+ "brayden burries|Pts+Asts|14.5|36286504": {
+  "player": "Brayden Burries",
+  "stat": "Pts+Asts",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": -132,
+  "fair_prob": 0.5573,
+  "med5": 12.0,
+  "last5": [
+   11.0,
+   15.0,
+   10.0,
+   12.0,
+   27.0
+  ],
+  "game": "BOS @ MIL",
+  "start_time": "2026-11-09T01:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:41:40",
+  "outcome": null,
+  "actual": null
+ },
+ "precious achiuwa|Points|7.5|36286505": {
+  "player": "Precious Achiuwa",
+  "stat": "Points",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 7.0,
+  "last5": [
+   24.0,
+   6.0,
+   6.0,
+   7.0,
+   9.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:41:40",
+  "outcome": null,
+  "actual": null
+ },
+ "precious achiuwa|Pts+Rebs|13.5|36286505": {
+  "player": "Precious Achiuwa",
+  "stat": "Pts+Rebs",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 13.0,
+  "last5": [
+   33.0,
+   11.0,
+   16.0,
+   10.0,
+   13.0
+  ],
+  "game": "MIA @ SAC",
+  "start_time": "2026-11-09T02:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:41:40",
+  "outcome": null,
+  "actual": null
+ },
+ "naji marshall|Pts+Rebs|14.5|36286507": {
+  "player": "Naji Marshall",
+  "stat": "Pts+Rebs",
+  "line": 14.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4961,
+  "med5": 14.0,
+  "last5": [
+   19.0,
+   14.0,
+   7.0,
+   27.0,
+   8.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:41:40",
+  "outcome": null,
+  "actual": null
+ },
+ "danny wolf|Pts+Rebs+Asts|17.5|36286507": {
+  "player": "Danny Wolf",
+  "stat": "Pts+Rebs+Asts",
+  "line": 17.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5489,
+  "med5": 17.0,
+  "last5": [
+   13.0,
+   9.0,
+   17.0,
+   21.0,
+   21.0
+  ],
+  "game": "BKN @ DAL",
+  "start_time": "2026-11-09T00:40:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:41:40",
+  "outcome": null,
+  "actual": null
+ },
+ "quentin grimes|Rebounds|3.5|36286508": {
+  "player": "Quentin Grimes",
+  "stat": "Rebounds",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -184,
+  "fair_prob": 0.6356,
+  "med5": 1.0,
+  "last5": [
+   3.0,
+   1.0,
+   4.0,
+   1.0,
+   0.0
+  ],
+  "game": "LAL @ DET",
+  "start_time": "2026-11-08T23:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:41:40",
+  "outcome": null,
+  "actual": null
+ },
+ "keyonte george|Pts+Rebs+Asts|31.5|36286510": {
+  "player": "Keyonte George",
+  "stat": "Pts+Rebs+Asts",
+  "line": 31.5,
+  "side": "under",
+  "american_odds": -115,
+  "fair_prob": 0.5292,
+  "med5": 31.0,
+  "last5": [
+   38.0,
+   15.0,
+   14.0,
+   50.0,
+   31.0
+  ],
+  "game": "UTA @ MIN",
+  "start_time": "2026-11-09T00:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:41:40",
+  "outcome": null,
+  "actual": null
+ },
+ "lamelo ball|Pts+Rebs|25.5|36286510": {
+  "player": "LaMelo Ball",
+  "stat": "Pts+Rebs",
+  "line": 25.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.5011,
+  "med5": 24.0,
+  "last5": [
+   28.0,
+   18.0,
+   40.0,
+   22.0,
+   24.0
+  ],
+  "game": "UTA @ MIN",
+  "start_time": "2026-11-09T00:10:00.000Z",
+  "game_day": "2026-11-08",
+  "logged_at": "2026-11-08T14:41:40",
+  "outcome": null,
+  "actual": null
  }
 }
