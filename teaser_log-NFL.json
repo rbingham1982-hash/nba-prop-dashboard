@@ -375,10 +375,13 @@
   "start_time": "2026-11-08T21:06:00.000Z",
   "first_seen": "2026-10-27T17:56:57",
   "first_line": 3.0,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 5.5,
   "last_odds": -110,
-  "last_seen": "2026-11-08T14:42:01"
+  "last_seen": "2026-11-08T14:42:01",
+  "margin": -22.0,
+  "last_result": "loss",
+  "first_result": "loss"
  },
  "Green Bay Packers @ New England Patriots|2026-11-08T21:26": {
   "dog": "Green Bay Packers",
@@ -388,10 +391,13 @@
   "start_time": "2026-11-08T21:26:00.000Z",
   "first_seen": "2026-10-27T17:56:57",
   "first_line": 2.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 3.0,
   "last_odds": 100,
-  "last_seen": "2026-11-08T14:42:01"
+  "last_seen": "2026-11-08T14:42:01",
+  "margin": 18.0,
+  "last_result": "win",
+  "first_result": "win"
  },
  "Buffalo Bills @ Minnesota Vikings|2026-11-10T01:16": {
   "dog": "Minnesota Vikings",
@@ -404,7 +410,7 @@
   "outcome": null,
   "last_line": 3.0,
   "last_odds": -105,
-  "last_seen": "2026-11-08T16:56:52"
+  "last_seen": "2026-11-08T20:43:57"
  },
  "Washington Commanders @ New York Giants|2026-11-13T01:16": {
   "dog": "Washington Commanders",
@@ -416,8 +422,8 @@
   "first_line": 1.5,
   "outcome": null,
   "last_line": 1.5,
-  "last_odds": -120,
-  "last_seen": "2026-11-08T16:56:52"
+  "last_odds": -110,
+  "last_seen": "2026-11-08T20:43:57"
  },
  "Minnesota Vikings @ Green Bay Packers|2026-11-15T18:01": {
   "dog": "Minnesota Vikings",
@@ -428,9 +434,9 @@
   "first_seen": "2026-11-03T18:04:21",
   "first_line": 2.5,
   "outcome": null,
-  "last_line": 2.5,
+  "last_line": 3.0,
   "last_odds": 100,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T20:43:57"
  },
  "Kansas City Chiefs @ Atlanta Falcons|2026-11-15T18:01": {
   "dog": "Atlanta Falcons",
@@ -443,7 +449,7 @@
   "outcome": null,
   "last_line": 3.5,
   "last_odds": -120,
-  "last_seen": "2026-11-08T16:56:52"
+  "last_seen": "2026-11-08T20:43:57"
  },
  "Houston Texans @ Cleveland Browns|2026-11-15T18:01": {
   "dog": "Cleveland Browns",
@@ -454,9 +460,9 @@
   "first_seen": "2026-11-03T18:04:21",
   "first_line": 3.5,
   "outcome": null,
-  "last_line": 3.5,
+  "last_line": 4.5,
   "last_odds": -110,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T20:43:57"
  },
  "Miami Dolphins @ Indianapolis Colts|2026-11-15T18:01": {
   "dog": "Miami Dolphins",
@@ -467,9 +473,9 @@
   "first_seen": "2026-11-03T18:04:21",
   "first_line": 1.5,
   "outcome": null,
-  "last_line": 1.5,
+  "last_line": 2.5,
   "last_odds": -110,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_seen": "2026-11-08T20:43:57"
  },
  "Pittsburgh Steelers @ Cincinnati Bengals|2026-11-16T01:21": {
   "dog": "Pittsburgh Steelers",
@@ -480,9 +486,9 @@
   "first_seen": "2026-11-03T18:04:21",
   "first_line": 3.5,
   "outcome": null,
-  "last_line": 3.0,
-  "last_odds": -110,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_line": 3.5,
+  "last_odds": -105,
+  "last_seen": "2026-11-08T20:43:57"
  },
  "Carolina Panthers @ New Orleans Saints|2026-11-15T18:01": {
   "dog": "New Orleans Saints",
@@ -494,8 +500,8 @@
   "first_line": 1.5,
   "outcome": null,
   "last_line": 1.5,
-  "last_odds": -120,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_odds": -110,
+  "last_seen": "2026-11-08T20:43:57"
  },
  "Los Angeles Chargers @ Baltimore Ravens|2026-11-17T01:21": {
   "dog": "Los Angeles Chargers",
@@ -506,9 +512,9 @@
   "first_seen": "2026-11-03T18:04:21",
   "first_line": 1.5,
   "outcome": null,
-  "last_line": 1.5,
-  "last_odds": -110,
-  "last_seen": "2026-11-08T00:11:03"
+  "last_line": 3.5,
+  "last_odds": -105,
+  "last_seen": "2026-11-08T20:43:57"
  },
  "New England Patriots @ Detroit Lions|2026-11-15T14:30": {
   "dog": "New England Patriots",
@@ -519,8 +525,21 @@
   "first_seen": "2026-11-05T18:26:07",
   "first_line": 1.5,
   "outcome": null,
-  "last_line": 1.5,
+  "last_line": 2.5,
+  "last_odds": -110,
+  "last_seen": "2026-11-08T20:43:57"
+ },
+ "Seattle Seahawks @ Las Vegas Raiders|2026-11-15T21:06": {
+  "dog": "Las Vegas Raiders",
+  "dog_home": true,
+  "home_name": "Las Vegas Raiders",
+  "away_name": "Seattle Seahawks",
+  "start_time": "2026-11-15T21:06:00.000Z",
+  "first_seen": "2026-11-08T20:43:57",
+  "first_line": 3.5,
+  "outcome": null,
+  "last_line": 3.5,
   "last_odds": -115,
-  "last_seen": "2026-11-08T16:56:52"
+  "last_seen": "2026-11-08T20:43:57"
  }
 }

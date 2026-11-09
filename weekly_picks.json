@@ -3007,8 +3007,8 @@
     "edge": 4.43,
     "pick": "home",
     "pick_label": "LAC +6.0",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -22.0
    },
    {
     "game": "CIN @ ATL",
@@ -3232,9 +3232,9 @@
     "wind_mph": 13.7,
     "expected_adj": -5.33,
     "gameday": "2026-11-08",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 20.0,
+    "residual": -19.5
    },
    {
     "game": "GB @ NE",
@@ -3244,9 +3244,9 @@
     "wind_mph": 12.2,
     "expected_adj": -4.75,
     "gameday": "2026-11-08",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 72.0,
+    "residual": 27.5
    },
    {
     "game": "LA @ WAS",

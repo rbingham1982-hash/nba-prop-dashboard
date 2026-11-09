@@ -29,7 +29,7 @@
   "last": {
    "american_odds": 280,
    "implied_prob": 0.2632,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Aaron Jones",
@@ -72,7 +72,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "adamprentice|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2500,
    "implied_prob": 0.0385,
@@ -85,7 +85,7 @@
    "implied_prob": 0.0588,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Adam Prentice",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -108,7 +108,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "adamtrautman|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
@@ -121,7 +121,7 @@
    "implied_prob": 0.0667,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Adam Trautman",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -144,7 +144,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "adonaimitchell|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 220,
    "implied_prob": 0.3125,
@@ -157,7 +157,7 @@
    "implied_prob": 0.2632,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Adonai Mitchell",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -211,7 +211,7 @@
    "implied_prob": 0.0625,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "AJ Dillon",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -247,12 +247,12 @@
    "implied_prob": 0.0435,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Alex Bachman",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "alvinkamara|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 300,
    "implied_prob": 0.25,
@@ -265,7 +265,7 @@
    "implied_prob": 0.4082,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Alvin Kamara",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -324,7 +324,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "amonrastbrown|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": -115,
    "implied_prob": 0.5349,
@@ -337,7 +337,7 @@
    "implied_prob": 0.5349,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Amon-Ra St. Brown",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -360,7 +360,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "andrewarmstrong|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 950,
    "implied_prob": 0.0952,
@@ -373,7 +373,7 @@
    "implied_prob": 0.0909,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Andrew Armstrong",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -396,7 +396,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "andrewbeck|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 3500,
    "implied_prob": 0.0278,
@@ -409,7 +409,7 @@
    "implied_prob": 0.0278,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Andrew Beck",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -432,7 +432,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "anthonygould|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1100,
    "implied_prob": 0.0833,
@@ -445,12 +445,12 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Anthony Gould",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "anthonytyus|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
@@ -463,7 +463,7 @@
    "implied_prob": 0.0435,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Anthony Tyus III",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -486,7 +486,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "antoniowilliams|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 250,
    "implied_prob": 0.2857,
@@ -499,7 +499,7 @@
    "implied_prob": 0.2941,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Antonio Williams",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -558,7 +558,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "ashtondulin|36244868": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 1100,
    "implied_prob": 0.0833,
@@ -571,7 +571,7 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Ashton Dulin",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -666,7 +666,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "audricestime|36244869": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 650,
    "implied_prob": 0.1333,
@@ -679,7 +679,7 @@
    "implied_prob": 0.2439,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Audric Estime",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -702,7 +702,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "austinekeler|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 340,
    "implied_prob": 0.2273,
@@ -715,7 +715,7 @@
    "implied_prob": 0.2273,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Austin Ekeler",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -846,7 +846,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "barionbrown|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1500,
    "implied_prob": 0.0625,
@@ -859,7 +859,7 @@
    "implied_prob": 0.0476,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Barion Brown",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -949,7 +949,7 @@
    "implied_prob": 0.0476,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Ben Sinnott",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1003,7 +1003,7 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Ben VanSumeren",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1037,7 +1037,7 @@
   "last": {
    "american_odds": 850,
    "implied_prob": 0.1053,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Ben Yurosek",
@@ -1134,7 +1134,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "blakecorum|36244876": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 110,
    "implied_prob": 0.4762,
@@ -1147,7 +1147,7 @@
    "implied_prob": 0.4651,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Blake Corum",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1170,7 +1170,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "blakewhiteheart|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1400,
    "implied_prob": 0.0667,
@@ -1183,7 +1183,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Blake Whiteheart",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1224,7 +1224,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "bonix|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 450,
    "implied_prob": 0.1818,
@@ -1237,7 +1237,7 @@
    "implied_prob": 0.1887,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Bo Nix",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1296,7 +1296,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "braelonallen|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 130,
    "implied_prob": 0.4348,
@@ -1309,7 +1309,7 @@
    "implied_prob": 0.2941,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Braelon Allen",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1404,7 +1404,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "breecehall|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 130,
    "implied_prob": 0.4348,
@@ -1417,7 +1417,7 @@
    "implied_prob": 0.3509,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Breece Hall",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1512,7 +1512,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "brevynspannford|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 300,
    "implied_prob": 0.25,
@@ -1525,7 +1525,7 @@
    "implied_prob": 0.2564,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Brevyn Spann-Ford",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1669,12 +1669,12 @@
    "implied_prob": 0.1176,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Brock Wright",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "brycelance|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 500,
    "implied_prob": 0.1667,
@@ -1687,12 +1687,12 @@
    "implied_prob": 0.0952,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Bryce Lance",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "brycentremayne|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
@@ -1705,12 +1705,12 @@
    "implied_prob": 0.0588,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Brycen Tremayne",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "bryceyoung|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 650,
    "implied_prob": 0.1333,
@@ -1723,7 +1723,7 @@
    "implied_prob": 0.1429,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Bryce Young",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1793,7 +1793,7 @@
   "last": {
    "american_odds": 1000,
    "implied_prob": 0.0909,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Buffalo Defense",
@@ -1872,7 +1872,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "calebdouglas|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 240,
    "implied_prob": 0.2941,
@@ -1885,7 +1885,7 @@
    "implied_prob": 0.2857,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Caleb Douglas",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -1962,7 +1962,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "camdenbrown|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1700,
    "implied_prob": 0.0556,
@@ -1975,7 +1975,7 @@
    "implied_prob": 0.0556,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Camden Brown",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2065,7 +2065,7 @@
    "implied_prob": 0.5238,
    "seen_at": "2026-11-06T00:56:22"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Cam Skattebo",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2088,7 +2088,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "carloswashington|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 900,
    "implied_prob": 0.1,
@@ -2101,7 +2101,7 @@
    "implied_prob": 0.1,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Carlos Washington Jr.",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2119,7 +2119,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Carolina Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2155,7 +2155,7 @@
    "implied_prob": 0.0294,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Carsen Ryan",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2171,7 +2171,7 @@
   "last": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Carson Wentz",
@@ -2214,7 +2214,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "ceedeelamb|36244868": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": -120,
    "implied_prob": 0.5455,
@@ -2227,12 +2227,12 @@
    "implied_prob": 0.5349,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "CeeDee Lamb",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "charliejones|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
@@ -2245,7 +2245,7 @@
    "implied_prob": 0.1111,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Charlie Jones",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2425,7 +2425,7 @@
    "implied_prob": 0.2703,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Chigoziem Okonkwo",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2466,7 +2466,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "chrisbell|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 470,
    "implied_prob": 0.1754,
@@ -2479,7 +2479,7 @@
    "implied_prob": 0.1887,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Chris Bell",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2569,12 +2569,12 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Chris Manhertz",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "chrisolave|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 155,
    "implied_prob": 0.3922,
@@ -2587,7 +2587,7 @@
    "implied_prob": 0.3448,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Chris Olave",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2682,7 +2682,7 @@
   "start_time": "2026-11-08T21:26:00.000Z"
  },
  "chubahubbard|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": -115,
    "implied_prob": 0.5349,
@@ -2695,7 +2695,7 @@
    "implied_prob": 0.5556,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Chuba Hubbard",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2767,7 +2767,7 @@
    "implied_prob": 0.0909,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "CJ Daniels",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2785,7 +2785,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-06T00:56:22"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "CJ Donaldson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2875,7 +2875,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Cleveland Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -2898,7 +2898,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "codyschrader|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1600,
    "implied_prob": 0.0588,
@@ -2911,7 +2911,7 @@
    "implied_prob": 0.0588,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Cody Schrader",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3006,7 +3006,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "colbyparkinson|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 270,
    "implied_prob": 0.2703,
@@ -3019,7 +3019,7 @@
    "implied_prob": 0.2778,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Colby Parkinson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3060,7 +3060,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "colsonyankoff|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2700,
    "implied_prob": 0.0357,
@@ -3073,7 +3073,7 @@
    "implied_prob": 0.0385,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Colson Yankoff",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3240,7 +3240,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "courtlandsutton|36244867": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 200,
    "implied_prob": 0.3333,
@@ -3253,7 +3253,7 @@
    "implied_prob": 0.3333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Courtland Sutton",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3276,7 +3276,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "cyrusallen|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 440,
    "implied_prob": 0.1852,
@@ -3289,7 +3289,7 @@
    "implied_prob": 0.1818,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Cyrus Allen",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3312,7 +3312,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "dakprescott|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 500,
    "implied_prob": 0.1667,
@@ -3325,7 +3325,7 @@
    "implied_prob": 0.1667,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Dak Prescott",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3361,7 +3361,7 @@
    "implied_prob": 0.1176,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Dallas Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3384,7 +3384,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "dallasgoedert|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 250,
    "implied_prob": 0.2857,
@@ -3397,7 +3397,7 @@
    "implied_prob": 0.2632,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Dallas Goedert",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3433,7 +3433,7 @@
    "implied_prob": 0.0588,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Dallen Bentley",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3467,7 +3467,7 @@
   "last": {
    "american_odds": 300,
    "implied_prob": 0.25,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Dalton Kincaid",
@@ -3564,7 +3564,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "danieljones|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 550,
    "implied_prob": 0.1538,
@@ -3577,7 +3577,7 @@
    "implied_prob": 0.1429,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Daniel Jones",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3654,7 +3654,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "dariuscooper|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 500,
    "implied_prob": 0.1667,
@@ -3667,12 +3667,12 @@
    "implied_prob": 0.1538,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Darius Cooper",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "darnellmooney|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 650,
    "implied_prob": 0.1333,
@@ -3685,7 +3685,7 @@
    "implied_prob": 0.1176,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Darnell Mooney",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3708,7 +3708,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "darrenwaller|36244867": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 410,
    "implied_prob": 0.1961,
@@ -3721,7 +3721,7 @@
    "implied_prob": 0.2041,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Darren Waller",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3744,7 +3744,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "davidmoore|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 3500,
    "implied_prob": 0.0278,
@@ -3757,7 +3757,7 @@
    "implied_prob": 0.0323,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "David Moore",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3829,7 +3829,7 @@
    "implied_prob": 0.2273,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Davis Allen",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3863,7 +3863,7 @@
   "last": {
    "american_odds": 750,
    "implied_prob": 0.1176,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Dawson Knox",
@@ -3906,7 +3906,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "deandrecarter|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2200,
    "implied_prob": 0.0435,
@@ -3919,7 +3919,7 @@
    "implied_prob": 0.0833,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "DeAndre Carter",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -3971,7 +3971,7 @@
   "last": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "DeeJay Dallas",
@@ -3996,7 +3996,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "deionburks|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1300,
    "implied_prob": 0.0714,
@@ -4009,7 +4009,7 @@
    "implied_prob": 0.0833,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Deion Burks",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4135,7 +4135,7 @@
    "implied_prob": 0.1538,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Denver Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4158,7 +4158,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "denzelboston|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 210,
    "implied_prob": 0.3226,
@@ -4171,7 +4171,7 @@
    "implied_prob": 0.2941,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Denzel Boston",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4297,12 +4297,12 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Detroit Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "devaughnvele|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 210,
    "implied_prob": 0.3226,
@@ -4315,7 +4315,7 @@
    "implied_prob": 0.2564,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Devaughn Vele",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4356,7 +4356,7 @@
   "start_time": "2026-11-08T21:26:00.000Z"
  },
  "devinsingletary|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 120,
    "implied_prob": 0.4545,
@@ -4369,7 +4369,7 @@
    "implied_prob": 0.4762,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Devin Singletary",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4441,7 +4441,7 @@
    "implied_prob": 0.0556,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "DJ Giddens",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4477,7 +4477,7 @@
    "implied_prob": 0.05,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "DJ Herman",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4511,7 +4511,7 @@
   "last": {
    "american_odds": 270,
    "implied_prob": 0.2703,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "D.J. Moore",
@@ -4747,7 +4747,7 @@
    "implied_prob": 0.0435,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Drew Ogletree",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4819,7 +4819,7 @@
    "implied_prob": 0.1176,
    "seen_at": "2026-11-06T00:56:22"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Dyami Brown",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -4878,7 +4878,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "dylansampson|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 550,
    "implied_prob": 0.1538,
@@ -4891,7 +4891,7 @@
    "implied_prob": 0.1429,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Dylan Sampson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5022,7 +5022,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "elijahmitchell|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 320,
    "implied_prob": 0.2381,
@@ -5035,7 +5035,7 @@
    "implied_prob": 0.1961,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Elijah Mitchell",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5058,7 +5058,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "elijahmoore|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2500,
    "implied_prob": 0.0385,
@@ -5071,7 +5071,7 @@
    "implied_prob": 0.05,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Elijah Moore",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5166,7 +5166,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "elistowers|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1700,
    "implied_prob": 0.0556,
@@ -5179,7 +5179,7 @@
    "implied_prob": 0.0625,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Eli Stowers",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5274,7 +5274,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "emmettjohnson|36244871": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 360,
    "implied_prob": 0.2174,
@@ -5287,7 +5287,7 @@
    "implied_prob": 0.2128,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Emmett Johnson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5346,7 +5346,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "evanengram|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 460,
    "implied_prob": 0.1786,
@@ -5359,7 +5359,7 @@
    "implied_prob": 0.1724,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Evan Engram",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5413,7 +5413,7 @@
    "implied_prob": 0.0278,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Feleipe Franks",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5485,7 +5485,7 @@
    "implied_prob": 0.3125,
    "seen_at": "2026-11-05T00:57:20"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Garrett Wilson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5519,7 +5519,7 @@
   "last": {
    "american_odds": 1600,
    "implied_prob": 0.0588,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Gavin Bartholomew",
@@ -5544,7 +5544,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "genosmith|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
@@ -5557,7 +5557,7 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Geno Smith",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5647,7 +5647,7 @@
    "implied_prob": 0.4255,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "George Pickens",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5688,7 +5688,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "grantcalcaterra|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2500,
    "implied_prob": 0.0385,
@@ -5701,7 +5701,7 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Grant Calcaterra",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5753,7 +5753,7 @@
   "last": {
    "american_odds": 3000,
    "implied_prob": 0.0323,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Greg Dortch",
@@ -5778,7 +5778,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "gregdulcich|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 310,
    "implied_prob": 0.2439,
@@ -5791,12 +5791,12 @@
    "implied_prob": 0.2326,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Greg Dulcich",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "gregorydesrosiers|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 500,
    "implied_prob": 0.1667,
@@ -5809,7 +5809,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Gregory Desrosiers",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -5850,7 +5850,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "haroldfannin|36244869": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 230,
    "implied_prob": 0.303,
@@ -5863,7 +5863,7 @@
    "implied_prob": 0.2857,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Harold Fannin Jr.",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6007,7 +6007,7 @@
    "implied_prob": 0.0833,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Hunter Luepke",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6079,7 +6079,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Indianapolis Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6138,7 +6138,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "isaacteslaa|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 330,
    "implied_prob": 0.2326,
@@ -6151,7 +6151,7 @@
    "implied_prob": 0.2128,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Isaac TeSlaa",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6174,7 +6174,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "isaiahbond|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1800,
    "implied_prob": 0.0526,
@@ -6187,7 +6187,7 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Isaiah Bond",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6210,7 +6210,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "isaiahdavis|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 490,
    "implied_prob": 0.1695,
@@ -6223,12 +6223,12 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Isaiah Davis",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "isaiahlikely|36244873": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 210,
    "implied_prob": 0.3226,
@@ -6241,7 +6241,7 @@
    "implied_prob": 0.2857,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Isaiah Likely",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6264,7 +6264,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "isaiahwilliams|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
@@ -6277,12 +6277,12 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Isaiah Williams",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "jabarismall|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2200,
    "implied_prob": 0.0435,
@@ -6295,7 +6295,7 @@
    "implied_prob": 0.0435,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jabari Small",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6401,7 +6401,7 @@
   "last": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Jackson Hawes",
@@ -6439,7 +6439,7 @@
    "implied_prob": 0.0556,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Jackson Meeks",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6529,7 +6529,7 @@
    "implied_prob": 0.0833,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Jacob Saylors",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6588,7 +6588,7 @@
   "start_time": "2026-11-08T21:26:00.000Z"
  },
  "jadenbradley|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 800,
    "implied_prob": 0.1111,
@@ -6601,7 +6601,7 @@
    "implied_prob": 0.1053,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jaden Bradley",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6696,7 +6696,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "jahmyrgibbs|36244872": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": -400,
    "implied_prob": 0.8,
@@ -6709,7 +6709,7 @@
    "implied_prob": 0.7917,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Jahmyr Gibbs",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6732,7 +6732,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "jakebriningstool|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1600,
    "implied_prob": 0.0588,
@@ -6745,7 +6745,7 @@
    "implied_prob": 0.0556,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jake Briningstool",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6768,7 +6768,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "jakeferguson|36244868": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 300,
    "implied_prob": 0.25,
@@ -6781,7 +6781,7 @@
    "implied_prob": 0.2564,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Jake Ferguson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6871,12 +6871,12 @@
    "implied_prob": 0.0435,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Jaleel McLaughlin",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "jalencoker|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 210,
    "implied_prob": 0.3226,
@@ -6889,7 +6889,7 @@
    "implied_prob": 0.3333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jalen Coker",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6948,7 +6948,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "jalenroyals|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 800,
    "implied_prob": 0.1111,
@@ -6961,7 +6961,7 @@
    "implied_prob": 0.1053,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jalen Royals",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -6997,12 +6997,12 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Jalen Tolbert",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "jalinhyatt|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
@@ -7015,7 +7015,7 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jalin Hyatt",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7085,7 +7085,7 @@
   "last": {
    "american_odds": -110,
    "implied_prob": 0.5238,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "James Cook",
@@ -7123,7 +7123,7 @@
    "implied_prob": 0.0952,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "James Mitchell",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7146,7 +7146,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "jamesonwilliams|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 160,
    "implied_prob": 0.3846,
@@ -7159,7 +7159,7 @@
    "implied_prob": 0.3774,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jameson Williams",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7182,7 +7182,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "jaredgoff|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 950,
    "implied_prob": 0.0952,
@@ -7195,7 +7195,7 @@
    "implied_prob": 0.0833,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jared Goff",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7218,7 +7218,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "jaredwayne|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2500,
    "implied_prob": 0.0385,
@@ -7231,7 +7231,7 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jared Wayne",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7267,7 +7267,7 @@
    "implied_prob": 0.0556,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Jared Wiley",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7326,7 +7326,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "javontewilliams|36244868": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": -230,
    "implied_prob": 0.697,
@@ -7339,7 +7339,7 @@
    "implied_prob": 0.6875,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Javonte Williams",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7398,7 +7398,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "jaydendaniels|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 230,
    "implied_prob": 0.303,
@@ -7411,7 +7411,7 @@
    "implied_prob": 0.303,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jayden Daniels",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7434,7 +7434,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "jaydnott|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2700,
    "implied_prob": 0.0357,
@@ -7447,7 +7447,7 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jaydn Ott",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7470,7 +7470,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "jaydonblue|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
@@ -7483,7 +7483,7 @@
    "implied_prob": 0.0476,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jaydon Blue",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7506,7 +7506,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "jaylenwaddle|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 190,
    "implied_prob": 0.3448,
@@ -7519,7 +7519,7 @@
    "implied_prob": 0.3448,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jaylen Waddle",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7573,7 +7573,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Jaylen Wright",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7609,7 +7609,7 @@
    "implied_prob": 0.0278,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Jelani Woods",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7681,7 +7681,7 @@
    "implied_prob": 0.0625,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Jeremy Ruckert",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7722,7 +7722,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "jerryjeudy|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 600,
    "implied_prob": 0.1429,
@@ -7735,12 +7735,12 @@
    "implied_prob": 0.1538,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jerry Jeudy",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "jjmccarthy|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 360,
    "implied_prob": 0.2174,
@@ -7753,7 +7753,7 @@
    "implied_prob": 0.2174,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "J.J McCarthy",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7776,7 +7776,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "jkdobbins|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 260,
    "implied_prob": 0.2778,
@@ -7789,7 +7789,7 @@
    "implied_prob": 0.2632,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "J.K. Dobbins",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7866,7 +7866,7 @@
   "start_time": "2026-11-06T01:16:00.000Z"
  },
  "joemilton|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 800,
    "implied_prob": 0.1111,
@@ -7879,7 +7879,7 @@
    "implied_prob": 0.1724,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Joe Milton III",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7915,12 +7915,12 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "John Bates",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "johnmetchie|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 800,
    "implied_prob": 0.1111,
@@ -7933,7 +7933,7 @@
    "implied_prob": 0.1111,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "John Metchie III",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7969,7 +7969,7 @@
    "implied_prob": 0.0476,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Johnny Mundt",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -7992,7 +7992,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "jonahcoleman|36244867": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 105,
    "implied_prob": 0.4878,
@@ -8005,7 +8005,7 @@
    "implied_prob": 0.4878,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Jonah Coleman",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8028,7 +8028,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "jonathanmingo|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 650,
    "implied_prob": 0.1333,
@@ -8041,7 +8041,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jonathan Mingo",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8064,7 +8064,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "jonathantaylor|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": -155,
    "implied_prob": 0.6078,
@@ -8077,7 +8077,7 @@
    "implied_prob": 0.5745,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jonathan Taylor",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8129,14 +8129,14 @@
   "last": {
    "american_odds": 260,
    "implied_prob": 0.2778,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Jordan Addison",
   "start_time": "2026-11-10T01:16:00.000Z"
  },
  "jordanhudson|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1400,
    "implied_prob": 0.0667,
@@ -8149,7 +8149,7 @@
    "implied_prob": 0.0667,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jordan Hudson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8219,7 +8219,7 @@
   "last": {
    "american_odds": 210,
    "implied_prob": 0.3226,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Jordan Mason",
@@ -8262,7 +8262,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "jordanwhittington|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
@@ -8275,12 +8275,12 @@
    "implied_prob": 0.0909,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jordan Whittington",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "jordyntyson|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 210,
    "implied_prob": 0.3226,
@@ -8293,7 +8293,7 @@
    "implied_prob": 0.2326,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Jordyn Tyson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8327,7 +8327,7 @@
   "last": {
    "american_odds": -120,
    "implied_prob": 0.5455,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Josh Allen",
@@ -8424,7 +8424,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "joshdowns|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 280,
    "implied_prob": 0.2632,
@@ -8437,7 +8437,7 @@
    "implied_prob": 0.2439,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Josh Downs",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8615,7 +8615,7 @@
   "last": {
    "american_odds": 160,
    "implied_prob": 0.3846,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Justin Jefferson",
@@ -8653,7 +8653,7 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Justin Joly",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8676,7 +8676,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "juwanjohnson|36244869": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 280,
    "implied_prob": 0.2632,
@@ -8689,7 +8689,7 @@
    "implied_prob": 0.25,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Juwan Johnson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8833,7 +8833,7 @@
    "implied_prob": 0.1176,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Kansas City Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8851,7 +8851,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-06T17:49:14"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "KaVontae Turpin",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8892,7 +8892,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "kaytronallen|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2200,
    "implied_prob": 0.0435,
@@ -8905,7 +8905,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Kaytron Allen",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -8928,7 +8928,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "kcconcepcion|36244869": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 250,
    "implied_prob": 0.2857,
@@ -8941,7 +8941,7 @@
    "implied_prob": 0.2632,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "KC Concepcion",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9036,7 +9036,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "keenanallen|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 230,
    "implied_prob": 0.303,
@@ -9049,7 +9049,7 @@
    "implied_prob": 0.303,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Keenan Allen",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9083,7 +9083,7 @@
   "last": {
    "american_odds": 2700,
    "implied_prob": 0.0357,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Keleki Latu",
@@ -9103,7 +9103,7 @@
    "implied_prob": 0.3846,
    "seen_at": "2026-11-07T00:07:22"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Kendre Miller",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9144,7 +9144,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "kenenwangwu|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2700,
    "implied_prob": 0.0357,
@@ -9157,7 +9157,7 @@
    "implied_prob": 0.0278,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Kene Nwangwu",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9216,7 +9216,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "kennethwalker|36244871": {
-  "actual": null,
+  "actual": 3,
   "first": {
    "american_odds": -220,
    "implied_prob": 0.6875,
@@ -9229,7 +9229,7 @@
    "implied_prob": 0.7059,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Kenneth Walker III",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9270,7 +9270,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "kenyonsadiq|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 370,
    "implied_prob": 0.2128,
@@ -9283,7 +9283,7 @@
    "implied_prob": 0.1538,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Kenyon Sadiq",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9317,7 +9317,7 @@
   "last": {
    "american_odds": 420,
    "implied_prob": 0.1923,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Keon Coleman",
@@ -9342,7 +9342,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "kevincoleman|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 850,
    "implied_prob": 0.1053,
@@ -9355,7 +9355,7 @@
    "implied_prob": 0.1,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Kevin Coleman Jr.",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9443,7 +9443,7 @@
   "last": {
    "american_odds": 320,
    "implied_prob": 0.2381,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Khalil Shakir",
@@ -9576,7 +9576,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "konatamumpfield|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 600,
    "implied_prob": 0.1429,
@@ -9589,7 +9589,7 @@
    "implied_prob": 0.1754,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Konata Mumpfield",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9756,7 +9756,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "kyrenwilliams|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": -160,
    "implied_prob": 0.6154,
@@ -9769,7 +9769,7 @@
    "implied_prob": 0.6,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Kyren Williams",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -9954,7 +9954,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "laquontreadwell|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 430,
    "implied_prob": 0.1887,
@@ -9967,7 +9967,7 @@
    "implied_prob": 0.1818,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Laquon Treadwell",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10093,7 +10093,7 @@
    "implied_prob": 0.0667,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Lil'Jordan Humphrey",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10129,7 +10129,7 @@
    "implied_prob": 0.1053,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Los Angeles Rams Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10170,7 +10170,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "lukemccaffrey|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2500,
    "implied_prob": 0.0385,
@@ -10183,7 +10183,7 @@
    "implied_prob": 0.1053,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Luke McCaffrey",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10219,7 +10219,7 @@
    "implied_prob": 0.0952,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Luke Schoonmaker",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10296,7 +10296,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "makailemon|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 290,
    "implied_prob": 0.2564,
@@ -10309,7 +10309,7 @@
    "implied_prob": 0.2222,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Makai Lemon",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10332,7 +10332,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "malachicorley|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2200,
    "implied_prob": 0.0435,
@@ -10345,12 +10345,12 @@
    "implied_prob": 0.0323,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Malachi Corley",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "malachifields|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 600,
    "implied_prob": 0.1429,
@@ -10363,7 +10363,7 @@
    "implied_prob": 0.1695,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Malachi Fields",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10422,7 +10422,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "malikmcclain|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2500,
    "implied_prob": 0.0385,
@@ -10435,12 +10435,12 @@
    "implied_prob": 0.0278,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Malik McClain",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "maliknabers|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 195,
    "implied_prob": 0.339,
@@ -10453,7 +10453,7 @@
    "implied_prob": 0.3333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Malik Nabers",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10476,7 +10476,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "malikwashington|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 210,
    "implied_prob": 0.3226,
@@ -10489,7 +10489,7 @@
    "implied_prob": 0.3125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Malik Washington",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10512,7 +10512,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "malikwillis|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 200,
    "implied_prob": 0.3333,
@@ -10525,7 +10525,7 @@
    "implied_prob": 0.3226,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Malik Willis",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10620,7 +10620,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "marquisebrown|36244873": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 950,
    "implied_prob": 0.0952,
@@ -10633,7 +10633,7 @@
    "implied_prob": 0.0909,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Marquise Brown",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10692,7 +10692,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "marvinmims|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 550,
    "implied_prob": 0.1538,
@@ -10705,7 +10705,7 @@
    "implied_prob": 0.1,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Marvin Mims Jr.",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10728,7 +10728,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "masontaylor|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 370,
    "implied_prob": 0.2128,
@@ -10741,7 +10741,7 @@
    "implied_prob": 0.2041,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Mason Taylor",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10818,7 +10818,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "matthewstafford|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1500,
    "implied_prob": 0.0625,
@@ -10831,7 +10831,7 @@
    "implied_prob": 0.0625,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Matthew Stafford",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10865,7 +10865,7 @@
   "last": {
    "american_odds": 2700,
    "implied_prob": 0.0357,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Max Bredeson",
@@ -10903,7 +10903,7 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Max Klare",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10939,7 +10939,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Miami Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -10975,7 +10975,7 @@
    "implied_prob": 0.0217,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Michael Burton",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11225,14 +11225,14 @@
   "last": {
    "american_odds": 800,
    "implied_prob": 0.1111,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Minnesota Defense",
   "start_time": "2026-11-10T01:16:00.000Z"
  },
  "mitchellevans|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 650,
    "implied_prob": 0.1333,
@@ -11245,7 +11245,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Mitchell Evans",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11317,7 +11317,7 @@
    "implied_prob": 0.0714,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Mo Alie-Cox",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11369,7 +11369,7 @@
   "last": {
    "american_odds": 900,
    "implied_prob": 0.1,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Myles Price",
@@ -11394,7 +11394,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "nateadkins|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 700,
    "implied_prob": 0.125,
@@ -11407,7 +11407,7 @@
    "implied_prob": 0.1176,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Nate Adkins",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11497,7 +11497,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "New Orleans Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11533,7 +11533,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "New York Jets Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11700,7 +11700,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "nikkoremigio|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
@@ -11713,12 +11713,12 @@
    "implied_prob": 0.0476,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Nikko Remigio",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "noahfant|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 550,
    "implied_prob": 0.1538,
@@ -11731,7 +11731,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Noah Fant",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11754,7 +11754,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "noahgray|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 500,
    "implied_prob": 0.1667,
@@ -11767,7 +11767,7 @@
    "implied_prob": 0.1667,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Noah Gray",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11785,7 +11785,7 @@
    "implied_prob": 0.1429,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "NY Giants Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11801,7 +11801,7 @@
   "last": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Odell Beckham Jr",
@@ -11862,7 +11862,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "olliegordon|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 105,
    "implied_prob": 0.4878,
@@ -11875,7 +11875,7 @@
    "implied_prob": 0.4878,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Ollie Gordon II",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11898,7 +11898,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "omarcooper|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 260,
    "implied_prob": 0.2778,
@@ -11911,7 +11911,7 @@
    "implied_prob": 0.2439,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Omar Cooper Jr.",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -11988,7 +11988,7 @@
   "start_time": "2026-11-08T21:06:00.000Z"
  },
  "oscardelp|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1100,
    "implied_prob": 0.0833,
@@ -12001,7 +12001,7 @@
    "implied_prob": 0.0667,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Oscar Delp",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12042,7 +12042,7 @@
   "start_time": "2026-11-06T01:16:00.000Z"
  },
  "patbryant|36244867": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 500,
    "implied_prob": 0.1667,
@@ -12055,7 +12055,7 @@
    "implied_prob": 0.2222,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Pat Bryant",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12096,7 +12096,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "patrickmahomes|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 410,
    "implied_prob": 0.1961,
@@ -12109,7 +12109,7 @@
    "implied_prob": 0.2041,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Patrick Mahomes",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12127,7 +12127,7 @@
    "implied_prob": 0.0323,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Patrick Ricard",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12199,7 +12199,7 @@
    "implied_prob": 0.0435,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Pharaoh Brown",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12235,7 +12235,7 @@
    "implied_prob": 0.1111,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Philadelphia Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12253,7 +12253,7 @@
    "implied_prob": 0.0909,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Phil Mafah",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12312,7 +12312,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "pukanacua|36244876": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": -140,
    "implied_prob": 0.5833,
@@ -12325,7 +12325,7 @@
    "implied_prob": 0.5745,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Puka Nacua",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12384,7 +12384,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "quinshonjudkins|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 105,
    "implied_prob": 0.4878,
@@ -12397,7 +12397,7 @@
    "implied_prob": 0.4762,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Quinshon Judkins",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12456,7 +12456,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "rachaadwhite|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 130,
    "implied_prob": 0.4348,
@@ -12469,7 +12469,7 @@
    "implied_prob": 0.4255,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Rachaad White",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12528,7 +12528,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "rasheerice|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 125,
    "implied_prob": 0.4444,
@@ -12541,7 +12541,7 @@
    "implied_prob": 0.4444,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Rashee Rice",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12629,7 +12629,7 @@
   "last": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Ray Davis",
@@ -12775,7 +12775,7 @@
    "implied_prob": 0.0526,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Robert Henry",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12852,7 +12852,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "ronnierivers|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1800,
    "implied_prob": 0.0526,
@@ -12865,7 +12865,7 @@
    "implied_prob": 0.0526,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Ronnie Rivers",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -12924,7 +12924,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "ryanflournoy|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 200,
    "implied_prob": 0.3333,
@@ -12937,7 +12937,7 @@
    "implied_prob": 0.339,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Ryan Flournoy",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13086,7 +13086,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "samlaporta|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 170,
    "implied_prob": 0.3704,
@@ -13099,7 +13099,7 @@
    "implied_prob": 0.3571,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Sam LaPorta",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13176,7 +13176,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "saquonbarkley|36244873": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 120,
    "implied_prob": 0.4545,
@@ -13189,7 +13189,7 @@
    "implied_prob": 0.4545,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Saquon Barkley",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13338,7 +13338,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "sethmcgowan|36244868": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 220,
    "implied_prob": 0.3125,
@@ -13351,7 +13351,7 @@
    "implied_prob": 0.3125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Seth McGowan",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13374,7 +13374,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "seydoutraore|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2500,
    "implied_prob": 0.0385,
@@ -13387,7 +13387,7 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Seydou Traore",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13410,7 +13410,7 @@
   "start_time": "2026-11-08T21:26:00.000Z"
  },
  "shedeursanders|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 600,
    "implied_prob": 0.1429,
@@ -13423,7 +13423,7 @@
    "implied_prob": 0.1429,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Shedeur Sanders",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13482,7 +13482,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "sionevaki|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 490,
    "implied_prob": 0.1695,
@@ -13495,7 +13495,7 @@
    "implied_prob": 0.1538,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Sione Vaki",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13529,7 +13529,7 @@
   "last": {
    "american_odds": 1100,
    "implied_prob": 0.0833,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Skyler Bell",
@@ -13554,7 +13554,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "stefondiggs|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 200,
    "implied_prob": 0.3333,
@@ -13567,7 +13567,7 @@
    "implied_prob": 0.3333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Stefon Diggs",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13655,7 +13655,7 @@
   "last": {
    "american_odds": 500,
    "implied_prob": 0.1667,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Tai Felton",
@@ -13824,7 +13824,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "taymartin|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 3500,
    "implied_prob": 0.0278,
@@ -13837,7 +13837,7 @@
    "implied_prob": 0.0278,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Tay Martin",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -13968,7 +13968,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "tetairoamcmillan|36244867": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 175,
    "implied_prob": 0.3636,
@@ -13981,7 +13981,7 @@
    "implied_prob": 0.3922,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Tetairoa McMillan",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14035,7 +14035,7 @@
    "implied_prob": 0.1111,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Theo Johnson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14089,7 +14089,7 @@
    "implied_prob": 0.0357,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Thomas Fidone II",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14125,7 +14125,7 @@
    "implied_prob": 0.1176,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Tim Patrick",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14159,14 +14159,14 @@
   "last": {
    "american_odds": 210,
    "implied_prob": 0.3226,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "T.J. Hockenson",
   "start_time": "2026-11-10T01:16:00.000Z"
  },
  "tommytremble|36244867": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 450,
    "implied_prob": 0.1818,
@@ -14179,7 +14179,7 @@
    "implied_prob": 0.1887,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Tommy Tremble",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14310,7 +14310,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "traviskelce|36244871": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 145,
    "implied_prob": 0.4082,
@@ -14323,7 +14323,7 @@
    "implied_prob": 0.4082,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Travis Kelce",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14418,7 +14418,7 @@
   "start_time": "2026-11-08T21:26:00.000Z"
  },
  "trevoretienne|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1600,
    "implied_prob": 0.0588,
@@ -14431,7 +14431,7 @@
    "implied_prob": 0.0625,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Trevor Etienne",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14503,7 +14503,7 @@
    "implied_prob": 0.2041,
    "seen_at": "2026-11-06T00:56:22"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Treylon Burks",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14557,7 +14557,7 @@
    "implied_prob": 0.0625,
    "seen_at": "2026-11-07T14:42:08"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Treyton Welch",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14580,7 +14580,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "troyfranklin|36244867": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 500,
    "implied_prob": 0.1667,
@@ -14593,7 +14593,7 @@
    "implied_prob": 0.1111,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Troy Franklin",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14634,7 +14634,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "tutuatwell|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 550,
    "implied_prob": 0.1538,
@@ -14647,7 +14647,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Tutu Atwell",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14681,7 +14681,7 @@
   "last": {
    "american_odds": 850,
    "implied_prob": 0.1053,
-   "seen_at": "2026-11-08T16:56:53"
+   "seen_at": "2026-11-08T20:43:59"
   },
   "outcome": null,
   "player": "Ty Johnson",
@@ -14706,7 +14706,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "tylanwallace|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 2200,
    "implied_prob": 0.0435,
@@ -14719,7 +14719,7 @@
    "implied_prob": 0.0323,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Tylan Wallace",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14778,7 +14778,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "tylerconklin|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1600,
    "implied_prob": 0.0588,
@@ -14791,7 +14791,7 @@
    "implied_prob": 0.0556,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Tyler Conklin",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14814,7 +14814,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "tylergoodson|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 410,
    "implied_prob": 0.1961,
@@ -14827,7 +14827,7 @@
    "implied_prob": 0.1923,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Tyler Goodson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14850,7 +14850,7 @@
   "start_time": "2026-11-01T21:06:00.000Z"
  },
  "tylerhigbee|36244876": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 270,
    "implied_prob": 0.2703,
@@ -14863,12 +14863,12 @@
    "implied_prob": 0.2778,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Tyler Higbee",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
  "tylershough|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 330,
    "implied_prob": 0.2326,
@@ -14881,7 +14881,7 @@
    "implied_prob": 0.2174,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Tyler Shough",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14904,7 +14904,7 @@
   "start_time": "2026-11-01T18:01:00.000Z"
  },
  "tylerwarren|36244868": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 200,
    "implied_prob": 0.3333,
@@ -14917,7 +14917,7 @@
    "implied_prob": 0.339,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Tyler Warren",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -14940,7 +14940,7 @@
   "start_time": "2026-11-02T01:21:00.000Z"
  },
  "vanjefferson|36244876": {
-  "actual": null,
+  "actual": 1,
   "first": {
    "american_odds": 3000,
    "implied_prob": 0.0323,
@@ -14953,7 +14953,7 @@
    "implied_prob": 0.1333,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "win",
   "player": "Van Jefferson",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -15007,7 +15007,7 @@
    "implied_prob": 0.125,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Washington Defense",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -15030,7 +15030,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "willkacmarek|36244872": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1500,
    "implied_prob": 0.0625,
@@ -15043,7 +15043,7 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Will Kacmarek",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -15079,7 +15079,7 @@
    "implied_prob": 0.0625,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "void",
   "player": "Will Mallory",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -15156,7 +15156,7 @@
   "start_time": "2026-11-01T21:26:00.000Z"
  },
  "xavierworthy|36244871": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 180,
    "implied_prob": 0.3571,
@@ -15169,7 +15169,7 @@
    "implied_prob": 0.3509,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Xavier Worthy",
   "start_time": "2026-11-08T18:01:00.000Z"
  },
@@ -15228,7 +15228,7 @@
   "start_time": "2026-11-08T21:26:00.000Z"
  },
  "zamirwhite|36244869": {
-  "actual": null,
+  "actual": 0,
   "first": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
@@ -15241,7 +15241,7 @@
    "implied_prob": 0.0769,
    "seen_at": "2026-11-08T00:11:04"
   },
-  "outcome": null,
+  "outcome": "loss",
   "player": "Zamir White",
   "start_time": "2026-11-08T18:01:00.000Z"
  },

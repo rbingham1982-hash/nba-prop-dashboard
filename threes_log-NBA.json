@@ -1163,7 +1163,7 @@
    "away_odds": -180,
    "home_prob": 0.4088
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 125,
@@ -1186,7 +1186,7 @@
    "away_odds": -240,
    "home_prob": 0.3527
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 160,
@@ -1209,7 +1209,7 @@
    "away_odds": 125,
    "home_prob": 0.5912
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -180,
@@ -1861,5 +1861,143 @@
    "home_prob": 0.1595
   },
   "last_seen": "2026-11-08T16:56:53"
+ },
+ "CLE @ CHA|2026-11-10T00:10": {
+  "label": "CLE @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Cleveland Cavaliers",
+  "start_time": "2026-11-10T00:10:00.000Z",
+  "luck_home": -4.74,
+  "luck_away": 0.84,
+  "bet": "home",
+  "first_seen": "2026-11-08T20:43:59",
+  "first": {
+   "home_odds": 250,
+   "away_odds": -310,
+   "home_prob": 0.2742
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 250,
+   "away_odds": -310,
+   "home_prob": 0.2742
+  },
+  "last_seen": "2026-11-08T20:43:59"
+ },
+ "CHA @ ORL|2026-11-09T03:11": {
+  "label": "CHA @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-09T03:11:00.000Z",
+  "luck_home": 0.9,
+  "luck_away": -4.74,
+  "bet": "away",
+  "first_seen": "2026-11-08T20:43:59",
+  "first": {
+   "home_odds": -330,
+   "away_odds": 210,
+   "home_prob": 0.7041
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -330,
+   "away_odds": 210,
+   "home_prob": 0.7041
+  },
+  "last_seen": "2026-11-08T20:43:59"
+ },
+ "CHA @ DEN|2026-11-09T03:31": {
+  "label": "CHA @ DEN",
+  "home_name": "Denver Nuggets",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-09T03:31:00.000Z",
+  "luck_home": 0.21,
+  "luck_away": -4.74,
+  "bet": "away",
+  "first_seen": "2026-11-08T20:43:59",
+  "first": {
+   "home_odds": 155,
+   "away_odds": -235,
+   "home_prob": 0.3586
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 155,
+   "away_odds": -235,
+   "home_prob": 0.3586
+  },
+  "last_seen": "2026-11-08T20:43:59"
+ },
+ "DEN @ CHA|2026-11-09T02:55": {
+  "label": "DEN @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-09T02:55:00.000Z",
+  "luck_home": -4.74,
+  "luck_away": 0.21,
+  "bet": "home",
+  "first_seen": "2026-11-08T20:43:59",
+  "first": {
+   "home_odds": 105,
+   "away_odds": -155,
+   "home_prob": 0.4452
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 105,
+   "away_odds": -155,
+   "home_prob": 0.4452
+  },
+  "last_seen": "2026-11-08T20:43:59"
+ },
+ "CHA @ ORL|2026-11-09T02:59": {
+  "label": "CHA @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-09T02:59:00.000Z",
+  "luck_home": 0.9,
+  "luck_away": -4.74,
+  "bet": "away",
+  "first_seen": "2026-11-08T20:43:59",
+  "first": {
+   "home_odds": 120,
+   "away_odds": -175,
+   "home_prob": 0.4167
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 120,
+   "away_odds": -175,
+   "home_prob": 0.4167
+  },
+  "last_seen": "2026-11-08T20:43:59"
+ },
+ "MIL @ MEM|2026-11-09T03:15": {
+  "label": "MIL @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-09T03:15:00.000Z",
+  "luck_home": 0.59,
+  "luck_away": -2.96,
+  "bet": "away",
+  "first_seen": "2026-11-08T20:43:59",
+  "first": {
+   "home_odds": 165,
+   "away_odds": -250,
+   "home_prob": 0.3457
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 165,
+   "away_odds": -250,
+   "home_prob": 0.3457
+  },
+  "last_seen": "2026-11-08T20:43:59"
  }
 }
