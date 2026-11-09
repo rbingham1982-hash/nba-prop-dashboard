@@ -3687,9 +3687,9 @@
     "edge": 4.81,
     "pick": "home",
     "pick_label": "SAC +10.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 108,
+    "away_pts": 114,
     "published": true
    },
    {
@@ -3704,9 +3704,9 @@
     "edge": 4.22,
     "pick": "away",
     "pick_label": "LAL +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 116,
+    "away_pts": 121,
     "published": true
    },
    {
@@ -3721,9 +3721,9 @@
     "edge": 4.01,
     "pick": "home",
     "pick_label": "MIN -11.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 115,
+    "away_pts": 100,
     "published": true
    },
    {
@@ -3738,9 +3738,9 @@
     "edge": 2.17,
     "pick": "home",
     "pick_label": "LAC +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 139,
+    "away_pts": 123,
     "published": false
    },
    {
@@ -3755,9 +3755,9 @@
     "edge": 0.52,
     "pick": "away",
     "pick_label": "BKN +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 130,
+    "away_pts": 93,
     "published": false
    },
    {
@@ -3772,9 +3772,9 @@
     "edge": 0.49,
     "pick": "away",
     "pick_label": "PHI -9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 121,
+    "away_pts": 127,
     "published": false
    },
    {
@@ -3789,9 +3789,9 @@
     "edge": 0.06,
     "pick": "away",
     "pick_label": "BOS -12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 97,
+    "away_pts": 117,
     "published": false
    }
   ],
@@ -3811,8 +3811,8 @@
     "implied_prob": 0.7071,
     "blended_prob": 0.7071,
     "edge": -0.0042,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Norman Powell",
@@ -3826,7 +3826,7 @@
     "implied_prob": 0.6592,
     "blended_prob": 0.6592,
     "edge": 0.1379,
-    "outcome": null,
+    "outcome": "dnp",
     "actual": null
    },
    {
@@ -3841,8 +3841,8 @@
     "implied_prob": 0.6457,
     "blended_prob": 0.6457,
     "edge": -0.0314,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 4.0
    },
    {
     "player": "Bobby Portis",
@@ -3856,8 +3856,8 @@
     "implied_prob": 0.5669,
     "blended_prob": 0.5669,
     "edge": -0.1655,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 4.0
    },
    {
     "player": "Zaccharie Risacher",
@@ -3871,8 +3871,8 @@
     "implied_prob": 0.5573,
     "blended_prob": 0.5573,
     "edge": -0.1144,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 18.0
    }
   ],
   "parlay_withheld_price": {

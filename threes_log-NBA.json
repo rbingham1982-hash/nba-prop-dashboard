@@ -1600,8 +1600,8 @@
    "away_odds": -650,
    "home_prob": 0.1659
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "home_odds": 530,
    "away_odds": -750,
@@ -1879,11 +1879,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": 250,
-   "away_odds": -310,
-   "home_prob": 0.2742
+   "home_odds": 290,
+   "away_odds": -360,
+   "home_prob": 0.2468
   },
-  "last_seen": "2026-11-08T20:43:59"
+  "last_seen": "2026-11-09T00:44:55"
  },
  "CHA @ ORL|2026-11-09T03:11": {
   "label": "CHA @ ORL",
