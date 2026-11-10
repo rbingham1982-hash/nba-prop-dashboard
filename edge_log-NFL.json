@@ -6224,8 +6224,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-04T00:34:25",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "khalil shakir|Receptions|3.5|36244880": {
   "player": "Khalil Shakir",
@@ -6242,8 +6242,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-04T00:34:25",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "khalil shakir|Receiving Yards|36.5|36244880": {
   "player": "Khalil Shakir",
@@ -6260,8 +6260,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-04T00:34:25",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 58.0
  },
  "aaron jones|Rushing Yards|31.5|36244880": {
   "player": "Aaron Jones",
@@ -6278,8 +6278,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-04T00:34:25",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 16.0
  },
  "james cook|Rushing Yards|79.5|36244880": {
   "player": "James Cook",
@@ -6296,8 +6296,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-04T00:34:25",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 107.0
  },
  "daniel jones|Passing Yards|204.5|36244868": {
   "player": "Daniel Jones",
@@ -7016,8 +7016,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-05T18:26:06",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "aaron jones|Receptions|1.5|36244880": {
   "player": "Aaron Jones",
@@ -7034,8 +7034,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-05T18:26:06",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "aaron jones|Receiving Yards|7.5|36244880": {
   "player": "Aaron Jones",
@@ -7052,8 +7052,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-05T18:26:06",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 5.0
  },
  "dawson knox|Receptions|1.5|36244880": {
   "player": "Dawson Knox",
@@ -7070,8 +7070,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-05T18:26:06",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 4.0
  },
  "james cook|Rushing Yards|82.5|36244880": {
   "player": "James Cook",
@@ -7088,8 +7088,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-05T18:26:06",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 107.0
  },
  "austin hooper|Receptions|0.5|35603243": {
   "player": "Austin Hooper",
@@ -7484,8 +7484,8 @@
   "start_time": "2026-11-10T01:16:00.000Z",
   "game_day": "2026-11-09",
   "logged_at": "2026-11-07T14:42:03",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "noah fant|Receptions|0.5|36244869": {
   "player": "Noah Fant",

@@ -813,7 +813,7 @@
    "home_odds": 440,
    "away_odds": -590
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "BUF @ NYJ|2026-11-15T18:01": {
   "label": "BUF @ NYJ",
@@ -837,7 +837,7 @@
    "home_odds": 340,
    "away_odds": -430
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "SF @ DAL|2026-11-15T21:26": {
   "label": "SF @ DAL",
@@ -861,7 +861,7 @@
    "home_odds": 180,
    "away_odds": -215
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "LA @ ARI|2026-11-15T21:06": {
   "label": "LA @ ARI",
@@ -880,12 +880,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7907,
-   "odds": -460,
-   "home_odds": 360,
-   "away_odds": -460
+   "fav_prob": 0.7812,
+   "odds": -430,
+   "home_odds": 340,
+   "away_odds": -430
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "SEA @ LV|2026-11-15T21:06": {
   "label": "SEA @ LV",
@@ -909,7 +909,7 @@
    "home_odds": 152,
    "away_odds": -180
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "LV @ SF|2026-11-08T21:26": {
   "label": "LV @ SF",
@@ -957,7 +957,7 @@
    "home_odds": 194,
    "away_odds": -235
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "LAC @ BAL|2026-11-17T01:21": {
   "label": "LAC @ BAL",
@@ -981,6 +981,30 @@
    "home_odds": -235,
    "away_odds": 194
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
+ },
+ "MIN @ GB|2026-11-15T18:01": {
+  "label": "MIN @ GB",
+  "home_name": "Green Bay Packers",
+  "away_name": "Minnesota Vikings",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "first_seen": "2026-11-10T01:26:39",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6613,
+   "odds": -220,
+   "home_odds": -220,
+   "away_odds": 184
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6613,
+   "odds": -220,
+   "home_odds": -220,
+   "away_odds": 184
+  },
+  "last_seen": "2026-11-10T01:26:39"
  }
 }

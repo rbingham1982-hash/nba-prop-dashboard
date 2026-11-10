@@ -3900,9 +3900,9 @@
     "edge": 4.82,
     "pick": "away",
     "pick_label": "NOP +11.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 138,
+    "away_pts": 87,
     "published": true
    }
   ],
@@ -3922,8 +3922,8 @@
     "implied_prob": 0.7103,
     "blended_prob": 0.7103,
     "edge": 0.1797,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "De'Anthony Melton",
@@ -3937,8 +3937,8 @@
     "implied_prob": 0.6384,
     "blended_prob": 0.6384,
     "edge": -0.2341,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 4.0
    },
    {
     "player": "Derik Queen",
@@ -3952,8 +3952,8 @@
     "implied_prob": 0.6217,
     "blended_prob": 0.6217,
     "edge": 0.0226,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Herbert Jones",
@@ -3967,8 +3967,8 @@
     "implied_prob": 0.5581,
     "blended_prob": 0.5581,
     "edge": 0.2076,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 17.0
    },
    {
     "player": "Gui Santos",
@@ -3982,8 +3982,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": -0.0839,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    }
   ],
   "parlay_withheld_price": {

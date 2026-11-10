@@ -4668,7 +4668,7 @@
    "home_odds": -250,
    "away_odds": 165
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -5484,8 +5484,8 @@
    "home_odds": 250,
    "away_odds": -310
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.7567,
@@ -5628,8 +5628,8 @@
    "home_odds": -320,
    "away_odds": 260
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7328,
@@ -5700,8 +5700,8 @@
    "home_odds": -460,
    "away_odds": 350
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.8017,
@@ -5724,8 +5724,8 @@
    "home_odds": 250,
    "away_odds": -310
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "away",
    "fav_prob": 0.7532,
@@ -5796,8 +5796,8 @@
    "home_odds": -390,
    "away_odds": 310
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.8192,
@@ -5824,12 +5824,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.6735,
-   "odds": -235,
-   "home_odds": 194,
-   "away_odds": -235
+   "fav_prob": 0.669,
+   "odds": -230,
+   "home_odds": 190,
+   "away_odds": -230
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "MIL @ NYK|2026-11-11T00:40": {
   "label": "MIL @ NYK",
@@ -5848,12 +5848,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.887,
-   "odds": -1200,
-   "home_odds": -1200,
-   "away_odds": 750
+   "fav_prob": 0.8944,
+   "odds": -1350,
+   "home_odds": -1350,
+   "away_odds": 810
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "MIA @ UTA|2026-11-11T02:10": {
   "label": "MIA @ UTA",
@@ -5872,12 +5872,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7995,
-   "odds": -490,
-   "home_odds": 380,
-   "away_odds": -490
+   "fav_prob": 0.7864,
+   "odds": -450,
+   "home_odds": 350,
+   "away_odds": -450
   },
-  "last_seen": "2026-11-09T20:15:38"
+  "last_seen": "2026-11-10T01:26:39"
  },
  "NYK @ BOS|2026-11-10T03:03": {
   "label": "NYK @ BOS",
