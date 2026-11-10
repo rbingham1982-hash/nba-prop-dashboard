@@ -5800,11 +5800,107 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7654,
-   "odds": -390,
-   "home_odds": -390,
-   "away_odds": 310
+   "fav_prob": 0.8192,
+   "odds": -590,
+   "home_odds": -590,
+   "away_odds": 430
   },
-  "last_seen": "2026-11-09T00:44:52"
+  "last_seen": "2026-11-09T20:15:38"
+ },
+ "ORL @ SAC|2026-11-11T03:10": {
+  "label": "ORL @ SAC",
+  "home_name": "Sacramento Kings",
+  "away_name": "Orlando Magic",
+  "start_time": "2026-11-11T03:10:00.000Z",
+  "first_seen": "2026-11-09T20:15:38",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6735,
+   "odds": -235,
+   "home_odds": 194,
+   "away_odds": -235
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6735,
+   "odds": -235,
+   "home_odds": 194,
+   "away_odds": -235
+  },
+  "last_seen": "2026-11-09T20:15:38"
+ },
+ "MIL @ NYK|2026-11-11T00:40": {
+  "label": "MIL @ NYK",
+  "home_name": "New York Knicks",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-11T00:40:00.000Z",
+  "first_seen": "2026-11-09T20:15:38",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.887,
+   "odds": -1200,
+   "home_odds": -1200,
+   "away_odds": 750
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.887,
+   "odds": -1200,
+   "home_odds": -1200,
+   "away_odds": 750
+  },
+  "last_seen": "2026-11-09T20:15:38"
+ },
+ "MIA @ UTA|2026-11-11T02:10": {
+  "label": "MIA @ UTA",
+  "home_name": "Utah Jazz",
+  "away_name": "Miami Heat",
+  "start_time": "2026-11-11T02:10:00.000Z",
+  "first_seen": "2026-11-09T20:15:38",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.7995,
+   "odds": -490,
+   "home_odds": 380,
+   "away_odds": -490
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.7995,
+   "odds": -490,
+   "home_odds": 380,
+   "away_odds": -490
+  },
+  "last_seen": "2026-11-09T20:15:38"
+ },
+ "NYK @ BOS|2026-11-10T03:03": {
+  "label": "NYK @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "New York Knicks",
+  "start_time": "2026-11-10T03:03:00.000Z",
+  "first_seen": "2026-11-09T20:15:38",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6832,
+   "odds": -290,
+   "home_odds": -290,
+   "away_odds": 190
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6832,
+   "odds": -290,
+   "home_odds": -290,
+   "away_odds": 190
+  },
+  "last_seen": "2026-11-09T20:15:38"
  }
 }
