@@ -877,6 +877,7 @@ def anchor_sprite(t, mood, prev, since, mouth, size=340):
 # without a clip keep the silent desk open. The clip's own audio is the narration.
 _DESK = pathlib.Path.home() / ".konjure" / "host" / "desk"
 DESK_OPEN = {"results": "open-results", "top5": "open-top5", "gtg": "open-gtg", "btm": "open-btm",
+             "picks": "open-picks", "nfl-picks": "open-nfl-picks",
              "nfl-td": "open-nfl-td", "nfl-results": "open-nfl-results", "nfl-top5": "open-nfl-top5"}
 
 
@@ -2125,37 +2126,40 @@ def nfl_top5_short(sunday: datetime.date | None = None) -> pathlib.Path:
 # our model's probability. The opening card carries the running record so a bad stretch is on
 # screen, not buried; each pick shows the market's number beside ours and one note each way.
 
-def _speak_note(text):
+def _speak_note(text, sport="nba"):
     import re
     m = re.match(r"^([A-Z]{2,3}) allow (.*)$", text)
     if m:
-        text = f"{_cap(_tm(m.group(1), 'nba')[1])} allow {m.group(2)}"
+        text = f"{_cap(_tm(m.group(1), sport)[1])} allow {m.group(2)}"
+    text = re.sub(r"\s*\([^)]*\)", "", text)          # the game-by-game list stays on screen, unread
     return text.replace(" · ", ", ")
 
 
-def _pick_scene_nba(rank, pk, photo, credit):
+def _pick_scene_nba(rank, pk, photo, credit, sport="nba"):
     word = {"Points": "points", "Rebounds": "rebounds", "Assists": "assists", "3-PT Made": "threes",
             "Pts+Rebs+Asts": "points, rebounds and assists"}.get(pk["stat_type"], pk["stat_type"].lower())
     m, k = pk["model_prob"] * 100, pk["market_prob"] * 100
     plus = next((t for kind, t in pk["notes"] if kind == "+"), "")
     risk = next((t for kind, t in pk["notes"] if kind == "!"), "")
     line = (f"Number {rank}. {pk['player']}, {pk['side']} {pk['line']:g} {word}, {_say_odds(pk['american_odds'])}. "
-            f"{_speak_note(plus)}. The market says {k:.0f} percent. Our model, {m:.0f}.")
+            f"{_speak_note(plus, sport)}. The market says {k:.0f} percent. Our model, {m:.0f}.")
     initials = "".join(p_[0] for p_ in pk["player"].replace(".", "").split()[:2]).upper()
     away, home = [x.strip() for x in pk["game"].split("@")]
-    short = {"Points": "PTS", "Rebounds": "REB", "Assists": "AST", "3-PT Made": "3PM",
-             "Pts+Rebs+Asts": "PRA"}.get(pk["stat_type"], "")
+    short = {"Points": "PTS", "Rebounds": "REB", "Assists": "AST", "3-PT Made": "3PM", "Pts+Rebs+Asts": "PRA",
+             "Passing Yards": "PASS YDS", "Passing TDs": "PASS TD", "Rushing Yards": "RUSH YDS",
+             "Receiving Yards": "REC YDS", "Receptions": "REC", "Completions": "CMP", "Interceptions": "INT",
+             "Rushing Attempts": "CARRIES", "Pass Attempts": "ATT"}.get(pk["stat_type"], "")
 
     def draw(img, d, t, sc):
         pr = prog(t, 0.0, 0.25)
         put(img, hexplate(250, 170, ORANGE if rank == 1 else (14, 14, 16), WHITE, f"#{rank}", 130,
                           BLACK if rank == 1 else ORANGE), 820, 360, scale=2.2 - 1.2 * out_back(pr), alpha=min(1, pr * 3))
         pp = out_cubic(prog(t, 0.12, 0.5))
-        put(img, photo_frame(photo, pk["team"], initials, 430, "nba"), -300 + pp * 630, 520, angle=(1 - pp) * 12)
+        put(img, photo_frame(photo, pk["team"], initials, 430, sport), -300 + pp * 630, 520, angle=(1 - pp) * 12)
         if credit:
             cl = layer(credit, 22, (200, 200, 205), head=False, stroke=2)
             put(img, cl, max(330, cl.width / 2 + 44), 770, alpha=prog(t, 0.5, 0.8))
-        put(img, split_tile(away, home, 150, "nba"), 820, 560, scale=out_back(prog(t, 0.3, 0.55)))
+        put(img, split_tile(away, home, 150, sport), 820, 560, scale=out_back(prog(t, 0.3, 0.55)))
         pn = out_cubic(prog(t, 0.35, 0.65))
         put(img, hexplate(980, 120, (14, 14, 16), ORANGE,
                           f"{pk['player'].upper()}  {pk['side'].upper()} {pk['line']:g} {short}",
@@ -2220,9 +2224,90 @@ def picks_short(day: datetime.date | None = None) -> pathlib.Path:
     return out
 
 
+def nfl_picks_short(day: datetime.date | None = None) -> pathlib.Path:
+    """Sunday's top 5 NFL picks: the weekly board's five legs (saved Friday, graded Monday by
+    weekly_picks) on that day's games, counted down, opening on the season's leg record."""
+    global SPORT
+    SPORT = "nfl"
+    import json
+    import nfl_analysis as nfl
+    day = day or datetime.date.today()
+    games = _sunday_games(day)
+    if games.empty:
+        raise SystemExit(f"no NFL games on {day}")
+    week, season = int(games["week"].iloc[0]), int(games["season"].iloc[0])
+    allw = json.loads((ROOT / "weekly_picks.json").read_text(encoding="utf-8"))
+    e = allw.get(f"{season}-{week:02d}") or {}
+    legs = e.get("parlay") or e.get("parlay_withheld") or []
+    label = {(r.away_team, r.home_team) for r in games.itertuples()}
+    teams = {t for pair in label for t in pair}
+    wk = nfl._load_weekly(season)
+    wk = wk.assign(_k=wk["player_display_name"].map(nfl._name_key))
+    picks = []
+    for l in legs:
+        me = wk[wk["_k"] == nfl._name_key(l["player"])].sort_values("week")
+        if me.empty or str(me["team"].iloc[-1]) not in teams:
+            continue
+        team = str(me["team"].iloc[-1])
+        away, home = next(pair for pair in label if team in pair)
+        col = nfl.PROP_STATS.get(l["stat_type"], (None,))[0]
+        vals = [int(v) for v in me[col].fillna(0).tail(6)] if col in me else []
+        over = l["side"] == "over"
+        hits = sum((v > l["line"]) if over else (v < l["line"]) for v in vals)
+        m = l.get("matchup") or {}
+        notes = []
+        if m and m.get("tilt", 0) >= 0:
+            notes.append(("+", f"{m['opp']} allow {m['allowed']:.1f} to {m['role']}s against a {m['avg']:.1f} average"))
+        if vals:
+            notes.append(("+" if hits >= len(vals) / 2 else "!",
+                          f"{'Over' if over else 'Under'} in {hits} of his last {len(vals)} ({', '.join(map(str, vals))})"))
+        if m and m.get("tilt", 0) < 0:
+            notes.append(("!", f"{m['opp']} allow {m['allowed']:.1f} to {m['role']}s, more than the {m['avg']:.1f} average"))
+        notes.append(("!", "Our model hasn't beaten the market: research, not a sure thing"))
+        side = "over" if over else "under"
+        picks.append({"player": l["player"], "stat_type": l["stat_type"], "line": float(l["line"]), "side": side,
+                      "american_odds": int(l["american_odds"]), "team": team, "game": f"{away} @ {home}",
+                      "game_hdr": f"{away} @ {home}  ·  SUNDAY", "notes": notes,
+                      "model_prob": float(l.get("model_prob") or l.get("blended_prob")),
+                      "market_prob": float(l.get("implied_prob") or l.get("blended_prob"))})
+    if len(picks) < 3:
+        raise SystemExit(f"{day}: fewer than 3 board picks on Sunday's games")
+    picks.sort(key=lambda r: -r["model_prob"])
+    done = [x for w_ in allw.values() for x in (w_.get("parlay") or w_.get("parlay_withheld") or [])
+            if x.get("outcome") in ("win", "loss")]
+    wins = sum(x["outcome"] == "win" for x in done)
+    sub = (f"SEASON RECORD: {wins}-{len(done) - wins}  ·  GRADED MONDAY" if done else "GRADED MONDAY")
+    say = f"So far this season, these picks are {wins} and {len(done) - wins}." if done else ""
+    scenes = [_ordinal_scene_title("TOP 5 PICKS", "SUNDAY'S", "TOP 5", sub,
+                                   f"Sunday's top 5 picks. Every one was logged before kickoff and gets graded on "
+                                   f"Monday. {say}")]
+    for rank in range(len(picks), 0, -1):
+        pk = picks[rank - 1]
+        ph, cr = player_photo(pk["player"], "nfl")
+        scenes.append(_pick_scene_nba(rank, pk, ph, cr, sport="nfl"))
+    scenes.append(_cta([("ALL FIVE", WHITE, 0.15), ("GRADED", WHITE, 0.45), ("ON MONDAY", ORANGE, 0.75)],
+                       "KONJUREANALYTICS.COM", "21+  ·  NOT BETTING ADVICE",
+                       "We grade all five on Monday, wins and losses. Our model hasn't beaten the market yet, and we'll "
+                       "show you either way. Twenty-one and over. Not betting advice."))
+    SPORT = "nfl"
+    out = OUT / f"short-nfl-picks-{day.isoformat()}.mp4"
+    render(scenes, f"NFL TOP 5 PICKS  WEEK {week}", out, fmt="nfl-picks")
+    SPORT = "nba"
+    out.with_suffix(".txt").write_text(
+        f"Sunday's top 5 NFL picks, Week {week}. Saved before kickoff, graded Monday.\n"
+        + (f"Season record of these picks: {wins}-{len(done) - wins}.\n" if done else "") + "\n"
+        + "".join(f"#{i + 1} {pk['player']} {pk['side']} {pk['line']:g} {pk['stat_type']} ({pk['american_odds']:+d}) - "
+                  f"market {pk['market_prob'] * 100:.0f}%, our model {pk['model_prob'] * 100:.0f}%\n"
+                  for i, pk in enumerate(picks))
+        + "\nThe five likeliest legs on our weekly board, after the matchup veto. Our model has not beaten the "
+          "market; treat these as research, not advice.\nhttps://konjureanalytics.com\n21+. Not betting advice. "
+          "1-800-GAMBLER.\n", encoding="utf-8")
+    return out
+
+
 FORMATS = {"results": results_short, "top5": top5_short, "gtg": gtg_short, "btm": btm_short,
            "nfl-td": nfl_td_short, "nfl-results": nfl_results_short, "nfl-top5": nfl_top5_short,
-           "picks": picks_short}
+           "picks": picks_short, "nfl-picks": nfl_picks_short}
 
 
 if __name__ == "__main__":

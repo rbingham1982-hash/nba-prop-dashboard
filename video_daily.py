@@ -82,6 +82,9 @@ def _jobs(slot: str, today: datetime.date) -> list:
             day = "Sunday" if today.weekday() == 6 else "Thursday Night"
             jobs.append(("nfl-td", today, "nfl_td_short",
                          lambda p: f"{day} NFL Touchdown Board {md(today)}: Model vs Market #Shorts", NFL_TAGS))
+        if today.weekday() == 6:                                      # Sunday: the board's five picks
+            jobs.append(("nfl-picks", today, "nfl_picks_short",
+                         lambda p: f"Top 5 NFL Picks for Sunday {md(today)}: Logged & Graded #Shorts", NFL_TAGS))
         if today.weekday() == 0:                                      # Monday: Sunday's games
             def res_title(p):
                 m = re.search(r"Week (\d+) Sunday: (\d+-\d+)", _desc(p))
@@ -93,7 +96,7 @@ def _jobs(slot: str, today: datetime.date) -> list:
     elif slot == "afternoon":
         jobs.append(("picks", today, "picks_short", lambda p: f"Top 5 NBA Picks Tonight {md(today)}: Logged & Graded #Shorts",
                      NBA_TAGS))
-        if today.weekday() != 0:                      # Monday's five morning uploads leave room for one
+        if today.weekday() not in (0, 6):             # Sun/Mon mornings already use five of ~6 uploads
             jobs.append(("btm", today, "btm_short",
                          lambda p: f"Beat the Market {md(today)}: Tonight's 5 NBA Props #Shorts", NBA_TAGS))
     return jobs
