@@ -94,15 +94,24 @@ def posting_kit(fmt: str, day, path, title: str, desc: str) -> pathlib.Path:
     tags = _SOCIAL_TAGS["nfl" if fmt.startswith("nfl") else "nba"]
     legal = "21+. Not betting advice." if fmt in _BETTING else ""
     x_tail = " ".join(x for x in (legal, "#NFL" if fmt.startswith("nfl") else "#NBA") if x)
+    # Buffer composer: one post, a tab per channel. Instagram takes no clickable links (bio),
+    # Threads allows one, X counts every character (a link counts as 23).
+    x_post = f"{hook}\n{_utm('x', fmt, day)}\n{x_tail}"
+    if len(hook) + 24 + len(x_tail) + 2 > 280:
+        x_post = f"{hook[:280 - 24 - len(x_tail) - 3]}\n{_utm('x', fmt, day)}\n{x_tail}"
+    threads = f"{hook}\n\n{summary}\n\n{_utm('threads', fmt, day)}\n{legal}".strip()[:500]
     text = (
-        f"=== TikTok (link in bio: konjureanalytics.com) ===\n{hook}\n\n{summary}\n"
-        f"Every result graded in public. Link in bio.\n{legal}\n{tags} #fyp\n\n"
-        f"=== Instagram Reels (link in bio) ===\n{hook}\n\n{summary}\nEvery result, graded in public: link in bio.\n"
+        f"##### BUFFER: one post, a tab per channel. Attach {path.name} to all three. #####\n\n"
+        f"=== Instagram (Reel; link in bio) ===\n{hook}\n\n{summary}\nEvery result, graded in public: link in bio.\n"
         f"{legal}\n{tags}\n\n"
-        f"=== X ===\n{hook}\n{_utm('x', fmt, day)}\n{x_tail}\n\n"
+        f"=== Threads ===\n{threads}\n\n"
+        f"=== X ===\n{x_post}\n\n"
+        f"##### Other platforms #####\n\n"
+        f"=== TikTok (link in bio) ===\n{hook}\n\n{summary}\n"
+        f"Every result graded in public. Link in bio.\n{legal}\n{tags} #fyp\n\n"
         f"=== Facebook Reels ===\n{hook}\n\n{summary}\n{_utm('facebook', fmt, day)}\n{legal}\n\n"
         f"=== Bio links (set once per platform) ===\n"
-        f"TikTok: {_utm('tiktok', 'bio')}\nInstagram: {_utm('instagram', 'bio')}\n")
+        f"Instagram: {_utm('instagram', 'bio')}\nTikTok: {_utm('tiktok', 'bio')}\n")
     (out / "captions.txt").write_text(text.replace("\n\n\n", "\n\n"), encoding="utf-8")
     return out
 
