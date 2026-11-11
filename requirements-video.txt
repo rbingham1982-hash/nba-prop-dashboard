@@ -1,0 +1,9 @@
+# YouTube Shorts pipeline (video_builder.py, video_daily.py, youtube_upload.py).
+# Kept apart from requirements.txt so the Streamlit app doesn't install or load these.
+numpy
+pillow
+requests
+imageio-ffmpeg
+edge-tts
+google-api-python-client
+google-auth-oauthlib
