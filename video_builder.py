@@ -31,6 +31,7 @@ TTS service; before the channel monetizes, swap _tts() for a paid provider.
     python video_builder.py clone-voice RECORDING    # ElevenLabs instant clone of the owner's voice
     python video_builder.py gtg [YYYY-MM-DD]         # Guess the Grade: 3 of the day's challenge lines
     python video_builder.py btm [YYYY-MM-DD]         # Beat the Market: tonight's frozen five props
+    python video_builder.py picks [YYYY-MM-DD]       # tonight's top 5 NBA picks (logged, graded tomorrow)
     python video_builder.py nfl-td [YYYY-MM-DD]      # the day's NFL anytime-TD board (Sun / Thu)
     python video_builder.py nfl-results [SUNDAY]     # Sunday's NFL spread picks, graded (Mon)
     python video_builder.py nfl-top5 [SUNDAY]        # Sunday's top five graded NFL players (Mon)
@@ -2119,8 +2120,109 @@ def nfl_top5_short(sunday: datetime.date | None = None) -> pathlib.Path:
     return out
 
 
+# ── tonight's top 5 picks ─────────────────────────────────────────────────────────────────
+# The five from nba_top5_picks (frozen before tip, graded the next morning), counted down by
+# our model's probability. The opening card carries the running record so a bad stretch is on
+# screen, not buried; each pick shows the market's number beside ours and one note each way.
+
+def _speak_note(text):
+    import re
+    m = re.match(r"^([A-Z]{2,3}) allow (.*)$", text)
+    if m:
+        text = f"{_cap(_tm(m.group(1), 'nba')[1])} allow {m.group(2)}"
+    return text.replace(" · ", ", ")
+
+
+def _pick_scene_nba(rank, pk, photo, credit):
+    word = {"Points": "points", "Rebounds": "rebounds", "Assists": "assists", "3-PT Made": "threes",
+            "Pts+Rebs+Asts": "points, rebounds and assists"}.get(pk["stat_type"], pk["stat_type"].lower())
+    m, k = pk["model_prob"] * 100, pk["market_prob"] * 100
+    plus = next((t for kind, t in pk["notes"] if kind == "+"), "")
+    risk = next((t for kind, t in pk["notes"] if kind == "!"), "")
+    line = (f"Number {rank}. {pk['player']}, {pk['side']} {pk['line']:g} {word}, {_say_odds(pk['american_odds'])}. "
+            f"{_speak_note(plus)}. The market says {k:.0f} percent. Our model, {m:.0f}.")
+    initials = "".join(p_[0] for p_ in pk["player"].replace(".", "").split()[:2]).upper()
+    away, home = [x.strip() for x in pk["game"].split("@")]
+    short = {"Points": "PTS", "Rebounds": "REB", "Assists": "AST", "3-PT Made": "3PM",
+             "Pts+Rebs+Asts": "PRA"}.get(pk["stat_type"], "")
+
+    def draw(img, d, t, sc):
+        pr = prog(t, 0.0, 0.25)
+        put(img, hexplate(250, 170, ORANGE if rank == 1 else (14, 14, 16), WHITE, f"#{rank}", 130,
+                          BLACK if rank == 1 else ORANGE), 820, 360, scale=2.2 - 1.2 * out_back(pr), alpha=min(1, pr * 3))
+        pp = out_cubic(prog(t, 0.12, 0.5))
+        put(img, photo_frame(photo, pk["team"], initials, 430, "nba"), -300 + pp * 630, 520, angle=(1 - pp) * 12)
+        if credit:
+            cl = layer(credit, 22, (200, 200, 205), head=False, stroke=2)
+            put(img, cl, max(330, cl.width / 2 + 44), 770, alpha=prog(t, 0.5, 0.8))
+        put(img, split_tile(away, home, 150, "nba"), 820, 560, scale=out_back(prog(t, 0.3, 0.55)))
+        pn = out_cubic(prog(t, 0.35, 0.65))
+        put(img, hexplate(980, 120, (14, 14, 16), ORANGE,
+                          f"{pk['player'].upper()}  {pk['side'].upper()} {pk['line']:g} {short}",
+                          66 if len(pk["player"]) < 16 else 54, WHITE), W / 2 + (1 - pn) * W, 860)
+        put(img, layer(f"{pk['game_hdr'].upper()}  ·  {pk['american_odds']:+d}", 44, GOLD, stroke=4), W / 2, 955,
+            alpha=prog(t, 0.6, 0.85))
+        tk, tm = sc.cue("market", 0.6, last=False), sc.cue("model", 0.8, last=False)
+        for x, lab, v, at, col in ((290, "THE MARKET", k, tk, WHITE), (W - 290, "OUR MODEL", m, tm, GREEN)):
+            pc = out_back(prog(t, at, at + 0.25))
+            put(img, layer(lab, 34, MUTED, stroke=3), x, 1015, alpha=prog(t, at, at + 0.2))
+            put(img, hexplate(380, 120, (14, 14, 16), GOLD, f"{v:.0f}%", 84, col), x, 1090, scale=pc, alpha=min(1, pc * 2))
+        put(img, layer("+ " + plus, 30, GREEN, head=False, stroke=3), W / 2, 1175, alpha=prog(t, 1.0, 1.3))
+        put(img, layer("! " + risk, 30, GOLD, head=False, stroke=3), W / 2, 1215, alpha=prog(t, 1.4, 1.7))
+
+    return Scene(line, draw, min_dur=5.0, tail=0.9,
+                 sounds=lambda sc: [(0.02, "thud", 0.8), (0.15, "scratch", 0.4),
+                                    (sc.cue("market", 0.6, last=False), "pop", 0.6),
+                                    (sc.cue("model", 0.8, last=False), "pop", 0.6)],
+                 moods=lambda sc: [(0.0, "point"), (1.0, "talk")])
+
+
+def picks_short(day: datetime.date | None = None) -> pathlib.Path:
+    """Tonight's top 5 NBA picks: frozen and logged first, then counted down."""
+    global SPORT
+    SPORT = "nba"
+    import nba_top5_picks as tp
+    day = day or datetime.date.today()
+    picks = tp.log(day)
+    if not picks:
+        raise SystemExit(f"no top-5 picks for {day} (slate too thin, or already started)")
+    tp.grade(day)
+    rec = tp.record()
+    if rec["n"]:
+        sub = f"RECORD SO FAR: {rec['wins']}-{rec['losses']}  ·  GRADED EVERY MORNING"
+        say_rec = f"So far, these picks are {rec['wins']} and {rec['losses']}."
+        if rec["last"]:
+            say_rec = f"Last night, {rec['last'][1]} of {rec['last'][2]}. " + say_rec
+    else:
+        sub, say_rec = "DAY ONE OF THE RECORD  ·  GRADED EVERY MORNING", "This is day one of the record."
+    scenes = [_ordinal_scene_title("TOP 5 PICKS", "TONIGHT'S", "TOP 5", sub,
+                                   f"Tonight's top 5 picks. Every one is logged before tip-off and graded tomorrow. "
+                                   f"{say_rec}")]
+    for rank in range(len(picks), 0, -1):
+        pk = picks[rank - 1]
+        ph, cr = player_photo(pk["player"], "nba")
+        scenes.append(_pick_scene_nba(rank, pk, ph, cr))
+    scenes.append(_cta([("ALL FIVE", WHITE, 0.15), ("GRADED", WHITE, 0.45), ("TOMORROW", ORANGE, 0.75)],
+                       "KONJUREANALYTICS.COM", "21+  ·  NOT BETTING ADVICE",
+                       "We grade all five tomorrow morning, wins and losses. Our model hasn't beaten the market yet, "
+                       "and we'll show you either way. Twenty-one and over. Not betting advice."))
+    out = OUT / f"short-nba-picks-{day.isoformat()}.mp4"
+    render(scenes, f"TOP 5 PICKS  {day.month}/{day.day}", out, fmt="picks")
+    out.with_suffix(".txt").write_text(
+        f"Tonight's top 5 NBA picks, {day.strftime('%B')} {day.day}. Logged before tip-off, graded tomorrow.\n"
+        + (f"Record so far: {rec['wins']}-{rec['losses']}.\n" if rec["n"] else "Day one of the record.\n") + "\n"
+        + "".join(f"#{i + 1} {pk['title']} ({pk['american_odds']:+d}) - market {pk['market_prob'] * 100:.0f}%, "
+                  f"our model {pk['model_prob'] * 100:.0f}%\n" for i, pk in enumerate(picks))
+        + "\nPicks are props where our model and the market lean the same way and the matchup doesn't work against "
+          "them. Our model has not beaten the market; treat these as research, not advice.\n"
+          "Every pick, every result: https://konjureanalytics.com\n21+. Not betting advice. 1-800-GAMBLER.\n",
+        encoding="utf-8")
+    return out
+
+
 FORMATS = {"results": results_short, "top5": top5_short, "gtg": gtg_short, "btm": btm_short,
-           "nfl-td": nfl_td_short, "nfl-results": nfl_results_short, "nfl-top5": nfl_top5_short}
+           "nfl-td": nfl_td_short, "nfl-results": nfl_results_short, "nfl-top5": nfl_top5_short,
+           "picks": picks_short}
 
 
 if __name__ == "__main__":

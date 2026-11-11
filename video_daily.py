@@ -8,8 +8,10 @@ YouTube token live in ~/.konjure and never go into the repo.
                                             Guess the Grade for today.
                                             Sunday + Thursday: the day's NFL TD board (before kickoff).
                                             Monday: Sunday's NFL spread results + NFL top 5.
-  afternoon (KonjureVideoAfternoon, 16:30)  Beat the Market, once the site has frozen the day's
-                                            slate (it needs the site's Supabase credentials).
+  afternoon (KonjureVideoAfternoon, 16:30)  Tonight's top 5 NBA picks (frozen into a log first,
+                                            graded by the next morning's run), then Beat the Market
+                                            once the site has frozen its slate (needs the site's
+                                            Supabase credentials; skipped on Mondays for quota).
 
 Each run first does git pull --rebase --autostash, so whatever the cloud runner graded is here
 (autostash keeps uncommitted local edits, e.g. fantasy_log.json, as they were). Every Short is
@@ -89,8 +91,11 @@ def _jobs(slot: str, today: datetime.date) -> list:
                      ("nfl-top5", y, "nfl_top5_short", lambda p: f"Top 5 NFL Players From Sunday {md(y)}, Graded #Shorts",
                       NFL_TAGS)]
     elif slot == "afternoon":
-        jobs.append(("btm", today, "btm_short", lambda p: f"Beat the Market {md(today)}: Tonight's 5 NBA Props #Shorts",
+        jobs.append(("picks", today, "picks_short", lambda p: f"Top 5 NBA Picks Tonight {md(today)}: Logged & Graded #Shorts",
                      NBA_TAGS))
+        if today.weekday() != 0:                      # Monday's five morning uploads leave room for one
+            jobs.append(("btm", today, "btm_short",
+                         lambda p: f"Beat the Market {md(today)}: Tonight's 5 NBA Props #Shorts", NBA_TAGS))
     return jobs
 
 
@@ -101,6 +106,12 @@ def run(slot: str = "morning", today: datetime.date | None = None, upload: bool 
     if pulled.returncode:
         _log(f"git pull failed, building from local data: {pulled.stderr.strip()[:200]}")
     import video_builder as vb
+    if slot == "morning":
+        try:
+            import nba_top5_picks as tp
+            _log(f"top-5 picks graded: {tp.grade(today)}  record {tp.record()}")
+        except Exception:
+            _log(f"top-5 picks grading FAILED\n{traceback.format_exc()}")
     done = []
     for fmt, day, builder, title_fn, tags in _jobs(slot, today):
         key = f"{fmt}-{day.isoformat()}"
