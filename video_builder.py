@@ -28,6 +28,7 @@ TTS service; before the channel monetizes, swap _tts() for a paid provider.
 
     python video_builder.py results [YYYY-MM-DD]     # results for that night (default: yesterday)
     python video_builder.py top5 [YYYY-MM-DD]        # players of the night, a 5-to-1 countdown
+    python video_builder.py clone-voice RECORDING    # ElevenLabs instant clone of the owner's voice
     python video_builder.py gtg [YYYY-MM-DD]         # Guess the Grade: 3 of the day's challenge lines
     python video_builder.py btm [YYYY-MM-DD]         # Beat the Market: tonight's frozen five props
     python video_builder.py nfl-td [YYYY-MM-DD]      # the day's NFL anytime-TD board (Sun / Thu)
@@ -475,12 +476,93 @@ def _ffmpeg() -> str:
     return imageio_ffmpeg.get_ffmpeg_exe()
 
 
+# The owner's cloned voice, from ElevenLabs, whenever ~/.konjure has both its API key and the
+# voice id; otherwise the free preview voice. Never a mix inside one Short: an ElevenLabs
+# failure fails the build rather than falling back mid-video.
+_KDIR = pathlib.Path.home() / ".konjure"
+
+
+def _eleven():
+    k, v = _KDIR / "elevenlabs.key", _KDIR / "elevenlabs_voice_id"
+    if k.exists() and v.exists():
+        key, vid = k.read_text().strip(), v.read_text().strip()
+        if key and vid:
+            return key, vid
+    return None
+
+
+def _eleven_tts(text: str, key: str, vid: str) -> tuple[bytes, list]:
+    """mp3 bytes and word timings, from ElevenLabs' character alignment."""
+    import base64
+    import requests
+    for attempt in range(4):
+        r = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{vid}/with-timestamps",
+                          params={"output_format": "mp3_44100_128"},
+                          headers={"xi-api-key": key, "Content-Type": "application/json"},
+                          json={"text": text, "model_id": "eleven_multilingual_v2",
+                                "voice_settings": {"stability": 0.45, "similarity_boost": 0.85,
+                                                   "style": 0.3, "use_speaker_boost": True}},
+                          timeout=90)
+        if r.status_code == 200:
+            break
+        if r.status_code in (401, 403, 404, 422) or attempt == 3:
+            raise RuntimeError(f"ElevenLabs {r.status_code}: {r.text[:200]}")
+        time.sleep(3 + 3 * attempt)
+    j = r.json()
+    al = j.get("alignment") or j.get("normalized_alignment") or {}
+    chars, st, en = al.get("characters", []), al.get("character_start_times_seconds", []), \
+        al.get("character_end_times_seconds", [])
+    words, cur, s0, e0 = [], "", None, None
+    for c, a, b in zip(chars, st, en):
+        if c.isspace():
+            if cur:
+                words.append((s0, e0, cur.strip(".,!?;:\"'")))
+            cur, s0 = "", None
+            continue
+        if s0 is None:
+            s0 = a
+        cur, e0 = cur + c, b
+    if cur:
+        words.append((s0, e0, cur.strip(".,!?;:\"'")))
+    return base64.b64decode(j["audio_base64"]), [w for w in words if w[2]]
+
+
+def clone_voice(recording: str, name: str = "Konjure Desk") -> str:
+    """Create an ElevenLabs instant voice clone from the owner's recording; saves its voice id."""
+    import requests
+    key = (_KDIR / "elevenlabs.key").read_text().strip()
+    with open(recording, "rb") as f:
+        r = requests.post("https://api.elevenlabs.io/v1/voices/add", headers={"xi-api-key": key},
+                          data={"name": name, "description": "Konjure Analytics narration (owner's own voice)"},
+                          files={"files": (pathlib.Path(recording).name, f)}, timeout=180)
+    r.raise_for_status()
+    vid = r.json()["voice_id"]
+    (_KDIR / "elevenlabs_voice_id").write_text(vid)
+    return vid
+
+
 def _tts(text: str) -> tuple[np.ndarray, list]:
     """(mono float audio at SR, [(start_s, end_s, word)]). Cached on disk; the free service
     drops requests in bursts, so it backs off rather than hammering."""
     import edge_tts
     import hashlib
     import json
+
+    el = _eleven()
+    if el:
+        cache = _KDIR / "tts_cache"
+        cache.mkdir(parents=True, exist_ok=True)
+        ck = hashlib.sha1(f"eleven|{el[1]}|{text}".encode()).hexdigest()[:20]
+        mp3_p, words_p = cache / f"{ck}.mp3", cache / f"{ck}.json"
+        if mp3_p.exists() and words_p.exists():
+            mp3, words = mp3_p.read_bytes(), [tuple(w) for w in json.loads(words_p.read_text())]
+        else:
+            mp3, words = _eleven_tts(text, *el)
+            mp3_p.write_bytes(mp3)
+            words_p.write_text(json.dumps(words))
+        pcm = subprocess.run([_ffmpeg(), "-loglevel", "error", "-i", "pipe:0", "-ac", "1", "-ar", str(SR),
+                              "-f", "s16le", "pipe:1"], input=mp3, capture_output=True, check=True).stdout
+        return np.frombuffer(pcm, dtype=np.int16).astype(np.float32) / 32768.0, words
 
     async def go(text=text):
         c = edge_tts.Communicate(text, VOICE, rate=_RATE, boundary="WordBoundary")
@@ -769,7 +851,9 @@ class Scene:
         return cur, prev, since, mouth
 
     def cue(self, word, default=0.6, last=True):
-        hits = [w[0] for w in self.words if w[2].strip(".,").lower() == word.lower()]
+        # "That's" counts as "That": ElevenLabs keeps contractions as one word
+        hits = [w[0] for w in self.words
+                if word.lower() in (w[2].strip(".,").lower(), w[2].strip(".,").lower().split("'")[0])]
         return (hits[-1] if last else hits[0]) if hits else self.dur * default
 
     def shake(self, t):
@@ -1883,7 +1967,9 @@ FORMATS = {"results": results_short, "top5": top5_short, "gtg": gtg_short, "btm"
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] in FORMATS:
+    if len(sys.argv) > 2 and sys.argv[1] == "clone-voice":
+        print("voice id saved:", clone_voice(sys.argv[2]))
+    elif len(sys.argv) > 1 and sys.argv[1] in FORMATS:
         n = datetime.date.fromisoformat(sys.argv[2]) if len(sys.argv) > 2 else None
         print(FORMATS[sys.argv[1]](n))
     else:
