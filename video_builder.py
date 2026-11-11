@@ -863,13 +863,87 @@ def anchor_sprite(t, mood, prev, since, mouth, size=340):
     return out
 
 
+
+# ── the talking desk: lip-synced clips of the anchor, made once and reused ───────────────
+# ~/.konjure/host/desk/<name>.mp4 are OmniHuman clips of the desk avatar speaking a fixed line
+# in the owner's cloned voice (generated in Picsart, one per format plus a sign-off), and
+# desk.json holds each line's text so the captions can use its word timings. A Short whose
+# format has one opens on it full screen, and every Short ends on the sign-off. Formats
+# without a clip keep the silent desk open. The clip's own audio is the narration.
+_DESK = pathlib.Path.home() / ".konjure" / "host" / "desk"
+DESK_OPEN = {"results": "open-results", "top5": "open-top5", "gtg": "open-gtg", "btm": "open-btm",
+             "nfl-td": "open-nfl-td", "nfl-results": "open-nfl-results", "nfl-top5": "open-nfl-top5"}
+
+
+def _desk_clip(name):
+    p = _DESK / f"{name}.mp4"
+    return p if p.exists() else None
+
+
+class _ClipReader:
+    """Frames of a clip at 30 fps, 1080x1920, read in order as the render asks for them."""
+
+    def __init__(self, path):
+        self.path, self.proc, self.i, self.last = path, None, -1, None
+
+    def frame(self, k):
+        if self.proc is None:
+            self.proc = subprocess.Popen([_ffmpeg(), "-loglevel", "error", "-i", str(self.path), "-vf",
+                                          f"fps={FPS},scale=-2:{H},crop={W}:{H}", "-f", "rawvideo",
+                                          "-pix_fmt", "rgb24", "pipe:1"], stdout=subprocess.PIPE)
+        while self.i < k:
+            raw = self.proc.stdout.read(W * H * 3)
+            if len(raw) < W * H * 3:
+                break                                   # past the end: hold the last frame
+            self.last, self.i = Image.frombuffer("RGB", (W, H), raw), self.i + 1
+        return self.last.copy() if self.last is not None else Image.new("RGB", (W, H), CHAR)
+
+
+def _talk_scene(name, kicker, sub):
+    import json
+    path = _desk_clip(name)
+    meta = json.loads((_DESK / "desk.json").read_text(encoding="utf-8")).get(name, {}) \
+        if (_DESK / "desk.json").exists() else {}
+    reader = _ClipReader(path)
+
+    def draw(img, d, t, sc):
+        img.paste(reader.frame(int(t * FPS)), (0, 0))
+        p = out_cubic(prog(t, 0.15, 0.45))
+        # lower third below the captions (which sit at ~1262-1360)
+        put(img, hexplate(760, 110, (14, 14, 16), ORANGE, kicker, 76 if len(kicker) < 16 else 60, ORANGE),
+            440 - (1 - p) * 900, 1500)
+        if sub:
+            put(img, layer(sub, 46, WHITE, stroke=5), 440 - (1 - prog(t, 0.3, 0.6)) * 900, 1590)
+        if int(t * 2) % 2 == 0:
+            d.ellipse((96, 1648, 120, 1672), fill=(235, 40, 40))
+        put(img, layer("LIVE", 36, (235, 40, 40), stroke=3), 162, 1660, alpha=prog(t, 0.3, 0.5))
+
+    sc = Scene("", draw, min_dur=0.1, sounds=lambda sc: [(0.0, "thud", 0.6)])
+    sc.no_host = True
+
+    def voice():
+        pcm = subprocess.run([_ffmpeg(), "-loglevel", "error", "-i", str(path), "-vn", "-ac", "1", "-ar", str(SR),
+                              "-f", "s16le", "pipe:1"], capture_output=True, check=True).stdout
+        sc.audio = np.frombuffer(pcm, dtype=np.int16).astype(np.float32) / 32768.0
+        sc.dur = len(sc.audio) / SR + 0.15
+        sc.mouth = np.zeros(1)
+        sc.words = []
+        if meta.get("text"):                           # captions from the line's own word timings
+            _, w = _tts(meta["text"])
+            off = float(meta.get("pad", 0.25))
+            sc.words = [(a + off, b + off, x) for a, b, x in w]
+
+    sc.voice = voice
+    return sc
+
 # ── scenes + render ───────────────────────────────────────────────────────────────────────
 
 class Scene:
     """narration + draw(img, d, t, sc). After voicing: .audio, .words, .dur, and .cue(word)
     for the time a word is spoken, so animation can land on it."""
 
-    def __init__(self, narration, draw, min_dur=0.0, tail=0.45, sounds=None, shake_at=None, moods=None):
+    def __init__(self, narration, draw, min_dur=0.0, tail=0.45, sounds=None, shake_at=None, moods=None, tag=""):
+        self.tag = tag
         self.narration, self.draw, self.min_dur, self.tail = narration, draw, min_dur, tail
         self.sounds = sounds or (lambda sc: [])
         self.shake_at = shake_at
@@ -933,9 +1007,16 @@ def _desk_open(title: str):
     return sc
 
 
-def render(scenes: list, title: str, out: pathlib.Path) -> pathlib.Path:
-    if HOST and _anchor_clip():
-        scenes = [_desk_open(title)] + list(scenes)
+def render(scenes: list, title: str, out: pathlib.Path, fmt: str | None = None) -> pathlib.Path:
+    scenes = list(scenes)
+    if HOST and fmt and _desk_clip(DESK_OPEN.get(fmt, "")):
+        scenes = [_talk_scene(DESK_OPEN[fmt], "KONJURE DESK", title)] + scenes
+    elif HOST and _anchor_clip():
+        scenes = [_desk_open(title)] + scenes
+    if HOST and _desk_clip("signoff"):
+        if getattr(scenes[-1], "tag", "") == "cta_results":
+            scenes = scenes[:-1]                      # the sign-off says the same thing, on camera
+        scenes.append(_talk_scene("signoff", "KONJUREANALYTICS.COM", "21+  ·  NOT BETTING ADVICE"))
     for sc in scenes:
         sc.voice()
     starts, t0 = [], 0.0
@@ -1181,7 +1262,7 @@ def _cta_scene(nfl=False):
     return Scene("Every pick, every result, at Konjure Analytics dot com. "
                  + ("Follow for next week's picks, graded the same way. " if nfl else
                     "Follow to see tonight's picks graded tomorrow. ") + "Not betting advice.", draw, min_dur=4.5, tail=0.8, sounds=sounds,
-                 moods=lambda sc: [(0.0, "point"), (2.0, "talk")])
+                 moods=lambda sc: [(0.0, "point"), (2.0, "talk")], tag="cta_results")
 
 
 def results_short(night: datetime.date | None = None) -> pathlib.Path:
@@ -1203,7 +1284,7 @@ def results_short(night: datetime.date | None = None) -> pathlib.Path:
     scenes = ([_title_scene(wins, losses, [g["outcome"] for g in pub])]
               + [_pick_scene(i, len(pub), g) for i, g in enumerate(pub, 1)]
               + [_record_scene(r["ats"], be), _cta_scene()])
-    return render(scenes, title, OUT / f"short-nba-results-{night.isoformat()}.mp4")
+    return render(scenes, title, OUT / f"short-nba-results-{night.isoformat()}.mp4", fmt="results")
 
 
 # ── free-licence player photos ────────────────────────────────────────────────────────────
@@ -1475,7 +1556,7 @@ def top5_short(night: datetime.date | None = None) -> pathlib.Path:
         scenes.append(_player_scene(rank, rows[rank - 1], ph, cr))
     scenes.append(_top5_cta())
     out = OUT / f"short-nba-top5-{night.isoformat()}.mp4"
-    render(scenes, f"TOP 5 PLAYERS  {night.month}/{night.day}", out)
+    render(scenes, f"TOP 5 PLAYERS  {night.month}/{night.day}", out, fmt="top5")
     credits = [f"{r['PLAYER_NAME']}: {c.removeprefix('Photo: ')}" for r, (_, c) in zip(rows, shots) if c]
     desc = (f"The five best NBA players on {night.strftime('%B')} {night.day}, graded 0-100 against every "
             f"player-game from last season.\n\n"
@@ -1671,7 +1752,7 @@ def gtg_short(day: datetime.date | None = None) -> pathlib.Path:
                        "How'd you do? Two more mystery lines are waiting in today's full challenge. "
                        "Play free at Konjure Analytics dot com."))
     out = OUT / f"short-gtg-{day.isoformat()}.mp4"
-    render(scenes, f"GUESS THE GRADE  {day.month}/{day.day}", out)
+    render(scenes, f"GUESS THE GRADE  {day.month}/{day.day}", out, fmt="gtg")
     out.with_suffix(".txt").write_text(
         "Guess the grade: three real stat lines from this week, names hidden. Comment your guesses, 0-100.\n\n"
         + "".join(f"Round {i}: {r['player']} - {r['grade']} ({float(r['score']):.1f})\n" for i, r in enumerate(picks, 1))
@@ -1760,7 +1841,7 @@ def btm_short(day: datetime.date | None = None) -> pathlib.Path:
                        "Beat the book, beat our model. Play free before tip-off at Konjure Analytics dot com. "
                        "No prizes, just bragging rights."))
     out = OUT / f"short-btm-{day.isoformat()}.mp4"
-    render(scenes, f"BEAT THE MARKET  {day.month}/{day.day}", out)
+    render(scenes, f"BEAT THE MARKET  {day.month}/{day.day}", out, fmt="btm")
     out.with_suffix(".txt").write_text(
         "Tonight's Beat the Market: five NBA props. Pick over or under and how sure you are; you're scored "
         "against FanDuel's price with the margin taken out.\n\n"
@@ -1852,7 +1933,7 @@ def nfl_td_short(day: datetime.date | None = None) -> pathlib.Path:
                        "Not betting advice."))
     SPORT = "nfl"
     out = OUT / f"short-nfl-td-{day.isoformat()}.mp4"
-    render(scenes, f"NFL TD BOARD  {day.month}/{day.day}", out)
+    render(scenes, f"NFL TD BOARD  {day.month}/{day.day}", out, fmt="nfl-td")
     SPORT = "nba"
     out.with_suffix(".txt").write_text(
         f"{label.title()} anytime-touchdown board: our TD model beside FanDuel's price. Research, not picks.\n\n"
@@ -1902,7 +1983,7 @@ def nfl_results_short(sunday: datetime.date | None = None) -> pathlib.Path:
     scenes = [sc0] + [_pick_scene(i, len(pub), g) for i, g in enumerate(pub, 1)] + \
              [_record_scene(r2, float(rec.get("ats_breakeven") or 52.38)), _cta_scene(nfl=True)]
     out = OUT / f"short-nfl-results-{sunday.isoformat()}.mp4"
-    render(scenes, f"NFL RESULTS  WEEK {week}", out)
+    render(scenes, f"NFL RESULTS  WEEK {week}", out, fmt="nfl-results")
     SPORT = "nba"
     out.with_suffix(".txt").write_text(
         f"Every NFL spread pick is logged before kickoff and graded in public, losses included.\n\n"
@@ -2022,7 +2103,7 @@ def nfl_top5_short(sunday: datetime.date | None = None) -> pathlib.Path:
                        "Every player graded every week at Konjure Analytics dot com. Follow for Thursday night."))
     SPORT = "nfl"
     out = OUT / f"short-nfl-top5-{sunday.isoformat()}.mp4"
-    render(scenes, f"NFL TOP 5  WEEK {week}", out)
+    render(scenes, f"NFL TOP 5  WEEK {week}", out, fmt="nfl-top5")
     SPORT = "nba"
     credits = [f"{r['player']}: {c.removeprefix('Photo: ')}" for r, (_, c) in zip(rows, shots) if c]
     out.with_suffix(".txt").write_text(
