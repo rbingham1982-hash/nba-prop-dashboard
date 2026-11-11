@@ -770,15 +770,65 @@ def _anchor_path():
     return p if p.exists() else None
 
 
+# A short animated clip of the same desk shot (~/.konjure/host/anchor.mp4, no speech in it)
+# makes the host move: the corner cam loops it, and every Short opens on it full screen for a
+# beat before the narration starts. It is never shown full screen under the voice: a closed
+# mouth over narration is what would look fake. Crop box is the still's, scaled to the clip.
+def _anchor_clip():
+    p = pathlib.Path.home() / ".konjure" / "host" / "anchor.mp4"
+    return p if p.exists() else None
+
+
+def _clip_frames(kind: str):
+    """The clip decoded once at 30 fps: 'cam' = the head-and-shoulders square for the corner,
+    'full' = the opening, 1080x1920. Returned as a list of RGB images."""
+    k = ("clip", kind)
+    if k in _LAYERS:
+        return _LAYERS[k]
+    src = _anchor_clip()
+    probe = subprocess.run([_ffmpeg(), "-i", str(src)], capture_output=True, text=True).stderr
+    import re
+    m = re.search(r"Video:.*?(\d{3,5})x(\d{3,5})", probe)
+    cw, ch = (int(m.group(1)), int(m.group(2))) if m else (1080, 1446)
+    if kind == "cam":
+        sx = cw / 1760.0                                       # the still is 1760 px wide
+        x0, y0, x1, y1 = (int(v * sx) for v in _ANCHOR_CROP)
+        size = 340
+        vf = f"fps=30,crop={x1 - x0}:{y1 - y0}:{x0}:{y0},scale={size}:{size}"
+        w_, h_ = size, size
+        extra = []
+    else:
+        vf = f"fps=30,scale=-2:{H},crop={W}:{H}"
+        w_, h_ = W, H
+        extra = ["-t", "1.8"]
+    raw = subprocess.run([_ffmpeg(), "-loglevel", "error", "-i", str(src), *extra, "-vf", vf, "-f", "rawvideo",
+                          "-pix_fmt", "rgb24", "pipe:1"], capture_output=True, check=True).stdout
+    n = len(raw) // (w_ * h_ * 3)
+    frames = [Image.frombuffer("RGB", (w_, h_), raw[i * w_ * h_ * 3:(i + 1) * w_ * h_ * 3]) for i in range(n)]
+    _LAYERS[k] = frames
+    return frames
+
+
+def _pingpong(frames, t):
+    n = len(frames)
+    if n < 2:
+        return frames[0]
+    i = int(t * FPS) % (2 * n - 2)
+    return frames[i if i < n else 2 * n - 2 - i]
+
+
 def anchor_sprite(t, mood, prev, since, mouth, size=340):
-    k = ("anchor_src", size)
-    if k not in _LAYERS:
-        im = Image.open(_anchor_path()).convert("RGB").crop(_ANCHOR_CROP)
-        _LAYERS[k] = im.resize((size + 40, size + 40), Image.LANCZOS)
-    src = _LAYERS[k]
-    ox = 20 + 14 * math.sin(t * 0.31)                        # slow camera drift
-    oy = 20 + 12 * math.cos(t * 0.23)
-    face = src.crop((int(ox), int(oy), int(ox) + size, int(oy) + size))
+    if _anchor_clip():
+        face = _pingpong(_clip_frames("cam"), t)
+    else:
+        k = ("anchor_src", size)
+        if k not in _LAYERS:
+            im = Image.open(_anchor_path()).convert("RGB").crop(_ANCHOR_CROP)
+            _LAYERS[k] = im.resize((size + 40, size + 40), Image.LANCZOS)
+        src = _LAYERS[k]
+        ox = 20 + 14 * math.sin(t * 0.31)                    # slow camera drift on the still
+        oy = 20 + 12 * math.cos(t * 0.23)
+        face = src.crop((int(ox), int(oy), int(ox) + size, int(oy) + size))
     col = {"celebrate": GREEN, "facepalm": RED, "shrug": GOLD}.get(mood, ORANGE)
     pulse = 0.5 + 0.5 * math.sin(t * 9) if mood == "celebrate" else 1.0
     strip, top = 64, 84                                      # nameplate height; headroom for the sticker
@@ -826,6 +876,10 @@ class Scene:
         self.moods = moods or (lambda sc: [(0.0, "talk")])     # the host's script for this scene
 
     def voice(self):
+        if not self.narration:                                   # a silent beat, e.g. the desk open
+            self.audio, self.words = np.zeros(int(self.min_dur * SR), dtype=np.float32), []
+            self.dur, self.mouth = self.min_dur, np.zeros(1)
+            return
         self.audio, self.words = _tts(self.narration)
         self.dur = max(self.min_dur, len(self.audio) / SR + self.tail)
         hop = SR // FPS                                          # loudness per frame drives the mouth
@@ -863,7 +917,25 @@ class Scene:
         return 14 * math.exp(-(t - at) * 9) if t >= at else 0.0
 
 
+def _desk_open(title: str):
+    """1.7 s of the anchor at the desk, full screen, under a lower third and a sting."""
+    def draw(img, d, t, sc):
+        img.paste(_pingpong(_clip_frames("full"), t), (0, 0))
+        p = out_cubic(prog(t, 0.15, 0.45))
+        put(img, hexplate(760, 120, (14, 14, 16), ORANGE, "KONJURE DESK", 82, ORANGE), 60 + 380 - (1 - p) * 900, 1380)
+        put(img, layer(title, 52, WHITE, stroke=5), 60 + 380 - (1 - prog(t, 0.3, 0.6)) * 900, 1478)
+        if int(t * 2) % 2 == 0:
+            d.ellipse((96, 1556, 124, 1584), fill=(235, 40, 40))
+        put(img, layer("LIVE", 40, (235, 40, 40), stroke=3), 170, 1570, alpha=prog(t, 0.3, 0.5))
+
+    sc = Scene("", draw, min_dur=1.7, sounds=lambda sc: [(0.0, "thud", 0.7), (0.12, "scratch", 0.5)])
+    sc.no_host = True
+    return sc
+
+
 def render(scenes: list, title: str, out: pathlib.Path) -> pathlib.Path:
+    if HOST and _anchor_clip():
+        scenes = [_desk_open(title)] + list(scenes)
     for sc in scenes:
         sc.voice()
     starts, t0 = [], 0.0
@@ -926,7 +998,7 @@ def _frames(scenes, starts, total, title, proc):
         img = background(tg, sc.shake(t))
         d = ImageDraw.Draw(img)
         sc.draw(img, d, t, sc)
-        if HOST:
+        if HOST and not getattr(sc, "no_host", False):
             mood, prev, since, mouth = sc.host_state(t)
             if _anchor_path():
                 put(img, anchor_sprite(tg, mood, prev, since, mouth), W - 225, 1583)
