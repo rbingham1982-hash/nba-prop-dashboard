@@ -86,9 +86,19 @@ def posting_kit(fmt: str, day, path, title: str, desc: str) -> pathlib.Path:
     formats carry the 21+ line; nothing links to a sportsbook (TikTok and Instagram restrict
     gambling content)."""
     import shutil
+    import subprocess as sp
     out = KIT / day.isoformat() / fmt
     out.mkdir(parents=True, exist_ok=True)
     shutil.copy(path, out / path.name)
+    # A 720p copy under 10 MB for browser uploads to Buffer; the apps re-compress anyway.
+    try:
+        import imageio_ffmpeg
+        sp.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(path), "-vf", "scale=720:1280",
+                "-c:v", "libx264", "-preset", "slow", "-b:v", "650k", "-maxrate", "800k", "-bufsize", "1600k",
+                "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart",
+                str(out / (path.stem + "-720.mp4"))], check=True, timeout=600)
+    except Exception:
+        pass
     hook = title.replace(" #Shorts", "").strip()
     summary = next((ln for ln in desc.splitlines() if ln.strip()), "")
     tags = _SOCIAL_TAGS["nfl" if fmt.startswith("nfl") else "nba"]
