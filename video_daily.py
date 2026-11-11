@@ -68,6 +68,79 @@ def _desc(path) -> str:
     return path.with_suffix(".txt").read_text(encoding="utf-8")
 
 
+KIT = pathlib.Path.home() / "Videos" / "Konjure Posting Kit"
+_BETTING = {"results", "picks", "btm", "nfl-td", "nfl-results", "nfl-picks"}
+_SOCIAL_TAGS = {"nba": "#NBA #basketball #nbastats #sportsanalytics",
+                "nfl": "#NFL #football #fantasyfootball #sportsanalytics"}
+
+
+def _utm(source: str, fmt: str, day=None) -> str:
+    camp = f"{fmt}-{day.isoformat()}" if day else fmt
+    return f"https://konjureanalytics.com/?utm_source={source}&utm_medium=social&utm_campaign={camp}"
+
+
+def posting_kit(fmt: str, day, path, title: str, desc: str) -> pathlib.Path:
+    """A folder per Short with the video and a caption for each platform, so cross-posting
+    to TikTok, Reels, X and Facebook is drag-and-drop (or a scheduler like Metricool/Buffer).
+    Every link is UTM-tagged by platform so the site's analytics can tell them apart. Betting
+    formats carry the 21+ line; nothing links to a sportsbook (TikTok and Instagram restrict
+    gambling content)."""
+    import shutil
+    out = KIT / day.isoformat() / fmt
+    out.mkdir(parents=True, exist_ok=True)
+    shutil.copy(path, out / path.name)
+    hook = title.replace(" #Shorts", "").strip()
+    summary = next((ln for ln in desc.splitlines() if ln.strip()), "")
+    tags = _SOCIAL_TAGS["nfl" if fmt.startswith("nfl") else "nba"]
+    legal = "21+. Not betting advice." if fmt in _BETTING else ""
+    x_tail = " ".join(x for x in (legal, "#NFL" if fmt.startswith("nfl") else "#NBA") if x)
+    text = (
+        f"=== TikTok (link in bio: konjureanalytics.com) ===\n{hook}\n\n{summary}\n"
+        f"Every result graded in public. Link in bio.\n{legal}\n{tags} #fyp\n\n"
+        f"=== Instagram Reels (link in bio) ===\n{hook}\n\n{summary}\nEvery result, graded in public: link in bio.\n"
+        f"{legal}\n{tags}\n\n"
+        f"=== X ===\n{hook}\n{_utm('x', fmt, day)}\n{x_tail}\n\n"
+        f"=== Facebook Reels ===\n{hook}\n\n{summary}\n{_utm('facebook', fmt, day)}\n{legal}\n\n"
+        f"=== Bio links (set once per platform) ===\n"
+        f"TikTok: {_utm('tiktok', 'bio')}\nInstagram: {_utm('instagram', 'bio')}\n")
+    (out / "captions.txt").write_text(text.replace("\n\n\n", "\n\n"), encoding="utf-8")
+    return out
+
+
+def _lead_title(fmt: str, path, fallback: str) -> str:
+    """A title that leads with the headline name (search finds "Paul George A+", not "Top 5
+    NBA Players 11/10"), read back from the Short's own description. Guess the Grade never
+    names anyone: the names are the answers."""
+    try:
+        desc = _desc(path)
+    except OSError:
+        return fallback
+    cap = lambda s: " ".join(w[:1].upper() + w[1:] for w in s.split())
+    if fmt in ("top5", "nfl-top5"):
+        m = re.search(r"#1 (.+?) \(.*?\) - ([A-F][+-]?), ([\d.]+)", desc)
+        if m:
+            where = "NBA" if fmt == "top5" else "NFL"
+            return f"{m.group(1)} {m.group(2)} ({m.group(3)}) Leads the Top 5 {where} Players {fallback} #Shorts"
+    if fmt == "picks":
+        m = re.search(r"#1 (.+?)\s+·\s+(.+?) \(([+-]\d+)\)", desc)
+        if m:
+            return f"{m.group(1)} {cap(m.group(2))} Leads Tonight's Top 5 NBA Picks {fallback} #Shorts"
+    if fmt == "nfl-picks":
+        m = re.search(r"#1 (.+?) (under|over) ([\d.]+) (.+?) \(", desc)
+        if m:
+            return f"{m.group(1)} {cap(m.group(2))} {m.group(3)} {m.group(4)}: Top 5 NFL Picks {fallback} #Shorts"
+    if fmt == "nfl-td":
+        m = re.search(r"#1 (.+?) \(", desc)
+        if m:
+            return f"{m.group(1)} Tops the NFL Touchdown Board {fallback}: Model vs Market #Shorts"
+    if fmt == "btm":
+        names = re.findall(r"^(.+?): [\d.]+ ", desc, re.M)
+        if len(names) >= 3:
+            last = [n.split()[-1] for n in names[:3]]
+            return f"{', '.join(last)}: Can You Beat the Market? {fallback} Free NBA Game #Shorts"
+    return None
+
+
 def _jobs(slot: str, today: datetime.date) -> list:
     """(key format, date, builder name, title fn, tags) for this slot and day."""
     y = today - datetime.timedelta(days=1)
@@ -102,6 +175,94 @@ def _jobs(slot: str, today: datetime.date) -> list:
     return jobs
 
 
+_ANNOUNCED = pathlib.Path.home() / ".konjure" / "youtube_announced.json"
+_COMMENTED = pathlib.Path.home() / ".konjure" / "youtube_commented.json"
+_RECORD = "konjureanalytics.com/record/"
+_CTA = {
+    "results": f"Every pick is logged before tip and graded right here, wins and losses. Full record: {_RECORD}"
+               " · 21+ · Not betting advice",
+    "nfl-results": f"Every pick is logged before kickoff and graded in public, wins and losses. Full record: {_RECORD}"
+                   " · 21+ · Not betting advice",
+    "top5": "Every player graded every night. Who did we get wrong? Full grades: konjureanalytics.com",
+    "nfl-top5": "Every player graded every week. Who did we get wrong? Full grades: konjureanalytics.com",
+    "picks": f"All five get graded tomorrow morning, right here. Which one hits? Record: {_RECORD}"
+             " · 21+ · Not betting advice",
+    "nfl-picks": f"All five get graded Monday, right here. Which one hits? Record: {_RECORD} · 21+ · Not betting advice",
+    "nfl-td": f"Who finds the end zone? This board gets graded after the games: {_RECORD} · 21+ · Not betting advice",
+    "btm": "Think you can beat the book? Play tonight's five free before tip-off: konjureanalytics.com"
+           " · No prizes, just bragging rights · 21+",
+}
+
+
+def engage(today: datetime.date | None = None) -> int:
+    """Comment from the channel on our Shorts once they are public: each format's call to action
+    (pin it in Studio; the API cannot pin), and on Guess the Grade the answers the day after.
+    Each comment goes out once. Quietly does nothing until comments are connected."""
+    import json
+    import youtube_upload as yu
+    import site_build as sb
+    today = today or datetime.date.today()
+    public = {v for v, _ in sb._shorts(15)}
+    done = set(json.loads(_COMMENTED.read_text())) if _COMMENTED.exists() else set()
+    n = 0
+    for key, row in yu.uploaded().items():
+        m = re.fullmatch(r"([a-z0-9-]+?)-(\d{4}-\d{2}-\d{2})", key)
+        if not m or row["id"] not in public:
+            continue
+        fmt, day = m.group(1), datetime.date.fromisoformat(m.group(2))
+        todo = []
+        if fmt == "gtg":
+            code = day.strftime("%Y%m%d")
+            todo.append((f"{row['id']}:cta", "Drop your three guesses (0-100)! Answers go up here tomorrow. Play today's "
+                                             f"full five free: konjureanalytics.com/app/?challenge={code}"))
+            if today > day:
+                try:
+                    lines = re.findall(r"^Round (\d): (.+?) - ([A-F][+-]?) \(([\d.]+)\)",
+                                       pathlib.Path(row["file"]).with_suffix(".txt").read_text(encoding="utf-8"), re.M)
+                except OSError:
+                    lines = []
+                if lines:
+                    todo.append((f"{row['id']}:answers", "Answers: " + " · ".join(
+                        f"Round {r}: {name}, {g} ({s})" for r, name, g, s in lines) + ". How close were you?"))
+        elif fmt in _CTA:
+            todo.append((f"{row['id']}:cta", _CTA[fmt]))
+        for tag, text in todo:
+            if tag in done:
+                continue
+            try:
+                yu.comment(row["id"], text)
+            except SystemExit:
+                return n                                  # comments not connected yet
+            except Exception:
+                _log(f"comment on {key} FAILED\n{traceback.format_exc()}")
+                continue
+            done.add(tag)
+            _COMMENTED.write_text(json.dumps(sorted(done)))
+            _log(f"commented on {key} ({tag.split(':')[1]})")
+            n += 1
+    return n
+
+
+def announce(dry_run: bool = False) -> list:
+    """Post every newly PUBLIC Short to Discord, once each. Run by hand: publishing to Discord
+    is the owner's call, the same rule as the daily cards. Reads the channel's public feed, so
+    a private upload is never announced."""
+    import json
+    import publish
+    import site_build as sb
+    seen = set(json.loads(_ANNOUNCED.read_text())) if _ANNOUNCED.exists() else set()
+    new = [(v, t) for v, t in reversed(sb._shorts(15)) if v not in seen]
+    if not new or dry_run:
+        return new
+    text = "**New on the Konjure desk**\n" + "\n".join(
+        f"▶ {t}\nhttps://www.youtube.com/shorts/{v}" for v, t in new) + "\n21+ · Not betting advice"
+    r = publish.post_webhook(text[:1990], "discord")
+    if r.get("ok"):
+        _ANNOUNCED.write_text(json.dumps(sorted(seen | {v for v, _ in new})))
+    _log(f"announce: {len(new)} Shorts -> Discord {r}")
+    return new
+
+
 def run(slot: str = "morning", today: datetime.date | None = None, upload: bool = True) -> list:
     today = today or datetime.date.today()
     pulled = subprocess.run(["git", "pull", "-q", "--rebase", "--autostash"], cwd=ROOT,
@@ -134,9 +295,14 @@ def run(slot: str = "morning", today: datetime.date | None = None, upload: bool 
         if fmt == "results":
             title, desc = _results_meta(day)
         else:
-            title, desc = title_fn(path), _desc(path)
+            title = _lead_title(fmt, path, f"{day.month}/{day.day}") or title_fn(path)
+            desc = _desc(path)
         desc += AI_NOTE
         _log(f"{key}: built {path.name}")
+        try:
+            _log(f"{key}: posting kit at {posting_kit(fmt, day, path, title, desc)}")
+        except Exception:
+            _log(f"{key}: posting kit FAILED\n{traceback.format_exc()}")
         if upload:
             try:
                 vid = yu.upload(path, title, desc, tags, key=key)
@@ -146,11 +312,19 @@ def run(slot: str = "morning", today: datetime.date | None = None, upload: bool 
                 _log(f"{key}: not uploaded ({e})")
             except Exception:
                 _log(f"{key}: upload FAILED\n{traceback.format_exc()}")
+    try:
+        engage(today)                     # comments on whatever the owner has published since
+    except Exception:
+        _log(f"engage FAILED\n{traceback.format_exc()}")
     return done
 
 
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if args and args[0] == "announce":
+        for v, t in announce(dry_run="--dry-run" in sys.argv):
+            print(v, t)
+        sys.exit()
     slot = args[0] if args and args[0] in ("morning", "afternoon") else "morning"
     dates = [a for a in args if re.fullmatch(r"\d{4}-\d{2}-\d{2}", a)]
     run(slot, datetime.date.fromisoformat(dates[0]) if dates else None, upload="--no-upload" not in sys.argv)

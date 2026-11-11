@@ -32,7 +32,9 @@ SOCIAL = {
     "Threads": "https://www.threads.net/@konjureanalytics",
     "Facebook": "https://www.facebook.com/konjureanalytics",
     "Discord": "",          # e.g. https://discord.gg/xxxxxxx
+    "YouTube": "https://www.youtube.com/channel/UCsusoB3NQoyCnDTNLDzwQRQ",
 }
+YT_CHANNEL = "UCsusoB3NQoyCnDTNLDzwQRQ"     # Konjure Analytics, the daily Shorts
 
 _EXTRA_CSS = """
 .hero{margin:.6rem 0 1.6rem}
@@ -70,6 +72,13 @@ padding:1.4rem 1.3rem;margin:2.4rem 0}
 .prose h2{color:var(--head);font-size:1.15rem;margin:1.8rem 0 .5rem}
 .prose p,.prose li{margin:.45rem 0;max-width:660px}
 .prose ul{padding-left:1.2rem}
+.watch{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin:.6rem 0 1rem}
+.watch a{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+text-decoration:none}
+.watch a:hover{border-color:var(--accent)}
+.watch .v{aspect-ratio:9/16;background:#0d0f16 center/cover no-repeat}
+.watch .c{padding:.55rem .65rem;font-size:.82rem;color:var(--head);line-height:1.3}
+@media (max-width:720px){.watch{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:520px){.hero h1{font-size:1.65rem}.btn{flex:1 1 100%;text-align:center}}
 """
 
@@ -173,6 +182,38 @@ def _records() -> dict:
 
 # ── pages ─────────────────────────────────────────────────────────────────────────────────
 
+def _shorts(n: int = 4) -> list:
+    """[(video id, title)] newest first, from the channel's public RSS feed: no key needed, and
+    it only lists public videos, so a private upload awaiting review never reaches the site.
+    [] if the feed can't be read; the section is then left out rather than shown empty."""
+    import re
+    import requests
+    try:
+        xml = requests.get(f"https://www.youtube.com/feeds/videos.xml?channel_id={YT_CHANNEL}", timeout=15).text
+    except Exception:
+        return []
+    out = []
+    for entry in re.findall(r"<entry>(.*?)</entry>", xml, re.S):
+        vid = re.search(r"<yt:videoId>([\w-]+)</yt:videoId>", entry)
+        title = re.search(r"<title>(.*?)</title>", entry, re.S)
+        if vid and title:
+            out.append((vid.group(1), _h.unescape(title.group(1)).replace(" #Shorts", "").strip()))
+    return out[:n]
+
+
+def _watch() -> str:
+    vids = _shorts()
+    if not vids:
+        return ""
+    cards = "".join(
+        f'<a href="https://www.youtube.com/shorts/{v}" target="_blank" rel="noopener">'
+        f'<div class="v" style="background-image:url(https://i.ytimg.com/vi/{v}/hqdefault.jpg)"></div>'
+        f'<div class="c">{_h.escape(t)}</div></a>' for v, t in vids)
+    return (f'<h2 class="s">Watch: today on the desk</h2><div class="watch">{cards}</div>'
+            '<p class="small">New Shorts every day: last night graded, tonight&#39;s picks, the games. '
+            f'<a href="{SOCIAL["YouTube"]}" target="_blank" rel="noopener">Subscribe on YouTube →</a></p>')
+
+
 def _stat(label: str, value: str, detail: str) -> str:
     return (f'<div class="stat"><div class="l">{_h.escape(label)}</div><div class="n">{_h.escape(value)}</div>'
             f'<div class="d">{_h.escape(detail)}</div></div>')
@@ -228,6 +269,7 @@ kickoff and graded afterwards, wins and losses alike.</p>
 <div class="row"><a class="btn" href="#subscribe">Get the free report</a>
 <a class="btn ghost" href="record/">See every pick graded</a></div></div>
 {_proof(rec)}
+{_watch()}
 <p class="note">Shown as it is, including when it is unflattering. A pick service that only shows
 its wins is hiding something. <a href="record/">Full record →</a></p>
 {_grades_block(rc)}

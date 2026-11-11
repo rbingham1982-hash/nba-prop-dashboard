@@ -14,6 +14,7 @@ Credentials live outside the repo, in ~/.konjure/:
 
     python youtube_upload.py connect                  # one time: sign in and allow uploads
     python youtube_upload.py whoami                   # which channel the token uploads to
+    python youtube_upload.py connect-comments         # one time: allow posting comments (separate token)
     python youtube_upload.py upload FILE.mp4 "Title" [description.txt]
 """
 from __future__ import annotations
@@ -54,6 +55,37 @@ def _service():
     return build("youtube", "v3", credentials=creds, cache_discovery=False)
 
 
+# Comments need the broader youtube.force-ssl scope. It lives on its own token, signed in
+# separately, so the upload token above keeps only the narrow scopes it was granted. The API
+# can post a comment but cannot pin one; pinning stays a one-tap step in Studio.
+_COMMENT_TOKEN = _DIR / "youtube_token_comments.json"
+_COMMENT_SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+
+
+def connect_comments() -> str:
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    creds = InstalledAppFlow.from_client_secrets_file(str(_SECRET), _COMMENT_SCOPES).run_local_server(port=0)
+    _COMMENT_TOKEN.write_text(creds.to_json(), encoding="utf-8")
+    return "comments connected"
+
+
+def comment(video_id: str, text: str) -> str:
+    """Post a top-level comment from the channel. Returns the comment id."""
+    from google.auth.transport.requests import Request
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
+    if not _COMMENT_TOKEN.exists():
+        raise SystemExit("comments not connected: run `python youtube_upload.py connect-comments` once")
+    creds = Credentials.from_authorized_user_file(str(_COMMENT_TOKEN), _COMMENT_SCOPES)
+    if not creds.valid:
+        creds.refresh(Request())
+        _COMMENT_TOKEN.write_text(creds.to_json(), encoding="utf-8")
+    y = build("youtube", "v3", credentials=creds, cache_discovery=False)
+    r = y.commentThreads().insert(part="snippet", body={"snippet": {
+        "videoId": video_id, "topLevelComment": {"snippet": {"textOriginal": text[:9000]}}}}).execute()
+    return r["id"]
+
+
 def whoami() -> str:
     ch = _service().channels().list(part="snippet", mine=True).execute().get("items", [])
     return ch[0]["snippet"]["title"] if ch else "(no channel on this account)"
@@ -90,6 +122,8 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "connect":
         print("connected to:", connect())
+    elif cmd == "connect-comments":
+        print(connect_comments())
     elif cmd == "whoami":
         print(whoami())
     elif cmd == "upload" and len(sys.argv) >= 4:
