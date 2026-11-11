@@ -79,6 +79,24 @@ jobs:
       - name: Install
         run: pip install -r requirements.txt
 
+      # Supabase pauses a free project after about a week without requests, and a paused
+      # project drops out of DNS: accounts, saved tickets and both games went dark until it was
+      # restored by hand (2026-11-11). One read per run keeps it awake. Needs the repo secrets
+      # SUPABASE_URL and SUPABASE_SERVICE_KEY; without them the step says so and moves on.
+      - name: Keep Supabase awake
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_KEY" ]; then
+            echo "SUPABASE_URL / SUPABASE_SERVICE_KEY repo secrets not set; skipping keep-awake"; exit 0
+          fi
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 \
+            "$SUPABASE_URL/rest/v1/konjure_games?select=id&limit=1" \
+            -H "apikey: $SUPABASE_SERVICE_KEY")
+          echo "Supabase answered $code"
+
       # Before the board: the NBA/WNBA models, resolvers and graders read these logs.
       - name: Refresh NBA + WNBA data from ESPN
         run: python nba_espn.py

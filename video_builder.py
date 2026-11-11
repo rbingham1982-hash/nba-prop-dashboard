@@ -1832,9 +1832,11 @@ def btm_short(day: datetime.date | None = None) -> pathlib.Path:
     day = day or datetime.date.today()
     if gs.backend() != "supabase":
         raise SystemExit("Beat the Market needs the site's Supabase credentials to read the frozen slate")
-    sl = gm.btm_slate(day, create=False)
+    # Freeze the day's slate if no player has opened the game yet: the same rules and the same
+    # insert-only row the site uses, so the Short and the game always show the same five.
+    sl = gm.btm_slate(day, create=True)
     if not sl or not sl.get("props"):
-        raise SystemExit(f"no Beat the Market slate frozen yet for {day}")
+        raise SystemExit(f"no Beat the Market slate for {day} (props not posted, or too few qualify)")
     props = sl["props"]
     scenes = [_ordinal_scene_title("THE MARKET", "BEAT", "5 PROPS", "PICK OVER OR UNDER, HOW SURE YOU ARE",
                                    "Can you beat the market? Tonight's five props: pick over or under, and how "
