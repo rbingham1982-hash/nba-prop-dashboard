@@ -28,6 +28,11 @@ TTS service; before the channel monetizes, swap _tts() for a paid provider.
 
     python video_builder.py results [YYYY-MM-DD]     # results for that night (default: yesterday)
     python video_builder.py top5 [YYYY-MM-DD]        # players of the night, a 5-to-1 countdown
+    python video_builder.py gtg [YYYY-MM-DD]         # Guess the Grade: 3 of the day's challenge lines
+    python video_builder.py btm [YYYY-MM-DD]         # Beat the Market: tonight's frozen five props
+    python video_builder.py nfl-td [YYYY-MM-DD]      # the day's NFL anytime-TD board (Sun / Thu)
+    python video_builder.py nfl-results [SUNDAY]     # Sunday's NFL spread picks, graded (Mon)
+    python video_builder.py nfl-top5 [SUNDAY]        # Sunday's top five graded NFL players (Mon)
 """
 from __future__ import annotations
 
@@ -74,6 +79,30 @@ TEAM = {  # primary colour, name for narration
     "POR": ((224, 58, 62), "Portland"), "SAC": ((91, 43, 130), "Sacramento"), "SAS": ((110, 110, 120), "San Antonio"),
     "TOR": ((206, 17, 65), "Toronto"), "UTA": ((0, 43, 92), "Utah"), "WAS": ((0, 43, 92), "Washington"),
 }
+
+
+# NBA and NFL share abbreviations (MIA, DAL, CHI...) with different colours, so every team
+# lookup goes through _tm() with the sport; SPORT is the default a format sets before building.
+SPORT = "nba"
+_NFL_TEAMS: dict = {}
+
+
+def _rgb(h):
+    h = (h or "").lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)) if len(h) == 6 else None
+
+
+def _tm(abbr, sport=None):
+    """(colour, spoken name) for a team. NFL from nflverse's team table, nickname spoken."""
+    if (sport or SPORT) == "nfl":
+        if not _NFL_TEAMS:
+            import nfl_grades as ng
+            for a, m in ng.team_meta().items():
+                cols = [c for c in (_rgb(m.get("color")), _rgb(m.get("color2"))) if c]
+                bright = [c for c in cols if 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2] > 40]
+                _NFL_TEAMS[a] = ((bright or cols or [ORANGE])[0], m.get("nick") or a)
+        return _NFL_TEAMS.get(abbr, (ORANGE, abbr))
+    return TEAM.get(abbr, (ORANGE, abbr))
 
 
 # ── easing + drawing helpers ──────────────────────────────────────────────────────────────
@@ -198,11 +227,12 @@ def band(w=W - 60, h=250):
     return _LAYERS[k]
 
 
-def split_tile(away, home, size=210):
+def split_tile(away, home, size=210, sport=None):
     """Diagonal split square in the two teams' colours: the matchup without anyone's logo."""
-    k = ("split", away, home, size)
+    sport = sport or SPORT
+    k = ("split", away, home, size, sport)
     if k not in _LAYERS:
-        ca, ch = TEAM.get(away, (ORANGE, ""))[0], TEAM.get(home, (GOLD, ""))[0]
+        ca, ch = _tm(away, sport)[0], _tm(home, sport)[0]
         im = Image.new("RGBA", (size + 20, size + 20), (0, 0, 0, 0))
         m = Image.new("L", (size, size), 0)
         ImageDraw.Draw(m).rounded_rectangle((0, 0, size - 1, size - 1), radius=34, fill=255)
@@ -830,7 +860,7 @@ def _frames(scenes, starts, total, title, proc):
 
 def _say_spread(label: str) -> str:
     team, line = label.rsplit(" ", 1)
-    name = TEAM.get(team, (None, team))[1]
+    name = _tm(team)[1]
     num = line.lstrip("+-").replace(".5", " and a half")
     return f"{name} {'plus' if line.startswith('+') else 'minus'} {num}"
 
@@ -843,7 +873,7 @@ def _pick_facts(g):
     pick_home = g["pick"] == "home"
     mine = g["home_pts"] if pick_home else g["away_pts"]
     theirs = g["away_pts"] if pick_home else g["home_pts"]
-    team = TEAM.get(g["home"] if pick_home else g["away"], (None, ""))[1]
+    team = _tm(g["home"] if pick_home else g["away"])[1]
     spread = float(g["pick_label"].rsplit(" ", 1)[1])
     diff = mine - theirs
     cover = diff + spread
@@ -858,14 +888,14 @@ def _verdict(outcome):
     return {"win": (GREEN, "WIN"), "loss": (RED, "LOSS")}.get(outcome, (GOLD, "PUSH"))
 
 
-def _title_scene(wins, losses, outcomes):
+def _title_scene(wins, losses, outcomes, when="LAST NIGHT'S", say_when="last night", tip="tip-off"):
     w_l = f"{wins}-{losses}"
     col = GREEN if wins > losses else GOLD if wins == losses else RED
     at = lambda sc: sc.cue(str(wins), 0.35, last=False)
 
     def draw(img, d, t, sc):
         p1 = out_cubic(prog(t, 0.05, 0.4))
-        put(img, layer("LAST NIGHT'S", 150, WHITE, stroke=6), -500 + p1 * (W / 2 + 500), 380)
+        put(img, layer(when, 150, WHITE, stroke=6), -500 + p1 * (W / 2 + 500), 380)
         p2 = out_cubic(prog(t, 0.15, 0.5))
         put(img, layer("RESULTS", 210, ORANGE, stroke=7), W + 600 - p2 * (W / 2 + 600), 560)
         ts = at(sc)
@@ -882,7 +912,8 @@ def _title_scene(wins, losses, outcomes):
             c, tag = _verdict(r)
             put(img, hexplate(cw, 92, c, WHITE, tag[0], 64, WHITE), x0 + i * (cw + gap) + cw / 2, 1110,
                 scale=out_back(pc), alpha=pc)
-        put(img, layer(f"{len(outcomes)} SPREAD PICKS  ·  LOGGED BEFORE TIP", 46, GOLD, stroke=3),
+        put(img, layer(f"{len(outcomes)} SPREAD PICKS  ·  LOGGED BEFORE {'KICKOFF' if tip == 'kickoff' else 'TIP'}",
+                       46, GOLD, stroke=3),
             W / 2, 1200, alpha=prog(t, 0.6, 1.0))
 
     def sounds(sc):
@@ -891,7 +922,7 @@ def _title_scene(wins, losses, outcomes):
                 + [(ts + 0.4 + 0.18 * i, "pop", 0.6) for i in range(len(outcomes))])
 
     react = "celebrate" if wins > losses else "facepalm" if wins < losses else "shrug"
-    return Scene(f"We went {wins} and {losses} last night. Every pick was logged before tip-off. "
+    return Scene(f"We went {wins} and {losses} {say_when}. Every pick was logged before {tip}. "
                  f"Here's how each one finished.", draw, min_dur=4.0, sounds=sounds, shake_at=at,
                  moods=lambda sc: [(0.0, "point"), (at(sc), react), (at(sc) + 1.3, "talk")])
 
@@ -934,7 +965,7 @@ def _pick_scene(i, n, g):
 
 
 def _record_scene(rec, be):
-    w_, l_ = (int(x) for x in rec["record"].split("-"))
+    w_, l_ = (int(x) for x in rec["record"].split("-")[:2])
     pct = float(rec["pct"])
     above = pct >= be
     col = GREEN if above else GOLD
@@ -973,8 +1004,9 @@ def _record_scene(rec, be):
                  moods=lambda sc: [(0.0, "talk"), (at(sc), "celebrate" if above else "shrug")])
 
 
-def _cta_scene():
-    lines = [("EVERY PICK", WHITE, 0.15), ("LOGGED BEFORE TIP", WHITE, 0.45), ("GRADED IN PUBLIC", ORANGE, 0.8)]
+def _cta_scene(nfl=False):
+    lines = [("EVERY PICK", WHITE, 0.15), ("LOGGED BEFORE " + ("KICKOFF" if nfl else "TIP"), WHITE, 0.45),
+             ("GRADED IN PUBLIC", ORANGE, 0.8)]
 
     def draw(img, d, t, sc):
         for k, (txt, col, at) in enumerate(lines):
@@ -984,17 +1016,21 @@ def _cta_scene():
         put(img, hexplate(860, 130, GOLD, WHITE, "KONJUREANALYTICS.COM", 74, BLACK), W / 2, 1010,
             scale=(1 + 0.04 * math.sin(t * 6)) * out_back(pu), alpha=pu)
         pf = out_back(prog(t, 1.8, 2.1))
-        put(img, layer("FOLLOW FOR TOMORROW'S RESULTS", 62, GOLD, stroke=5), W / 2, 1180, scale=pf, alpha=pf)
+        put(img, layer("FOLLOW FOR NEXT WEEK'S RESULTS" if nfl else "FOLLOW FOR TOMORROW'S RESULTS", 62, GOLD,
+                       stroke=5), W / 2, 1180, scale=pf, alpha=pf)
 
     def sounds(sc):
         return [(at, "pop", 0.6) for _, _, at in lines] + [(1.2, "thud", 0.6), (1.8, "pop", 0.6)]
 
-    return Scene("Every pick, every result, at Konjure Analytics dot com. Follow to see tonight's picks graded "
-                 "tomorrow. Not betting advice.", draw, min_dur=4.5, tail=0.8, sounds=sounds,
+    return Scene("Every pick, every result, at Konjure Analytics dot com. "
+                 + ("Follow for next week's picks, graded the same way. " if nfl else
+                    "Follow to see tonight's picks graded tomorrow. ") + "Not betting advice.", draw, min_dur=4.5, tail=0.8, sounds=sounds,
                  moods=lambda sc: [(0.0, "point"), (2.0, "talk")])
 
 
 def results_short(night: datetime.date | None = None) -> pathlib.Path:
+    global SPORT
+    SPORT = "nba"
     import nba_daily_picks as ndp
     night = night or datetime.date.today() - datetime.timedelta(days=1)
     e = ndp._load().get(night.isoformat())
@@ -1033,15 +1069,17 @@ def _wget(url, params=None, tries=4):
     return None
 
 
-def player_photo(name: str):
+def player_photo(name: str, sport: str = "nba"):
     """(PIL image, credit) for a free-licence photo of `name`, or (None, None). Cached."""
+    word = "football" if sport == "nfl" else "basketball"
     import hashlib
     import html
     import json
     import re
     cache = pathlib.Path.home() / ".konjure" / "photos"
     cache.mkdir(parents=True, exist_ok=True)
-    key = hashlib.sha1(name.lower().encode()).hexdigest()[:16]
+    key = hashlib.sha1(f"{name.lower()}|{sport}".encode()).hexdigest()[:16] if sport != "nba" else \
+        hashlib.sha1(name.lower().encode()).hexdigest()[:16]
     meta_p, img_p = cache / f"{key}.json", cache / f"{key}.jpg"
     if meta_p.exists():
         meta = json.loads(meta_p.read_text())
@@ -1050,7 +1088,7 @@ def player_photo(name: str):
         return Image.open(img_p).convert("RGB"), meta["credit"]
     api = "https://en.wikipedia.org/w/api.php"
     meta = {"ok": False}
-    found = _wget(api, {"action": "query", "list": "search", "srsearch": f'"{name}" basketball', "srlimit": 6,
+    found = _wget(api, {"action": "query", "list": "search", "srsearch": f'"{name}" {word}', "srlimit": 6,
                         "format": "json"}) or {}
     for hit in found.get("query", {}).get("search", []):
         title = hit["title"]
@@ -1060,7 +1098,7 @@ def player_photo(name: str):
         pg = _wget(api, {"action": "query", "titles": title, "prop": "pageimages|extracts", "piprop": "name",
                          "exintro": 1, "explaintext": 1, "exsentences": 2, "format": "json"}) or {}
         page = next(iter(pg.get("query", {}).get("pages", {}).values()), {})
-        if "basketball" not in page.get("extract", "").lower() or "pageimage" not in page:
+        if word not in page.get("extract", "").lower() or "pageimage" not in page:
             continue
         time.sleep(1)
         fi = _wget("https://commons.wikimedia.org/w/api.php",
@@ -1086,13 +1124,14 @@ def player_photo(name: str):
     return Image.open(img_p).convert("RGB"), meta["credit"]
 
 
-def photo_frame(img, team, initials, size=430):
+def photo_frame(img, team, initials, size=430, sport=None):
     """The photo cropped square toward the top (where faces are), in a team-colour frame.
     Without a photo, the player's initials on his team colour."""
-    k = ("photo", id(img), team, initials, size)
+    sport = sport or SPORT
+    k = ("photo", id(img), team, initials, size, sport)
     if k in _LAYERS:
         return _LAYERS[k]
-    col = TEAM.get(team, (ORANGE, ""))[0]
+    col = _tm(team, sport)[0]
     if img is not None:
         w, h = img.size
         if h >= w:
@@ -1132,8 +1171,8 @@ def _say_grade(g):
     return g.replace("+", " plus").replace("-", " minus")
 
 
-def _team_name(abbr):
-    return TEAM.get(abbr, (None, abbr))[1]
+def _team_name(abbr, sport=None):
+    return _tm(abbr, sport)[1]
 
 
 def _why(r):
@@ -1262,6 +1301,8 @@ def _top5_cta():
 
 
 def top5_short(night: datetime.date | None = None) -> pathlib.Path:
+    global SPORT
+    SPORT = "nba"
     import nba_analysis as na
     import nba_grades as ng
     night = night or datetime.date.today() - datetime.timedelta(days=1)
@@ -1279,7 +1320,7 @@ def top5_short(night: datetime.date | None = None) -> pathlib.Path:
     scenes.append(_top5_cta())
     out = OUT / f"short-nba-top5-{night.isoformat()}.mp4"
     render(scenes, f"TOP 5 PLAYERS  {night.month}/{night.day}", out)
-    credits = [f"{r['PLAYER_NAME']}: {c}" for r, (_, c) in zip(rows, shots) if c]
+    credits = [f"{r['PLAYER_NAME']}: {c.removeprefix('Photo: ')}" for r, (_, c) in zip(rows, shots) if c]
     desc = (f"The five best NBA players on {night.strftime('%B')} {night.day}, graded 0-100 against every "
             f"player-game from last season.\n\n"
             + "".join(f"#{i + 1} {r['PLAYER_NAME']} ({r['TEAM_ABBREVIATION']}) - {r['grade']}, "
@@ -1291,9 +1332,559 @@ def top5_short(night: datetime.date | None = None) -> pathlib.Path:
     return out
 
 
+# ── shared bits for the new formats ───────────────────────────────────────────────────────
+
+def _say_odds(o):
+    o = int(o)
+    return f"plus {o}" if o > 0 else f"minus {abs(o)}"
+
+
+def _ordinal_scene_title(kicker_big, kicker_small, line_big, sub, narration, moods_react="celebrate"):
+    """The opening card every countdown uses: two stacked words, a slam on the band, a sub-line."""
+    at = lambda sc: sc.cue(line_big.split()[0].lower(), 0.3, last=False) if sc.words else 0.9
+
+    def draw(img, d, t, sc):
+        p1 = out_cubic(prog(t, 0.05, 0.4))
+        put(img, layer(kicker_small, 140, WHITE, stroke=6), -500 + p1 * (W / 2 + 500), 380)
+        p2 = out_cubic(prog(t, 0.15, 0.5))
+        put(img, layer(kicker_big, 190, ORANGE, stroke=7), W + 600 - p2 * (W / 2 + 600), 560)
+        ts = at(sc)
+        pb = out_cubic(prog(t, ts - 0.35, ts))
+        put(img, band(), W / 2 + (1 - pb) * W, 880)
+        p3 = prog(t, ts, ts + 0.26)
+        if p3 > 0:
+            put(img, layer(line_big, 150 if len(line_big) < 9 else 110, (20, 20, 22)), W / 2, 895,
+                scale=2.5 - 1.5 * out_back(p3), alpha=min(1, p3 * 3))
+        put(img, layer(sub, 40, GOLD, stroke=3), W / 2, 1110, alpha=prog(t, 0.8, 1.2))
+
+    return Scene(narration, draw, min_dur=4.0, shake_at=at,
+                 sounds=lambda sc: [(0.04, "scratch", 0.6), (at(sc), "thud", 1.0)],
+                 moods=lambda sc: [(0.0, "point"), (at(sc), moods_react), (at(sc) + 1.2, "talk")])
+
+
+def _cta(lines, url_text, follow, narration):
+    def draw(img, d, t, sc):
+        for k, (txt, col, at) in enumerate(lines):
+            p = out_back(prog(t, at, at + 0.3))
+            put(img, layer(txt, 120, col, stroke=7), W / 2, 430 + k * 160, scale=0.5 + 0.5 * p, alpha=min(1, p * 2))
+        pu = prog(t, 1.2, 1.5)
+        put(img, hexplate(900, 130, GOLD, WHITE, url_text, 66 if len(url_text) > 22 else 74, BLACK), W / 2, 1010,
+            scale=(1 + 0.04 * math.sin(t * 6)) * out_back(pu), alpha=pu)
+        pf = out_back(prog(t, 1.8, 2.1))
+        put(img, layer(follow, 58, GOLD, stroke=5), W / 2, 1170, scale=pf, alpha=pf)
+
+    return Scene(narration, draw, min_dur=4.5, tail=0.8,
+                 sounds=lambda sc: [(at, "pop", 0.6) for _, _, at in lines] + [(1.2, "thud", 0.6), (1.8, "pop", 0.6)],
+                 moods=lambda sc: [(0.0, "point"), (2.0, "celebrate")])
+
+
+def _wrap_text(text, size, width):
+    d = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+    f, out, cur = F(size), [], ""
+    for w in text.split():
+        t = f"{cur} {w}".strip()
+        if d.textlength(t, font=f) > width and cur:
+            out.append(cur)
+            cur = w
+        else:
+            cur = t
+    return out + ([cur] if cur else [])
+
+
+# ── Guess the Grade ───────────────────────────────────────────────────────────────────────
+# Three of the day's challenge lines (the same seeded five the site's ?challenge= link plays):
+# the middle one, the dud, then the star, so the reveals rise. Viewers are asked to comment a
+# guess during a 3-2-1; the full five are on the site.
+
+def _gtg_stats(r):
+    import re
+    if r["sport"] == "NFL":
+        return None
+    m = {k: int(v) for v, k in re.findall(r"(\d+) (pts|reb|ast|stl|blk|TO)", r["line"])}
+    ts = re.search(r"(\d+)% true shooting", r["line"])
+    return m, (int(ts.group(1)) if ts else None)
+
+
+def _gtg_round_scene(i, n, r, photo, credit):
+    sport = r["sport"].lower()
+    team, opp = r["team"], r["opponent"]
+    say = lambda a: _tm(a, sport)[1]
+    score, grade = float(r["score"]), r["grade"]
+    st = _gtg_stats(r)
+    if st:
+        m, ts = st
+        won = r.get("result") == "W"
+        body = (f"{_cap(say(team))} against {say(opp)}, {'a win' if won else 'a loss'}. "
+                f"{m.get('pts', 0)} points, {m.get('reb', 0)} rebounds and {m.get('ast', 0)} assists"
+                + (f", on {ts} percent true shooting" if ts is not None else "") + f", in {r['minutes']} minutes.")
+        chips = [(f"{m.get('pts', 0)}", "PTS"), (f"{m.get('reb', 0)}", "REB"), (f"{m.get('ast', 0)}", "AST"),
+                 (f"{m.get('stl', 0)}", "STL"), (f"{m.get('blk', 0)}", "BLK"), (f"{m.get('TO', 0)}", "TO")]
+        if ts is not None:
+            chips.append((f"{ts}%", "TS"))
+        chips.append((f"{r['minutes']}", "MIN"))
+        context = f"{team} VS {opp}  ·  {'WIN' if won else 'LOSS'}  ·  {r['night'].upper()}"
+    else:
+        body = f"A {r['position']} for the {say(team)}, against the {say(opp)}, {r['night']}. Here's his line."
+        chips = None
+        context = f"{r['position']}  ·  {team} VS {opp}  ·  {r['night'].upper()}"
+    line = (f"Round {i}. {body} What's his grade? Three. Two. One. {r['player']}. {score:.0f}. "
+            f"{_say_grade(grade)}.")
+    gcol = GREEN if score >= 80 else GOLD if score >= 50 else RED
+    initials = "".join(p_[0] for p_ in r["player"].replace(".", "").split()[:2]).upper()
+    cd = lambda sc: [sc.cue(w, 0.5 + 0.08 * k) for k, w in enumerate(("Three", "Two", "One"))]
+    reveal = lambda sc: sc.after("One", 0.82)
+
+    def draw(img, d, t, sc):
+        put(img, layer(f"ROUND {i} OF {n}", 58, GOLD, stroke=4), W / 2, 270, alpha=prog(t, 0, 0.2))
+        put(img, hexplate(330, 84, (14, 14, 16), ORANGE, r["sport"], 54, ORANGE), W / 2, 350,
+            scale=out_back(prog(t, 0.05, 0.3)))
+        tr = reveal(sc)
+        pp = out_cubic(prog(t, 0.1, 0.45))
+        cx = -300 + pp * (300 + 300)
+        if t < tr:
+            put(img, photo_frame(None, team, "?", 380, sport), cx, 600, angle=(1 - pp) * 10)
+        else:
+            pr = out_back(prog(t, tr, tr + 0.3))
+            put(img, photo_frame(photo, team, initials, 380, sport), 300, 600, scale=0.6 + 0.4 * pr)
+            if credit:
+                cl = layer(credit, 20, (200, 200, 205), head=False, stroke=2)
+                put(img, cl, max(300, cl.width / 2 + 44), 815, alpha=prog(t, tr + 0.3, tr + 0.6))
+        put(img, layer(context, 40, GOLD, stroke=3), W / 2, 870, alpha=prog(t, 0.3, 0.6))
+        if chips:
+            per_row = 4
+            for k, (v, lab) in enumerate(chips):
+                row, col = divmod(k, per_row)
+                cnt = min(per_row, len(chips) - row * per_row)
+                cw, gap = 225, 18
+                x0 = (W - (cnt * cw + (cnt - 1) * gap)) / 2
+                pc = out_back(prog(t, 0.5 + 0.08 * k, 0.75 + 0.08 * k))
+                put(img, hexplate(cw, 96, (14, 14, 16), GOLD, f"{v} {lab}", 50, WHITE),
+                    x0 + col * (cw + gap) + cw / 2, 970 + row * 110, scale=pc, alpha=min(1, pc * 2))
+        else:
+            for k, ln in enumerate(_wrap_text(r["line"], 52, W - 160)[:3]):
+                put(img, layer(ln, 52, WHITE, stroke=4), W / 2, 960 + k * 70, alpha=prog(t, 0.5 + 0.1 * k, 0.8 + 0.1 * k))
+        c3 = cd(sc)
+        if c3[0] - 0.3 <= t < tr:                                   # the guess window
+            put(img, layer("COMMENT YOUR GUESS: 0-100", 40, ORANGE, stroke=4), 790, 500,
+                scale=1 + 0.05 * math.sin(t * 8), alpha=prog(t, c3[0] - 0.3, c3[0]))
+            num = "3" if t < c3[1] else "2" if t < c3[2] else "1"
+            at = c3[0] if num == "3" else c3[1] if num == "2" else c3[2]
+            pn = out_back(prog(t, at, at + 0.2))
+            put(img, hexplate(220, 190, (14, 14, 16), ORANGE, num, 150, ORANGE), 790, 650, scale=0.5 + 0.5 * pn)
+        if t >= tr:
+            p = prog(t, tr, tr + 0.28)
+            put(img, hexplate(560, 120, (14, 14, 16), ORANGE, r["player"].upper(), 64 if len(r["player"]) < 18 else 52,
+                              WHITE), W / 2 + 0 * p, 870 - 0 * p, alpha=min(1, p * 3))
+            put(img, hexplate(250, 170, gcol, WHITE, grade, 120, WHITE), 790, 560,
+                scale=2.4 - 1.4 * out_back(p), alpha=min(1, p * 4), angle=-8 + 5 * p)
+            put(img, layer(f"{score:.1f}", 60, gcol, stroke=5), 790, 690, alpha=prog(t, tr + 0.2, tr + 0.4))
+
+    def sounds(sc):
+        c3, tr = cd(sc), reveal(sc)
+        return ([(0.05, "pop", 0.5)] + [(x, "tick", 0.9) for x in c3] + [(c3[0], "thud", 0.4)]
+                + [(tr, "thud", 0.9), (tr + 0.02, "win" if score >= 50 else "loss", 0.8)])
+
+    react = "celebrate" if score >= 80 else "facepalm" if score < 30 else "shrug"
+    return Scene(line, draw, min_dur=6.0, tail=1.3, sounds=sounds, shake_at=reveal,
+                 moods=lambda sc: [(0.0, "point"), (1.0, "talk"), (cd(sc)[0], "shrug"), (reveal(sc), react),
+                                   (reveal(sc) + 1.4, "talk")])
+
+
+def gtg_short(day: datetime.date | None = None) -> pathlib.Path:
+    """Guess the Grade: three of `day`'s challenge lines, guessed in the comments, then revealed."""
+    global SPORT
+    import games as gm
+    day = day or datetime.date.today()
+    c = gm.gtg_challenge(day)
+    if not c:
+        raise SystemExit(f"no Guess the Grade challenge for {day}")
+    by = sorted(c["rounds"], key=lambda r: r["score"])
+    picks = [by[len(by) // 2], by[0], by[-1]]                   # middle, dud, star
+    scenes = [_ordinal_scene_title("THE GRADE", "GUESS", "3 PLAYERS",
+                                   "COMMENT YOUR GUESSES: 0 TO 100",
+                                   "Guess the grade. Three stat lines from this week, names hidden. Comment your "
+                                   "guess for each, zero to a hundred. 3 players. Let's go.")]
+    for i, r in enumerate(picks, 1):
+        SPORT = r["sport"].lower()
+        ph, cr = player_photo(r["player"], SPORT)
+        scenes.append(_gtg_round_scene(i, len(picks), r, ph, cr))
+    SPORT = "nba"
+    code = gm.challenge_code(day)
+    scenes.append(_cta([("HOW'D YOU DO?", WHITE, 0.15), ("2 MORE LINES", WHITE, 0.45), ("PLAY THE FULL FIVE", ORANGE, 0.75)],
+                       "KONJUREANALYTICS.COM", f"TODAY'S CHALLENGE: {code}",
+                       "How'd you do? Two more mystery lines are waiting in today's full challenge. "
+                       "Play free at Konjure Analytics dot com."))
+    out = OUT / f"short-gtg-{day.isoformat()}.mp4"
+    render(scenes, f"GUESS THE GRADE  {day.month}/{day.day}", out)
+    out.with_suffix(".txt").write_text(
+        "Guess the grade: three real stat lines from this week, names hidden. Comment your guesses, 0-100.\n\n"
+        + "".join(f"Round {i}: {r['player']} - {r['grade']} ({float(r['score']):.1f})\n" for i, r in enumerate(picks, 1))
+        + f"\nPlay today's full five free: https://konjureanalytics.com/app/?challenge={code}\n"
+        + "Grades are percentiles against every player-game last season.\n", encoding="utf-8")
+    return out
+
+
+# ── Beat the Market ───────────────────────────────────────────────────────────────────────
+# Tonight's five props, as the site froze them (games_store: Supabase in production). Without
+# those credentials here the slate cannot be read, and a Short of different props would not be
+# the game players see, so the format skips.
+
+_STAT_SAY = {"Points": "points", "Rebounds": "rebounds", "Assists": "assists", "3-PT Made": "threes",
+             "Pts+Rebs+Asts": "points, rebounds and assists"}
+_STAT_SHOW = {"Points": "PTS", "Rebounds": "REB", "Assists": "AST", "3-PT Made": "3PM", "Pts+Rebs+Asts": "PRA"}
+
+
+def _btm_scene(i, n, pr, photo, credit):
+    mk = float(pr["p_over_market"])
+    md = pr.get("p_over_model")
+    line = (f"Prop {i}. {pr['player']}, {pr['line']:g} {_STAT_SAY.get(pr['stat'], pr['stat'].lower())}. "
+            f"The market has the over at {mk * 100:.0f} percent."
+            + (f" Our model says {float(md) * 100:.0f}." if md is not None else ""))
+    initials = "".join(p_[0] for p_ in pr["player"].replace(".", "").split()[:2]).upper()
+    away, home = [x.strip() for x in pr["game"].split("@")]
+
+    def draw(img, d, t, sc):
+        put(img, layer(f"PROP {i} OF {n}", 58, GOLD, stroke=4), W / 2, 270, alpha=prog(t, 0, 0.2))
+        pp = out_cubic(prog(t, 0.1, 0.45))
+        put(img, photo_frame(photo, "", initials, 360), -300 + pp * 600, 560, angle=(1 - pp) * 10)
+        if credit:
+            cl = layer(credit, 20, (200, 200, 205), head=False, stroke=2)
+            put(img, cl, max(300, cl.width / 2 + 44), 765, alpha=prog(t, 0.5, 0.8))
+        put(img, split_tile(away, home, 170), 800, 520, scale=out_back(prog(t, 0.2, 0.45)))
+        put(img, layer(pr["game"], 44, GOLD, stroke=3), 800, 650, alpha=prog(t, 0.3, 0.6))
+        pn = out_cubic(prog(t, 0.3, 0.6))
+        put(img, hexplate(980, 120, (14, 14, 16), ORANGE,
+                          f"{pr['player'].upper()}  O/U {pr['line']:g} {_STAT_SHOW.get(pr['stat'], '')}",
+                          62 if len(pr["player"]) < 16 else 52, WHITE), W / 2 + (1 - pn) * W, 860)
+        ta = sc.cue("market", 0.4, last=False)
+        x0, x1, y = 120, W - 120, 990
+        fill = out_cubic(prog(t, ta, ta + 0.6))
+        d.rounded_rectangle((x0 - 6, y - 6, x1 + 6, y + 70), radius=38, fill=BLACK, outline=ORANGE, width=4)
+        split = x0 + (x1 - x0) * mk * fill
+        if fill > 0:
+            d.rounded_rectangle((x0, y, max(x0 + 60, split), y + 64), radius=32, fill=GREEN)
+        put(img, layer(f"OVER {mk * 100:.0f}%", 44, WHITE, stroke=4), x0 + 140, y + 32, alpha=prog(t, ta + 0.3, ta + 0.5))
+        put(img, layer(f"UNDER {(1 - mk) * 100:.0f}%", 44, WHITE, stroke=4), x1 - 150, y + 32,
+            alpha=prog(t, ta + 0.3, ta + 0.5))
+        put(img, layer("THE MARKET (FANDUEL, VIG OUT)", 32, MUTED, stroke=2), W / 2, y - 34, alpha=prog(t, ta, ta + 0.3))
+        if md is not None:
+            tm = sc.cue("model", 0.7, last=False)
+            pm_ = out_back(prog(t, tm, tm + 0.25))
+            put(img, hexplate(620, 100, (40, 30, 80), GOLD, f"OUR MODEL: {float(md) * 100:.0f}% OVER", 54, GOLD),
+                W / 2, 1150, scale=pm_, alpha=min(1, pm_ * 2))
+
+    def sounds(sc):
+        return [(0.05, "pop", 0.5), (sc.cue("market", 0.4, last=False), "thud", 0.6)] + \
+               ([(sc.cue("model", 0.7, last=False), "pop", 0.7)] if md is not None else [])
+
+    return Scene(line, draw, min_dur=4.5, tail=0.9, sounds=sounds,
+                 moods=lambda sc: [(0.0, "point"), (1.0, "talk")])
+
+
+def btm_short(day: datetime.date | None = None) -> pathlib.Path:
+    global SPORT
+    SPORT = "nba"
+    import games as gm
+    import games_store as gs
+    day = day or datetime.date.today()
+    if gs.backend() != "supabase":
+        raise SystemExit("Beat the Market needs the site's Supabase credentials to read the frozen slate")
+    sl = gm.btm_slate(day, create=False)
+    if not sl or not sl.get("props"):
+        raise SystemExit(f"no Beat the Market slate frozen yet for {day}")
+    props = sl["props"]
+    scenes = [_ordinal_scene_title("THE MARKET", "BEAT", "5 PROPS", "PICK OVER OR UNDER, HOW SURE YOU ARE",
+                                   "Can you beat the market? Tonight's five props: pick over or under, and how "
+                                   "sure you are. 5 props. Here they are.")]
+    for i, pr in enumerate(props, 1):
+        ph, cr = player_photo(pr["player"], "nba")
+        scenes.append(_btm_scene(i, len(props), pr, ph, cr))
+    scenes.append(_cta([("BEAT THE BOOK", WHITE, 0.15), ("BEAT OUR MODEL", WHITE, 0.45), ("FREE, BEFORE TIP", ORANGE, 0.75)],
+                       "KONJUREANALYTICS.COM", "ENTRIES LOCK AT FIRST TIP-OFF",
+                       "Beat the book, beat our model. Play free before tip-off at Konjure Analytics dot com. "
+                       "No prizes, just bragging rights."))
+    out = OUT / f"short-btm-{day.isoformat()}.mp4"
+    render(scenes, f"BEAT THE MARKET  {day.month}/{day.day}", out)
+    out.with_suffix(".txt").write_text(
+        "Tonight's Beat the Market: five NBA props. Pick over or under and how sure you are; you're scored "
+        "against FanDuel's price with the margin taken out.\n\n"
+        + "".join(f"{p_['player']}: {p_['line']:g} {p_['stat']} (market {float(p_['p_over_market']) * 100:.0f}% over)\n"
+                  for p_ in props)
+        + "\nPlay free before tip-off: https://konjureanalytics.com\nFree game, no prizes. 21+.\n", encoding="utf-8")
+    return out
+
+
+# ── NFL ───────────────────────────────────────────────────────────────────────────────────
+# Sunday and Thursday: the day's anytime-TD board, model against market, counted down.
+# Monday: Sunday's spread picks graded, and Sunday's top five graded players.
+
+def _nfl_team_of(player):
+    import nfl_analysis as nfl
+    wk = nfl._load_weekly(nfl.season_for_date(datetime.date.today()))
+    me = wk[wk["player_display_name"].map(nfl._name_key) == nfl._name_key(player)]
+    return str(me.sort_values("week")["team"].iloc[-1]) if not me.empty else ""
+
+
+def _short_game(label):
+    import nfl_hub
+    abbr = {m["name"]: a for a, m in nfl_hub._teams().items()}
+    a, h = [x.strip() for x in label.split("@")]
+    return abbr.get(a, a), abbr.get(h, h)
+
+
+def _td_scene(rank, r, team, photo, credit):
+    away, home = _short_game(r["game"])
+    m, k, o = float(r["model_prob"]) * 100, float(r["fair_prob"]) * 100, int(r["american_odds"])
+    line = (f"Number {rank}. {r['player']}, {_tm(team, 'nfl')[1] if team else ''}. Our model gives him {m:.0f} percent "
+            f"to score. The market says {k:.0f}. {_say_odds(o)}.")
+    initials = "".join(p_[0] for p_ in r["player"].replace(".", "").split()[:2]).upper()
+    hot = m > k
+
+    def draw(img, d, t, sc):
+        pr = prog(t, 0.0, 0.25)
+        put(img, hexplate(250, 170, ORANGE if rank == 1 else (14, 14, 16), WHITE, f"#{rank}", 130,
+                          BLACK if rank == 1 else ORANGE), 820, 360, scale=2.2 - 1.2 * out_back(pr), alpha=min(1, pr * 3))
+        pp = out_cubic(prog(t, 0.12, 0.5))
+        put(img, photo_frame(photo, team, initials), -300 + pp * 630, 520, angle=(1 - pp) * 12)
+        if credit:
+            cl = layer(credit, 22, (200, 200, 205), head=False, stroke=2)
+            put(img, cl, max(330, cl.width / 2 + 44), 770, alpha=prog(t, 0.5, 0.8))
+        put(img, split_tile(away, home, 150), 820, 560, scale=out_back(prog(t, 0.3, 0.55)))
+        pn = out_cubic(prog(t, 0.35, 0.65))
+        put(img, hexplate(980, 120, (14, 14, 16), ORANGE, r["player"].upper(), 84 if len(r["player"]) < 20 else 70, WHITE),
+            W / 2 + (1 - pn) * W, 860)
+        put(img, layer(f"{away} @ {home}  ·  ANYTIME TD  ·  {o:+d}", 48, GOLD, stroke=4), W / 2, 960,
+            alpha=prog(t, 0.6, 0.85))
+        tm, tk = sc.cue("model", 0.4, last=False), sc.cue("market", 0.65, last=False)
+        for x, lab, v, at, col in ((290, "OUR MODEL", m, tm, GREEN if hot else WHITE), (W - 290, "THE MARKET", k, tk, WHITE)):
+            pc = out_back(prog(t, at, at + 0.25))
+            put(img, hexplate(420, 150, (14, 14, 16), GOLD, f"{v:.0f}%", 100, col), x, 1100, scale=pc, alpha=min(1, pc * 2))
+            put(img, layer(lab, 38, MUTED, stroke=3), x, 1010 + 0 * pc, alpha=prog(t, at, at + 0.2))
+
+    def sounds(sc):
+        return [(0.02, "thud", 0.8), (0.15, "scratch", 0.4), (sc.cue("model", 0.4, last=False), "pop", 0.6),
+                (sc.cue("market", 0.65, last=False), "pop", 0.6)]
+
+    return Scene(line, draw, min_dur=4.8, tail=0.9, sounds=sounds,
+                 moods=lambda sc: [(0.0, "point"), (1.0, "talk"),
+                                   (sc.cue("market", 0.65, last=False), "celebrate" if hot else "talk")])
+
+
+def nfl_td_short(day: datetime.date | None = None) -> pathlib.Path:
+    """The day's anytime-TD board (live FanDuel prices, our TD model), top five counted down."""
+    global SPORT
+    SPORT = "nfl"
+    import nba_weekly_picks as nwp
+    import weekly_picks as wp
+    day = day or datetime.date.today()
+    pool = [r for r in wp._td_pool() if nwp._local_date(r.get("start_time") or "") == day]
+    if not pool:
+        raise SystemExit(f"no NFL anytime-TD prices for games on {day}")
+    top = sorted(pool, key=lambda r: -float(r["model_prob"]))[:5]
+    label = "THURSDAY NIGHT" if day.weekday() == 3 else "MONDAY NIGHT" if day.weekday() == 0 else day.strftime("%A").upper()
+    scenes = [_ordinal_scene_title("TD BOARD", label, "TOP 5", "OUR MODEL BESIDE FANDUEL'S PRICE",
+                                   f"{_cap(label.lower())} touchdown board. The five likeliest scorers by our model, "
+                                   f"beside the market. Top 5. Research, not picks.")]
+    for rank in range(len(top), 0, -1):
+        r = top[rank - 1]
+        team = _nfl_team_of(r["player"])
+        ph, cr = player_photo(r["player"], "nfl")
+        scenes.append(_td_scene(rank, r, team, ph, cr))
+    scenes.append(_cta([("EVERY TD PRICE", WHITE, 0.15), ("LOGGED AND", WHITE, 0.45), ("GRADED", ORANGE, 0.75)],
+                       "KONJUREANALYTICS.COM", "FOLLOW FOR THE RESULTS",
+                       "Every touchdown board is logged and graded at Konjure Analytics dot com. Twenty-one and over. "
+                       "Not betting advice."))
+    SPORT = "nfl"
+    out = OUT / f"short-nfl-td-{day.isoformat()}.mp4"
+    render(scenes, f"NFL TD BOARD  {day.month}/{day.day}", out)
+    SPORT = "nba"
+    out.with_suffix(".txt").write_text(
+        f"{label.title()} anytime-touchdown board: our TD model beside FanDuel's price. Research, not picks.\n\n"
+        + "".join(f"#{i + 1} {r['player']} ({r['game']}): model {float(r['model_prob']) * 100:.0f}%, market "
+                  f"{float(r['fair_prob']) * 100:.0f}%, {int(r['american_odds']):+d}\n" for i, r in enumerate(top))
+        + "\nEvery board logged and graded: https://konjureanalytics.com\n21+. Not betting advice. 1-800-GAMBLER.\n",
+        encoding="utf-8")
+    return out
+
+
+def _sunday_games(day):
+    import nfl_game_model as gm
+    s = gm.schedule()
+    return s[s["gameday"].astype(str).str[:10] == day.isoformat()]
+
+
+def nfl_results_short(sunday: datetime.date | None = None) -> pathlib.Path:
+    """Sunday's spread picks, graded, and the season ATS record against break-even."""
+    global SPORT
+    SPORT = "nfl"
+    import json
+    import weekly_picks as wp
+    sunday = sunday or datetime.date.today() - datetime.timedelta(days=1)
+    games = _sunday_games(sunday)
+    if games.empty:
+        raise SystemExit(f"no NFL games on {sunday}")
+    week, season = int(games["week"].iloc[0]), int(games["season"].iloc[0])
+    e = json.loads((ROOT / "weekly_picks.json").read_text(encoding="utf-8")).get(f"{season}-{week:02d}") or {}
+    score = {(r.away_team, r.home_team): (r.away_score, r.home_score) for r in games.itertuples()}
+    pub = []
+    for g in e.get("ats", []):
+        k = (g["away_team"], g["home_team"])
+        if k not in score:
+            continue                                      # Thursday or Monday game
+        a, h = score[k]
+        if g.get("outcome") is None or a != a:
+            raise SystemExit(f"{sunday}: NFL picks not all graded yet")
+        pub.append({"pick_label": _nfl_label(g["pick_label"]), "pick": g["pick"], "away": g["away_team"],
+                    "home": g["home_team"], "away_pts": int(a), "home_pts": int(h), "outcome": g["outcome"]})
+    if not pub:
+        raise SystemExit(f"no NFL spread picks on {sunday}")
+    wins = sum(g["outcome"] == "win" for g in pub)
+    losses = sum(g["outcome"] == "loss" for g in pub)
+    rec = wp.record(season)
+    r2 = {"record": rec["ats_record"], "pct": rec["ats_pct"]}
+    sc0 = _title_scene(wins, losses, [g["outcome"] for g in pub], "SUNDAY'S", "on Sunday", "kickoff")
+    scenes = [sc0] + [_pick_scene(i, len(pub), g) for i, g in enumerate(pub, 1)] + \
+             [_record_scene(r2, float(rec.get("ats_breakeven") or 52.38)), _cta_scene(nfl=True)]
+    out = OUT / f"short-nfl-results-{sunday.isoformat()}.mp4"
+    render(scenes, f"NFL RESULTS  WEEK {week}", out)
+    SPORT = "nba"
+    out.with_suffix(".txt").write_text(
+        f"Every NFL spread pick is logged before kickoff and graded in public, losses included.\n\n"
+        f"Week {week} Sunday: {wins}-{losses}\n"
+        + "".join(f"{g['pick_label']}: {g['outcome'].upper()} ({g['away']} {g['away_pts']}, {g['home']} {g['home_pts']})\n"
+                  for g in pub)
+        + f"\nSeason: {rec['ats_record']} ({rec['ats_pct']}%). Break-even at standard odds is 52.4%.\n\n"
+        + "https://konjureanalytics.com\n21+. Not betting advice. 1-800-GAMBLER.\n", encoding="utf-8")
+    return out
+
+
+def _nfl_label(label):
+    """'LAC +6.0' -> 'LAC +6': the weekly file keeps one decimal on whole-number spreads."""
+    import re
+    return re.sub(r"\.0$", "", label.strip())
+
+
+def _speak_nfl_line(line, pos):
+    import re
+    out = []
+    for seg in [x.strip() for x in re.split(r"[·•]", line) if x.strip()]:
+        parts = [p_.strip() for p_ in seg.split(",")]
+        spoken = []
+        for k, p_ in enumerate(parts):
+            m = re.fullmatch(r"(\d+)/(\d+)", p_)
+            if m:
+                a, b = m.groups()
+                spoken.append(f"{a} of {b}" if pos == "QB" and not out else f"{a} catches on {b} targets")
+                continue
+            m = re.fullmatch(r"(-?\d+)-(-?\d+) rush", p_) or re.fullmatch(r"(-?\d+)-(-?\d+)", p_)
+            if m:
+                a, b = m.groups()
+                spoken.append(f"{a} {'carry' if a == '1' else 'carries'} for {b} yards")
+                continue
+            p_ = re.sub(r"(\d+) yds", r"\1 yards", p_)
+            p_ = re.sub(r"(\d+) rec\b", r"\1 receiving yards", p_)
+            p_ = re.sub(r"\b1 TD\b", "1 touchdown", p_)
+            p_ = re.sub(r"(\d+) TD\b", r"\1 touchdowns", p_)
+            p_ = re.sub(r"\b1 INT\b", "1 interception", p_)
+            p_ = re.sub(r"(\d+) INT\b", r"\1 interceptions", p_)
+            spoken.append(p_)
+        out.append(", ".join(spoken))
+    return ". ".join(out)
+
+
+def _nfl_player_scene(rank, r, photo, credit):
+    name, team, opp, pos = r["player"], r["team"], r["opponent"], r["position"]
+    grade, score = r["grade"], float(r["score"])
+    opener = "And the player of the day." if rank == 1 else f"Number {rank}."
+    line = (f"{opener} {name}, {pos} for the {_tm(team, 'nfl')[1]}. {_speak_nfl_line(r['line'], pos)}. "
+            f"Grade: {_say_grade(grade)}.")
+    initials = "".join(p_[0] for p_ in name.replace(".", "").split()[:2]).upper()
+    gcol = GREEN if grade.startswith("A") else GOLD if grade.startswith("B") else ORANGE
+    at_grade = lambda sc: sc.after("Grade", 0.85)
+    rows = _wrap_text(r["line"], 54, W - 160)[:2]
+
+    def draw(img, d, t, sc):
+        pr = prog(t, 0.0, 0.25)
+        put(img, hexplate(250, 170, ORANGE if rank == 1 else (14, 14, 16), WHITE, f"#{rank}", 130,
+                          BLACK if rank == 1 else ORANGE), 820, 360, scale=2.2 - 1.2 * out_back(pr), alpha=min(1, pr * 3))
+        if rank == 1:
+            put(img, layer("PLAYER OF THE DAY", 52, GOLD, stroke=4), 820, 480, alpha=prog(t, 0.3, 0.6))
+        pp = out_cubic(prog(t, 0.12, 0.5))
+        put(img, photo_frame(photo, team, initials), -300 + pp * 630, 520, angle=(1 - pp) * 12)
+        if credit:
+            cl = layer(credit, 22, (200, 200, 205), head=False, stroke=2)
+            put(img, cl, max(330, cl.width / 2 + 44), 770, alpha=prog(t, 0.5, 0.8))
+        pn = out_cubic(prog(t, 0.35, 0.65))
+        put(img, hexplate(980, 120, (14, 14, 16), ORANGE, name.upper(), 84 if len(name) < 20 else 70, WHITE),
+            W / 2 + (1 - pn) * W, 860)
+        put(img, layer(f"{pos}  ·  {team} VS {opp}", 50, GOLD, stroke=4), W / 2, 960, alpha=prog(t, 0.6, 0.85))
+        for k, ln in enumerate(rows):
+            put(img, layer(ln, 54, WHITE, stroke=4), W / 2, 1060 + k * 72, alpha=prog(t, 0.8 + 0.2 * k, 1.1 + 0.2 * k))
+        tg = at_grade(sc)
+        if t >= tg:
+            p = prog(t, tg, tg + 0.28)
+            put(img, hexplate(250, 170, gcol, WHITE, grade, 120, WHITE), 820, 640,
+                scale=2.4 - 1.4 * out_back(p), alpha=min(1, p * 4), angle=-8 + 5 * p)
+            put(img, layer(f"{score:.1f}", 46, gcol, stroke=4), 820, 750, alpha=prog(t, tg + 0.2, tg + 0.4))
+
+    def sounds(sc):
+        tg = at_grade(sc)
+        return [(0.02, "thud", 0.8), (0.15, "scratch", 0.4), (tg, "thud", 0.9),
+                (tg + 0.02, "win", 0.8 if grade.startswith("A") else 0.4)]
+
+    react = "celebrate" if grade.startswith("A") else "talk"
+    return Scene(line, draw, min_dur=5.0, tail=1.3, sounds=sounds, shake_at=at_grade,
+                 moods=lambda sc: [(0.0, "point"), (1.0, "talk"), (at_grade(sc), react), (at_grade(sc) + 1.4, "talk")])
+
+
+def nfl_top5_short(sunday: datetime.date | None = None) -> pathlib.Path:
+    """Sunday's five best graded players (nfl_grades: against last season, by position)."""
+    global SPORT
+    SPORT = "nfl"
+    import nfl_grades as ng
+    sunday = sunday or datetime.date.today() - datetime.timedelta(days=1)
+    games = _sunday_games(sunday)
+    if games.empty:
+        raise SystemExit(f"no NFL games on {sunday}")
+    week, season = int(games["week"].iloc[0]), int(games["season"].iloc[0])
+    teams = set(games["home_team"]) | set(games["away_team"])
+    g = ng.grade_week(season, week)
+    g = g[g["team"].isin(teams)]
+    if g.empty:
+        raise SystemExit(f"{sunday}: Week {week} stats not in yet")
+    top = g.sort_values("score", ascending=False).head(5).reset_index(drop=True)
+    rows = [top.iloc[i] for i in range(len(top))]
+    shots = [player_photo(r["player"], "nfl") for r in rows]
+    scenes = [_ordinal_scene_title("OF THE DAY", "PLAYERS", "TOP 5", "GRADED 0-100 AGAINST LAST SEASON, BY POSITION",
+                                   "The five best players in the NFL on Sunday, graded by the numbers. "
+                                   "Top 5. Let's count them down.")]
+    for rank in range(len(rows), 0, -1):
+        ph, cr = shots[rank - 1]
+        scenes.append(_nfl_player_scene(rank, rows[rank - 1], ph, cr))
+    scenes.append(_cta([("EVERY PLAYER", WHITE, 0.15), ("GRADED", WHITE, 0.45), ("EVERY WEEK", ORANGE, 0.75)],
+                       "KONJUREANALYTICS.COM", "FOLLOW FOR THURSDAY'S BOARD",
+                       "Every player graded every week at Konjure Analytics dot com. Follow for Thursday night."))
+    SPORT = "nfl"
+    out = OUT / f"short-nfl-top5-{sunday.isoformat()}.mp4"
+    render(scenes, f"NFL TOP 5  WEEK {week}", out)
+    SPORT = "nba"
+    credits = [f"{r['player']}: {c.removeprefix('Photo: ')}" for r, (_, c) in zip(rows, shots) if c]
+    out.with_suffix(".txt").write_text(
+        f"Sunday's five best NFL players, Week {week}, graded 0-100 against last season at the same position.\n\n"
+        + "".join(f"#{i + 1} {r['player']} ({r['team']} {r['position']}) - {r['grade']}, {float(r['score']):.1f}: "
+                  f"{r['line']}\n" for i, r in enumerate(rows))
+        + "\nEvery player graded every week: https://konjureanalytics.com\n"
+        + ("\nPhoto credits (Wikimedia Commons):\n" + "\n".join(credits) + "\n" if credits else ""), encoding="utf-8")
+    return out
+
+
+FORMATS = {"results": results_short, "top5": top5_short, "gtg": gtg_short, "btm": btm_short,
+           "nfl-td": nfl_td_short, "nfl-results": nfl_results_short, "nfl-top5": nfl_top5_short}
+
+
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] in ("results", "top5"):
+    if len(sys.argv) > 1 and sys.argv[1] in FORMATS:
         n = datetime.date.fromisoformat(sys.argv[2]) if len(sys.argv) > 2 else None
-        print((results_short if sys.argv[1] == "results" else top5_short)(n))
+        print(FORMATS[sys.argv[1]](n))
     else:
         print(__doc__)
