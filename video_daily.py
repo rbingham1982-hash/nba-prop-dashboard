@@ -111,7 +111,8 @@ def posting_kit(fmt: str, day, path, title: str, desc: str) -> pathlib.Path:
         x_post = f"{hook[:280 - 24 - len(x_tail) - 3]}\n{_utm('x', fmt, day)}\n{x_tail}"
     threads = f"{hook}\n\n{summary}\n\n{_utm('threads', fmt, day)}\n{legal}".strip()[:500]
     text = (
-        f"##### BUFFER: one post, a tab per channel. Attach {path.name} to all three. #####\n\n"
+        f"##### BUFFER: one post, a tab per channel. Attach {path.stem}-720.mp4 to all three; turn on "
+        f"AI-Generated for X and Instagram. #####\n\n"
         f"=== Instagram (Reel; link in bio) ===\n{hook}\n\n{summary}\nEvery result, graded in public: link in bio.\n"
         f"{legal}\n{tags}\n\n"
         f"=== Threads ===\n{threads}\n\n"
