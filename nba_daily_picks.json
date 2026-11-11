@@ -4011,9 +4011,9 @@
     "edge": 5.58,
     "pick": "home",
     "pick_label": "UTA +9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 109,
+    "away_pts": 115,
     "published": true
    },
    {
@@ -4028,9 +4028,9 @@
     "edge": 3.15,
     "pick": "away",
     "pick_label": "LAC +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 133,
+    "away_pts": 110,
     "published": true
    },
    {
@@ -4045,9 +4045,9 @@
     "edge": 2.93,
     "pick": "away",
     "pick_label": "MIL +16.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 117,
+    "away_pts": 85,
     "published": true
    },
    {
@@ -4062,9 +4062,9 @@
     "edge": 2.18,
     "pick": "away",
     "pick_label": "OKC -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 123,
+    "away_pts": 103,
     "published": false
    },
    {
@@ -4079,9 +4079,9 @@
     "edge": 2.17,
     "pick": "away",
     "pick_label": "BOS -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 101,
+    "away_pts": 123,
     "published": false
    },
    {
@@ -4096,9 +4096,9 @@
     "edge": 1.48,
     "pick": "home",
     "pick_label": "SAC +5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 100,
+    "away_pts": 107,
     "published": false
    }
   ],
@@ -4118,8 +4118,8 @@
     "implied_prob": 0.6951,
     "blended_prob": 0.6951,
     "edge": 0.002,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 2.0
    },
    {
     "player": "AJ Green",
@@ -4133,8 +4133,8 @@
     "implied_prob": 0.6646,
     "blended_prob": 0.6646,
     "edge": -0.1303,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Bam Adebayo",
@@ -4148,8 +4148,8 @@
     "implied_prob": 0.6412,
     "blended_prob": 0.6412,
     "edge": -0.1998,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 4.0
    },
    {
     "player": "Anthony Black",
@@ -4163,8 +4163,8 @@
     "implied_prob": 0.5622,
     "blended_prob": 0.5622,
     "edge": 0.1464,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 26.0
    },
    {
     "player": "De'Andre Hunter",
@@ -4178,8 +4178,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": 0.1018,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 21.0
    }
   ],
   "parlay_withheld_price": {

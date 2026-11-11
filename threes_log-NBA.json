@@ -1623,7 +1623,7 @@
    "away_odds": -215,
    "home_prob": 0.3742
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 145,
@@ -1646,7 +1646,7 @@
    "away_odds": 135,
    "home_prob": 0.6104
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -200,
@@ -1669,7 +1669,7 @@
    "away_odds": 125,
    "home_prob": 0.5912
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -180,
@@ -1692,7 +1692,7 @@
    "away_odds": 110,
    "home_prob": 0.5638
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -160,
@@ -1715,7 +1715,7 @@
    "away_odds": -105,
    "home_prob": 0.5287
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -135,
@@ -1738,7 +1738,7 @@
    "away_odds": 120,
    "home_prob": 0.5833
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -175,
@@ -2014,8 +2014,8 @@
    "away_odds": 750,
    "home_prob": 0.887
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": -1200,
    "away_odds": 750,
@@ -2206,5 +2206,74 @@
    "home_prob": 0.4064
   },
   "last_seen": "2026-11-10T18:07:56"
+ },
+ "BOS @ TOR|2026-11-12T00:10": {
+  "label": "BOS @ TOR",
+  "home_name": "Toronto Raptors",
+  "away_name": "Boston Celtics",
+  "start_time": "2026-11-12T00:10:00.000Z",
+  "luck_home": -1.38,
+  "luck_away": 2.25,
+  "bet": "home",
+  "first_seen": "2026-11-11T00:35:14",
+  "first": {
+   "home_odds": 235,
+   "away_odds": -290,
+   "home_prob": 0.2864
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 235,
+   "away_odds": -290,
+   "home_prob": 0.2864
+  },
+  "last_seen": "2026-11-11T00:35:14"
+ },
+ "LAL @ MIL|2026-11-12T01:10": {
+  "label": "LAL @ MIL",
+  "home_name": "Milwaukee Bucks",
+  "away_name": "Los Angeles Lakers",
+  "start_time": "2026-11-12T01:10:00.000Z",
+  "luck_home": -2.1,
+  "luck_away": 0.43,
+  "bet": "home",
+  "first_seen": "2026-11-11T00:35:14",
+  "first": {
+   "home_odds": 530,
+   "away_odds": -750,
+   "home_prob": 0.1525
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 530,
+   "away_odds": -750,
+   "home_prob": 0.1525
+  },
+  "last_seen": "2026-11-11T00:35:14"
+ },
+ "MIL @ PHX|2026-11-11T07:35": {
+  "label": "MIL @ PHX",
+  "home_name": "Phoenix Suns",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-11T07:35:00.000Z",
+  "luck_home": 0.28,
+  "luck_away": -2.47,
+  "bet": "away",
+  "first_seen": "2026-11-11T00:35:14",
+  "first": {
+   "home_odds": -200,
+   "away_odds": 135,
+   "home_prob": 0.6104
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -200,
+   "away_odds": 135,
+   "home_prob": 0.6104
+  },
+  "last_seen": "2026-11-11T00:35:14"
  }
 }

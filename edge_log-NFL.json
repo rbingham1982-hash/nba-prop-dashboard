@@ -6332,7 +6332,7 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-04T18:28:57",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "ceedee lamb|Receptions|6.5|36244868": {
@@ -6728,7 +6728,7 @@
   "start_time": "2026-11-08T14:30:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-05T18:26:06",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "drew sample|Receptions|0.5|35603243": {
@@ -6746,7 +6746,7 @@
   "start_time": "2026-11-08T14:30:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-05T18:26:06",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "tetairoa mcmillan|Receptions|5.5|36244867": {
@@ -6908,7 +6908,7 @@
   "start_time": "2026-11-08T21:06:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-05T18:26:06",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "kimani vidal|Receptions|1.5|36244874": {
@@ -7106,7 +7106,7 @@
   "start_time": "2026-11-08T14:30:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-06T17:49:11",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "george pickens|Receiving Yards|56.5|36244868": {
@@ -7124,7 +7124,7 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-06T17:49:11",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "george pickens|Receptions|4.5|36244868": {
@@ -7142,7 +7142,7 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-06T17:49:11",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "jonathan taylor|Rushing Yards|61.5|36244868": {
@@ -7214,7 +7214,7 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-06T17:49:11",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "theo johnson|Receptions|0.5|36244873": {
@@ -7232,7 +7232,7 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-06T17:49:11",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "isaiah likely|Receptions|4.5|36244873": {
@@ -7340,7 +7340,7 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-07T00:07:20",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "george pickens|Receiving Yards|54.5|36244868": {
@@ -7358,7 +7358,7 @@
   "start_time": "2026-11-08T18:01:00.000Z",
   "game_day": "2026-11-08",
   "logged_at": "2026-11-07T14:42:03",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "keenan allen|Receiving Yards|41.5|36244868": {
@@ -8132,6 +8132,96 @@
   "start_time": "2026-11-15T21:06:00.000Z",
   "game_day": "2026-11-15",
   "logged_at": "2026-11-10T18:07:54",
+  "outcome": null,
+  "actual": null
+ },
+ "jordan mason|Rushing Yards|43.5|36275758": {
+  "player": "Jordan Mason",
+  "stat": "Rushing Yards",
+  "line": 43.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.55,
+  "fair_prob": 0.475,
+  "edge": 0.075,
+  "sample_n": 20,
+  "depth": 2,
+  "game": "MIN @ GB",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-11T00:35:12",
+  "outcome": null,
+  "actual": null
+ },
+ "aaron jones|Rushing Yards|26.5|36275758": {
+  "player": "Aaron Jones",
+  "stat": "Rushing Yards",
+  "line": 26.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.6329,
+  "fair_prob": 0.475,
+  "edge": 0.1579,
+  "sample_n": 20,
+  "depth": null,
+  "game": "MIN @ GB",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-11T00:35:12",
+  "outcome": null,
+  "actual": null
+ },
+ "patrick mahomes|Passing Yards|241.5|36275759": {
+  "player": "Patrick Mahomes",
+  "stat": "Passing Yards",
+  "line": 241.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5386,
+  "fair_prob": 0.475,
+  "edge": 0.0636,
+  "sample_n": 22,
+  "depth": 1,
+  "game": "KC @ ATL",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-11T00:35:12",
+  "outcome": null,
+  "actual": null
+ },
+ "noah gray|Receptions|1.5|36275759": {
+  "player": "Noah Gray",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 106,
+  "model_prob": 0.5268,
+  "fair_prob": 0.4292,
+  "edge": 0.0976,
+  "sample_n": 22,
+  "depth": 2,
+  "game": "KC @ ATL",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-11T00:35:12",
+  "outcome": null,
+  "actual": null
+ },
+ "josh downs|Receptions|3.5|36275759": {
+  "player": "Josh Downs",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "over",
+  "american_odds": 144,
+  "model_prob": 0.4957,
+  "fair_prob": 0.3581,
+  "edge": 0.1376,
+  "sample_n": 25,
+  "depth": 2,
+  "game": "KC @ ATL",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-11T00:35:12",
   "outcome": null,
   "actual": null
  }
