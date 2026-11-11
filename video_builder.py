@@ -311,9 +311,13 @@ def captions(img, d, words, t, y=1262):
             cur = g
     if cur is None:
         return
-    size = 92
-    f = F(size)
     txt = [w[2].upper() for w in cur]
+    size = 92
+    while size > 56:                                   # shrink a long phrase to fit the frame
+        if sum(d.textlength(x, font=F(int(size * 1.15))) for x in txt) + 20 * (len(txt) - 1) <= W - 100:
+            break
+        size -= 6
+    f = F(size)
     widths = [d.textlength(x, font=F(int(size * 1.15))) for x in txt]
     gap = 20
     x = (W - sum(widths) - gap * (len(txt) - 1)) / 2
@@ -321,7 +325,7 @@ def captions(img, d, words, t, y=1262):
         active = s <= t < max(e, s + 0.18)
         if active:
             pop = out_back(prog(t, s, s + 0.14))
-            put(img, layer(word, int(size * 1.15), GOLD, stroke=9), x + wd / 2, y + 52, scale=0.85 + 0.15 * pop)
+            put(img, layer(word, int(size * 1.15), GOLD, stroke=9), x + wd / 2, y + size * 0.57, scale=0.85 + 0.15 * pop)
         else:
             d.text((x + (wd - d.textlength(word, font=f)) / 2, y), word, font=f,
                    fill=WHITE if t >= s else (200, 200, 205), stroke_width=9, stroke_fill=BLACK)
