@@ -1761,7 +1761,7 @@
    "away_odds": -135,
    "home_prob": 0.4713
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -105,
@@ -1784,7 +1784,7 @@
    "away_odds": 150,
    "home_prob": 0.6322
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -220,
@@ -1807,7 +1807,7 @@
    "away_odds": 270,
    "home_prob": 0.7517
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -450,
@@ -1830,7 +1830,7 @@
    "away_odds": -700,
    "home_prob": 0.1956
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 370,
@@ -1853,7 +1853,7 @@
    "away_odds": -1100,
    "home_prob": 0.1595
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 475,
@@ -2275,5 +2275,74 @@
    "home_prob": 0.6104
   },
   "last_seen": "2026-11-11T00:35:14"
+ },
+ "CHA @ PHX|2026-11-13T02:10": {
+  "label": "CHA @ PHX",
+  "home_name": "Phoenix Suns",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-13T02:10:00.000Z",
+  "luck_home": 1.54,
+  "luck_away": -1.69,
+  "bet": "away",
+  "first_seen": "2026-11-11T19:37:31",
+  "first": {
+   "home_odds": -240,
+   "away_odds": 198,
+   "home_prob": 0.6778
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -240,
+   "away_odds": 198,
+   "home_prob": 0.6778
+  },
+  "last_seen": "2026-11-11T19:37:31"
+ },
+ "MIL @ MEM|2026-11-12T01:39": {
+  "label": "MIL @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-12T01:39:00.000Z",
+  "luck_home": 0.72,
+  "luck_away": -2.1,
+  "bet": "away",
+  "first_seen": "2026-11-11T19:37:31",
+  "first": {
+   "home_odds": 205,
+   "away_odds": -320,
+   "home_prob": 0.3009
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 205,
+   "away_odds": -320,
+   "home_prob": 0.3009
+  },
+  "last_seen": "2026-11-11T19:37:31"
+ },
+ "NYK @ BOS|2026-11-12T02:31": {
+  "label": "NYK @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "New York Knicks",
+  "start_time": "2026-11-12T02:31:00.000Z",
+  "luck_home": 2.25,
+  "luck_away": -0.38,
+  "bet": "away",
+  "first_seen": "2026-11-11T19:37:31",
+  "first": {
+   "home_odds": 145,
+   "away_odds": -215,
+   "home_prob": 0.3742
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 145,
+   "away_odds": -215,
+   "home_prob": 0.3742
+  },
+  "last_seen": "2026-11-11T19:37:31"
  }
 }

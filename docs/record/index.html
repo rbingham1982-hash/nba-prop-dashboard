@@ -76,6 +76,13 @@ padding:1.4rem 1.3rem;margin:2.4rem 0}
 .prose h2{color:var(--head);font-size:1.15rem;margin:1.8rem 0 .5rem}
 .prose p,.prose li{margin:.45rem 0;max-width:660px}
 .prose ul{padding-left:1.2rem}
+.watch{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin:.6rem 0 1rem}
+.watch a{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+text-decoration:none}
+.watch a:hover{border-color:var(--accent)}
+.watch .v{aspect-ratio:9/16;background:#0d0f16 center/cover no-repeat}
+.watch .c{padding:.55rem .65rem;font-size:.82rem;color:var(--head);line-height:1.3}
+@media (max-width:720px){.watch{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:520px){.hero h1{font-size:1.65rem}.btn{flex:1 1 100%;text-align:center}}
 </style></head><body><div class="c">
 <div class="top"><a class="brand" href="../"><img src="../app-icon.jpg" alt="">Konjure Analytics</a>
