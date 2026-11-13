@@ -4335,5 +4335,133 @@
    "fair_prob": 0.08476,
    "breakeven_prob": 0.0921
   }
+ },
+ "2026-11-12": {
+  "date": "2026-11-12",
+  "generated": "2026-11-12T18:35:02",
+  "ats": [
+   {
+    "event": "401909978",
+    "game": "DAL @ MIN",
+    "home": "MIN",
+    "away": "DAL",
+    "start_time": "2026-11-13T01:00Z",
+    "home_spread": -5.5,
+    "book": "DraftKings",
+    "pred_margin": 7.06,
+    "edge": 1.56,
+    "pick": "home",
+    "pick_label": "MIN -5.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": false
+   },
+   {
+    "event": "401909979",
+    "game": "CHA @ PHX",
+    "home": "PHX",
+    "away": "CHA",
+    "start_time": "2026-11-13T02:00Z",
+    "home_spread": -6.5,
+    "book": "DraftKings",
+    "pred_margin": 6.89,
+    "edge": 0.39,
+    "pick": "home",
+    "pick_label": "PHX -6.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": false
+   }
+  ],
+  "ats_rule": "published when the model and the line differ by 2-6 points",
+  "parlay": [],
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Tidjane Salaun",
+    "stat_type": "3-PT Made",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -265,
+    "game": "CHA @ PHX",
+    "start_time": "2026-11-13T02:10:00.000Z",
+    "model_prob": 0.6371,
+    "implied_prob": 0.7103,
+    "blended_prob": 0.7103,
+    "edge": -0.0732,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Naji Marshall",
+    "stat_type": "Rebounds",
+    "line": 3.5,
+    "side": "under",
+    "american_odds": -170,
+    "game": "DAL @ MIN",
+    "start_time": "2026-11-13T01:10:00.000Z",
+    "model_prob": 0.5371,
+    "implied_prob": 0.6186,
+    "blended_prob": 0.6186,
+    "edge": -0.0815,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jaden McDaniels",
+    "stat_type": "Assists",
+    "line": 3.5,
+    "side": "under",
+    "american_odds": -166,
+    "game": "DAL @ MIN",
+    "start_time": "2026-11-13T01:10:00.000Z",
+    "model_prob": 0.5829,
+    "implied_prob": 0.6144,
+    "blended_prob": 0.6144,
+    "edge": -0.0315,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Miles Bridges",
+    "stat_type": "Points",
+    "line": 15.5,
+    "side": "under",
+    "american_odds": -125,
+    "game": "CHA @ PHX",
+    "start_time": "2026-11-13T02:10:00.000Z",
+    "model_prob": 0.5157,
+    "implied_prob": 0.5489,
+    "blended_prob": 0.5489,
+    "edge": -0.0332,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Devin Booker",
+    "stat_type": "Pts+Rebs+Asts",
+    "line": 33.5,
+    "side": "under",
+    "american_odds": -125,
+    "game": "CHA @ PHX",
+    "start_time": "2026-11-13T02:10:00.000Z",
+    "model_prob": 0.4414,
+    "implied_prob": 0.5489,
+    "blended_prob": 0.5489,
+    "edge": -0.1075,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 11.357,
+   "american": 1036,
+   "model_prob": 0.0454,
+   "blended_prob": 0.08134,
+   "fair_prob": 0.08134,
+   "breakeven_prob": 0.08805
+  }
  }
 }

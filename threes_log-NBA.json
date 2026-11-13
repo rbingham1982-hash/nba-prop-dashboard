@@ -2293,11 +2293,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": -250,
-   "away_odds": 205,
-   "home_prob": 0.6854
+   "home_odds": -220,
+   "away_odds": 188,
+   "home_prob": 0.6644
   },
-  "last_seen": "2026-11-12T01:20:04"
+  "last_seen": "2026-11-12T18:35:00"
  },
  "MIL @ MEM|2026-11-12T01:39": {
   "label": "MIL @ MEM",
@@ -2367,5 +2367,28 @@
    "home_prob": 0.5807
   },
   "last_seen": "2026-11-12T01:20:04"
+ },
+ "ATL @ CHI|2026-11-14T01:10": {
+  "label": "ATL @ CHI",
+  "home_name": "Chicago Bulls",
+  "away_name": "Atlanta Hawks",
+  "start_time": "2026-11-14T01:10:00.000Z",
+  "luck_home": -1.89,
+  "luck_away": 0.87,
+  "bet": "home",
+  "first_seen": "2026-11-12T18:35:00",
+  "first": {
+   "home_odds": 215,
+   "away_odds": -260,
+   "home_prob": 0.3053
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 215,
+   "away_odds": -260,
+   "home_prob": 0.3053
+  },
+  "last_seen": "2026-11-12T18:35:00"
  }
 }
