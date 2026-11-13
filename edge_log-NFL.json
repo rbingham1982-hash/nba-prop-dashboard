@@ -7682,8 +7682,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-09T00:44:52",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 6.0
  },
  "malachi fields|Receiving Yards|25.5|36275757": {
   "player": "Malachi Fields",
@@ -7700,8 +7700,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-09T00:44:52",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 62.0
  },
  "malachi fields|Receptions|2.5|36275757": {
   "player": "Malachi Fields",
@@ -7718,8 +7718,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-09T00:44:52",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "sam laporta|Receiving Yards|43.5|35605986": {
   "player": "Sam LaPorta",
@@ -7772,8 +7772,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-09T20:15:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "malachi fields|Receiving Yards|24.5|36275757": {
   "player": "Malachi Fields",
@@ -7790,8 +7790,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-09T20:15:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 62.0
  },
  "malik nabers|Receptions|5.5|36275757": {
   "player": "Malik Nabers",
@@ -7808,8 +7808,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-09T20:15:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 5.0
  },
  "devin singletary|Receptions|1.5|36275757": {
   "player": "Devin Singletary",
@@ -7826,8 +7826,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-09T20:15:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "jordan love|Passing Yards|257.5|36275758": {
   "player": "Jordan Love",
@@ -8258,8 +8258,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 44.0
  },
  "cam skattebo|Receptions|1.5|36275757": {
   "player": "Cam Skattebo",
@@ -8276,8 +8276,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "stefon diggs|Receiving Yards|36.5|36275757": {
   "player": "Stefon Diggs",
@@ -8294,8 +8294,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 83.0
  },
  "cam skattebo|Rushing Yards|50.5|36275757": {
   "player": "Cam Skattebo",
@@ -8312,8 +8312,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 78.0
  },
  "jordan love|Passing Yards|251.5|36275758": {
   "player": "Jordan Love",
@@ -8960,8 +8960,8 @@
   "start_time": "2026-11-13T01:16:00.000Z",
   "game_day": "2026-11-12",
   "logged_at": "2026-11-12T18:34:57",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 9.0
  },
  "travis hunter|Receptions|1.5|36275762": {
   "player": "Travis Hunter",
@@ -9158,6 +9158,96 @@
   "start_time": "2026-11-15T21:06:00.000Z",
   "game_day": "2026-11-15",
   "logged_at": "2026-11-12T18:34:57",
+  "outcome": null,
+  "actual": null
+ },
+ "denzel boston|Receiving Yards|45.5|36275760": {
+  "player": "Denzel Boston",
+  "stat": "Receiving Yards",
+  "line": 45.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5336,
+  "fair_prob": 0.475,
+  "edge": 0.0586,
+  "sample_n": 9,
+  "depth": 1,
+  "game": "HOU @ CLE",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-13T00:53:33",
+  "outcome": null,
+  "actual": null
+ },
+ "braelon allen|Receptions|1.5|36275763": {
+  "player": "Braelon Allen",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": -102,
+  "model_prob": 0.5305,
+  "fair_prob": 0.4468,
+  "edge": 0.0837,
+  "sample_n": 13,
+  "depth": 2,
+  "game": "BUF @ NYJ",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-13T00:53:33",
+  "outcome": null,
+  "actual": null
+ },
+ "deebo samuel|Receptions|3.5|36275764": {
+  "player": "Deebo Samuel",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "over",
+  "american_odds": 116,
+  "model_prob": 0.4786,
+  "fair_prob": 0.408,
+  "edge": 0.0706,
+  "sample_n": 21,
+  "depth": null,
+  "game": "SF @ DAL",
+  "start_time": "2026-11-15T21:26:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-13T00:53:33",
+  "outcome": null,
+  "actual": null
+ },
+ "bam knight|Receiving Yards|5.5|36275766": {
+  "player": "Bam Knight",
+  "stat": "Receiving Yards",
+  "line": 5.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.6036,
+  "fair_prob": 0.475,
+  "edge": 0.1286,
+  "sample_n": 17,
+  "depth": null,
+  "game": "LA @ ARI",
+  "start_time": "2026-11-15T21:06:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-13T00:53:33",
+  "outcome": null,
+  "actual": null
+ },
+ "bam knight|Receptions|1.5|36275766": {
+  "player": "Bam Knight",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 120,
+  "model_prob": 0.5034,
+  "fair_prob": 0.3998,
+  "edge": 0.1036,
+  "sample_n": 17,
+  "depth": null,
+  "game": "LA @ ARI",
+  "start_time": "2026-11-15T21:06:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-13T00:53:33",
   "outcome": null,
   "actual": null
  }

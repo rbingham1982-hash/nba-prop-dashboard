@@ -2037,7 +2037,7 @@
    "away_odds": -180,
    "home_prob": 0.4088
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 125,
@@ -2060,7 +2060,7 @@
    "away_odds": 120,
    "home_prob": 0.5833
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -175,
@@ -2083,7 +2083,7 @@
    "away_odds": 140,
    "home_prob": 0.6192
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -210,
@@ -2106,7 +2106,7 @@
    "away_odds": -170,
    "home_prob": 0.4193
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 120,
@@ -2290,8 +2290,8 @@
    "away_odds": 198,
    "home_prob": 0.6778
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": -220,
    "away_odds": 188,
@@ -2385,10 +2385,10 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": 215,
-   "away_odds": -260,
-   "home_prob": 0.3053
+   "home_odds": 225,
+   "away_odds": -275,
+   "home_prob": 0.2956
   },
-  "last_seen": "2026-11-12T18:35:00"
+  "last_seen": "2026-11-13T00:53:38"
  }
 }

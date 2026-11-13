@@ -3455,5 +3455,455 @@
    "frozen_at": "2026-11-06T00:57:13"
   },
   "graded": true
+ },
+ "2026-10": {
+  "season": 2026,
+  "week": 10,
+  "generated": "2026-11-13T00:54:25",
+  "ats": [
+   {
+    "game": "MIN @ GB",
+    "away_team": "MIN",
+    "home_team": "GB",
+    "spread_line": 3.0,
+    "pred_margin": 5.65,
+    "edge": 2.65,
+    "pick": "home",
+    "pick_label": "GB -3.0",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "PIT @ CIN",
+    "away_team": "PIT",
+    "home_team": "CIN",
+    "spread_line": 3.5,
+    "pred_margin": 1.34,
+    "edge": -2.16,
+    "pick": "away",
+    "pick_label": "PIT +3.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "NE @ DET",
+    "away_team": "NE",
+    "home_team": "DET",
+    "spread_line": 2.5,
+    "pred_margin": 0.67,
+    "edge": -1.83,
+    "pick": "away",
+    "pick_label": "NE +2.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "LA @ ARI",
+    "away_team": "LA",
+    "home_team": "ARI",
+    "spread_line": -9.5,
+    "pred_margin": -8.05,
+    "edge": 1.45,
+    "pick": "home",
+    "pick_label": "ARI +9.5",
+    "outcome": null,
+    "result": null
+   },
+   {
+    "game": "HOU @ CLE",
+    "away_team": "HOU",
+    "home_team": "CLE",
+    "spread_line": -4.5,
+    "pred_margin": -3.24,
+    "edge": 1.26,
+    "pick": "home",
+    "pick_label": "CLE +4.5",
+    "outcome": null,
+    "result": null
+   }
+  ],
+  "parlay": [],
+  "td": [
+   {
+    "player": "Jahmyr Gibbs",
+    "game": "New England Patriots @ Detroit Lions",
+    "american_odds": -250,
+    "model_prob": 0.6127,
+    "fair_prob": 0.6753,
+    "blended_prob": 0.6127,
+    "edge": -0.0625,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jonathan Taylor",
+    "game": "Miami Dolphins @ Indianapolis Colts",
+    "american_odds": -115,
+    "model_prob": 0.5435,
+    "fair_prob": 0.4951,
+    "blended_prob": 0.5435,
+    "edge": 0.0484,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Derrick Henry",
+    "game": "Los Angeles Chargers @ Baltimore Ravens",
+    "american_odds": -135,
+    "model_prob": 0.5377,
+    "fair_prob": 0.5294,
+    "blended_prob": 0.5377,
+    "edge": 0.0083,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Javonte Williams",
+    "game": "San Francisco 49ers @ Dallas Cowboys",
+    "american_odds": -180,
+    "model_prob": 0.5315,
+    "fair_prob": 0.5998,
+    "blended_prob": 0.5315,
+    "edge": -0.0682,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "James Cook",
+    "game": "Buffalo Bills @ New York Jets",
+    "american_odds": -165,
+    "model_prob": 0.5236,
+    "fair_prob": 0.5788,
+    "blended_prob": 0.5236,
+    "edge": -0.0551,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Christian McCaffrey",
+    "game": "San Francisco 49ers @ Dallas Cowboys",
+    "american_odds": -290,
+    "model_prob": 0.5156,
+    "fair_prob": 0.7044,
+    "blended_prob": 0.5156,
+    "edge": -0.1888,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Bhayshul Tuten",
+    "game": "Jacksonville Jaguars @ Tennessee Titans",
+    "american_odds": -120,
+    "model_prob": 0.5036,
+    "fair_prob": 0.5043,
+    "blended_prob": 0.5036,
+    "edge": -0.0007,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kenneth Walker III",
+    "game": "Kansas City Chiefs @ Atlanta Falcons",
+    "american_odds": -240,
+    "model_prob": 0.488,
+    "fair_prob": 0.6663,
+    "blended_prob": 0.488,
+    "edge": -0.1783,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kyren Williams",
+    "game": "Los Angeles Rams @ Arizona Cardinals",
+    "american_odds": -150,
+    "model_prob": 0.4842,
+    "fair_prob": 0.5554,
+    "blended_prob": 0.4842,
+    "edge": -0.0712,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Zach Charbonnet",
+    "game": "Seattle Seahawks @ Las Vegas Raiders",
+    "american_odds": 115,
+    "model_prob": 0.4491,
+    "fair_prob": 0.434,
+    "blended_prob": 0.4491,
+    "edge": 0.0151,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "receivers_rule": "edge",
+  "receivers": [
+   {
+    "player": "Darren Waller",
+    "game": "Carolina Panthers @ New Orleans Saints",
+    "position": "TE",
+    "american_odds": 360,
+    "model_prob": 0.3945,
+    "fair_prob": 0.2101,
+    "blended_prob": 0.3945,
+    "edge": 0.1844,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Justin Jefferson",
+    "game": "Minnesota Vikings @ Green Bay Packers",
+    "position": "WR",
+    "american_odds": 155,
+    "model_prob": 0.2074,
+    "fair_prob": 0.3703,
+    "blended_prob": 0.2074,
+    "edge": -0.1629,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Trey McBride",
+    "game": "Los Angeles Rams @ Arizona Cardinals",
+    "position": "TE",
+    "american_odds": 270,
+    "model_prob": 0.4199,
+    "fair_prob": 0.2619,
+    "blended_prob": 0.4199,
+    "edge": 0.158,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Ja'Marr Chase",
+    "game": "Pittsburgh Steelers @ Cincinnati Bengals",
+    "position": "WR",
+    "american_odds": -120,
+    "model_prob": 0.3476,
+    "fair_prob": 0.5043,
+    "blended_prob": 0.3476,
+    "edge": -0.1567,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "CeeDee Lamb",
+    "game": "San Francisco 49ers @ Dallas Cowboys",
+    "position": "WR",
+    "american_odds": -115,
+    "model_prob": 0.3405,
+    "fair_prob": 0.4951,
+    "blended_prob": 0.3405,
+    "edge": -0.1547,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "wind": [
+   {
+    "game": "SF @ DAL",
+    "home_team": "DAL",
+    "away_team": "SF",
+    "total_line": 55.5,
+    "wind_mph": 15.0,
+    "expected_adj": -5.83,
+    "gameday": "2026-11-15",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "BUF @ NYJ",
+    "home_team": "NYJ",
+    "away_team": "BUF",
+    "total_line": 50.5,
+    "wind_mph": 13.6,
+    "expected_adj": -5.29,
+    "gameday": "2026-11-15",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   },
+   {
+    "game": "HOU @ CLE",
+    "home_team": "CLE",
+    "away_team": "HOU",
+    "total_line": 40.5,
+    "wind_mph": 11.7,
+    "expected_adj": -4.55,
+    "gameday": "2026-11-15",
+    "outcome": null,
+    "actual_total": null,
+    "residual": null
+   }
+  ],
+  "parlay_gate": true,
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Deshaun Watson",
+    "stat_type": "Passing TDs",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -275,
+    "model_prob": 0.7713,
+    "blended_prob": 0.7111,
+    "implied_prob": 0.7111,
+    "team": "",
+    "matchup": {
+     "role": "QB1",
+     "opp": "HOU",
+     "allowed": 1.38,
+     "avg": 1.47,
+     "games": 8,
+     "tilt": 0.065
+    },
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Samaje Perine",
+    "stat_type": "Receptions",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -250,
+    "model_prob": 0.744,
+    "blended_prob": 0.6932,
+    "implied_prob": 0.6932,
+    "team": "",
+    "matchup": null,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jared Goff",
+    "stat_type": "Rushing Yards",
+    "line": 0.5,
+    "side": "under",
+    "american_odds": -135,
+    "model_prob": 0.6688,
+    "blended_prob": 0.5646,
+    "implied_prob": 0.5646,
+    "team": "",
+    "matchup": {
+     "role": "QB1",
+     "opp": "NE",
+     "allowed": 7.33,
+     "avg": 15.07,
+     "games": 9,
+     "tilt": 0.513
+    },
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Noah Fant",
+    "stat_type": "Receiving Yards",
+    "line": 5.5,
+    "side": "under",
+    "american_odds": -128,
+    "model_prob": 0.2787,
+    "blended_prob": 0.5515,
+    "implied_prob": 0.5515,
+    "team": "",
+    "matchup": {
+     "role": "TE2",
+     "opp": "CAR",
+     "allowed": 8.86,
+     "avg": 15.12,
+     "games": 7,
+     "tilt": 0.414
+    },
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Drake Maye",
+    "stat_type": "Passing Yards",
+    "line": 262.5,
+    "side": "under",
+    "american_odds": -114,
+    "model_prob": 0.4777,
+    "blended_prob": 0.525,
+    "implied_prob": 0.525,
+    "team": "",
+    "matchup": {
+     "role": "QB1",
+     "opp": "DET",
+     "allowed": 276.5,
+     "avg": 224.49,
+     "games": 8,
+     "tilt": -0.232
+    },
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 11.112,
+   "american": 1011,
+   "model_prob": 0.0511,
+   "blended_prob": 0.08058,
+   "fair_prob": 0.08058,
+   "breakeven_prob": 0.08999
+  },
+  "td_parlay": [
+   "Jahmyr Gibbs",
+   "Jonathan Taylor",
+   "Derrick Henry"
+  ],
+  "td_parlay_price": {
+   "decimal": 4.556,
+   "american": 356,
+   "model_prob": 0.17906,
+   "blended_prob": 0.17906,
+   "fair_prob": 0.177,
+   "breakeven_prob": 0.21948
+  },
+  "td_rule": "model",
+  "form_parlay": {
+   "day": "2026-11-15",
+   "keys": [
+    "deshaun watson|Passing TDs|1.5|36275760",
+    "samaje perine|Receptions|1.5|36275765",
+    "daniel jones|Passing TDs|1.5|36275761"
+   ],
+   "legs": [
+    {
+     "player": "Deshaun Watson",
+     "stat": "Passing TDs",
+     "line": 1.5,
+     "american_odds": -250,
+     "fair_prob": 0.6932,
+     "med5": 0.0,
+     "game": "HOU @ CLE",
+     "start_time": "2026-11-15T18:01:00.000Z"
+    },
+    {
+     "player": "Samaje Perine",
+     "stat": "Receptions",
+     "line": 1.5,
+     "american_odds": -250,
+     "fair_prob": 0.6932,
+     "med5": 0.0,
+     "game": "PIT @ CIN",
+     "start_time": "2026-11-16T01:21:00.000Z"
+    },
+    {
+     "player": "Daniel Jones",
+     "stat": "Passing TDs",
+     "line": 1.5,
+     "american_odds": -235,
+     "fair_prob": 0.6811,
+     "med5": 1.0,
+     "game": "MIA @ IND",
+     "start_time": "2026-11-15T18:01:00.000Z"
+    }
+   ],
+   "decimal": 2.794,
+   "american": 179,
+   "fair_prob": 0.3273,
+   "breakeven": 0.3579,
+   "frozen_at": "2026-11-13T00:54:25"
+  }
  }
 }
