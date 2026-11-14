@@ -2267,7 +2267,7 @@
    "away_odds": 135,
    "home_prob": 0.6104
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -200,
@@ -2413,5 +2413,143 @@
    "home_prob": 0.4362
   },
   "last_seen": "2026-11-13T18:25:26"
+ },
+ "BOS @ NYK|2026-11-14T22:07": {
+  "label": "BOS @ NYK",
+  "home_name": "New York Knicks",
+  "away_name": "Boston Celtics",
+  "start_time": "2026-11-14T22:07:00.000Z",
+  "luck_home": -0.36,
+  "luck_away": 2.83,
+  "bet": "home",
+  "first_seen": "2026-11-14T15:07:56",
+  "first": {
+   "home_odds": 185,
+   "away_odds": -290,
+   "home_prob": 0.3206
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 185,
+   "away_odds": -290,
+   "home_prob": 0.3206
+  },
+  "last_seen": "2026-11-14T15:07:56"
+ },
+ "OKC @ BOS|2026-11-14T21:23": {
+  "label": "OKC @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "Oklahoma City Thunder",
+  "start_time": "2026-11-14T21:23:00.000Z",
+  "luck_home": 2.83,
+  "luck_away": -0.12,
+  "bet": "away",
+  "first_seen": "2026-11-14T15:07:56",
+  "first": {
+   "home_odds": -160,
+   "away_odds": 110,
+   "home_prob": 0.5638
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -160,
+   "away_odds": 110,
+   "home_prob": 0.5638
+  },
+  "last_seen": "2026-11-14T15:07:56"
+ },
+ "OKC @ BOS|2026-11-14T21:19": {
+  "label": "OKC @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "Oklahoma City Thunder",
+  "start_time": "2026-11-14T21:19:00.000Z",
+  "luck_home": 2.83,
+  "luck_away": -0.12,
+  "bet": "away",
+  "first_seen": "2026-11-14T15:07:56",
+  "first": {
+   "home_odds": -175,
+   "away_odds": 120,
+   "home_prob": 0.5833
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -175,
+   "away_odds": 120,
+   "home_prob": 0.5833
+  },
+  "last_seen": "2026-11-14T15:07:56"
+ },
+ "BOS @ LAL|2026-11-14T22:27": {
+  "label": "BOS @ LAL",
+  "home_name": "Los Angeles Lakers",
+  "away_name": "Boston Celtics",
+  "start_time": "2026-11-14T22:27:00.000Z",
+  "luck_home": -0.18,
+  "luck_away": 2.83,
+  "bet": "home",
+  "first_seen": "2026-11-14T15:07:56",
+  "first": {
+   "home_odds": 125,
+   "away_odds": -185,
+   "home_prob": 0.4064
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 125,
+   "away_odds": -185,
+   "home_prob": 0.4064
+  },
+  "last_seen": "2026-11-14T15:07:56"
+ },
+ "MIA @ BKN|2026-11-14T21:43": {
+  "label": "MIA @ BKN",
+  "home_name": "Brooklyn Nets",
+  "away_name": "Miami Heat",
+  "start_time": "2026-11-14T21:43:00.000Z",
+  "luck_home": 0.96,
+  "luck_away": -1.56,
+  "bet": "away",
+  "first_seen": "2026-11-14T15:07:56",
+  "first": {
+   "home_odds": 140,
+   "away_odds": -210,
+   "home_prob": 0.3808
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 140,
+   "away_odds": -210,
+   "home_prob": 0.3808
+  },
+  "last_seen": "2026-11-14T15:07:56"
+ },
+ "LAL @ BOS|2026-11-14T22:23": {
+  "label": "LAL @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "Los Angeles Lakers",
+  "start_time": "2026-11-14T22:23:00.000Z",
+  "luck_home": 2.83,
+  "luck_away": -0.18,
+  "bet": "away",
+  "first_seen": "2026-11-14T15:07:56",
+  "first": {
+   "home_odds": 130,
+   "away_odds": -190,
+   "home_prob": 0.3989
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 130,
+   "away_odds": -190,
+   "home_prob": 0.3989
+  },
+  "last_seen": "2026-11-14T15:07:56"
  }
 }
