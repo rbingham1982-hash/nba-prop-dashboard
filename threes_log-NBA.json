@@ -2129,7 +2129,7 @@
    "away_odds": -150,
    "home_prob": 0.4484
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 105,
@@ -2152,7 +2152,7 @@
    "away_odds": 140,
    "home_prob": 0.6192
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -210,
@@ -2175,7 +2175,7 @@
    "away_odds": -155,
    "home_prob": 0.4452
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 105,
@@ -2385,10 +2385,33 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": 225,
-   "away_odds": -275,
-   "home_prob": 0.2956
+   "home_odds": 198,
+   "away_odds": -240,
+   "home_prob": 0.3222
   },
-  "last_seen": "2026-11-13T00:53:38"
+  "last_seen": "2026-11-13T18:25:26"
+ },
+ "NYK @ BOS|2026-11-14T00:35": {
+  "label": "NYK @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "New York Knicks",
+  "start_time": "2026-11-14T00:35:00.000Z",
+  "luck_home": 2.83,
+  "luck_away": 0.0,
+  "bet": "away",
+  "first_seen": "2026-11-13T18:25:26",
+  "first": {
+   "home_odds": 110,
+   "away_odds": -160,
+   "home_prob": 0.4362
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 110,
+   "away_odds": -160,
+   "home_prob": 0.4362
+  },
+  "last_seen": "2026-11-13T18:25:26"
  }
 }
