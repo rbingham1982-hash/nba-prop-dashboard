@@ -4480,9 +4480,9 @@
     "edge": 8.16,
     "pick": "away",
     "pick_label": "GSW +12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 123,
+    "away_pts": 85,
     "published": false
    },
    {
@@ -4497,9 +4497,9 @@
     "edge": 5.08,
     "pick": "away",
     "pick_label": "CLE +2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 133,
+    "away_pts": 121,
     "published": true
    },
    {
@@ -4514,9 +4514,9 @@
     "edge": 2.12,
     "pick": "home",
     "pick_label": "HOU -15.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 125,
+    "away_pts": 118,
     "published": true
    },
    {
@@ -4531,9 +4531,9 @@
     "edge": 1.98,
     "pick": "away",
     "pick_label": "POR -10.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 107,
+    "away_pts": 120,
     "published": false
    },
    {
@@ -4548,9 +4548,9 @@
     "edge": 1.77,
     "pick": "away",
     "pick_label": "MEM -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 111,
+    "away_pts": 142,
     "published": false
    },
    {
@@ -4565,9 +4565,9 @@
     "edge": 1.52,
     "pick": "away",
     "pick_label": "ATL -6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 125,
+    "away_pts": 117,
     "published": false
    },
    {
@@ -4582,9 +4582,9 @@
     "edge": 0.45,
     "pick": "home",
     "pick_label": "LAC +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 113,
+    "away_pts": 112,
     "published": false
    }
   ],
@@ -4604,8 +4604,8 @@
     "implied_prob": 0.7103,
     "blended_prob": 0.7103,
     "edge": 0.1754,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Jaylon Tyson",
@@ -4619,8 +4619,8 @@
     "implied_prob": 0.6646,
     "blended_prob": 0.6646,
     "edge": -0.1346,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Zach LaVine",
@@ -4634,8 +4634,8 @@
     "implied_prob": 0.6412,
     "blended_prob": 0.6412,
     "edge": -0.0769,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    },
    {
     "player": "Bennedict Mathurin",
@@ -4649,8 +4649,8 @@
     "implied_prob": 0.5678,
     "blended_prob": 0.5678,
     "edge": 0.1651,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Dyson Daniels",
@@ -4664,8 +4664,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": -0.0039,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 19.0
    }
   ],
   "parlay_withheld_price": {

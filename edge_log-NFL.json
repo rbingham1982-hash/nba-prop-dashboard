@@ -9574,5 +9574,23 @@
   "logged_at": "2026-11-13T18:25:22",
   "outcome": null,
   "actual": null
+ },
+ "trey mcbride|Receptions|6.5|36275766": {
+  "player": "Trey McBride",
+  "stat": "Receptions",
+  "line": 6.5,
+  "side": "over",
+  "american_odds": -138,
+  "model_prob": 0.5871,
+  "fair_prob": 0.5169,
+  "edge": 0.0702,
+  "sample_n": 26,
+  "depth": 1,
+  "game": "LA @ ARI",
+  "start_time": "2026-11-15T21:06:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-14T00:34:12",
+  "outcome": null,
+  "actual": null
  }
 }

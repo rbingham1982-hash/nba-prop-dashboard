@@ -2198,7 +2198,7 @@
    "away_odds": -185,
    "home_prob": 0.4064
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 125,
@@ -2382,8 +2382,8 @@
    "away_odds": -260,
    "home_prob": 0.3053
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": 198,
    "away_odds": -240,

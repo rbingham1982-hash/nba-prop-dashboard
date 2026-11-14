@@ -51192,5 +51192,181 @@
   "logged_at": "2026-11-13T18:24:49",
   "outcome": null,
   "actual": null
+ },
+ "ben yurosek|Receiving Yards|9.5|36275758": {
+  "player": "Ben Yurosek",
+  "stat": "Receiving Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 9.0,
+  "last5": [
+   0.0,
+   9.0,
+   10.0,
+   24.0,
+   0.0
+  ],
+  "game": "MIN @ GB",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-14T00:33:29",
+  "outcome": null,
+  "actual": null
+ },
+ "gunnar helm|Receiving Yards|28.5|36275762": {
+  "player": "Gunnar Helm",
+  "stat": "Receiving Yards",
+  "line": 28.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 14.0,
+  "last5": [
+   14.0,
+   5.0,
+   0.0,
+   24.0,
+   76.0
+  ],
+  "game": "JAX @ TEN",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-14T00:33:29",
+  "outcome": null,
+  "actual": null
+ },
+ "chimere dike|Receiving Yards|29.5|36275762": {
+  "player": "Chimere Dike",
+  "stat": "Receiving Yards",
+  "line": 29.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 15.0,
+  "last5": [
+   15.0,
+   28.0,
+   0.0,
+   0.0,
+   71.0
+  ],
+  "game": "JAX @ TEN",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-14T00:33:29",
+  "outcome": null,
+  "actual": null
+ },
+ "dj moore|Receiving Yards|45.5|36275763": {
+  "player": "D.J. Moore",
+  "stat": "Receiving Yards",
+  "line": 45.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 25.0,
+  "last5": [
+   0.0,
+   67.0,
+   11.0,
+   82.0,
+   25.0
+  ],
+  "game": "BUF @ NYJ",
+  "start_time": "2026-11-15T18:01:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-14T00:33:29",
+  "outcome": null,
+  "actual": null
+ },
+ "brock purdy|Passing Yards|261.5|36275764": {
+  "player": "Brock Purdy",
+  "stat": "Passing Yards",
+  "line": 261.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 232.0,
+  "last5": [
+   218.0,
+   189.0,
+   264.0,
+   288.0,
+   232.0
+  ],
+  "game": "SF @ DAL",
+  "start_time": "2026-11-15T21:26:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-14T00:33:29",
+  "outcome": null,
+  "actual": null
+ },
+ "dak prescott|Passing Yards|272.5|36275764": {
+  "player": "Dak Prescott",
+  "stat": "Passing Yards",
+  "line": 272.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 258.0,
+  "last5": [
+   316.0,
+   258.0,
+   212.0,
+   195.0,
+   335.0
+  ],
+  "game": "SF @ DAL",
+  "start_time": "2026-11-15T21:26:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-14T00:33:29",
+  "outcome": null,
+  "actual": null
+ },
+ "brevyn spann-ford|Receiving Yards|21.5|36275764": {
+  "player": "Brevyn Spann-Ford",
+  "stat": "Receiving Yards",
+  "line": 21.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 20.0,
+  "last5": [
+   0.0,
+   35.0,
+   11.0,
+   31.0,
+   20.0
+  ],
+  "game": "SF @ DAL",
+  "start_time": "2026-11-15T21:26:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-14T00:33:29",
+  "outcome": null,
+  "actual": null
+ },
+ "derrick henry|Rushing Yards|80.5|36275768": {
+  "player": "Derrick Henry",
+  "stat": "Rushing Yards",
+  "line": 80.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 57.0,
+  "last5": [
+   102.0,
+   58.0,
+   45.0,
+   53.0,
+   57.0
+  ],
+  "game": "LAC @ BAL",
+  "start_time": "2026-11-17T01:21:00.000Z",
+  "game_day": "2026-11-16",
+  "logged_at": "2026-11-14T00:33:29",
+  "outcome": null,
+  "actual": null
  }
 }
