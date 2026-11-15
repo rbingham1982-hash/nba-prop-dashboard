@@ -6688,12 +6688,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7434,
-   "odds": -340,
-   "home_odds": 275,
-   "away_odds": -340
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": 265,
+   "away_odds": -330
   },
-  "last_seen": "2026-11-15T17:03:52"
+  "last_seen": "2026-11-15T17:25:21"
  },
  "HOU @ WAS|2026-11-16T00:10": {
   "label": "HOU @ WAS",
@@ -6717,7 +6717,7 @@
    "home_odds": 280,
    "away_odds": -350
   },
-  "last_seen": "2026-11-15T17:03:52"
+  "last_seen": "2026-11-15T17:25:21"
  },
  "IND @ PHI|2026-11-15T18:10": {
   "label": "IND @ PHI",
@@ -6885,7 +6885,7 @@
    "home_odds": 420,
    "away_odds": -560
   },
-  "last_seen": "2026-11-15T17:03:52"
+  "last_seen": "2026-11-15T17:25:21"
  },
  "MIL @ MEM|2026-11-15T07:35": {
   "label": "MIL @ MEM",
@@ -7078,5 +7078,29 @@
    "away_odds": 700
   },
   "last_seen": "2026-11-15T17:03:52"
+ },
+ "OKC @ BOS|2026-11-16T00:15": {
+  "label": "OKC @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "Oklahoma City Thunder",
+  "start_time": "2026-11-16T00:15:00.000Z",
+  "first_seen": "2026-11-15T17:25:21",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6991,
+   "odds": -320,
+   "home_odds": 205,
+   "away_odds": -320
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6991,
+   "odds": -320,
+   "home_odds": 205,
+   "away_odds": -320
+  },
+  "last_seen": "2026-11-15T17:25:21"
  }
 }
