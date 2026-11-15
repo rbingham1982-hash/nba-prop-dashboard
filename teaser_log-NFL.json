@@ -494,7 +494,7 @@
   "outcome": null,
   "last_line": 3.5,
   "last_odds": -110,
-  "last_seen": "2026-11-15T14:25:43"
+  "last_seen": "2026-11-15T15:10:25"
  },
  "Carolina Panthers @ New Orleans Saints|2026-11-15T18:01": {
   "dog": "Carolina Panthers",
@@ -520,7 +520,7 @@
   "outcome": null,
   "last_line": 4.5,
   "last_odds": -110,
-  "last_seen": "2026-11-15T14:25:43"
+  "last_seen": "2026-11-15T15:10:25"
  },
  "New England Patriots @ Detroit Lions|2026-11-15T14:30": {
   "dog": "New England Patriots",
@@ -589,5 +589,18 @@
   "last_line": 1.5,
   "last_odds": -110,
   "last_seen": "2026-11-15T00:43:09"
+ },
+ "San Francisco 49ers @ Dallas Cowboys|2026-11-15T21:26": {
+  "dog": "Dallas Cowboys",
+  "dog_home": true,
+  "home_name": "Dallas Cowboys",
+  "away_name": "San Francisco 49ers",
+  "start_time": "2026-11-15T21:26:00.000Z",
+  "first_seen": "2026-11-15T15:10:25",
+  "first_line": 3.5,
+  "outcome": null,
+  "last_line": 3.5,
+  "last_odds": -105,
+  "last_seen": "2026-11-15T15:10:25"
  }
 }
