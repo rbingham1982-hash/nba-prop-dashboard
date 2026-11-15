@@ -3494,8 +3494,8 @@
     "edge": -1.83,
     "pick": "away",
     "pick_label": "NE +2.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": 25.0
    },
    {
     "game": "LA @ ARI",
@@ -3904,6 +3904,7 @@
    "fair_prob": 0.3273,
    "breakeven": 0.3579,
    "frozen_at": "2026-11-13T00:54:25"
-  }
+  },
+  "graded": false
  }
 }

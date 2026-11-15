@@ -494,7 +494,7 @@
   "outcome": null,
   "last_line": 3.5,
   "last_odds": -110,
-  "last_seen": "2026-11-15T00:43:09"
+  "last_seen": "2026-11-15T13:41:14"
  },
  "Carolina Panthers @ New Orleans Saints|2026-11-15T18:01": {
   "dog": "Carolina Panthers",
@@ -520,7 +520,7 @@
   "outcome": null,
   "last_line": 4.5,
   "last_odds": -110,
-  "last_seen": "2026-11-15T00:43:09"
+  "last_seen": "2026-11-15T13:41:14"
  },
  "New England Patriots @ Detroit Lions|2026-11-15T14:30": {
   "dog": "New England Patriots",
@@ -530,10 +530,13 @@
   "start_time": "2026-11-15T14:30:00.000Z",
   "first_seen": "2026-11-05T18:26:07",
   "first_line": 1.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 2.5,
   "last_odds": 100,
-  "last_seen": "2026-11-15T00:43:09"
+  "last_seen": "2026-11-15T00:43:09",
+  "margin": -25.0,
+  "last_result": "loss",
+  "first_result": "loss"
  },
  "Seattle Seahawks @ Las Vegas Raiders|2026-11-15T21:06": {
   "dog": "Las Vegas Raiders",
@@ -546,7 +549,7 @@
   "outcome": null,
   "last_line": 6.5,
   "last_odds": -110,
-  "last_seen": "2026-11-15T00:43:09"
+  "last_seen": "2026-11-15T13:41:14"
  },
  "Baltimore Ravens @ Carolina Panthers|2026-11-22T18:01": {
   "dog": "Baltimore Ravens",
