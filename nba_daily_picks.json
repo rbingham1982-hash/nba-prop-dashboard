@@ -4693,9 +4693,9 @@
     "edge": 8.22,
     "pick": "home",
     "pick_label": "CLE +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 127,
+    "away_pts": 117,
     "published": false
    },
    {
@@ -4710,9 +4710,9 @@
     "edge": 7.8,
     "pick": "home",
     "pick_label": "MEM -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 129,
+    "away_pts": 110,
     "published": false
    },
    {
@@ -4727,9 +4727,9 @@
     "edge": 4.37,
     "pick": "home",
     "pick_label": "NOP +12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 108,
+    "away_pts": 116,
     "published": true
    },
    {
@@ -4744,9 +4744,9 @@
     "edge": 2.85,
     "pick": "home",
     "pick_label": "MIN -15.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 106,
+    "away_pts": 117,
     "published": true
    },
    {
@@ -4761,9 +4761,9 @@
     "edge": 0.43,
     "pick": "away",
     "pick_label": "DET -4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 137,
+    "away_pts": 117,
     "published": false
    }
   ],
@@ -4783,8 +4783,8 @@
     "implied_prob": 0.6932,
     "blended_prob": 0.6932,
     "edge": -0.0532,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Myron Gardner",
@@ -4798,8 +4798,8 @@
     "implied_prob": 0.6257,
     "blended_prob": 0.6257,
     "edge": 0.3014,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 9.0
    },
    {
     "player": "Ayo Dosunmu",
@@ -4813,8 +4813,8 @@
     "implied_prob": 0.6186,
     "blended_prob": 0.6186,
     "edge": 0.0885,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Danny Wolf",
@@ -4828,8 +4828,8 @@
     "implied_prob": 0.5629,
     "blended_prob": 0.5629,
     "edge": -0.0386,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 14.0
    },
    {
     "player": "Isaac Okoro",
@@ -4843,8 +4843,8 @@
     "implied_prob": 0.5573,
     "blended_prob": 0.5573,
     "edge": 0.0927,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 20.0
    }
   ],
   "parlay_withheld_price": {
