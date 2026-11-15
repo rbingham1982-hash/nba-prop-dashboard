@@ -3518,8 +3518,8 @@
     "edge": 1.26,
     "pick": "home",
     "pick_label": "CLE +4.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 3.0
    }
   ],
   "parlay": [],
@@ -3719,9 +3719,9 @@
     "wind_mph": 13.6,
     "expected_adj": -5.29,
     "gameday": "2026-11-15",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 43.0,
+    "residual": -7.5
    },
    {
     "game": "HOU @ CLE",
@@ -3731,9 +3731,9 @@
     "wind_mph": 11.7,
     "expected_adj": -4.55,
     "gameday": "2026-11-15",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 51.0,
+    "residual": 10.5
    }
   ],
   "parlay_gate": true,

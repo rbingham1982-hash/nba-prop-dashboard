@@ -52842,5 +52842,27 @@
   "logged_at": "2026-11-15T14:25:18",
   "outcome": null,
   "actual": null
+ },
+ "chase brown|Rushing Yards|44.5|36275765": {
+  "player": "Chase Brown",
+  "stat": "Rushing Yards",
+  "line": 44.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 39.0,
+  "last5": [
+   10.0,
+   39.0,
+   39.0,
+   55.0,
+   57.0
+  ],
+  "game": "PIT @ CIN",
+  "start_time": "2026-11-16T01:21:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-15T17:03:43",
+  "outcome": null,
+  "actual": null
  }
 }

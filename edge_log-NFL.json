@@ -10132,5 +10132,41 @@
   "logged_at": "2026-11-15T13:41:13",
   "outcome": null,
   "actual": null
+ },
+ "chase brown|Receptions|4.5|36275765": {
+  "player": "Chase Brown",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "over",
+  "american_odds": 106,
+  "model_prob": 0.4858,
+  "fair_prob": 0.4292,
+  "edge": 0.0566,
+  "sample_n": 25,
+  "depth": 1,
+  "game": "PIT @ CIN",
+  "start_time": "2026-11-16T01:21:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-15T17:03:51",
+  "outcome": null,
+  "actual": null
+ },
+ "aaron rodgers|Rushing Yards|0.5|36275765": {
+  "player": "Aaron Rodgers",
+  "stat": "Rushing Yards",
+  "line": 0.5,
+  "side": "over",
+  "american_odds": -106,
+  "model_prob": 0.5298,
+  "fair_prob": 0.4604,
+  "edge": 0.0694,
+  "sample_n": 24,
+  "depth": 1,
+  "game": "PIT @ CIN",
+  "start_time": "2026-11-16T01:21:00.000Z",
+  "game_day": "2026-11-15",
+  "logged_at": "2026-11-15T17:03:51",
+  "outcome": null,
+  "actual": null
  }
 }
