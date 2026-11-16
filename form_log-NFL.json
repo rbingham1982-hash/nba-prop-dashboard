@@ -52864,5 +52864,49 @@
   "logged_at": "2026-11-15T17:03:43",
   "outcome": null,
   "actual": null
+ },
+ "cj stroud|Passing Yards|263.5|36305232": {
+  "player": "C.J. Stroud",
+  "stat": "Passing Yards",
+  "line": 263.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 261.0,
+  "last5": [
+   261.0,
+   312.0,
+   153.0,
+   384.0,
+   211.0
+  ],
+  "game": "IND @ HOU",
+  "start_time": "2026-11-20T01:16:00.000Z",
+  "game_day": "2026-11-19",
+  "logged_at": "2026-11-15T21:15:16",
+  "outcome": null,
+  "actual": null
+ },
+ "daniel jones|Passing Yards|184.5|36305232": {
+  "player": "Daniel Jones",
+  "stat": "Passing Yards",
+  "line": 184.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 144.0,
+  "last5": [
+   269.0,
+   108.0,
+   144.0,
+   180.0,
+   108.0
+  ],
+  "game": "IND @ HOU",
+  "start_time": "2026-11-20T01:16:00.000Z",
+  "game_day": "2026-11-19",
+  "logged_at": "2026-11-15T21:15:16",
+  "outcome": null,
+  "actual": null
  }
 }

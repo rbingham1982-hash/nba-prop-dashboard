@@ -3506,8 +3506,8 @@
     "edge": 1.45,
     "pick": "home",
     "pick_label": "ARI +9.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": -28.0
    },
    {
     "game": "HOU @ CLE",
@@ -3707,9 +3707,9 @@
     "wind_mph": 15.0,
     "expected_adj": -5.83,
     "gameday": "2026-11-15",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 86.0,
+    "residual": 30.5
    },
    {
     "game": "BUF @ NYJ",

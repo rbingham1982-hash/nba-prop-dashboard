@@ -10168,5 +10168,41 @@
   "logged_at": "2026-11-15T17:03:51",
   "outcome": null,
   "actual": null
+ },
+ "daniel jones|Passing Yards|184.5|36305232": {
+  "player": "Daniel Jones",
+  "stat": "Passing Yards",
+  "line": 184.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5699,
+  "fair_prob": 0.475,
+  "edge": 0.0949,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "IND @ HOU",
+  "start_time": "2026-11-20T01:16:00.000Z",
+  "game_day": "2026-11-19",
+  "logged_at": "2026-11-15T21:15:26",
+  "outcome": null,
+  "actual": null
+ },
+ "daniel jones|Passing TDs|0.5|36305232": {
+  "player": "Daniel Jones",
+  "stat": "Passing TDs",
+  "line": 0.5,
+  "side": "over",
+  "american_odds": -152,
+  "model_prob": 0.7018,
+  "fair_prob": 0.5385,
+  "edge": 0.1633,
+  "sample_n": 23,
+  "depth": 1,
+  "game": "IND @ HOU",
+  "start_time": "2026-11-20T01:16:00.000Z",
+  "game_day": "2026-11-19",
+  "logged_at": "2026-11-15T21:15:26",
+  "outcome": null,
+  "actual": null
  }
 }
