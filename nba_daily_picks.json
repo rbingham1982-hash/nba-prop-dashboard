@@ -4872,9 +4872,9 @@
     "edge": 7.65,
     "pick": "home",
     "pick_label": "LAC +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 113,
+    "away_pts": 105,
     "published": false
    },
    {
@@ -4889,9 +4889,9 @@
     "edge": 5.07,
     "pick": "home",
     "pick_label": "TOR +5.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 108,
+    "away_pts": 112,
     "published": true
    },
    {
@@ -4906,9 +4906,9 @@
     "edge": 4.77,
     "pick": "away",
     "pick_label": "DAL +14.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 131,
+    "away_pts": 94,
     "published": true
    },
    {
@@ -4923,9 +4923,9 @@
     "edge": 4.21,
     "pick": "away",
     "pick_label": "HOU -7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 119,
+    "away_pts": 147,
     "published": true
    },
    {
@@ -4940,9 +4940,9 @@
     "edge": 2.55,
     "pick": "away",
     "pick_label": "OKC -10.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 103,
+    "away_pts": 125,
     "published": false
    },
    {
@@ -4957,9 +4957,9 @@
     "edge": 1.17,
     "pick": "home",
     "pick_label": "MIL +8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 106,
+    "away_pts": 113,
     "published": false
    },
    {
@@ -4974,9 +4974,9 @@
     "edge": 0.69,
     "pick": "home",
     "pick_label": "UTA +15.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 102,
+    "away_pts": 110,
     "published": false
    },
    {
@@ -4991,9 +4991,9 @@
     "edge": 0.49,
     "pick": "away",
     "pick_label": "LAL -3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 123,
+    "away_pts": 131,
     "published": false
    }
   ],
@@ -5013,8 +5013,8 @@
     "implied_prob": 0.6844,
     "blended_prob": 0.6844,
     "edge": 0.0285,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 2.0
    },
    {
     "player": "AJ Dybantsa",
@@ -5028,8 +5028,8 @@
     "implied_prob": 0.6538,
     "blended_prob": 0.6538,
     "edge": -0.0795,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Tre Johnson",
@@ -5043,7 +5043,7 @@
     "implied_prob": 0.6419,
     "blended_prob": 0.6419,
     "edge": -0.1048,
-    "outcome": null,
+    "outcome": "dnp",
     "actual": null
    },
    {
@@ -5058,7 +5058,7 @@
     "implied_prob": 0.5669,
     "blended_prob": 0.5669,
     "edge": -0.0055,
-    "outcome": null,
+    "outcome": "dnp",
     "actual": null
    },
    {
@@ -5073,8 +5073,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": 0.039,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 16.0
    }
   ],
   "parlay_withheld_price": {
