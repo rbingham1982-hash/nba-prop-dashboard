@@ -6420,7 +6420,7 @@
    "home_odds": -310,
    "away_odds": 200
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -6444,7 +6444,7 @@
    "home_odds": 210,
    "away_odds": -330
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -7342,5 +7342,101 @@
    "away_odds": 175
   },
   "last_seen": "2026-11-16T00:40:19"
+ },
+ "CHA @ LAL|2026-11-18T04:10": {
+  "label": "CHA @ LAL",
+  "home_name": "Los Angeles Lakers",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-18T04:10:00.000Z",
+  "first_seen": "2026-11-16T20:32:47",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7685,
+   "odds": -400,
+   "home_odds": -400,
+   "away_odds": 315
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7685,
+   "odds": -400,
+   "home_odds": -400,
+   "away_odds": 315
+  },
+  "last_seen": "2026-11-16T20:32:47"
+ },
+ "DET @ SAS|2026-11-18T01:10": {
+  "label": "DET @ SAS",
+  "home_name": "San Antonio Spurs",
+  "away_name": "Detroit Pistons",
+  "start_time": "2026-11-18T01:10:00.000Z",
+  "first_seen": "2026-11-16T20:32:47",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7532,
+   "odds": -360,
+   "home_odds": -360,
+   "away_odds": 290
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7532,
+   "odds": -360,
+   "home_odds": -360,
+   "away_odds": 290
+  },
+  "last_seen": "2026-11-16T20:32:47"
+ },
+ "UTA @ LAC|2026-11-18T03:40": {
+  "label": "UTA @ LAC",
+  "home_name": "Los Angeles Clippers",
+  "away_name": "Utah Jazz",
+  "start_time": "2026-11-18T03:40:00.000Z",
+  "first_seen": "2026-11-16T20:32:47",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.669,
+   "odds": -230,
+   "home_odds": -230,
+   "away_odds": 190
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.669,
+   "odds": -230,
+   "home_odds": -230,
+   "away_odds": 190
+  },
+  "last_seen": "2026-11-16T20:32:47"
+ },
+ "NYK @ LAL|2026-11-17T03:35": {
+  "label": "NYK @ LAL",
+  "home_name": "Los Angeles Lakers",
+  "away_name": "New York Knicks",
+  "start_time": "2026-11-17T03:35:00.000Z",
+  "first_seen": "2026-11-16T20:32:47",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6887,
+   "odds": -300,
+   "home_odds": -300,
+   "away_odds": 195
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6887,
+   "odds": -300,
+   "home_odds": -300,
+   "away_odds": 195
+  },
+  "last_seen": "2026-11-16T20:32:47"
  }
 }
