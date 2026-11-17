@@ -8780,8 +8780,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "omarion hampton|Receptions|1.5|36275768": {
   "player": "Omarion Hampton",
@@ -8798,8 +8798,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "mark andrews|Receptions|2.5|36275768": {
   "player": "Mark Andrews",
@@ -8816,8 +8816,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 8.0
  },
  "omarion hampton|Rushing Yards|32.5|36275768": {
   "player": "Omarion Hampton",
@@ -8834,8 +8834,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 105.0
  },
  "jacoby brissett|Rushing Yards|5.5|36275768": {
   "player": "Jacoby Brissett",
@@ -8852,8 +8852,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-11T19:37:29",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "cooper kupp|Receiving Yards|19.5|36275769": {
   "player": "Cooper Kupp",
@@ -9122,8 +9122,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-12T18:34:57",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 129.0
  },
  "omarion hampton|Rushing Yards|31.5|36275768": {
   "player": "Omarion Hampton",
@@ -9140,8 +9140,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-12T18:34:57",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 105.0
  },
  "michael mayer|Receiving Yards|21.5|36275769": {
   "player": "Michael Mayer",
@@ -10022,8 +10022,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-15T00:43:08",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 105.0
  },
  "george pickens|Receiving Yards|59.5|36275764": {
   "player": "George Pickens",
@@ -10112,8 +10112,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-15T13:41:13",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 129.0
  },
  "omarion hampton|Rushing Yards|34.5|36275768": {
   "player": "Omarion Hampton",
@@ -10130,8 +10130,8 @@
   "start_time": "2026-11-17T01:21:00.000Z",
   "game_day": "2026-11-16",
   "logged_at": "2026-11-15T13:41:13",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 105.0
  },
  "chase brown|Receptions|4.5|36275765": {
   "player": "Chase Brown",
@@ -10454,6 +10454,96 @@
   "start_time": "2026-11-24T01:16:00.000Z",
   "game_day": "2026-11-23",
   "logged_at": "2026-11-16T20:32:47",
+  "outcome": null,
+  "actual": null
+ },
+ "josh allen|Passing Yards|231.5|36305235": {
+  "player": "Josh Allen",
+  "stat": "Passing Yards",
+  "line": 231.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5435,
+  "fair_prob": 0.475,
+  "edge": 0.0685,
+  "sample_n": 25,
+  "depth": 1,
+  "game": "MIA @ BUF",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-17T02:01:09",
+  "outcome": null,
+  "actual": null
+ },
+ "dalton kincaid|Receptions|1.5|36305235": {
+  "player": "Dalton Kincaid",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": -198,
+  "model_prob": 0.7213,
+  "fair_prob": 0.5954,
+  "edge": 0.1259,
+  "sample_n": 21,
+  "depth": 1,
+  "game": "MIA @ BUF",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-17T02:01:09",
+  "outcome": null,
+  "actual": null
+ },
+ "khalil shakir|Receiving Yards|29.5|36305235": {
+  "player": "Khalil Shakir",
+  "stat": "Receiving Yards",
+  "line": 29.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.6424,
+  "fair_prob": 0.475,
+  "edge": 0.1674,
+  "sample_n": 25,
+  "depth": 2,
+  "game": "MIA @ BUF",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-17T02:01:09",
+  "outcome": null,
+  "actual": null
+ },
+ "trevor lawrence|Passing TDs|1.5|36305243": {
+  "player": "Trevor Lawrence",
+  "stat": "Passing TDs",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": -128,
+  "model_prob": 0.5835,
+  "fair_prob": 0.5015,
+  "edge": 0.082,
+  "sample_n": 26,
+  "depth": 1,
+  "game": "JAX @ NYG",
+  "start_time": "2026-11-22T21:26:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-17T02:01:09",
+  "outcome": null,
+  "actual": null
+ },
+ "trevor lawrence|Passing Yards|242.5|36305243": {
+  "player": "Trevor Lawrence",
+  "stat": "Passing Yards",
+  "line": 242.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.5706,
+  "fair_prob": 0.475,
+  "edge": 0.0956,
+  "sample_n": 26,
+  "depth": 1,
+  "game": "JAX @ NYG",
+  "start_time": "2026-11-22T21:26:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-17T02:01:09",
   "outcome": null,
   "actual": null
  }

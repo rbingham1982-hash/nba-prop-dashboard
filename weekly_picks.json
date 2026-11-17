@@ -3532,8 +3532,8 @@
     "fair_prob": 0.6753,
     "blended_prob": 0.6127,
     "edge": -0.0625,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Jonathan Taylor",
@@ -3543,8 +3543,8 @@
     "fair_prob": 0.4951,
     "blended_prob": 0.5435,
     "edge": 0.0484,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Derrick Henry",
@@ -3554,8 +3554,8 @@
     "fair_prob": 0.5294,
     "blended_prob": 0.5377,
     "edge": 0.0083,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Javonte Williams",
@@ -3565,8 +3565,8 @@
     "fair_prob": 0.5998,
     "blended_prob": 0.5315,
     "edge": -0.0682,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "James Cook",
@@ -3576,8 +3576,8 @@
     "fair_prob": 0.5788,
     "blended_prob": 0.5236,
     "edge": -0.0551,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Christian McCaffrey",
@@ -3587,8 +3587,8 @@
     "fair_prob": 0.7044,
     "blended_prob": 0.5156,
     "edge": -0.1888,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    },
    {
     "player": "Bhayshul Tuten",
@@ -3598,8 +3598,8 @@
     "fair_prob": 0.5043,
     "blended_prob": 0.5036,
     "edge": -0.0007,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Kenneth Walker III",
@@ -3609,7 +3609,7 @@
     "fair_prob": 0.6663,
     "blended_prob": 0.488,
     "edge": -0.1783,
-    "outcome": null,
+    "outcome": "dnp",
     "actual": null
    },
    {
@@ -3620,8 +3620,8 @@
     "fair_prob": 0.5554,
     "blended_prob": 0.4842,
     "edge": -0.0712,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Zach Charbonnet",
@@ -3631,8 +3631,8 @@
     "fair_prob": 0.434,
     "blended_prob": 0.4491,
     "edge": 0.0151,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    }
   ],
   "receivers_rule": "edge",
@@ -3646,8 +3646,8 @@
     "fair_prob": 0.2101,
     "blended_prob": 0.3945,
     "edge": 0.1844,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Justin Jefferson",
@@ -3658,8 +3658,8 @@
     "fair_prob": 0.3703,
     "blended_prob": 0.2074,
     "edge": -0.1629,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Trey McBride",
@@ -3670,8 +3670,8 @@
     "fair_prob": 0.2619,
     "blended_prob": 0.4199,
     "edge": 0.158,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Ja'Marr Chase",
@@ -3682,8 +3682,8 @@
     "fair_prob": 0.5043,
     "blended_prob": 0.3476,
     "edge": -0.1567,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "CeeDee Lamb",
@@ -3694,8 +3694,8 @@
     "fair_prob": 0.4951,
     "blended_prob": 0.3405,
     "edge": -0.1547,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    }
   ],
   "wind": [
@@ -3757,8 +3757,8 @@
      "games": 8,
      "tilt": 0.065
     },
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Samaje Perine",
@@ -3771,8 +3771,8 @@
     "implied_prob": 0.6932,
     "team": "",
     "matchup": null,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 4.0
    },
    {
     "player": "Jared Goff",
@@ -3792,8 +3792,8 @@
      "games": 9,
      "tilt": 0.513
     },
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Noah Fant",
@@ -3813,8 +3813,8 @@
      "games": 7,
      "tilt": 0.414
     },
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Drake Maye",
@@ -3834,8 +3834,8 @@
      "games": 8,
      "tilt": -0.232
     },
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 48.0
    }
   ],
   "parlay_withheld_price": {
@@ -3905,6 +3905,6 @@
    "breakeven": 0.3579,
    "frozen_at": "2026-11-13T00:54:25"
   },
-  "graded": false
+  "graded": true
  }
 }
