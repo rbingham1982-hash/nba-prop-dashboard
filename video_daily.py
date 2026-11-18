@@ -347,4 +347,24 @@ if __name__ == "__main__":
         sys.exit()
     slot = args[0] if args and args[0] in ("morning", "afternoon") else "morning"
     dates = [a for a in args if re.fullmatch(r"\d{4}-\d{2}-\d{2}", a)]
+    # One run at a time. When the PC wakes late, Task Scheduler fires the missed morning and
+    # afternoon tasks together, and two concurrent `git pull`s fail on the ref lock.
+    import msvcrt
+    import time
+    LOG.parent.mkdir(parents=True, exist_ok=True)
+    lock = open(LOG.parent / "video_daily.lock", "a+")
+    waited = 0
+    while True:
+        try:
+            lock.seek(0)
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+            break
+        except OSError:
+            if waited == 0:
+                _log(f"{slot}: another run is in progress; waiting for it to finish")
+            if waited >= 90 * 60:
+                _log(f"{slot}: gave up after 90 min waiting for the other run")
+                sys.exit(1)
+            time.sleep(30)
+            waited += 30
     run(slot, datetime.date.fromisoformat(dates[0]) if dates else None, upload="--no-upload" not in sys.argv)

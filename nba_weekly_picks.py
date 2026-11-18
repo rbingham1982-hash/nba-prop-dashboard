@@ -124,7 +124,11 @@ def slate_legs(slate: datetime.date) -> list:
         return []
     raw = raw[raw["stat_type"].isin(_STATS)]
     raw = raw[raw["start_time"].map(_local_date) == slate]
-    raw = raw[~raw["start_time"].map(dg._has_started)]
+    if raw.empty:       # an empty object-dtype mask below would select columns, not rows
+        return []
+    raw = raw[~raw["start_time"].map(dg._has_started).astype(bool)]
+    if raw.empty:
+        return []
     slate_legs.games = set(raw["game_label"].astype(str))
     w = _market_weight()
     out, cache = [], {}
