@@ -2658,7 +2658,7 @@
    "away_odds": 140,
    "home_prob": 0.6173
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -205,
@@ -2704,7 +2704,7 @@
    "away_odds": -160,
    "home_prob": 0.4362
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 110,
@@ -3217,7 +3217,7 @@
    "away_odds": -144,
    "home_prob": 0.4329
   },
-  "last_seen": "2026-11-17T19:42:17"
+  "last_seen": "2026-11-18T01:38:21"
  },
  "MIL @ MEM|2026-11-18T02:43": {
   "label": "MIL @ MEM",
