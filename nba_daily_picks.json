@@ -5085,5 +5085,133 @@
    "fair_prob": 0.09019,
    "breakeven_prob": 0.10128
   }
+ },
+ "2026-11-17": {
+  "date": "2026-11-17",
+  "generated": "2026-11-17T19:42:19",
+  "ats": [
+   {
+    "event": "401910005",
+    "game": "CHA @ LAL",
+    "home": "LAL",
+    "away": "CHA",
+    "start_time": "2026-11-18T04:00Z",
+    "home_spread": -6.5,
+    "book": "DraftKings",
+    "pred_margin": 13.52,
+    "edge": 7.02,
+    "pick": "home",
+    "pick_label": "LAL -6.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": false
+   },
+   {
+    "event": "401910006",
+    "game": "UTA @ LAC",
+    "home": "LAC",
+    "away": "UTA",
+    "start_time": "2026-11-18T03:30Z",
+    "home_spread": -5.5,
+    "book": "DraftKings",
+    "pred_margin": 7.25,
+    "edge": 1.75,
+    "pick": "home",
+    "pick_label": "LAC -5.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": false
+   }
+  ],
+  "ats_rule": "published when the model and the line differ by 2-6 points",
+  "parlay": [],
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Max Strus",
+    "stat_type": "3-PT Made",
+    "line": 2.5,
+    "side": "under",
+    "american_odds": -215,
+    "game": "UTA @ LAC",
+    "start_time": "2026-11-18T03:40:00.000Z",
+    "model_prob": 0.5843,
+    "implied_prob": 0.6681,
+    "blended_prob": 0.6681,
+    "edge": -0.0838,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Kris Dunn",
+    "stat_type": "Rebounds",
+    "line": 3.5,
+    "side": "under",
+    "american_odds": -174,
+    "game": "UTA @ LAC",
+    "start_time": "2026-11-18T03:40:00.000Z",
+    "model_prob": 0.5186,
+    "implied_prob": 0.6248,
+    "blended_prob": 0.6248,
+    "edge": -0.1062,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Keaton Wagler",
+    "stat_type": "Assists",
+    "line": 3.5,
+    "side": "under",
+    "american_odds": -166,
+    "game": "UTA @ LAC",
+    "start_time": "2026-11-18T03:40:00.000Z",
+    "model_prob": 0.5114,
+    "implied_prob": 0.6144,
+    "blended_prob": 0.6144,
+    "edge": -0.103,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Jake Laravia",
+    "stat_type": "Pts+Rebs+Asts",
+    "line": 14.5,
+    "side": "under",
+    "american_odds": -130,
+    "game": "CHA @ LAL",
+    "start_time": "2026-11-18T04:10:00.000Z",
+    "model_prob": 0.7414,
+    "implied_prob": 0.5581,
+    "blended_prob": 0.5581,
+    "edge": 0.1833,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Brandon Miller",
+    "stat_type": "Points",
+    "line": 18.5,
+    "side": "under",
+    "american_odds": -128,
+    "game": "CHA @ LAL",
+    "start_time": "2026-11-18T04:10:00.000Z",
+    "model_prob": 0.5071,
+    "implied_prob": 0.5539,
+    "blended_prob": 0.5539,
+    "edge": -0.0468,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 11.651,
+   "american": 1065,
+   "model_prob": 0.05826,
+   "blended_prob": 0.07928,
+   "fair_prob": 0.07928,
+   "breakeven_prob": 0.08583
+  }
  }
 }
