@@ -2727,7 +2727,7 @@
    "away_odds": -105,
    "home_prob": 0.5287
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -135,
@@ -2750,7 +2750,7 @@
    "away_odds": -105,
    "home_prob": 0.5287
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -135,
@@ -2773,7 +2773,7 @@
    "away_odds": -210,
    "home_prob": 0.3808
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 140,
@@ -2796,7 +2796,7 @@
    "away_odds": 140,
    "home_prob": 0.6192
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -210,
@@ -2819,7 +2819,7 @@
    "away_odds": 205,
    "home_prob": 0.6991
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -320,
@@ -2842,7 +2842,7 @@
    "away_odds": -105,
    "home_prob": 0.5287
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -135,
@@ -2865,7 +2865,7 @@
    "away_odds": -225,
    "home_prob": 0.3616
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 155,
@@ -2888,7 +2888,7 @@
    "away_odds": 185,
    "home_prob": 0.6794
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -290,
@@ -2911,7 +2911,7 @@
    "away_odds": -180,
    "home_prob": 0.4088
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 125,
@@ -2934,7 +2934,7 @@
    "away_odds": -150,
    "home_prob": 0.4484
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 105,
@@ -2957,7 +2957,7 @@
    "away_odds": 110,
    "home_prob": 0.5638
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -160,
@@ -3003,7 +3003,7 @@
    "away_odds": -105,
    "home_prob": 0.5287
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -135,
@@ -3026,7 +3026,7 @@
    "away_odds": -105,
    "home_prob": 0.5287
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -135,
@@ -3049,7 +3049,7 @@
    "away_odds": -190,
    "home_prob": 0.3989
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 100,
@@ -3072,7 +3072,7 @@
    "away_odds": -320,
    "home_prob": 0.3009
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 205,
@@ -3213,11 +3213,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": 122,
-   "away_odds": -144,
-   "home_prob": 0.4329
+   "home_odds": 124,
+   "away_odds": -146,
+   "home_prob": 0.4293
   },
-  "last_seen": "2026-11-18T01:38:21"
+  "last_seen": "2026-11-18T19:20:07"
  },
  "MIL @ MEM|2026-11-18T02:43": {
   "label": "MIL @ MEM",

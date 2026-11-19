@@ -6948,7 +6948,7 @@
    "home_odds": -255,
    "away_odds": 170
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -6972,7 +6972,7 @@
    "home_odds": 165,
    "away_odds": -250
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -6996,7 +6996,7 @@
    "home_odds": -320,
    "away_odds": 205
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -7020,7 +7020,7 @@
    "home_odds": -290,
    "away_odds": 185
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -7044,7 +7044,7 @@
    "home_odds": 170,
    "away_odds": -255
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -7092,7 +7092,7 @@
    "home_odds": 205,
    "away_odds": -320
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -7356,8 +7356,8 @@
    "home_odds": -400,
    "away_odds": 315
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7175,
@@ -7528,12 +7528,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.6901,
-   "odds": -255,
-   "home_odds": 210,
-   "away_odds": -255
+   "fav_prob": 0.7136,
+   "odds": -290,
+   "home_odds": 235,
+   "away_odds": -290
   },
-  "last_seen": "2026-11-18T01:38:19"
+  "last_seen": "2026-11-18T19:20:04"
  },
  "GSW @ DAL|2026-11-19T02:40": {
   "label": "GSW @ DAL",
@@ -7600,12 +7600,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7995,
-   "odds": -490,
-   "home_odds": -490,
-   "away_odds": 380
+   "fav_prob": 0.8038,
+   "odds": -510,
+   "home_odds": -510,
+   "away_odds": 390
   },
-  "last_seen": "2026-11-18T01:38:19"
+  "last_seen": "2026-11-18T19:20:04"
  },
  "WAS @ TOR|2026-11-19T00:40": {
   "label": "WAS @ TOR",
@@ -7654,5 +7654,29 @@
    "away_odds": 165
   },
   "last_seen": "2026-11-18T01:38:19"
+ },
+ "ORL @ CHA|2026-11-19T01:51": {
+  "label": "ORL @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Orlando Magic",
+  "start_time": "2026-11-19T01:51:00.000Z",
+  "first_seen": "2026-11-18T19:20:04",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6991,
+   "odds": -320,
+   "home_odds": -320,
+   "away_odds": 205
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6991,
+   "odds": -320,
+   "home_odds": -320,
+   "away_odds": 205
+  },
+  "last_seen": "2026-11-18T19:20:04"
  }
 }
