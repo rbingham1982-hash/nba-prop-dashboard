@@ -11428,5 +11428,41 @@
   "logged_at": "2026-11-18T19:20:03",
   "outcome": null,
   "actual": null
+ },
+ "dandre swift|Receptions|2.5|36305233": {
+  "player": "D'Andre Swift",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "over",
+  "american_odds": 124,
+  "model_prob": 0.4532,
+  "fair_prob": 0.392,
+  "edge": 0.0612,
+  "sample_n": 25,
+  "depth": 1,
+  "game": "NO @ CHI",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-19T01:33:42",
+  "outcome": null,
+  "actual": null
+ },
+ "josh downs|Receptions|3.5|36305237": {
+  "player": "Josh Downs",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "over",
+  "american_odds": 116,
+  "model_prob": 0.4877,
+  "fair_prob": 0.408,
+  "edge": 0.0797,
+  "sample_n": 26,
+  "depth": 2,
+  "game": "ARI @ KC",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-19T01:33:42",
+  "outcome": null,
+  "actual": null
  }
 }

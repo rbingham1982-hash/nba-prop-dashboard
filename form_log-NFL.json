@@ -56494,5 +56494,159 @@
   "logged_at": "2026-11-18T19:19:32",
   "outcome": null,
   "actual": null
+ },
+ "david montgomery|Rushing Yards|56.5|36305232": {
+  "player": "David Montgomery",
+  "stat": "Rushing Yards",
+  "line": 56.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 24.0,
+  "last5": [
+   60.0,
+   10.0,
+   33.0,
+   24.0,
+   11.0
+  ],
+  "game": "IND @ HOU",
+  "start_time": "2026-11-20T01:16:00.000Z",
+  "game_day": "2026-11-19",
+  "logged_at": "2026-11-19T01:33:11",
+  "outcome": null,
+  "actual": null
+ },
+ "chris olave|Receiving Yards|66.5|36305233": {
+  "player": "Chris Olave",
+  "stat": "Receiving Yards",
+  "line": 66.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 46.0,
+  "last5": [
+   46.0,
+   43.0,
+   56.0,
+   98.0,
+   30.0
+  ],
+  "game": "NO @ CHI",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-19T01:33:11",
+  "outcome": null,
+  "actual": null
+ },
+ "jakobi lane|Receiving Yards|35.5|36305234": {
+  "player": "Ja'Kobi Lane",
+  "stat": "Receiving Yards",
+  "line": 35.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 25.0,
+  "last5": [
+   40.0,
+   25.0,
+   13.0,
+   0.0,
+   61.0
+  ],
+  "game": "BAL @ CAR",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-19T01:33:11",
+  "outcome": null,
+  "actual": null
+ },
+ "derrick henry|Rushing Yards|67.5|36305234": {
+  "player": "Derrick Henry",
+  "stat": "Rushing Yards",
+  "line": 67.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 53.0,
+  "last5": [
+   58.0,
+   45.0,
+   53.0,
+   57.0,
+   10.0
+  ],
+  "game": "BAL @ CAR",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-19T01:33:11",
+  "outcome": null,
+  "actual": null
+ },
+ "josh downs|Receiving Yards|36.5|36305237": {
+  "player": "Josh Downs",
+  "stat": "Receiving Yards",
+  "line": 36.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 24.0,
+  "last5": [
+   40.0,
+   18.0,
+   23.0,
+   24.0,
+   53.0
+  ],
+  "game": "ARI @ KC",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-19T01:33:11",
+  "outcome": null,
+  "actual": null
+ },
+ "simi fehoko|Receiving Yards|15.5|36305237": {
+  "player": "Simi Fehoko",
+  "stat": "Receiving Yards",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   17.0,
+   0.0,
+   21.0
+  ],
+  "game": "ARI @ KC",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-19T01:33:11",
+  "outcome": null,
+  "actual": null
+ },
+ "devin duvernay|Receiving Yards|13.5|36305237": {
+  "player": "Devin Duvernay",
+  "stat": "Receiving Yards",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 8.0,
+  "last5": [
+   0.0,
+   0.0,
+   14.0,
+   8.0,
+   35.0
+  ],
+  "game": "ARI @ KC",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-19T01:33:11",
+  "outcome": null,
+  "actual": null
  }
 }

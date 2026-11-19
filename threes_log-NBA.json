@@ -3141,7 +3141,7 @@
    "away_odds": -190,
    "home_prob": 0.3989
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 130,
@@ -3164,7 +3164,7 @@
    "away_odds": 160,
    "home_prob": 0.6487
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -245,
@@ -3210,8 +3210,8 @@
    "away_odds": -144,
    "home_prob": 0.4329
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": 124,
    "away_odds": -146,
@@ -3241,5 +3241,74 @@
    "home_prob": 0.6473
   },
   "last_seen": "2026-11-17T19:42:17"
+ },
+ "GSW @ MEM|2026-11-20T01:10": {
+  "label": "GSW @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Golden State Warriors",
+  "start_time": "2026-11-20T01:10:00.000Z",
+  "luck_home": 2.36,
+  "luck_away": -1.22,
+  "bet": "away",
+  "first_seen": "2026-11-19T01:33:46",
+  "first": {
+   "home_odds": -350,
+   "away_odds": 280,
+   "home_prob": 0.7472
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -350,
+   "away_odds": 280,
+   "home_prob": 0.7472
+  },
+  "last_seen": "2026-11-19T01:33:46"
+ },
+ "LAC @ SAS|2026-11-20T01:10": {
+  "label": "LAC @ SAS",
+  "home_name": "San Antonio Spurs",
+  "away_name": "Los Angeles Clippers",
+  "start_time": "2026-11-20T01:10:00.000Z",
+  "luck_home": -1.48,
+  "luck_away": 1.31,
+  "bet": "home",
+  "first_seen": "2026-11-19T01:33:46",
+  "first": {
+   "home_odds": -1200,
+   "away_odds": 750,
+   "home_prob": 0.887
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -1200,
+   "away_odds": 750,
+   "home_prob": 0.887
+  },
+  "last_seen": "2026-11-19T01:33:46"
+ },
+ "DEN @ DAL|2026-11-19T08:03": {
+  "label": "DEN @ DAL",
+  "home_name": "Dallas Mavericks",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-19T08:03:00.000Z",
+  "luck_home": 0.12,
+  "luck_away": -2.78,
+  "bet": "away",
+  "first_seen": "2026-11-19T01:33:46",
+  "first": {
+   "home_odds": 120,
+   "away_odds": -175,
+   "home_prob": 0.4167
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 120,
+   "away_odds": -175,
+   "home_prob": 0.4167
+  },
+  "last_seen": "2026-11-19T01:33:46"
  }
 }
