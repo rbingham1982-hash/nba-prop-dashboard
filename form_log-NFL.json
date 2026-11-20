@@ -52884,8 +52884,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-15T21:15:16",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 194.0
  },
  "daniel jones|Passing Yards|184.5|36305232": {
   "player": "Daniel Jones",
@@ -52906,8 +52906,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-15T21:15:16",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 144.0
  },
  "laquon treadwell|Receiving Yards|29.5|36305232": {
   "player": "Laquon Treadwell",
@@ -52928,8 +52928,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "nico collins|Receiving Yards|66.5|36305232": {
   "player": "Nico Collins",
@@ -52950,8 +52950,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 58.0
  },
  "tyler warren|Receptions|5.5|36305232": {
   "player": "Tyler Warren",
@@ -52972,8 +52972,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "nico collins|Receptions|4.5|36305232": {
   "player": "Nico Collins",
@@ -52994,8 +52994,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "laquon treadwell|Receptions|2.5|36305232": {
   "player": "Laquon Treadwell",
@@ -53016,8 +53016,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "jonathan taylor|Receptions|3.5|36305232": {
   "player": "Jonathan Taylor",
@@ -53038,8 +53038,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "anthony gould|Receptions|2.5|36305232": {
   "player": "Anthony Gould",
@@ -53060,8 +53060,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "deion burks|Receptions|1.5|36305232": {
   "player": "Deion Burks",
@@ -53082,8 +53082,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "anthony gould|Receiving Yards|24.5|36305232": {
   "player": "Anthony Gould",
@@ -53104,8 +53104,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 48.0
  },
  "dalton schultz|Receptions|3.5|36305232": {
   "player": "Dalton Schultz",
@@ -53126,8 +53126,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 1.0
  },
  "deion burks|Receiving Yards|18.5|36305232": {
   "player": "Deion Burks",
@@ -53148,8 +53148,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "cj stroud|Rushing Yards|10.5|36305232": {
   "player": "C.J. Stroud",
@@ -53170,8 +53170,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 27.0
  },
  "justin jefferson|Receiving Yards|82.5|35605987": {
   "player": "Justin Jefferson",
@@ -53280,8 +53280,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T20:32:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 144.0
  },
  "nico collins|Receiving Yards|67.5|36305232": {
   "player": "Nico Collins",
@@ -53302,8 +53302,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T20:32:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 58.0
  },
  "ashton dulin|Receptions|1.5|36305232": {
   "player": "Ashton Dulin",
@@ -53324,8 +53324,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T20:32:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "anthony gould|Receiving Yards|23.5|36305232": {
   "player": "Anthony Gould",
@@ -53346,8 +53346,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T20:32:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 48.0
  },
  "deion burks|Receiving Yards|15.5|36305232": {
   "player": "Deion Burks",
@@ -53368,8 +53368,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T20:32:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "jayden daniels|Passing TDs|1.5|36305242": {
   "player": "Jayden Daniels",
@@ -53786,8 +53786,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-17T19:41:53",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 194.0
  },
  "nico collins|Receiving Yards|70.5|36305232": {
   "player": "Nico Collins",
@@ -53808,8 +53808,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-17T19:41:53",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 58.0
  },
  "xavier hutchinson|Receiving Yards|34.5|36305232": {
   "player": "Xavier Hutchinson",
@@ -53830,8 +53830,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-17T19:41:53",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 13.0
  },
  "kayshon boutte|Receiving Yards|28.5|36305232": {
   "player": "Kayshon Boutte",
@@ -53852,8 +53852,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-17T19:41:53",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 40.0
  },
  "kayshon boutte|Receptions|2.5|36305232": {
   "player": "Kayshon Boutte",
@@ -53874,8 +53874,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-17T19:41:53",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 2.0
  },
  "emari demercado|Rushing Yards|20.5|36305232": {
   "player": "Emari Demercado",
@@ -53896,8 +53896,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-17T19:41:53",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 33.0
  },
  "david montgomery|Rushing Yards|52.5|36305232": {
   "player": "David Montgomery",
@@ -53918,8 +53918,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-17T19:41:53",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 107.0
  },
  "tyler shough|Passing TDs|1.5|36305233": {
   "player": "Tyler Shough",
@@ -54952,8 +54952,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-18T01:37:48",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 107.0
  },
  "chris olave|Receiving Yards|68.5|36305233": {
   "player": "Chris Olave",
@@ -55766,8 +55766,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-18T19:19:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 144.0
  },
  "laquon treadwell|Receiving Yards|28.5|36305232": {
   "player": "Laquon Treadwell",
@@ -55788,8 +55788,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-18T19:19:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 0.0
  },
  "kayshon boutte|Receiving Yards|27.5|36305232": {
   "player": "Kayshon Boutte",
@@ -55810,8 +55810,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-18T19:19:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 40.0
  },
  "emari demercado|Rushing Yards|23.5|36305232": {
   "player": "Emari Demercado",
@@ -55832,8 +55832,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-18T19:19:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 33.0
  },
  "david montgomery|Rushing Yards|55.5|36305232": {
   "player": "David Montgomery",
@@ -55854,8 +55854,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-18T19:19:32",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 107.0
  },
  "noah fant|Receiving Yards|7.5|36305233": {
   "player": "Noah Fant",
@@ -56514,8 +56514,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-19T01:33:11",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 107.0
  },
  "chris olave|Receiving Yards|66.5|36305233": {
   "player": "Chris Olave",
@@ -57526,6 +57526,446 @@
   "start_time": "2026-11-24T01:16:00.000Z",
   "game_day": "2026-11-23",
   "logged_at": "2026-11-19T19:21:37",
+  "outcome": null,
+  "actual": null
+ },
+ "jordan mason|Receptions|0.5|35605987": {
+  "player": "Jordan Mason",
+  "stat": "Receptions",
+  "line": 0.5,
+  "side": "under",
+  "american_odds": 164,
+  "fair_prob": 0.3786,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   2.0,
+   0.0
+  ],
+  "game": "MIN @ SF",
+  "start_time": "2026-11-23T01:20:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "jordan mason|Receiving Yards|3.5|35605987": {
+  "player": "Jordan Mason",
+  "stat": "Receiving Yards",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   7.0,
+   0.0
+  ],
+  "game": "MIN @ SF",
+  "start_time": "2026-11-23T01:20:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "ollie gordon|Receiving Yards|11.5|36305235": {
+  "player": "Ollie Gordon II",
+  "stat": "Receiving Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   0.0,
+   0.0,
+   9.0,
+   39.0
+  ],
+  "game": "MIA @ BUF",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "ollie gordon|Receptions|2.5|36305235": {
+  "player": "Ollie Gordon II",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -140,
+  "fair_prob": 0.5708,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   0.0,
+   1.0,
+   4.0
+  ],
+  "game": "MIA @ BUF",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "chimere dike|Receptions|2.5|36305236": {
+  "player": "Chimere Dike",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": 112,
+  "fair_prob": 0.4665,
+  "med5": 2.0,
+  "last5": [
+   3.0,
+   0.0,
+   0.0,
+   5.0,
+   2.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "daniel bellinger|Receiving Yards|9.5|36305236": {
+  "player": "Daniel Bellinger",
+  "stat": "Receiving Yards",
+  "line": 9.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 5.0,
+  "last5": [
+   5.0,
+   0.0,
+   4.0,
+   36.0,
+   6.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "chimere dike|Receiving Yards|27.5|36305236": {
+  "player": "Chimere Dike",
+  "stat": "Receiving Yards",
+  "line": 27.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 16.0,
+  "last5": [
+   28.0,
+   0.0,
+   0.0,
+   71.0,
+   16.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "elic ayomanor|Receptions|3.5|36305236": {
+  "player": "Elic Ayomanor",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -102,
+  "fair_prob": 0.4968,
+  "med5": 3.0,
+  "last5": [
+   1.0,
+   1.0,
+   3.0,
+   3.0,
+   5.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "daniel bellinger|Receptions|1.5|36305236": {
+  "player": "Daniel Bellinger",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -140,
+  "fair_prob": 0.5708,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   0.0,
+   1.0,
+   3.0,
+   2.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "gunnar helm|Receiving Yards|26.5|36305236": {
+  "player": "Gunnar Helm",
+  "stat": "Receiving Yards",
+  "line": 26.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 23.0,
+  "last5": [
+   5.0,
+   0.0,
+   24.0,
+   76.0,
+   23.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "tyjae spears|Receiving Yards|10.5|36305236": {
+  "player": "Tyjae Spears",
+  "stat": "Receiving Yards",
+  "line": 10.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   0.0,
+   -1.0,
+   28.0,
+   7.0,
+   0.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "elic ayomanor|Receiving Yards|42.5|36305236": {
+  "player": "Elic Ayomanor",
+  "stat": "Receiving Yards",
+  "line": 42.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 34.0,
+  "last5": [
+   17.0,
+   3.0,
+   44.0,
+   34.0,
+   79.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "tyjae spears|Receptions|2.5|36305236": {
+  "player": "Tyjae Spears",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -154,
+  "fair_prob": 0.592,
+  "med5": 1.0,
+  "last5": [
+   0.0,
+   1.0,
+   9.0,
+   1.0,
+   1.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "cam ward|Rushing Yards|11.5|36305236": {
+  "player": "Cam Ward",
+  "stat": "Rushing Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   2.0,
+   7.0,
+   5.0,
+   41.0,
+   39.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "tyjae spears|Rushing Yards|15.5|36305236": {
+  "player": "Tyjae Spears",
+  "stat": "Rushing Yards",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": -108,
+  "fair_prob": 0.5127,
+  "med5": 5.0,
+  "last5": [
+   5.0,
+   7.0,
+   0.0,
+   1.0,
+   28.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "dak prescott|Rushing Yards|7.5|36305236": {
+  "player": "Dak Prescott",
+  "stat": "Rushing Yards",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 7.0,
+  "last5": [
+   7.0,
+   8.0,
+   20.0,
+   1.0,
+   7.0
+  ],
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "devin duvernay|Receiving Yards|12.5|36305237": {
+  "player": "Devin Duvernay",
+  "stat": "Receiving Yards",
+  "line": 12.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 8.0,
+  "last5": [
+   0.0,
+   0.0,
+   14.0,
+   8.0,
+   35.0
+  ],
+  "game": "ARI @ KC",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "chase brown|Receiving Yards|26.5|36305242": {
+  "player": "Chase Brown",
+  "stat": "Receiving Yards",
+  "line": 26.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 21.0,
+  "last5": [
+   21.0,
+   19.0,
+   46.0,
+   18.0,
+   39.0
+  ],
+  "game": "CIN @ WAS",
+  "start_time": "2026-11-24T01:16:00.000Z",
+  "game_day": "2026-11-23",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "treylon burks|Receptions|2.5|36305242": {
+  "player": "Treylon Burks",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -174,
+  "fair_prob": 0.6186,
+  "med5": 2.0,
+  "last5": [
+   1.0,
+   2.0,
+   4.0,
+   3.0,
+   2.0
+  ],
+  "game": "CIN @ WAS",
+  "start_time": "2026-11-24T01:16:00.000Z",
+  "game_day": "2026-11-23",
+  "logged_at": "2026-11-20T01:25:01",
+  "outcome": null,
+  "actual": null
+ },
+ "samaje perine|Receptions|1.5|36305242": {
+  "player": "Samaje Perine",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -230,
+  "fair_prob": 0.6763,
+  "med5": 1.0,
+  "last5": [
+   2.0,
+   0.0,
+   1.0,
+   0.0,
+   4.0
+  ],
+  "game": "CIN @ WAS",
+  "start_time": "2026-11-24T01:16:00.000Z",
+  "game_day": "2026-11-23",
+  "logged_at": "2026-11-20T01:25:01",
   "outcome": null,
   "actual": null
  }

@@ -10184,8 +10184,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-15T21:15:26",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 144.0
  },
  "daniel jones|Passing TDs|0.5|36305232": {
   "player": "Daniel Jones",
@@ -10202,8 +10202,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-15T21:15:26",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "dalton schultz|Receptions|3.5|36305232": {
   "player": "Dalton Schultz",
@@ -10220,8 +10220,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:18",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "jonathan taylor|Rushing Yards|50.5|36305232": {
   "player": "Jonathan Taylor",
@@ -10238,8 +10238,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T00:40:18",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 21.0
  },
  "brock purdy|Passing Yards|246.5|35605987": {
   "player": "Brock Purdy",
@@ -10364,8 +10364,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-16T20:32:47",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 144.0
  },
  "joe burrow|Passing TDs|2.5|36305242": {
   "player": "Joe Burrow",
@@ -11048,8 +11048,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-18T01:38:18",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 21.0
  },
  "jared goff|Passing Yards|249.5|36305238": {
   "player": "Jared Goff",
@@ -11156,8 +11156,8 @@
   "start_time": "2026-11-20T01:16:00.000Z",
   "game_day": "2026-11-19",
   "logged_at": "2026-11-18T19:20:03",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 144.0
  },
  "noah fant|Receiving Yards|7.5|36305233": {
   "player": "Noah Fant",
@@ -11840,6 +11840,96 @@
   "start_time": "2026-11-22T21:26:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-19T19:22:01",
+  "outcome": null,
+  "actual": null
+ },
+ "tyjae spears|Receptions|2.5|36305236": {
+  "player": "Tyjae Spears",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "over",
+  "american_odds": 116,
+  "model_prob": 0.4641,
+  "fair_prob": 0.408,
+  "edge": 0.0561,
+  "sample_n": 20,
+  "depth": 2,
+  "game": "TEN @ DAL",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:34",
+  "outcome": null,
+  "actual": null
+ },
+ "adonai mitchell|Receptions|3.5|36305240": {
+  "player": "Adonai Mitchell",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "over",
+  "american_odds": 136,
+  "model_prob": 0.4462,
+  "fair_prob": 0.3713,
+  "edge": 0.0749,
+  "sample_n": 22,
+  "depth": 2,
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:34",
+  "outcome": null,
+  "actual": null
+ },
+ "braelon allen|Receptions|1.5|36305240": {
+  "player": "Braelon Allen",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 112,
+  "model_prob": 0.5478,
+  "fair_prob": 0.4165,
+  "edge": 0.1313,
+  "sample_n": 14,
+  "depth": 2,
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-20T01:25:34",
+  "outcome": null,
+  "actual": null
+ },
+ "chase brown|Receptions|4.5|36305242": {
+  "player": "Chase Brown",
+  "stat": "Receptions",
+  "line": 4.5,
+  "side": "over",
+  "american_odds": 112,
+  "model_prob": 0.4892,
+  "fair_prob": 0.4165,
+  "edge": 0.0727,
+  "sample_n": 26,
+  "depth": 1,
+  "game": "CIN @ WAS",
+  "start_time": "2026-11-24T01:16:00.000Z",
+  "game_day": "2026-11-23",
+  "logged_at": "2026-11-20T01:25:34",
+  "outcome": null,
+  "actual": null
+ },
+ "samaje perine|Receptions|1.5|36305242": {
+  "player": "Samaje Perine",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 168,
+  "model_prob": 0.4222,
+  "fair_prob": 0.3237,
+  "edge": 0.0985,
+  "sample_n": 24,
+  "depth": 2,
+  "game": "CIN @ WAS",
+  "start_time": "2026-11-24T01:16:00.000Z",
+  "game_day": "2026-11-23",
+  "logged_at": "2026-11-20T01:25:34",
   "outcome": null,
   "actual": null
  }
