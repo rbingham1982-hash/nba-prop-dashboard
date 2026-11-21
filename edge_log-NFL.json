@@ -12598,5 +12598,41 @@
   "logged_at": "2026-11-21T16:02:17",
   "outcome": null,
   "actual": null
+ },
+ "quentin johnston|Receptions|2.5|36305240": {
+  "player": "Quentin Johnston",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "over",
+  "american_odds": 124,
+  "model_prob": 0.4549,
+  "fair_prob": 0.392,
+  "edge": 0.0629,
+  "sample_n": 21,
+  "depth": 2,
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T17:51:22",
+  "outcome": null,
+  "actual": null
+ },
+ "quentin johnston|Receiving Yards|23.5|36305240": {
+  "player": "Quentin Johnston",
+  "stat": "Receiving Yards",
+  "line": 23.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.6407,
+  "fair_prob": 0.475,
+  "edge": 0.1657,
+  "sample_n": 21,
+  "depth": 2,
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T17:51:22",
+  "outcome": null,
+  "actual": null
  }
 }

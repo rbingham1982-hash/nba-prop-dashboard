@@ -59640,5 +59640,115 @@
   "logged_at": "2026-11-21T16:01:44",
   "outcome": null,
   "actual": null
+ },
+ "tre harris|Receiving Yards|40.5|36305240": {
+  "player": "Tre Harris",
+  "stat": "Receiving Yards",
+  "line": 40.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 31.0,
+  "last5": [
+   60.0,
+   16.0,
+   31.0,
+   6.0,
+   86.0
+  ],
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T17:50:46",
+  "outcome": null,
+  "actual": null
+ },
+ "ladd mcconkey|Receiving Yards|40.5|36305240": {
+  "player": "Ladd McConkey",
+  "stat": "Receiving Yards",
+  "line": 40.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 35.0,
+  "last5": [
+   35.0,
+   66.0,
+   0.0,
+   17.0,
+   86.0
+  ],
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T17:50:46",
+  "outcome": null,
+  "actual": null
+ },
+ "quentin johnston|Receptions|2.5|36305240": {
+  "player": "Quentin Johnston",
+  "stat": "Receptions",
+  "line": 2.5,
+  "side": "under",
+  "american_odds": -166,
+  "fair_prob": 0.608,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   1.0,
+   4.0,
+   1.0,
+   1.0
+  ],
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T17:50:46",
+  "outcome": null,
+  "actual": null
+ },
+ "tre harris|Receptions|3.5|36305240": {
+  "player": "Tre Harris",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -136,
+  "fair_prob": 0.5629,
+  "med5": 3.0,
+  "last5": [
+   3.0,
+   2.0,
+   3.0,
+   3.0,
+   5.0
+  ],
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T17:50:46",
+  "outcome": null,
+  "actual": null
+ },
+ "ladd mcconkey|Receptions|3.5|36305240": {
+  "player": "Ladd McConkey",
+  "stat": "Receptions",
+  "line": 3.5,
+  "side": "under",
+  "american_odds": -125,
+  "fair_prob": 0.5442,
+  "med5": 3.0,
+  "last5": [
+   3.0,
+   4.0,
+   0.0,
+   1.0,
+   4.0
+  ],
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T17:50:46",
+  "outcome": null,
+  "actual": null
  }
 }

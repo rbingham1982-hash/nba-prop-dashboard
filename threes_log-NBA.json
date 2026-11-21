@@ -3471,5 +3471,74 @@
    "home_prob": 0.4452
   },
   "last_seen": "2026-11-21T01:18:52"
+ },
+ "DEN @ CHI|2026-11-23T00:10": {
+  "label": "DEN @ CHI",
+  "home_name": "Chicago Bulls",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-23T00:10:00.000Z",
+  "luck_home": 1.06,
+  "luck_away": -1.83,
+  "bet": "away",
+  "first_seen": "2026-11-21T17:51:24",
+  "first": {
+   "home_odds": 280,
+   "away_odds": -350,
+   "home_prob": 0.2528
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 280,
+   "away_odds": -350,
+   "home_prob": 0.2528
+  },
+  "last_seen": "2026-11-21T17:51:24"
+ },
+ "DEN @ ORL|2026-11-22T00:47": {
+  "label": "DEN @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-22T00:47:00.000Z",
+  "luck_home": 2.47,
+  "luck_away": -1.83,
+  "bet": "away",
+  "first_seen": "2026-11-21T17:51:24",
+  "first": {
+   "home_odds": -125,
+   "away_odds": -115,
+   "home_prob": 0.5095
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -125,
+   "away_odds": -115,
+   "home_prob": 0.5095
+  },
+  "last_seen": "2026-11-21T17:51:24"
+ },
+ "PHX @ MEM|2026-11-22T00:27": {
+  "label": "PHX @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Phoenix Suns",
+  "start_time": "2026-11-22T00:27:00.000Z",
+  "luck_home": 2.37,
+  "luck_away": -0.57,
+  "bet": "away",
+  "first_seen": "2026-11-21T17:51:24",
+  "first": {
+   "home_odds": 125,
+   "away_odds": -180,
+   "home_prob": 0.4088
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 125,
+   "away_odds": -180,
+   "home_prob": 0.4088
+  },
+  "last_seen": "2026-11-21T17:51:24"
  }
 }
