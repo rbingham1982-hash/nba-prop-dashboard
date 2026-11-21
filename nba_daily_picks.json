@@ -5375,9 +5375,9 @@
     "edge": 5.05,
     "pick": "away",
     "pick_label": "HOU +1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 133,
+    "away_pts": 124,
     "published": true
    },
    {
@@ -5392,9 +5392,9 @@
     "edge": 2.27,
     "pick": "home",
     "pick_label": "OKC -11.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 126,
+    "away_pts": 120,
     "published": true
    },
    {
@@ -5409,9 +5409,9 @@
     "edge": 1.8,
     "pick": "home",
     "pick_label": "CHI -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 94,
+    "away_pts": 98,
     "published": false
    },
    {
@@ -5426,9 +5426,9 @@
     "edge": 1.29,
     "pick": "home",
     "pick_label": "UTA +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 101,
+    "away_pts": 111,
     "published": false
    },
    {
@@ -5443,9 +5443,9 @@
     "edge": 0.42,
     "pick": "home",
     "pick_label": "LAL -14.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 106,
+    "away_pts": 104,
     "published": false
    }
   ],
@@ -5465,8 +5465,8 @@
     "implied_prob": 0.7103,
     "blended_prob": 0.7103,
     "edge": -0.0946,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Matas Buzelis",
@@ -5480,8 +5480,8 @@
     "implied_prob": 0.6317,
     "blended_prob": 0.6317,
     "edge": 0.0497,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Fred VanVleet",
@@ -5495,8 +5495,8 @@
     "implied_prob": 0.6248,
     "blended_prob": 0.6248,
     "edge": 0.0281,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Miles Bridges",
@@ -5510,8 +5510,8 @@
     "implied_prob": 0.5622,
     "blended_prob": 0.5622,
     "edge": 0.0035,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 18.0
    },
    {
     "player": "Oso Ighodaro",
@@ -5525,8 +5525,8 @@
     "implied_prob": 0.5581,
     "blended_prob": 0.5581,
     "edge": 0.079,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 13.0
    }
   ],
   "parlay_withheld_price": {

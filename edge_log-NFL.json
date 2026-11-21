@@ -12328,5 +12328,41 @@
   "logged_at": "2026-11-20T18:54:24",
   "outcome": null,
   "actual": null
+ },
+ "omarion hampton|Receptions|1.5|36305240": {
+  "player": "Omarion Hampton",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "over",
+  "american_odds": 134,
+  "model_prob": 0.5145,
+  "fair_prob": 0.3743,
+  "edge": 0.1402,
+  "sample_n": 18,
+  "depth": 1,
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T01:18:50",
+  "outcome": null,
+  "actual": null
+ },
+ "makai lemon|Receiving Yards|26.5|36305241": {
+  "player": "Makai Lemon",
+  "stat": "Receiving Yards",
+  "line": 26.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.597,
+  "fair_prob": 0.475,
+  "edge": 0.122,
+  "sample_n": 9,
+  "depth": 2,
+  "game": "PIT @ PHI",
+  "start_time": "2026-11-22T18:01:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-21T01:18:50",
+  "outcome": null,
+  "actual": null
  }
 }
