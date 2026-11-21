@@ -3374,11 +3374,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": -126,
-   "away_odds": 108,
-   "home_prob": 0.537
+   "home_odds": -120,
+   "away_odds": 102,
+   "home_prob": 0.5242
   },
-  "last_seen": "2026-11-20T01:25:38"
+  "last_seen": "2026-11-20T18:54:30"
  },
  "DEN @ DAL|2026-11-20T07:31": {
   "label": "DEN @ DAL",
@@ -3402,5 +3402,51 @@
    "home_prob": 0.4362
   },
   "last_seen": "2026-11-20T01:25:38"
+ },
+ "DAL @ DEN|2026-11-21T01:35": {
+  "label": "DAL @ DEN",
+  "home_name": "Denver Nuggets",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-11-21T01:35:00.000Z",
+  "luck_home": -2.78,
+  "luck_away": 0.12,
+  "bet": "home",
+  "first_seen": "2026-11-20T18:54:30",
+  "first": {
+   "home_odds": -165,
+   "away_odds": 115,
+   "home_prob": 0.5724
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -165,
+   "away_odds": 115,
+   "home_prob": 0.5724
+  },
+  "last_seen": "2026-11-20T18:54:30"
+ },
+ "DAL @ DEN|2026-11-21T01:31": {
+  "label": "DAL @ DEN",
+  "home_name": "Denver Nuggets",
+  "away_name": "Dallas Mavericks",
+  "start_time": "2026-11-21T01:31:00.000Z",
+  "luck_home": -2.78,
+  "luck_away": 0.12,
+  "bet": "home",
+  "first_seen": "2026-11-20T18:54:30",
+  "first": {
+   "home_odds": -120,
+   "away_odds": -120,
+   "home_prob": 0.5
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -120,
+   "away_odds": -120,
+   "home_prob": 0.5
+  },
+  "last_seen": "2026-11-20T18:54:30"
  }
 }

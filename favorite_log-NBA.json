@@ -7840,12 +7840,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.87,
-   "odds": -950,
-   "home_odds": -950,
-   "away_odds": 640
+   "fav_prob": 0.8647,
+   "odds": -900,
+   "home_odds": -900,
+   "away_odds": 610
   },
-  "last_seen": "2026-11-20T01:25:34"
+  "last_seen": "2026-11-20T18:54:26"
  },
  "IND @ CLE|2026-11-21T00:40": {
   "label": "IND @ CLE",
@@ -7936,12 +7936,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.8075,
-   "odds": -520,
-   "home_odds": -520,
-   "away_odds": 400
+   "fav_prob": 0.7907,
+   "odds": -460,
+   "home_odds": -460,
+   "away_odds": 360
   },
-  "last_seen": "2026-11-20T01:25:34"
+  "last_seen": "2026-11-20T18:54:26"
  },
  "BKN @ MIA|2026-11-20T08:11": {
   "label": "BKN @ MIA",
@@ -7966,5 +7966,77 @@
    "away_odds": -300
   },
   "last_seen": "2026-11-20T01:25:34"
+ },
+ "MIL @ PHI|2026-11-21T18:10": {
+  "label": "MIL @ PHI",
+  "home_name": "Philadelphia 76ers",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-21T18:10:00.000Z",
+  "first_seen": "2026-11-20T18:54:26",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.84,
+   "odds": -700,
+   "home_odds": -700,
+   "away_odds": 500
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.84,
+   "odds": -700,
+   "home_odds": -700,
+   "away_odds": 500
+  },
+  "last_seen": "2026-11-20T18:54:26"
+ },
+ "MEM @ MIN|2026-11-22T01:10": {
+  "label": "MEM @ MIN",
+  "home_name": "Minnesota Timberwolves",
+  "away_name": "Memphis Grizzlies",
+  "start_time": "2026-11-22T01:10:00.000Z",
+  "first_seen": "2026-11-20T18:54:26",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6515,
+   "odds": -210,
+   "home_odds": -210,
+   "away_odds": 176
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6515,
+   "odds": -210,
+   "home_odds": -210,
+   "away_odds": 176
+  },
+  "last_seen": "2026-11-20T18:54:26"
+ },
+ "POR @ NYK|2026-11-22T00:40": {
+  "label": "POR @ NYK",
+  "home_name": "New York Knicks",
+  "away_name": "Portland Trail Blazers",
+  "start_time": "2026-11-22T00:40:00.000Z",
+  "first_seen": "2026-11-20T18:54:26",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6515,
+   "odds": -210,
+   "home_odds": -210,
+   "away_odds": 176
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6515,
+   "odds": -210,
+   "home_odds": -210,
+   "away_odds": 176
+  },
+  "last_seen": "2026-11-20T18:54:26"
  }
 }
