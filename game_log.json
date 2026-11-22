@@ -3718,7 +3718,7 @@
       "model_first_seen": "2026-08-20T15:55:26",
       "model_opening_prob": 0.5576,
       "model_home_prob": 0.5219,
-      "model_seen_at": "2026-11-21T15:59:57",
+      "model_seen_at": "2026-11-22T14:38:50",
       "source_game_id": "824589"
     },
     {
@@ -3826,7 +3826,7 @@
       "model_first_seen": "2026-08-20T15:55:26",
       "model_opening_prob": 0.5324,
       "model_home_prob": 0.5012,
-      "model_seen_at": "2026-11-21T15:59:57",
+      "model_seen_at": "2026-11-22T14:38:50",
       "source_game_id": "824802"
     },
     {
@@ -3939,7 +3939,7 @@
       "model_first_seen": "2026-08-20T15:55:26",
       "model_opening_prob": 0.4378,
       "model_home_prob": 0.4642,
-      "model_seen_at": "2026-11-21T15:59:57"
+      "model_seen_at": "2026-11-22T14:38:50"
     },
     {
       "id": "c8914686d36ca1f5",
@@ -10225,7 +10225,7 @@
       "model_first_seen": "2026-09-01T00:16:27",
       "model_opening_prob": 0.4826,
       "model_home_prob": 0.4639,
-      "model_seen_at": "2026-11-21T15:59:57"
+      "model_seen_at": "2026-11-22T14:38:50"
     },
     {
       "id": "bced17127edad9f7",
@@ -10572,7 +10572,7 @@
       "model_first_seen": "2026-09-01T00:16:27",
       "model_opening_prob": 0.514,
       "model_home_prob": 0.5514,
-      "model_seen_at": "2026-11-21T15:59:57"
+      "model_seen_at": "2026-11-22T14:38:50"
     },
     {
       "id": "b48cd80ad017e10c",
@@ -13447,7 +13447,7 @@
       "model_first_seen": "2026-09-06T08:23:19",
       "model_opening_prob": 0.5419,
       "model_home_prob": 0.5441,
-      "model_seen_at": "2026-11-21T15:59:57",
+      "model_seen_at": "2026-11-22T14:38:50",
       "source_game_id": "824385"
     },
     {
@@ -14023,7 +14023,7 @@
       "model_first_seen": "2026-09-06T08:23:19",
       "model_opening_prob": 0.4735,
       "model_home_prob": 0.5708,
-      "model_seen_at": "2026-11-21T15:59:57",
+      "model_seen_at": "2026-11-22T14:38:50",
       "source_game_id": "824794"
     },
     {
@@ -15933,7 +15933,7 @@
       "model_first_seen": "2026-09-20T07:11:13",
       "model_opening_prob": 0.6076,
       "model_home_prob": 0.5707,
-      "model_seen_at": "2026-11-21T15:59:57",
+      "model_seen_at": "2026-11-22T14:38:50",
       "source_game_id": "823896"
     },
     {
@@ -16468,7 +16468,7 @@
       "model_first_seen": "2026-09-25T14:02:43",
       "model_opening_prob": 0.5465,
       "model_home_prob": 0.5195,
-      "model_seen_at": "2026-11-21T15:59:57",
+      "model_seen_at": "2026-11-22T14:38:50",
       "source_game_id": "823491"
     },
     {
@@ -16764,7 +16764,7 @@
       "model_first_seen": "2026-09-28T20:02:12",
       "model_opening_prob": 0.574,
       "model_home_prob": 0.5995,
-      "model_seen_at": "2026-11-21T15:59:57",
+      "model_seen_at": "2026-11-22T14:38:50",
       "source_game_id": "849851"
     },
     {
@@ -25046,7 +25046,7 @@
       "model_first_seen": "2026-10-18T02:36:18",
       "model_opening_prob": 0.4978,
       "model_home_prob": 0.5016,
-      "model_seen_at": "2026-11-21T15:59:57",
+      "model_seen_at": "2026-11-22T14:38:50",
       "source_game_id": "849817"
     },
     {
@@ -47140,10 +47140,10 @@
           "overround": 1.0398
         }
       ],
-      "home_score": null,
-      "away_score": null,
-      "home_won": null,
-      "resolved_at": null
+      "home_score": 110,
+      "away_score": 100,
+      "home_won": true,
+      "resolved_at": "2026-11-22T14:38:16"
     },
     {
       "id": "892059c3478aad13",
@@ -47167,10 +47167,10 @@
           "overround": 1.0417
         }
       ],
-      "home_score": null,
-      "away_score": null,
-      "home_won": null,
-      "resolved_at": null
+      "home_score": 132,
+      "away_score": 129,
+      "home_won": true,
+      "resolved_at": "2026-11-22T14:38:16"
     },
     {
       "id": "663200bc803c882f",
@@ -47202,10 +47202,10 @@
           "overround": 1.0418
         }
       ],
-      "home_score": null,
-      "away_score": null,
-      "home_won": null,
-      "resolved_at": null
+      "home_score": 104,
+      "away_score": 95,
+      "home_won": true,
+      "resolved_at": "2026-11-22T14:38:16"
     },
     {
       "id": "53e63fb66970dbfb",
@@ -47237,10 +47237,10 @@
           "overround": 1.0411
         }
       ],
-      "home_score": null,
-      "away_score": null,
-      "home_won": null,
-      "resolved_at": null
+      "home_score": 97,
+      "away_score": 96,
+      "home_won": true,
+      "resolved_at": "2026-11-22T14:38:16"
     },
     {
       "id": "1af76d1430eb781b",
@@ -47507,10 +47507,10 @@
           "overround": 1.04
         }
       ],
-      "home_score": null,
-      "away_score": null,
-      "home_won": null,
-      "resolved_at": null
+      "home_score": 114,
+      "away_score": 91,
+      "home_won": true,
+      "resolved_at": "2026-11-22T14:38:16"
     },
     {
       "id": "bd00bf1455535c3e",
@@ -47534,10 +47534,10 @@
           "overround": 1.0403
         }
       ],
-      "home_score": null,
-      "away_score": null,
-      "home_won": null,
-      "resolved_at": null
+      "home_score": 97,
+      "away_score": 96,
+      "home_won": true,
+      "resolved_at": "2026-11-22T14:38:16"
     },
     {
       "id": "6447665e8629f5e5",
@@ -47829,6 +47829,546 @@
           "away_odds": -120,
           "home_prob": 0.5,
           "overround": 1.0909
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "46d31b4ae7a724d8",
+      "sport": "NBA",
+      "game_label": "DET @ ATL",
+      "home_team": "ATL",
+      "away_team": "DET",
+      "home_name": "Atlanta Hawks",
+      "away_name": "Detroit Pistons",
+      "start_time": "2026-11-22T20:40:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.4455,
+      "closing_home_prob": 0.4455,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": 116,
+          "away_odds": -136,
+          "home_prob": 0.4455,
+          "overround": 1.0392
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "de2b6a25933c49c3",
+      "sport": "NBA",
+      "game_label": "OKC @ MIA",
+      "home_team": "MIA",
+      "away_team": "OKC",
+      "home_name": "Miami Heat",
+      "away_name": "Oklahoma City Thunder",
+      "start_time": "2026-11-22T23:10:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.6068,
+      "closing_home_prob": 0.6068,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -172,
+          "away_odds": 144,
+          "home_prob": 0.6068,
+          "overround": 1.0422
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "8bdaab2f6f19b481",
+      "sport": "NBA",
+      "game_label": "ORL @ WAS",
+      "home_team": "WAS",
+      "away_team": "ORL",
+      "home_name": "Washington Wizards",
+      "away_name": "Orlando Magic",
+      "start_time": "2026-11-23T00:10:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.3614,
+      "closing_home_prob": 0.3614,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": 166,
+          "away_odds": -198,
+          "home_prob": 0.3614,
+          "overround": 1.0404
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "dc2b225b1b3fd121",
+      "sport": "NBA",
+      "game_label": "DAL @ UTA",
+      "home_team": "UTA",
+      "away_team": "DAL",
+      "home_name": "Utah Jazz",
+      "away_name": "Dallas Mavericks",
+      "start_time": "2026-11-23T00:10:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.4533,
+      "closing_home_prob": 0.4533,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": 112,
+          "away_odds": -132,
+          "home_prob": 0.4533,
+          "overround": 1.0407
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "ba81a0ebd0b58848",
+      "sport": "NBA",
+      "game_label": "BOS @ GSW",
+      "home_team": "GSW",
+      "away_team": "BOS",
+      "home_name": "Golden State Warriors",
+      "away_name": "Boston Celtics",
+      "start_time": "2026-11-23T01:40:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.2498,
+      "closing_home_prob": 0.2498,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": 285,
+          "away_odds": -355,
+          "home_prob": 0.2498,
+          "overround": 1.04
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "ae89cfd149502ec8",
+      "sport": "NBA",
+      "game_label": "IND @ NYK",
+      "home_team": "NYK",
+      "away_team": "IND",
+      "home_name": "New York Knicks",
+      "away_name": "Indiana Pacers",
+      "start_time": "2026-11-23T01:10:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.7136,
+      "closing_home_prob": 0.7136,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -290,
+          "away_odds": 235,
+          "home_prob": 0.7136,
+          "overround": 1.0421
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "2c998c28e1d29a59",
+      "sport": "NBA",
+      "game_label": "DEN @ CHI",
+      "home_team": "CHI",
+      "away_team": "DEN",
+      "home_name": "Chicago Bulls",
+      "away_name": "Denver Nuggets",
+      "start_time": "2026-11-23T00:10:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.2093,
+      "closing_home_prob": 0.2093,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": 360,
+          "away_odds": -460,
+          "home_prob": 0.2093,
+          "overround": 1.0388
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "b32fa273996a65c0",
+      "sport": "NBA",
+      "game_label": "OKC @ LAL",
+      "home_team": "LAL",
+      "away_team": "OKC",
+      "home_name": "Los Angeles Lakers",
+      "away_name": "Oklahoma City Thunder",
+      "start_time": "2026-11-22T20:31:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.3326,
+      "closing_home_prob": 0.3326,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": 175,
+          "away_odds": -270,
+          "home_prob": 0.3326,
+          "overround": 1.0934
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "89f60a49ed2ba724",
+      "sport": "NBA",
+      "game_label": "TOR @ BKN",
+      "home_team": "BKN",
+      "away_team": "TOR",
+      "home_name": "Brooklyn Nets",
+      "away_name": "Toronto Raptors",
+      "start_time": "2026-11-22T20:35:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.7387,
+      "closing_home_prob": 0.7387,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -420,
+          "away_odds": 250,
+          "home_prob": 0.7387,
+          "overround": 1.0934
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "9958ecc60844d171",
+      "sport": "NBA",
+      "game_label": "CHI @ BKN",
+      "home_team": "BKN",
+      "away_team": "CHI",
+      "home_name": "Brooklyn Nets",
+      "away_name": "Chicago Bulls",
+      "start_time": "2026-11-22T20:39:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.2912,
+      "closing_home_prob": 0.2912,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": 215,
+          "away_odds": -340,
+          "home_prob": 0.2912,
+          "overround": 1.0902
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "c38606efdebccc22",
+      "sport": "NBA",
+      "game_label": "PHX @ MIL",
+      "home_team": "MIL",
+      "away_team": "PHX",
+      "home_name": "Milwaukee Bucks",
+      "away_name": "Phoenix Suns",
+      "start_time": "2026-11-22T20:43:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.3742,
+      "closing_home_prob": 0.3742,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": 145,
+          "away_odds": -215,
+          "home_prob": 0.3742,
+          "overround": 1.0907
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "d9514005a48ae915",
+      "sport": "NBA",
+      "game_label": "BOS @ NYK",
+      "home_team": "NYK",
+      "away_team": "BOS",
+      "home_name": "New York Knicks",
+      "away_name": "Boston Celtics",
+      "start_time": "2026-11-22T20:47:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.5385,
+      "closing_home_prob": 0.5385,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -140,
+          "away_odds": 100,
+          "home_prob": 0.5385,
+          "overround": 1.0833
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "20c7a0c88181558b",
+      "sport": "NBA",
+      "game_label": "LAL @ BOS",
+      "home_team": "BOS",
+      "away_team": "LAL",
+      "home_name": "Boston Celtics",
+      "away_name": "Los Angeles Lakers",
+      "start_time": "2026-11-22T20:51:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.7074,
+      "closing_home_prob": 0.7074,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -330,
+          "away_odds": 215,
+          "home_prob": 0.7074,
+          "overround": 1.0849
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "4bbecd9c5fb01103",
+      "sport": "NBA",
+      "game_label": "TOR @ MIA",
+      "home_team": "MIA",
+      "away_team": "TOR",
+      "home_name": "Miami Heat",
+      "away_name": "Toronto Raptors",
+      "start_time": "2026-11-22T21:07:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.5287,
+      "closing_home_prob": 0.5287,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -135,
+          "away_odds": -105,
+          "home_prob": 0.5287,
+          "overround": 1.0867
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "6ed1201776bad333",
+      "sport": "NBA",
+      "game_label": "CHI @ TOR",
+      "home_team": "TOR",
+      "away_team": "CHI",
+      "home_name": "Toronto Raptors",
+      "away_name": "Chicago Bulls",
+      "start_time": "2026-11-22T21:11:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.519,
+      "closing_home_prob": 0.519,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -130,
+          "away_odds": -110,
+          "home_prob": 0.519,
+          "overround": 1.089
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "a9414415d3e31f65",
+      "sport": "NBA",
+      "game_label": "PHX @ CLE",
+      "home_team": "CLE",
+      "away_team": "PHX",
+      "home_name": "Cleveland Cavaliers",
+      "away_name": "Phoenix Suns",
+      "start_time": "2026-11-22T21:15:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.7088,
+      "closing_home_prob": 0.7088,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -340,
+          "away_odds": 215,
+          "home_prob": 0.7088,
+          "overround": 1.0902
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "b51cca6d2aa2d748",
+      "sport": "NBA",
+      "game_label": "NYK @ LAL",
+      "home_team": "LAL",
+      "away_team": "NYK",
+      "home_name": "Los Angeles Lakers",
+      "away_name": "New York Knicks",
+      "start_time": "2026-11-22T21:19:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.5287,
+      "closing_home_prob": 0.5287,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -135,
+          "away_odds": -105,
+          "home_prob": 0.5287,
+          "overround": 1.0867
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "24be85724c6a777b",
+      "sport": "NBA",
+      "game_label": "BOS @ LAL",
+      "home_team": "LAL",
+      "away_team": "BOS",
+      "home_name": "Los Angeles Lakers",
+      "away_name": "Boston Celtics",
+      "start_time": "2026-11-22T20:15:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.6832,
+      "closing_home_prob": 0.6832,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -290,
+          "away_odds": 190,
+          "home_prob": 0.6832,
+          "overround": 1.0884
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "4e6e1056fc7f42f1",
+      "sport": "NBA",
+      "game_label": "LAL @ NYK",
+      "home_team": "NYK",
+      "away_team": "LAL",
+      "home_name": "New York Knicks",
+      "away_name": "Los Angeles Lakers",
+      "start_time": "2026-11-22T21:23:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.5385,
+      "closing_home_prob": 0.5385,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -140,
+          "away_odds": 100,
+          "home_prob": 0.5385,
+          "overround": 1.0833
+        }
+      ],
+      "home_score": null,
+      "away_score": null,
+      "home_won": null,
+      "resolved_at": null
+    },
+    {
+      "id": "75216c47e9d9a170",
+      "sport": "NBA",
+      "game_label": "OKC @ NYK",
+      "home_team": "NYK",
+      "away_team": "OKC",
+      "home_name": "New York Knicks",
+      "away_name": "Oklahoma City Thunder",
+      "start_time": "2026-11-22T21:03:00.000Z",
+      "first_seen": "2026-11-22T14:38:12",
+      "opening_home_prob": 0.5095,
+      "closing_home_prob": 0.5095,
+      "market": [
+        {
+          "seen_at": "2026-11-22T14:38:12",
+          "sportsbook": "FanDuel",
+          "home_odds": -125,
+          "away_odds": -115,
+          "home_prob": 0.5095,
+          "overround": 1.0904
         }
       ],
       "home_score": null,

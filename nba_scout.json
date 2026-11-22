@@ -2,7 +2,7 @@
  "date": "2026-11-22",
  "season": "2026-27",
  "prev": "2025-26",
- "updated": "2026-11-22T00:58",
+ "updated": "2026-11-22T14:41",
  "players": [
   {
    "player": "Jalen Johnson",
@@ -609,42 +609,35 @@
    "props": [
     {
      "stat": "Points",
-     "line": 27.5,
-     "over": -114,
-     "under": -114
+     "line": 26.5,
+     "over": -118,
+     "under": -108
     },
     {
      "stat": "Rebounds",
      "line": 12.5,
-     "over": -132,
-     "under": 100
+     "over": -102,
+     "under": -125
     },
     {
      "stat": "Assists",
      "line": 5.5,
-     "over": -146,
-     "under": 110
-    },
-    {
-     "stat": "3-PT Made",
-     "line": 0.5,
-     "over": -120,
-     "under": -110
+     "over": -150,
+     "under": 118
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 46.5,
-     "over": -120,
-     "under": -110
+     "line": 45.5,
+     "over": -113,
+     "under": -113
     }
    ],
    "text": [
     "Giannis Antetokounmpo (MIA) hosts OKC tonight. This season (2026-27): 28.2 pts, 12.6 reb, 5.5 ast in 32.2 min over 15 games. Last season (2025-26, with MIL): 27.6 pts, 9.8 reb, 5.4 ast over 36 games.",
-    "Points 27.5 (FanDuel over -114, under -114): over in 9 of 15 this season (latest first: 27, 20, 34, 37, 30); 19 of 36 last season (53%, avg 27.6).",
-    "Rebounds 12.5 (FanDuel over -132, under +100): over in 9 of 15 this season (latest first: 14, 13, 14, 9, 11); 11 of 36 last season (31%, avg 9.8).",
-    "Assists 5.5 (FanDuel over -146, under +110): over in 7 of 15 this season (latest first: 9, 6, 8, 2, 4); 15 of 36 last season (42%, avg 5.4).",
-    "3-PT Made 0.5 (FanDuel over -120, under -110): over in 7 of 15 this season (latest first: 0, 0, 1, 1, 1); 13 of 36 last season (36%, avg 0.4).",
-    "Pts+Rebs+Asts 46.5 (FanDuel over -120, under -110): over in 8 of 15 this season (latest first: 50, 39, 56, 48, 45); 15 of 36 last season (42%, avg 42.8).",
+    "Points 26.5 (FanDuel over -118, under -108): over in 11 of 15 this season (latest first: 27, 20, 34, 37, 30); 20 of 36 last season (56%, avg 27.6).",
+    "Rebounds 12.5 (FanDuel over -102, under -125): over in 9 of 15 this season (latest first: 14, 13, 14, 9, 11); 11 of 36 last season (31%, avg 9.8).",
+    "Assists 5.5 (FanDuel over -150, under +118): over in 7 of 15 this season (latest first: 9, 6, 8, 2, 4); 15 of 36 last season (42%, avg 5.4).",
+    "Pts+Rebs+Asts 45.5 (FanDuel over -113, under -113): over in 9 of 15 this season (latest first: 50, 39, 56, 48, 45); 15 of 36 last season (42%, avg 42.8).",
     "Against OKC \u2014 this season (2026-27): none; last season (2025-26): 1 game, 19.0 pts (Jan 21: 19)."
    ]
   },
@@ -659,42 +652,42 @@
    "props": [
     {
      "stat": "Points",
-     "line": 20.5,
-     "over": 102,
-     "under": -136
+     "line": 19.5,
+     "over": -128,
+     "under": 100
     },
     {
      "stat": "Rebounds",
      "line": 9.5,
-     "over": 110,
-     "under": -146
+     "over": 122,
+     "under": -156
     },
     {
      "stat": "Assists",
      "line": 3.5,
-     "over": -106,
-     "under": -125
+     "over": 110,
+     "under": -140
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 154,
-     "under": -210
+     "over": 158,
+     "under": -205
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 32.5,
-     "over": -125,
-     "under": -106
+     "over": -122,
+     "under": -104
     }
    ],
    "text": [
     "Bam Adebayo (MIA) hosts OKC tonight. This season (2026-27): 18.9 pts, 7.7 reb, 3.1 ast in 32.3 min over 15 games. Last season (2025-26): 20.1 pts, 10.0 reb, 3.2 ast over 73 games.",
-    "Points 20.5 (FanDuel over +102, under -136): over in 5 of 15 this season (latest first: 26, 4, 20, 37, 11); 33 of 73 last season (45%, avg 20.1).",
-    "Rebounds 9.5 (FanDuel over +110, under -146): over in 3 of 15 this season (latest first: 4, 1, 5, 14, 8); 40 of 73 last season (55%, avg 10.0).",
-    "Assists 3.5 (FanDuel over -106, under -125): over in 7 of 15 this season (latest first: 2, 2, 4, 3, 4); 28 of 73 last season (38%, avg 3.2).",
-    "3-PT Made 1.5 (FanDuel over +154, under -210): over in 3 of 15 this season (latest first: 3, 0, 1, 2, 0); 33 of 73 last season (45%, avg 1.7).",
-    "Pts+Rebs+Asts 32.5 (FanDuel over -125, under -106): over in 4 of 15 this season (latest first: 32, 7, 29, 54, 23); 33 of 73 last season (45%, avg 33.3).",
+    "Points 19.5 (FanDuel over -128, under +100): over in 7 of 15 this season (latest first: 26, 4, 20, 37, 11); 39 of 73 last season (53%, avg 20.1).",
+    "Rebounds 9.5 (FanDuel over +122, under -156): over in 3 of 15 this season (latest first: 4, 1, 5, 14, 8); 40 of 73 last season (55%, avg 10.0).",
+    "Assists 3.5 (FanDuel over +110, under -140): over in 7 of 15 this season (latest first: 2, 2, 4, 3, 4); 28 of 73 last season (38%, avg 3.2).",
+    "3-PT Made 1.5 (FanDuel over +158, under -205): over in 3 of 15 this season (latest first: 3, 0, 1, 2, 0); 33 of 73 last season (45%, avg 1.7).",
+    "Pts+Rebs+Asts 32.5 (FanDuel over -122, under -104): over in 4 of 15 this season (latest first: 32, 7, 29, 54, 23); 33 of 73 last season (45%, avg 33.3).",
     "Against OKC \u2014 this season (2026-27): none; last season (2025-26): 2 games, 18.0 pts (Jan 11: 6, Jan 17: 30)."
    ]
   },
@@ -710,41 +703,41 @@
     {
      "stat": "Points",
      "line": 14.5,
-     "over": -110,
-     "under": -120
+     "over": 102,
+     "under": -130
     },
     {
      "stat": "Rebounds",
      "line": 2.5,
-     "over": -172,
-     "under": 126
+     "over": -156,
+     "under": 122
     },
     {
      "stat": "Assists",
      "line": 8.5,
-     "over": -130,
-     "under": -102
+     "over": 102,
+     "under": -130
     },
     {
      "stat": "3-PT Made",
      "line": 2.5,
-     "over": 136,
-     "under": -182
+     "over": 128,
+     "under": -164
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 27.5,
-     "over": -106,
-     "under": -125
+     "line": 25.5,
+     "over": -125,
+     "under": -102
     }
    ],
    "text": [
     "Davion Mitchell (MIA) hosts OKC tonight. This season (2026-27): 17.2 pts, 2.4 reb, 9.0 ast in 35.5 min over 15 games. Last season (2025-26): 9.3 pts, 2.7 reb, 6.5 ast over 70 games. That is 7.9 points a game up on last season, on 15 games.",
-    "Points 14.5 (FanDuel over -110, under -120): over in 12 of 15 this season (latest first: 24, 16, 15, 22, 19); 9 of 70 last season (13%, avg 9.3).",
-    "Rebounds 2.5 (FanDuel over -172, under +126): over in 6 of 15 this season (latest first: 2, 3, 4, 5, 5); 33 of 70 last season (47%, avg 2.7).",
-    "Assists 8.5 (FanDuel over -130, under -102): over in 9 of 15 this season (latest first: 6, 10, 9, 17, 8); 18 of 70 last season (26%, avg 6.5).",
-    "3-PT Made 2.5 (FanDuel over +136, under -182): over in 9 of 15 this season (latest first: 6, 1, 3, 3, 3); 10 of 70 last season (14%, avg 1.3).",
-    "Pts+Rebs+Asts 27.5 (FanDuel over -106, under -125): over in 9 of 15 this season (latest first: 32, 29, 28, 44, 32); 5 of 70 last season (7%, avg 18.5).",
+    "Points 14.5 (FanDuel over +102, under -130): over in 12 of 15 this season (latest first: 24, 16, 15, 22, 19); 9 of 70 last season (13%, avg 9.3).",
+    "Rebounds 2.5 (FanDuel over -156, under +122): over in 6 of 15 this season (latest first: 2, 3, 4, 5, 5); 33 of 70 last season (47%, avg 2.7).",
+    "Assists 8.5 (FanDuel over +102, under -130): over in 9 of 15 this season (latest first: 6, 10, 9, 17, 8); 18 of 70 last season (26%, avg 6.5).",
+    "3-PT Made 2.5 (FanDuel over +128, under -164): over in 9 of 15 this season (latest first: 6, 1, 3, 3, 3); 10 of 70 last season (14%, avg 1.3).",
+    "Pts+Rebs+Asts 25.5 (FanDuel over -125, under -102): over in 9 of 15 this season (latest first: 32, 29, 28, 44, 32); 8 of 70 last season (11%, avg 18.5).",
     "Against OKC \u2014 this season (2026-27): none; last season (2025-26): 1 game, 13.0 pts (Jan 11: 13)."
    ]
   },
@@ -760,41 +753,27 @@
     {
      "stat": "Points",
      "line": 14.5,
-     "over": -118,
-     "under": -112
-    },
-    {
-     "stat": "Rebounds",
-     "line": 2.5,
-     "over": 138,
-     "under": -186
-    },
-    {
-     "stat": "Assists",
-     "line": 1.5,
-     "over": -132,
-     "under": 100
+     "over": -122,
+     "under": -104
     },
     {
      "stat": "3-PT Made",
      "line": 3.5,
-     "over": -128,
-     "under": -104
+     "over": -130,
+     "under": 102
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 18.5,
-     "over": -122,
-     "under": -108
+     "line": 19.5,
+     "over": -104,
+     "under": -122
     }
    ],
    "text": [
     "Klay Thompson (MIA) hosts OKC tonight. This season (2026-27): 15.3 pts, 1.4 reb, 2.0 ast in 24.1 min over 14 games. Last season (2025-26, with DAL): 11.7 pts, 2.1 reb, 1.4 ast over 69 games. That is 3.5 points a game up on last season, on 14 games.",
-    "Points 14.5 (FanDuel over -118, under -112): over in 6 of 14 this season (latest first: 13, 17, 26, 11, 23); 20 of 69 last season (29%, avg 11.7).",
-    "Rebounds 2.5 (FanDuel over +138, under -186): over in 2 of 14 this season (latest first: 1, 0, 1, 1, 2); 24 of 69 last season (35%, avg 2.1).",
-    "Assists 1.5 (FanDuel over -132, under +100): over in 9 of 14 this season (latest first: 1, 2, 4, 2, 4); 27 of 69 last season (39%, avg 1.4).",
-    "3-PT Made 3.5 (FanDuel over -128, under -104): over in 8 of 14 this season (latest first: 4, 5, 6, 2, 7); 25 of 69 last season (36%, avg 2.9).",
-    "Pts+Rebs+Asts 18.5 (FanDuel over -122, under -108): over in 6 of 14 this season (latest first: 15, 19, 31, 14, 29); 20 of 69 last season (29%, avg 15.2).",
+    "Points 14.5 (FanDuel over -122, under -104): over in 6 of 14 this season (latest first: 13, 17, 26, 11, 23); 20 of 69 last season (29%, avg 11.7).",
+    "3-PT Made 3.5 (FanDuel over -130, under +102): over in 8 of 14 this season (latest first: 4, 5, 6, 2, 7); 25 of 69 last season (36%, avg 2.9).",
+    "Pts+Rebs+Asts 19.5 (FanDuel over -104, under -122): over in 5 of 14 this season (latest first: 15, 19, 31, 14, 29); 19 of 69 last season (28%, avg 15.2).",
     "Against OKC \u2014 this season (2026-27): none; last season (2025-26): 3 games, 6.0 pts (Oct 27: 8, Dec 5: 3, Mar 1: 7)."
    ]
   },
@@ -810,42 +789,114 @@
     {
      "stat": "Points",
      "line": 10.5,
-     "over": -106,
-     "under": -125
+     "over": -118,
+     "under": -108
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
      "over": -102,
-     "under": -130
+     "under": -125
     },
     {
      "stat": "Assists",
      "line": 3.5,
-     "over": -106,
-     "under": -125
-    },
-    {
-     "stat": "3-PT Made",
-     "line": 0.5,
-     "over": -220,
-     "under": 162
+     "over": 116,
+     "under": -148
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 17.5,
-     "over": -125,
-     "under": -106
+     "line": 18.5,
+     "over": -102,
+     "under": -125
     }
    ],
    "text": [
     "Pelle Larsson (MIA) hosts OKC tonight. This season (2026-27): 10.8 pts, 3.3 reb, 3.4 ast in 28.3 min over 12 games. Last season (2025-26): 11.4 pts, 3.5 reb, 3.4 ast over 70 games.",
-    "Points 10.5 (FanDuel over -106, under -125): over in 7 of 12 this season (latest first: 4, 14, 11, 13, 7); 33 of 70 last season (47%, avg 11.4).",
-    "Rebounds 3.5 (FanDuel over -102, under -130): over in 3 of 12 this season (latest first: 2, 7, 3, 1, 3); 30 of 70 last season (43%, avg 3.5).",
-    "Assists 3.5 (FanDuel over -106, under -125): over in 6 of 12 this season (latest first: 2, 2, 3, 4, 4); 29 of 70 last season (41%, avg 3.4).",
-    "3-PT Made 0.5 (FanDuel over -220, under +162): over in 10 of 12 this season (latest first: 1, 2, 3, 3, 0); 39 of 70 last season (56%, avg 0.9).",
-    "Pts+Rebs+Asts 17.5 (FanDuel over -125, under -106): over in 5 of 12 this season (latest first: 8, 23, 17, 18, 14); 39 of 70 last season (56%, avg 18.3).",
+    "Points 10.5 (FanDuel over -118, under -108): over in 7 of 12 this season (latest first: 4, 14, 11, 13, 7); 33 of 70 last season (47%, avg 11.4).",
+    "Rebounds 3.5 (FanDuel over -102, under -125): over in 3 of 12 this season (latest first: 2, 7, 3, 1, 3); 30 of 70 last season (43%, avg 3.5).",
+    "Assists 3.5 (FanDuel over +116, under -148): over in 6 of 12 this season (latest first: 2, 2, 3, 4, 4); 29 of 70 last season (41%, avg 3.4).",
+    "Pts+Rebs+Asts 18.5 (FanDuel over -102, under -125): over in 4 of 12 this season (latest first: 8, 23, 17, 18, 14); 36 of 70 last season (51%, avg 18.3).",
     "Against OKC \u2014 this season (2026-27): none; last season (2025-26): 2 games, 16.0 pts (Jan 11: 16, Jan 17: 16)."
+   ]
+  },
+  {
+   "player": "Andrew Wiggins",
+   "team": "MIA",
+   "opp": "OKC",
+   "game": "OKC @ MIA",
+   "start_time": "2026-11-22T23:10:00.000Z",
+   "games_cur": 15,
+   "games_prev": 68,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 9.5,
+     "over": -102,
+     "under": -125
+    },
+    {
+     "stat": "Rebounds",
+     "line": 3.5,
+     "over": 122,
+     "under": -156
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": 110,
+     "under": -140
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 14.5,
+     "over": 100,
+     "under": -128
+    }
+   ],
+   "text": [
+    "Andrew Wiggins (MIA) hosts OKC tonight. This season (2026-27): 9.5 pts, 2.9 reb, 1.6 ast in 26.5 min over 15 games. Last season (2025-26): 15.4 pts, 4.8 reb, 2.7 ast over 68 games. That is 5.9 points a game down from last season, on 15 games.",
+    "Points 9.5 (FanDuel over -102, under -125): over in 8 of 15 this season (latest first: 11, 17, 10, 8, 13); 60 of 68 last season (88%, avg 15.4).",
+    "Rebounds 3.5 (FanDuel over +122, under -156): over in 4 of 15 this season (latest first: 2, 5, 2, 3, 0); 46 of 68 last season (68%, avg 4.8).",
+    "3-PT Made 1.5 (FanDuel over +110, under -140): over in 6 of 15 this season (latest first: 1, 3, 0, 1, 2); 43 of 68 last season (63%, avg 2.0).",
+    "Pts+Rebs+Asts 14.5 (FanDuel over +100, under -128): over in 7 of 15 this season (latest first: 15, 23, 13, 15, 13); 61 of 68 last season (90%, avg 22.9).",
+    "Against OKC \u2014 this season (2026-27): none; last season (2025-26): 2 games, 19.0 pts (Jan 11: 23, Jan 17: 15)."
+   ]
+  },
+  {
+   "player": "Bobby Portis",
+   "team": "MIA",
+   "opp": "OKC",
+   "game": "OKC @ MIA",
+   "start_time": "2026-11-22T23:10:00.000Z",
+   "games_cur": 15,
+   "games_prev": 67,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 8.5,
+     "over": -104,
+     "under": -122
+    },
+    {
+     "stat": "Rebounds",
+     "line": 4.5,
+     "over": -120,
+     "under": -104
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 14.5,
+     "over": -115,
+     "under": -111
+    }
+   ],
+   "text": [
+    "Bobby Portis (MIA) hosts OKC tonight. This season (2026-27): 7.5 pts, 5.3 reb, 1.5 ast in 19.8 min over 15 games. Last season (2025-26, with MIL): 13.7 pts, 6.4 reb, 1.6 ast over 67 games. That is 6.2 points a game down from last season, on 15 games.",
+    "Points 8.5 (FanDuel over -104, under -122): over in 6 of 15 this season (latest first: 9, 16, 7, 5, 5); 56 of 67 last season (84%, avg 13.7).",
+    "Rebounds 4.5 (FanDuel over -120, under -104): over in 7 of 15 this season (latest first: 3, 6, 4, 3, 1); 48 of 67 last season (72%, avg 6.4).",
+    "Pts+Rebs+Asts 14.5 (FanDuel over -115, under -111): over in 6 of 15 this season (latest first: 12, 22, 13, 10, 7); 54 of 67 last season (81%, avg 21.6).",
+    "Against OKC \u2014 this season (2026-27): none; last season (2025-26): 2 games, 15.0 pts (Jan 21: 15, Feb 12: 15)."
    ]
   },
   {
@@ -859,42 +910,42 @@
    "props": [
     {
      "stat": "Points",
-     "line": 31.5,
-     "over": -106,
-     "under": -125
+     "line": 32.5,
+     "over": -115,
+     "under": -111
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -152,
-     "under": 116
+     "over": -142,
+     "under": 112
     },
     {
      "stat": "Assists",
      "line": 5.5,
-     "over": 130,
-     "under": -174
+     "over": -115,
+     "under": -113
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -162,
-     "under": 122
+     "over": -180,
+     "under": 140
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 40.5,
-     "over": -114,
-     "under": -114
+     "line": 42.5,
+     "over": -111,
+     "under": -115
     }
    ],
    "text": [
     "Shai Gilgeous-Alexander (OKC) visits MIA tonight. This season (2026-27): 31.7 pts, 4.1 reb, 4.5 ast in 33.5 min over 16 games. Last season (2025-26): 31.1 pts, 4.3 reb, 6.6 ast over 68 games.",
-    "Points 31.5 (FanDuel over -106, under -125): over in 8 of 16 this season (latest first: 40, 34, 37, 40, 31); 28 of 68 last season (41%, avg 31.1).",
-    "Rebounds 3.5 (FanDuel over -152, under +116): over in 9 of 16 this season (latest first: 3, 5, 2, 4, 4); 41 of 68 last season (60%, avg 4.3).",
-    "Assists 5.5 (FanDuel over +130, under -174): over in 4 of 16 this season (latest first: 8, 3, 2, 5, 2); 43 of 68 last season (63%, avg 6.6).",
-    "3-PT Made 1.5 (FanDuel over -162, under +122): over in 10 of 16 this season (latest first: 4, 1, 4, 2, 0); 34 of 68 last season (50%, avg 1.7).",
-    "Pts+Rebs+Asts 40.5 (FanDuel over -114, under -114): over in 9 of 16 this season (latest first: 51, 42, 41, 49, 37); 38 of 68 last season (56%, avg 42.0).",
+    "Points 32.5 (FanDuel over -115, under -111): over in 7 of 16 this season (latest first: 40, 34, 37, 40, 31); 27 of 68 last season (40%, avg 31.1).",
+    "Rebounds 3.5 (FanDuel over -142, under +112): over in 9 of 16 this season (latest first: 3, 5, 2, 4, 4); 41 of 68 last season (60%, avg 4.3).",
+    "Assists 5.5 (FanDuel over -115, under -113): over in 4 of 16 this season (latest first: 8, 3, 2, 5, 2); 43 of 68 last season (63%, avg 6.6).",
+    "3-PT Made 1.5 (FanDuel over -180, under +140): over in 10 of 16 this season (latest first: 4, 1, 4, 2, 0); 34 of 68 last season (50%, avg 1.7).",
+    "Pts+Rebs+Asts 42.5 (FanDuel over -111, under -115): over in 5 of 16 this season (latest first: 51, 42, 41, 49, 37); 34 of 68 last season (50%, avg 42.0).",
     "Against MIA \u2014 this season (2026-27): none; last season (2025-26): 2 games, 34.0 pts (Jan 11: 29, Jan 17: 39)."
    ]
   },
@@ -910,41 +961,41 @@
     {
      "stat": "Points",
      "line": 20.5,
-     "over": -128,
-     "under": -104
+     "over": -113,
+     "under": -113
     },
     {
      "stat": "Rebounds",
      "line": 4.5,
-     "over": 122,
-     "under": -162
+     "over": 136,
+     "under": -174
     },
     {
      "stat": "Assists",
      "line": 4.5,
-     "over": 104,
-     "under": -138
+     "over": -118,
+     "under": -108
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 140,
-     "under": -188
+     "over": 164,
+     "under": -215
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 30.5,
-     "over": -106,
-     "under": -125
+     "line": 29.5,
+     "over": -120,
+     "under": -106
     }
    ],
    "text": [
     "Ajay Mitchell (OKC) visits MIA tonight. This season (2026-27): 17.0 pts, 3.6 reb, 3.6 ast in 28.0 min over 14 games. Last season (2025-26): 13.6 pts, 3.3 reb, 3.6 ast over 57 games. That is 3.4 points a game up on last season, on 14 games.",
-    "Points 20.5 (FanDuel over -128, under -104): over in 4 of 14 this season (latest first: 8, 13, 14, 14, 12); 5 of 57 last season (9%, avg 13.6).",
-    "Rebounds 4.5 (FanDuel over +122, under -162): over in 5 of 14 this season (latest first: 2, 6, 3, 3, 4); 15 of 57 last season (26%, avg 3.3).",
-    "Assists 4.5 (FanDuel over +104, under -138): over in 6 of 14 this season (latest first: 4, 6, 5, 3, 0); 14 of 57 last season (25%, avg 3.6).",
-    "3-PT Made 1.5 (FanDuel over +140, under -188): over in 2 of 14 this season (latest first: 1, 0, 1, 0, 0); 19 of 57 last season (33%, avg 1.1).",
-    "Pts+Rebs+Asts 30.5 (FanDuel over -106, under -125): over in 4 of 14 this season (latest first: 14, 25, 22, 20, 16); 4 of 57 last season (7%, avg 20.5).",
+    "Points 20.5 (FanDuel over -113, under -113): over in 4 of 14 this season (latest first: 8, 13, 14, 14, 12); 5 of 57 last season (9%, avg 13.6).",
+    "Rebounds 4.5 (FanDuel over +136, under -174): over in 5 of 14 this season (latest first: 2, 6, 3, 3, 4); 15 of 57 last season (26%, avg 3.3).",
+    "Assists 4.5 (FanDuel over -118, under -108): over in 6 of 14 this season (latest first: 4, 6, 5, 3, 0); 14 of 57 last season (25%, avg 3.6).",
+    "3-PT Made 1.5 (FanDuel over +164, under -215): over in 2 of 14 this season (latest first: 1, 0, 1, 0, 0); 19 of 57 last season (33%, avg 1.1).",
+    "Pts+Rebs+Asts 29.5 (FanDuel over -120, under -106): over in 4 of 14 this season (latest first: 14, 25, 22, 20, 16); 4 of 57 last season (7%, avg 20.5).",
     "Against MIA \u2014 this season (2026-27): none; last season (2025-26): 2 games, 15.5 pts (Jan 11: 16, Jan 17: 15)."
    ]
   },
@@ -960,41 +1011,41 @@
     {
      "stat": "Points",
      "line": 18.5,
-     "over": -112,
-     "under": -118
+     "over": -111,
+     "under": -115
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -118,
-     "under": -112
+     "over": 120,
+     "under": -154
     },
     {
      "stat": "Assists",
      "line": 2.5,
-     "over": 114,
-     "under": -152
+     "over": 122,
+     "under": -156
     },
     {
      "stat": "3-PT Made",
      "line": 3.5,
-     "over": 124,
-     "under": -166
+     "over": 136,
+     "under": -174
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 24.5,
-     "over": -122,
-     "under": -108
+     "over": -111,
+     "under": -115
     }
    ],
    "text": [
     "Jared McCain (OKC) visits MIA tonight. This season (2026-27): 13.9 pts, 3.4 reb, 1.7 ast in 27.4 min over 16 games. Last season (2025-26): 8.3 pts, 2.0 reb, 1.3 ast over 67 games. That is 5.6 points a game up on last season, on 16 games.",
-    "Points 18.5 (FanDuel over -112, under -118): over in 5 of 16 this season (latest first: 18, 18, 12, 23, 10); 5 of 67 last season (7%, avg 8.3).",
-    "Rebounds 3.5 (FanDuel over -118, under -112): over in 7 of 16 this season (latest first: 3, 3, 1, 4, 6); 11 of 67 last season (16%, avg 2.0).",
-    "Assists 2.5 (FanDuel over +114, under -152): over in 4 of 16 this season (latest first: 0, 1, 1, 2, 3); 11 of 67 last season (16%, avg 1.3).",
-    "3-PT Made 3.5 (FanDuel over +124, under -166): over in 5 of 16 this season (latest first: 3, 4, 1, 7, 2); 9 of 67 last season (13%, avg 1.5).",
-    "Pts+Rebs+Asts 24.5 (FanDuel over -122, under -108): over in 5 of 16 this season (latest first: 21, 22, 14, 29, 19); 4 of 67 last season (6%, avg 11.7).",
+    "Points 18.5 (FanDuel over -111, under -115): over in 5 of 16 this season (latest first: 18, 18, 12, 23, 10); 5 of 67 last season (7%, avg 8.3).",
+    "Rebounds 3.5 (FanDuel over +120, under -154): over in 7 of 16 this season (latest first: 3, 3, 1, 4, 6); 11 of 67 last season (16%, avg 2.0).",
+    "Assists 2.5 (FanDuel over +122, under -156): over in 4 of 16 this season (latest first: 0, 1, 1, 2, 3); 11 of 67 last season (16%, avg 1.3).",
+    "3-PT Made 3.5 (FanDuel over +136, under -174): over in 5 of 16 this season (latest first: 3, 4, 1, 7, 2); 9 of 67 last season (13%, avg 1.5).",
+    "Pts+Rebs+Asts 24.5 (FanDuel over -111, under -115): over in 5 of 16 this season (latest first: 21, 22, 14, 29, 19); 4 of 67 last season (6%, avg 11.7).",
     "Against MIA \u2014 this season (2026-27): none; last season (2025-26): 1 game, 15.0 pts (Nov 23: 15)."
    ]
   },
@@ -1009,35 +1060,35 @@
    "props": [
     {
      "stat": "Points",
-     "line": 12.5,
-     "over": 100,
-     "under": -132
+     "line": 11.5,
+     "over": -113,
+     "under": -113
     },
     {
      "stat": "Rebounds",
      "line": 8.5,
-     "over": -146,
-     "under": 110
+     "over": -106,
+     "under": -120
     },
     {
      "stat": "Assists",
      "line": 2.5,
-     "over": 110,
-     "under": -146
+     "over": 126,
+     "under": -162
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 23.5,
-     "over": -128,
-     "under": -104
+     "line": 22.5,
+     "over": -120,
+     "under": -106
     }
    ],
    "text": [
     "Aday Mara (OKC) visits MIA tonight. This season (2026-27): 10.0 pts, 7.1 reb, 1.9 ast in 22.4 min over 16 games. No 2025-26 NBA games to compare against.",
-    "Points 12.5 (FanDuel over +100, under -132): over in 3 of 16 this season (latest first: 22, 10, 16, 10, 11).",
-    "Rebounds 8.5 (FanDuel over -146, under +110): over in 6 of 16 this season (latest first: 16, 6, 13, 3, 6).",
-    "Assists 2.5 (FanDuel over +110, under -146): over in 4 of 16 this season (latest first: 2, 8, 3, 0, 2).",
-    "Pts+Rebs+Asts 23.5 (FanDuel over -128, under -104): over in 4 of 16 this season (latest first: 40, 24, 32, 13, 19).",
+    "Points 11.5 (FanDuel over -113, under -113): over in 3 of 16 this season (latest first: 22, 10, 16, 10, 11).",
+    "Rebounds 8.5 (FanDuel over -106, under -120): over in 6 of 16 this season (latest first: 16, 6, 13, 3, 6).",
+    "Assists 2.5 (FanDuel over +126, under -162): over in 4 of 16 this season (latest first: 2, 8, 3, 0, 2).",
+    "Pts+Rebs+Asts 22.5 (FanDuel over -120, under -106): over in 5 of 16 this season (latest first: 40, 24, 32, 13, 19).",
     "Against MIA \u2014 this season (2026-27): none; last season (2025-26): none."
    ]
   },
@@ -1053,34 +1104,34 @@
     {
      "stat": "Points",
      "line": 9.5,
-     "over": -108,
+     "over": -104,
      "under": -122
     },
     {
      "stat": "Rebounds",
      "line": 10.5,
-     "over": -136,
-     "under": 102
+     "over": -113,
+     "under": -113
     },
     {
      "stat": "Assists",
      "line": 4.5,
-     "over": -122,
-     "under": -108
+     "over": 112,
+     "under": -142
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 25.5,
-     "over": -110,
-     "under": -120
+     "line": 24.5,
+     "over": -111,
+     "under": -115
     }
    ],
    "text": [
     "Isaiah Hartenstein (OKC) visits MIA tonight. This season (2026-27): 8.2 pts, 10.8 reb, 3.9 ast in 25.2 min over 16 games. Last season (2025-26): 9.2 pts, 9.4 reb, 3.5 ast over 47 games.",
-    "Points 9.5 (FanDuel over -108, under -122): over in 6 of 16 this season (latest first: 5, 6, 3, 21, 20); 24 of 47 last season (51%, avg 9.2).",
-    "Rebounds 10.5 (FanDuel over -136, under +102): over in 10 of 16 this season (latest first: 8, 17, 11, 16, 11); 17 of 47 last season (36%, avg 9.4).",
-    "Assists 4.5 (FanDuel over -122, under -108): over in 6 of 16 this season (latest first: 4, 6, 2, 6, 6); 14 of 47 last season (30%, avg 3.5).",
-    "Pts+Rebs+Asts 25.5 (FanDuel over -110, under -120): over in 5 of 16 this season (latest first: 17, 29, 16, 43, 37); 12 of 47 last season (26%, avg 22.1).",
+    "Points 9.5 (FanDuel over -104, under -122): over in 6 of 16 this season (latest first: 5, 6, 3, 21, 20); 24 of 47 last season (51%, avg 9.2).",
+    "Rebounds 10.5 (FanDuel over -113, under -113): over in 10 of 16 this season (latest first: 8, 17, 11, 16, 11); 17 of 47 last season (36%, avg 9.4).",
+    "Assists 4.5 (FanDuel over +112, under -142): over in 6 of 16 this season (latest first: 4, 6, 2, 6, 6); 14 of 47 last season (30%, avg 3.5).",
+    "Pts+Rebs+Asts 24.5 (FanDuel over -111, under -115): over in 6 of 16 this season (latest first: 17, 29, 16, 43, 37); 15 of 47 last season (32%, avg 22.1).",
     "Against MIA \u2014 this season (2026-27): none; last season (2025-26): none."
    ]
   },
@@ -1095,42 +1146,42 @@
    "props": [
     {
      "stat": "Points",
-     "line": 24.5,
-     "over": -120,
-     "under": -110
+     "line": 25.5,
+     "over": -104,
+     "under": -122
     },
     {
      "stat": "Rebounds",
      "line": 6.5,
-     "over": -122,
-     "under": -108
+     "over": -138,
+     "under": 108
     },
     {
      "stat": "Assists",
-     "line": 6.5,
-     "over": -104,
-     "under": -128
+     "line": 5.5,
+     "over": -128,
+     "under": 100
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
      "over": 100,
-     "under": -132
+     "under": -128
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 38.5,
-     "over": -110,
-     "under": -120
+     "over": -111,
+     "under": -115
     }
    ],
    "text": [
     "Cooper Flagg (DAL) visits UTA tonight. This season (2026-27): 24.1 pts, 6.5 reb, 6.5 ast in 33.6 min over 15 games. Last season (2025-26): 21.0 pts, 6.7 reb, 4.5 ast over 70 games. That is 3.0 points a game up on last season, on 15 games.",
-    "Points 24.5 (FanDuel over -120, under -110): over in 7 of 15 this season (latest first: 22, 33, 17, 18, 12); 21 of 70 last season (30%, avg 21.0).",
-    "Rebounds 6.5 (FanDuel over -122, under -108): over in 6 of 15 this season (latest first: 6, 5, 3, 8, 7); 36 of 70 last season (51%, avg 6.7).",
-    "Assists 6.5 (FanDuel over -104, under -128): over in 6 of 15 this season (latest first: 8, 9, 4, 5, 3); 13 of 70 last season (19%, avg 4.5).",
-    "3-PT Made 1.5 (FanDuel over +100, under -132): over in 8 of 15 this season (latest first: 3, 3, 2, 0, 1); 19 of 70 last season (27%, avg 1.0).",
-    "Pts+Rebs+Asts 38.5 (FanDuel over -110, under -120): over in 7 of 15 this season (latest first: 36, 47, 24, 31, 22); 16 of 70 last season (23%, avg 32.2).",
+    "Points 25.5 (FanDuel over -104, under -122): over in 6 of 15 this season (latest first: 22, 33, 17, 18, 12); 19 of 70 last season (27%, avg 21.0).",
+    "Rebounds 6.5 (FanDuel over -138, under +108): over in 6 of 15 this season (latest first: 6, 5, 3, 8, 7); 36 of 70 last season (51%, avg 6.7).",
+    "Assists 5.5 (FanDuel over -128, under +100): over in 10 of 15 this season (latest first: 8, 9, 4, 5, 3); 26 of 70 last season (37%, avg 4.5).",
+    "3-PT Made 1.5 (FanDuel over +100, under -128): over in 8 of 15 this season (latest first: 3, 3, 2, 0, 1); 19 of 70 last season (27%, avg 1.0).",
+    "Pts+Rebs+Asts 38.5 (FanDuel over -111, under -115): over in 7 of 15 this season (latest first: 36, 47, 24, 31, 22); 16 of 70 last season (23%, avg 32.2).",
     "Against UTA \u2014 this season (2026-27): 1 game, 21.0 pts (Nov 6: 21); last season (2025-26): 2 games, 34.0 pts (Dec 15: 42, Jan 8: 26)."
    ]
   },
@@ -1146,78 +1197,42 @@
     {
      "stat": "Points",
      "line": 23.5,
-     "over": -112,
-     "under": -118
+     "over": -111,
+     "under": -115
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -172,
-     "under": 128
+     "over": -170,
+     "under": 132
     },
     {
      "stat": "Assists",
      "line": 4.5,
-     "over": -114,
-     "under": -114
+     "over": -106,
+     "under": -120
     },
     {
      "stat": "3-PT Made",
      "line": 3.5,
-     "over": 130,
-     "under": -174
+     "over": 132,
+     "under": -170
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 32.5,
      "over": -108,
-     "under": -122
+     "under": -118
     }
    ],
    "text": [
     "Kyrie Irving (DAL) visits UTA tonight. This season (2026-27): 22.5 pts, 3.8 reb, 4.4 ast in 31.0 min over 13 games. No 2025-26 NBA games to compare against.",
-    "Points 23.5 (FanDuel over -112, under -118): over in 6 of 13 this season (latest first: 25, 17, 34, 10, 35).",
-    "Rebounds 3.5 (FanDuel over -172, under +128): over in 7 of 13 this season (latest first: 6, 6, 6, 3, 0).",
-    "Assists 4.5 (FanDuel over -114, under -114): over in 5 of 13 this season (latest first: 4, 5, 5, 4, 4).",
-    "3-PT Made 3.5 (FanDuel over +130, under -174): over in 5 of 13 this season (latest first: 3, 1, 7, 2, 7).",
-    "Pts+Rebs+Asts 32.5 (FanDuel over -108, under -122): over in 5 of 13 this season (latest first: 35, 28, 45, 17, 39).",
+    "Points 23.5 (FanDuel over -111, under -115): over in 6 of 13 this season (latest first: 25, 17, 34, 10, 35).",
+    "Rebounds 3.5 (FanDuel over -170, under +132): over in 7 of 13 this season (latest first: 6, 6, 6, 3, 0).",
+    "Assists 4.5 (FanDuel over -106, under -120): over in 5 of 13 this season (latest first: 4, 5, 5, 4, 4).",
+    "3-PT Made 3.5 (FanDuel over +132, under -170): over in 5 of 13 this season (latest first: 3, 1, 7, 2, 7).",
+    "Pts+Rebs+Asts 32.5 (FanDuel over -108, under -118): over in 5 of 13 this season (latest first: 35, 28, 45, 17, 39).",
     "Against UTA \u2014 this season (2026-27): 1 game, 14.0 pts (Nov 6: 14); last season (2025-26): none."
-   ]
-  },
-  {
-   "player": "P.J. Washington",
-   "team": "DAL",
-   "opp": "UTA",
-   "game": "DAL @ UTA",
-   "start_time": "2026-11-23T00:10:00.000Z",
-   "games_cur": 15,
-   "games_prev": 56,
-   "props": [
-    {
-     "stat": "Points",
-     "line": 12.5,
-     "over": -118,
-     "under": -112
-    },
-    {
-     "stat": "Rebounds",
-     "line": 6.5,
-     "over": 114,
-     "under": -152
-    },
-    {
-     "stat": "3-PT Made",
-     "line": 1.5,
-     "over": -138,
-     "under": 104
-    }
-   ],
-   "text": [
-    "P.J. Washington (DAL) visits UTA tonight. This season (2026-27): 14.0 pts, 6.7 reb, 1.3 ast in 30.9 min over 15 games. Last season (2025-26): 14.2 pts, 7.0 reb, 1.8 ast over 56 games.",
-    "Points 12.5 (FanDuel over -118, under -112): over in 7 of 15 this season (latest first: 21, 8, 10, 10, 13); 36 of 56 last season (64%, avg 14.2).",
-    "Rebounds 6.5 (FanDuel over +114, under -152): over in 6 of 15 this season (latest first: 5, 5, 3, 3, 9); 31 of 56 last season (55%, avg 7.0).",
-    "3-PT Made 1.5 (FanDuel over -138, under +104): over in 11 of 15 this season (latest first: 5, 0, 2, 1, 2); 21 of 56 last season (38%, avg 1.4).",
-    "Against UTA \u2014 this season (2026-27): 1 game, 26.0 pts (Nov 6: 26); last season (2025-26): 1 game, 25.0 pts (Dec 15: 25)."
    ]
   },
   {
@@ -1231,35 +1246,35 @@
    "props": [
     {
      "stat": "Points",
-     "line": 11.5,
-     "over": -136,
-     "under": 102
+     "line": 12.5,
+     "over": -102,
+     "under": -125
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -130,
-     "under": -102
+     "over": -136,
+     "under": 106
     },
     {
      "stat": "Assists",
      "line": 3.5,
-     "over": 100,
-     "under": -132
+     "over": -104,
+     "under": -122
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 19.5,
-     "over": -114,
-     "under": -114
+     "over": -120,
+     "under": -104
     }
    ],
    "text": [
     "Naji Marshall (DAL) visits UTA tonight. This season (2026-27): 11.0 pts, 2.9 reb, 3.8 ast in 24.2 min over 13 games. Last season (2025-26): 15.2 pts, 4.7 reb, 3.3 ast over 74 games. That is 4.2 points a game down from last season, on 13 games.",
-    "Points 11.5 (FanDuel over -136, under +102): over in 7 of 13 this season (latest first: 4, 12, 13, 12, 13); 48 of 74 last season (65%, avg 15.2).",
-    "Rebounds 3.5 (FanDuel over -130, under -102): over in 5 of 13 this season (latest first: 3, 5, 2, 3, 1); 49 of 74 last season (66%, avg 4.7).",
-    "Assists 3.5 (FanDuel over +100, under -132): over in 7 of 13 this season (latest first: 1, 2, 2, 5, 4); 30 of 74 last season (41%, avg 3.3).",
-    "Pts+Rebs+Asts 19.5 (FanDuel over -114, under -114): over in 4 of 13 this season (latest first: 8, 19, 17, 20, 18); 46 of 74 last season (62%, avg 23.2).",
+    "Points 12.5 (FanDuel over -102, under -125): over in 5 of 13 this season (latest first: 4, 12, 13, 12, 13); 46 of 74 last season (62%, avg 15.2).",
+    "Rebounds 3.5 (FanDuel over -136, under +106): over in 5 of 13 this season (latest first: 3, 5, 2, 3, 1); 49 of 74 last season (66%, avg 4.7).",
+    "Assists 3.5 (FanDuel over -104, under -122): over in 7 of 13 this season (latest first: 1, 2, 2, 5, 4); 30 of 74 last season (41%, avg 3.3).",
+    "Pts+Rebs+Asts 19.5 (FanDuel over -120, under -104): over in 4 of 13 this season (latest first: 8, 19, 17, 20, 18); 46 of 74 last season (62%, avg 23.2).",
     "Against UTA \u2014 this season (2026-27): 1 game, 7.0 pts (Nov 6: 7); last season (2025-26): 4 games, 17.5 pts (Dec 15: 15, Jan 8: 17, Jan 15: 22, Jan 17: 16)."
    ]
   },
@@ -1274,22 +1289,51 @@
    "props": [
     {
      "stat": "Points",
-     "line": 9.5,
-     "over": -102,
-     "under": -130
+     "line": 8.5,
+     "over": -115,
+     "under": -111
     },
     {
      "stat": "Rebounds",
      "line": 6.5,
-     "over": -112,
-     "under": -118
+     "over": 104,
+     "under": -132
     }
    ],
    "text": [
     "Daniel Gafford (DAL) visits UTA tonight. This season (2026-27): 8.6 pts, 5.4 reb, 1.9 ast in 21.9 min over 16 games. Last season (2025-26): 9.5 pts, 6.9 reb, 1.1 ast over 55 games.",
-    "Points 9.5 (FanDuel over -102, under -130): over in 6 of 16 this season (latest first: 10, 6, 3, 10, 3); 22 of 55 last season (40%, avg 9.5).",
-    "Rebounds 6.5 (FanDuel over -112, under -118): over in 6 of 16 this season (latest first: 10, 6, 4, 3, 3); 28 of 55 last season (51%, avg 6.9).",
+    "Points 8.5 (FanDuel over -115, under -111): over in 6 of 16 this season (latest first: 10, 6, 3, 10, 3); 26 of 55 last season (47%, avg 9.5).",
+    "Rebounds 6.5 (FanDuel over +104, under -132): over in 6 of 16 this season (latest first: 10, 6, 4, 3, 3); 28 of 55 last season (51%, avg 6.9).",
     "Against UTA \u2014 this season (2026-27): 1 game, 7.0 pts (Nov 6: 7); last season (2025-26): 2 games, 1.0 pts (Dec 15: 2, Jan 8: 0)."
+   ]
+  },
+  {
+   "player": "Zaccharie Risacher",
+   "team": "DAL",
+   "opp": "UTA",
+   "game": "DAL @ UTA",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 16,
+   "games_prev": 67,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 8.5,
+     "over": -128,
+     "under": 100
+    },
+    {
+     "stat": "Rebounds",
+     "line": 4.5,
+     "over": 108,
+     "under": -138
+    }
+   ],
+   "text": [
+    "Zaccharie Risacher (DAL) visits UTA tonight. This season (2026-27): 8.6 pts, 4.8 reb, 1.2 ast in 23.8 min over 16 games. Last season (2025-26, with ATL): 9.6 pts, 3.8 reb, 1.1 ast over 67 games.",
+    "Points 8.5 (FanDuel over -128, under +100): over in 8 of 16 this season (latest first: 11, 3, 18, 5, 22); 35 of 67 last season (52%, avg 9.6).",
+    "Rebounds 4.5 (FanDuel over +108, under -138): over in 10 of 16 this season (latest first: 7, 3, 5, 2, 6); 22 of 67 last season (33%, avg 3.8).",
+    "Against UTA \u2014 this season (2026-27): 1 game, 4.0 pts (Nov 6: 4); last season (2025-26): 2 games, 5.5 pts (Nov 13: 11, Feb 5: 0)."
    ]
   },
   {
@@ -1302,37 +1346,23 @@
    "games_prev": 58,
    "props": [
     {
-     "stat": "Points",
-     "line": 5.5,
-     "over": -136,
-     "under": 102
-    },
-    {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -140,
-     "under": 106
-    },
-    {
-     "stat": "Assists",
-     "line": 2.5,
-     "over": 130,
-     "under": -174
+     "over": -130,
+     "under": 102
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 12.5,
-     "over": -108,
-     "under": -122
+     "over": 102,
+     "under": -130
     }
    ],
    "text": [
     "Caleb Martin (DAL) visits UTA tonight. This season (2026-27): 5.6 pts, 3.3 reb, 2.3 ast in 21.4 min over 12 games. Last season (2025-26): 3.9 pts, 2.5 reb, 1.4 ast over 58 games.",
-    "Points 5.5 (FanDuel over -136, under +102): over in 6 of 12 this season (latest first: 0, 8, 12, 15, 7); 15 of 58 last season (26%, avg 3.9).",
-    "Rebounds 3.5 (FanDuel over -140, under +106): over in 5 of 12 this season (latest first: 4, 5, 5, 8, 2); 17 of 58 last season (29%, avg 2.5).",
-    "Assists 2.5 (FanDuel over +130, under -174): over in 6 of 12 this season (latest first: 3, 3, 5, 3, 5); 12 of 58 last season (21%, avg 1.4).",
-    "Pts+Rebs+Asts 12.5 (FanDuel over -108, under -122): over in 4 of 12 this season (latest first: 7, 16, 22, 26, 14); 13 of 58 last season (22%, avg 7.8).",
-    "Against UTA \u2014 this season (2026-27): 1 game, 0.0 pts (Nov 6: 0); last season (2025-26): 3 games, 6.3 pts (Jan 8: 2, Jan 15: 14, Jan 17: 3)."
+    "Rebounds 3.5 (FanDuel over -130, under +102): over in 5 of 12 this season (latest first: 4, 5, 5, 8, 2); 17 of 58 last season (29%, avg 2.5).",
+    "Pts+Rebs+Asts 12.5 (FanDuel over +102, under -130): over in 4 of 12 this season (latest first: 7, 16, 22, 26, 14); 13 of 58 last season (22%, avg 7.8).",
+    "Against UTA \u2014 this season (2026-27): 1 game, 0.0 reb (Nov 6: 0); last season (2025-26): 3 games, 5.3 reb (Jan 8: 5, Jan 15: 5, Jan 17: 6)."
    ]
   },
   {
@@ -1347,41 +1377,41 @@
     {
      "stat": "Points",
      "line": 23.5,
-     "over": -114,
-     "under": -114
+     "over": -111,
+     "under": -115
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -114,
-     "under": -114
+     "over": -125,
+     "under": -102
     },
     {
      "stat": "Assists",
      "line": 7.5,
-     "over": -132,
-     "under": 100
+     "over": 102,
+     "under": -130
     },
     {
      "stat": "3-PT Made",
      "line": 2.5,
-     "over": 104,
+     "over": 108,
      "under": -138
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 35.5,
-     "over": -114,
-     "under": -118
+     "line": 34.5,
+     "over": -118,
+     "under": -108
     }
    ],
    "text": [
     "Keyonte George (UTA) hosts DAL tonight. This season (2026-27): 21.1 pts, 3.9 reb, 7.1 ast in 33.5 min over 16 games. Last season (2025-26): 23.6 pts, 3.7 reb, 6.1 ast over 54 games. That is 2.5 points a game down from last season, on 16 games.",
-    "Points 23.5 (FanDuel over -114, under -114): over in 7 of 16 this season (latest first: 14, 30, 30, 13, 27); 29 of 54 last season (54%, avg 23.6).",
-    "Rebounds 3.5 (FanDuel over -114, under -114): over in 8 of 16 this season (latest first: 2, 1, 2, 4, 4); 28 of 54 last season (52%, avg 3.7).",
-    "Assists 7.5 (FanDuel over -132, under +100): over in 8 of 16 this season (latest first: 6, 10, 11, 8, 7); 17 of 54 last season (31%, avg 6.1).",
-    "3-PT Made 2.5 (FanDuel over +104, under -138): over in 6 of 16 this season (latest first: 0, 5, 4, 1, 4); 24 of 54 last season (44%, avg 2.5).",
-    "Pts+Rebs+Asts 35.5 (FanDuel over -114, under -118): over in 6 of 16 this season (latest first: 22, 41, 43, 25, 38); 26 of 54 last season (48%, avg 33.4).",
+    "Points 23.5 (FanDuel over -111, under -115): over in 7 of 16 this season (latest first: 14, 30, 30, 13, 27); 29 of 54 last season (54%, avg 23.6).",
+    "Rebounds 3.5 (FanDuel over -125, under -102): over in 8 of 16 this season (latest first: 2, 1, 2, 4, 4); 28 of 54 last season (52%, avg 3.7).",
+    "Assists 7.5 (FanDuel over +102, under -130): over in 8 of 16 this season (latest first: 6, 10, 11, 8, 7); 17 of 54 last season (31%, avg 6.1).",
+    "3-PT Made 2.5 (FanDuel over +108, under -138): over in 6 of 16 this season (latest first: 0, 5, 4, 1, 4); 24 of 54 last season (44%, avg 2.5).",
+    "Pts+Rebs+Asts 34.5 (FanDuel over -118, under -108): over in 7 of 16 this season (latest first: 22, 41, 43, 25, 38); 28 of 54 last season (52%, avg 33.4).",
     "Against DAL \u2014 this season (2026-27): 1 game, 16.0 pts (Nov 6: 16); last season (2025-26): 4 games, 25.5 pts (Dec 15: 37, Jan 8: 19, Jan 15: 17, Jan 17: 29)."
    ]
   },
@@ -1397,41 +1427,41 @@
     {
      "stat": "Points",
      "line": 18.5,
-     "over": -130,
-     "under": -102
+     "over": -115,
+     "under": -111
     },
     {
      "stat": "Rebounds",
      "line": 4.5,
      "over": -120,
-     "under": -110
+     "under": -106
     },
     {
      "stat": "Assists",
      "line": 4.5,
-     "over": 108,
-     "under": -144
+     "over": 102,
+     "under": -130
     },
     {
      "stat": "3-PT Made",
      "line": 2.5,
-     "over": 118,
-     "under": -158
+     "over": 130,
+     "under": -166
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 28.5,
-     "over": -114,
-     "under": -114
+     "over": -111,
+     "under": -115
     }
    ],
    "text": [
     "Darryn Peterson (UTA) hosts DAL tonight. This season (2026-27): 16.7 pts, 4.5 reb, 3.9 ast in 30.6 min over 17 games. No 2025-26 NBA games to compare against.",
-    "Points 18.5 (FanDuel over -130, under -102): over in 6 of 17 this season (latest first: 20, 11, 13, 17, 28).",
-    "Rebounds 4.5 (FanDuel over -120, under -110): over in 7 of 17 this season (latest first: 10, 1, 5, 5, 7).",
-    "Assists 4.5 (FanDuel over +108, under -144): over in 5 of 17 this season (latest first: 8, 3, 2, 4, 2).",
-    "3-PT Made 2.5 (FanDuel over +118, under -158): over in 8 of 17 this season (latest first: 0, 1, 2, 3, 4).",
-    "Pts+Rebs+Asts 28.5 (FanDuel over -114, under -114): over in 5 of 17 this season (latest first: 38, 15, 20, 26, 37).",
+    "Points 18.5 (FanDuel over -115, under -111): over in 6 of 17 this season (latest first: 20, 11, 13, 17, 28).",
+    "Rebounds 4.5 (FanDuel over -120, under -106): over in 7 of 17 this season (latest first: 10, 1, 5, 5, 7).",
+    "Assists 4.5 (FanDuel over +102, under -130): over in 5 of 17 this season (latest first: 8, 3, 2, 4, 2).",
+    "3-PT Made 2.5 (FanDuel over +130, under -166): over in 8 of 17 this season (latest first: 0, 1, 2, 3, 4).",
+    "Pts+Rebs+Asts 28.5 (FanDuel over -111, under -115): over in 5 of 17 this season (latest first: 38, 15, 20, 26, 37).",
     "Against DAL \u2014 this season (2026-27): 1 game, 21.0 pts (Nov 6: 21); last season (2025-26): none."
    ]
   },
@@ -1448,40 +1478,33 @@
      "stat": "Points",
      "line": 14.5,
      "over": -102,
-     "under": -130
+     "under": -125
     },
     {
      "stat": "Rebounds",
      "line": 5.5,
-     "over": 114,
-     "under": -152
-    },
-    {
-     "stat": "Assists",
-     "line": 1.5,
-     "over": -174,
-     "under": 130
+     "over": 116,
+     "under": -148
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -172,
-     "under": 128
+     "over": -156,
+     "under": 122
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 21.5,
-     "over": -120,
-     "under": -110
+     "over": -115,
+     "under": -111
     }
    ],
    "text": [
     "Ace Bailey (UTA) hosts DAL tonight. This season (2026-27): 12.9 pts, 6.2 reb, 2.1 ast in 30.1 min over 17 games. Last season (2025-26): 13.8 pts, 4.2 reb, 1.8 ast over 72 games.",
-    "Points 14.5 (FanDuel over -102, under -130): over in 8 of 17 this season (latest first: 7, 19, 5, 7, 21); 32 of 72 last season (44%, avg 13.8).",
-    "Rebounds 5.5 (FanDuel over +114, under -152): over in 11 of 17 this season (latest first: 7, 8, 1, 8, 3); 21 of 72 last season (29%, avg 4.2).",
-    "Assists 1.5 (FanDuel over -174, under +130): over in 11 of 17 this season (latest first: 1, 3, 4, 4, 1); 41 of 72 last season (57%, avg 1.8).",
-    "3-PT Made 1.5 (FanDuel over -172, under +128): over in 6 of 17 this season (latest first: 0, 2, 1, 1, 3); 40 of 72 last season (56%, avg 1.9).",
-    "Pts+Rebs+Asts 21.5 (FanDuel over -120, under -110): over in 7 of 17 this season (latest first: 15, 30, 10, 19, 25); 28 of 72 last season (39%, avg 19.8).",
+    "Points 14.5 (FanDuel over -102, under -125): over in 8 of 17 this season (latest first: 7, 19, 5, 7, 21); 32 of 72 last season (44%, avg 13.8).",
+    "Rebounds 5.5 (FanDuel over +116, under -148): over in 11 of 17 this season (latest first: 7, 8, 1, 8, 3); 21 of 72 last season (29%, avg 4.2).",
+    "3-PT Made 1.5 (FanDuel over -156, under +122): over in 6 of 17 this season (latest first: 0, 2, 1, 1, 3); 40 of 72 last season (56%, avg 1.9).",
+    "Pts+Rebs+Asts 21.5 (FanDuel over -115, under -111): over in 7 of 17 this season (latest first: 15, 30, 10, 19, 25); 28 of 72 last season (39%, avg 19.8).",
     "Against DAL \u2014 this season (2026-27): 1 game, 12.0 pts (Nov 6: 12); last season (2025-26): 3 games, 13.3 pts (Dec 15: 7, Jan 15: 15, Jan 17: 18)."
    ]
   },
@@ -1496,21 +1519,21 @@
    "props": [
     {
      "stat": "Points",
-     "line": 11.5,
-     "over": -130,
-     "under": -102
+     "line": 12.5,
+     "over": -104,
+     "under": -122
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
      "over": -162,
-     "under": 122
+     "under": 126
     }
    ],
    "text": [
     "Brice Sensabaugh (UTA) hosts DAL tonight. This season (2026-27): 10.8 pts, 3.6 reb, 1.5 ast in 18.3 min over 17 games. Last season (2025-26): 14.9 pts, 3.1 reb, 1.9 ast over 75 games. That is 4.1 points a game down from last season, on 17 games.",
-    "Points 11.5 (FanDuel over -130, under -102): over in 6 of 17 this season (latest first: 18, 8, 40, 14, 7); 45 of 75 last season (60%, avg 14.9).",
-    "3-PT Made 1.5 (FanDuel over -162, under +122): over in 7 of 17 this season (latest first: 5, 0, 8, 0, 1); 46 of 75 last season (61%, avg 2.2).",
+    "Points 12.5 (FanDuel over -104, under -122): over in 5 of 17 this season (latest first: 18, 8, 40, 14, 7); 43 of 75 last season (57%, avg 14.9).",
+    "3-PT Made 1.5 (FanDuel over -162, under +126): over in 7 of 17 this season (latest first: 5, 0, 8, 0, 1); 46 of 75 last season (61%, avg 2.2).",
     "Against DAL \u2014 this season (2026-27): 1 game, 0.0 pts (Nov 6: 0); last season (2025-26): 4 games, 17.5 pts (Dec 15: 4, Jan 8: 14, Jan 15: 27, Jan 17: 25)."
    ]
   },
@@ -1526,20 +1549,20 @@
     {
      "stat": "Points",
      "line": 9.5,
-     "over": -130,
-     "under": -102
+     "over": -122,
+     "under": -104
     },
     {
      "stat": "Rebounds",
      "line": 6.5,
-     "over": -112,
-     "under": -118
+     "over": -106,
+     "under": -120
     }
    ],
    "text": [
     "Jaxson Hayes (UTA) hosts DAL tonight. This season (2026-27): 9.3 pts, 6.6 reb, 1.5 ast in 24.4 min over 14 games. Last season (2025-26, with LAL): 7.5 pts, 4.1 reb, 0.9 ast over 66 games.",
-    "Points 9.5 (FanDuel over -130, under -102): over in 5 of 14 this season (latest first: 18, 6, 12, 11, 6); 19 of 66 last season (29%, avg 7.5).",
-    "Rebounds 6.5 (FanDuel over -112, under -118): over in 6 of 14 this season (latest first: 14, 7, 5, 8, 2); 9 of 66 last season (14%, avg 4.1).",
+    "Points 9.5 (FanDuel over -122, under -104): over in 5 of 14 this season (latest first: 18, 6, 12, 11, 6); 19 of 66 last season (29%, avg 7.5).",
+    "Rebounds 6.5 (FanDuel over -106, under -120): over in 6 of 14 this season (latest first: 14, 7, 5, 8, 2); 9 of 66 last season (14%, avg 4.1).",
     "Against DAL \u2014 this season (2026-27): 1 game, 8.0 pts (Nov 6: 8); last season (2025-26): 4 games, 12.8 pts (Nov 28: 6, Jan 24: 6, Feb 12: 16, Apr 5: 23)."
    ]
   },
@@ -1554,15 +1577,517 @@
    "props": [
     {
      "stat": "Points",
-     "line": 6.5,
-     "over": -102,
-     "under": -130
+     "line": 5.5,
+     "over": 100,
+     "under": -128
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": 182,
+     "under": -240
     }
    ],
    "text": [
     "Josh Green (UTA) hosts DAL tonight. This season (2026-27): 4.8 pts, 1.7 reb, 0.9 ast in 19.9 min over 15 games. Last season (2025-26, with CHA): 4.3 pts, 1.8 reb, 0.8 ast over 58 games.",
-    "Points 6.5 (FanDuel over -102, under -130): over in 5 of 15 this season (latest first: 8, 11, 9, 6, 2); 12 of 58 last season (21%, avg 4.3).",
+    "Points 5.5 (FanDuel over +100, under -128): over in 7 of 15 this season (latest first: 8, 11, 9, 6, 2); 20 of 58 last season (34%, avg 4.3).",
+    "3-PT Made 1.5 (FanDuel over +182, under -240): over in 3 of 15 this season (latest first: 2, 2, 1, 2, 0); 16 of 58 last season (28%, avg 1.0).",
     "Against DAL \u2014 this season (2026-27): 1 game, 3.0 pts (Nov 6: 3); last season (2025-26): 2 games, 6.5 pts (Jan 29: 2, Mar 3: 11)."
+   ]
+  },
+  {
+   "player": "Matas Buzelis",
+   "team": "CHI",
+   "opp": "DEN",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 15,
+   "games_prev": 77,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 17.5,
+     "over": -115,
+     "under": -111
+    },
+    {
+     "stat": "Rebounds",
+     "line": 5.5,
+     "over": -113,
+     "under": -113
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 2.5,
+     "over": 116,
+     "under": -148
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 25.5,
+     "over": -106,
+     "under": -120
+    }
+   ],
+   "text": [
+    "Matas Buzelis (CHI) hosts DEN tonight. This season (2026-27): 14.7 pts, 4.7 reb, 1.9 ast in 27.2 min over 15 games. Last season (2025-26): 16.3 pts, 5.8 reb, 2.1 ast over 77 games.",
+    "Points 17.5 (FanDuel over -115, under -111): over in 5 of 15 this season (latest first: 9, 25, 23, 18, 11); 33 of 77 last season (43%, avg 16.3).",
+    "Rebounds 5.5 (FanDuel over -113, under -113): over in 3 of 15 this season (latest first: 5, 5, 3, 9, 6); 43 of 77 last season (56%, avg 5.8).",
+    "3-PT Made 2.5 (FanDuel over +116, under -148): over in 6 of 15 this season (latest first: 1, 5, 3, 2, 3); 26 of 77 last season (34%, avg 2.2).",
+    "Pts+Rebs+Asts 25.5 (FanDuel over -106, under -120): over in 5 of 15 this season (latest first: 15, 34, 26, 29, 19); 35 of 77 last season (45%, avg 24.1).",
+    "Against DEN \u2014 this season (2026-27): none; last season (2025-26): 2 games, 17.0 pts (Nov 17: 13, Feb 7: 21)."
+   ]
+  },
+  {
+   "player": "Jalen Smith",
+   "team": "CHI",
+   "opp": "DEN",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 13,
+   "games_prev": 53,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 13.5,
+     "over": -108,
+     "under": -118
+    },
+    {
+     "stat": "Rebounds",
+     "line": 7.5,
+     "over": -146,
+     "under": 114
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": -156,
+     "under": 124
+    }
+   ],
+   "text": [
+    "Jalen Smith (CHI) hosts DEN tonight. This season (2026-27): 13.4 pts, 7.9 reb, 2.2 ast in 24.6 min over 13 games. Last season (2025-26): 10.2 pts, 6.7 reb, 1.2 ast over 53 games. That is 3.2 points a game up on last season, on 13 games.",
+    "Points 13.5 (FanDuel over -108, under -118): over in 9 of 13 this season (latest first: 14, 17, 15, 23, 17); 14 of 53 last season (26%, avg 10.2).",
+    "Rebounds 7.5 (FanDuel over -146, under +114): over in 7 of 13 this season (latest first: 6, 11, 12, 4, 8); 22 of 53 last season (42%, avg 6.7).",
+    "3-PT Made 1.5 (FanDuel over -156, under +124): over in 8 of 13 this season (latest first: 2, 3, 1, 5, 2); 28 of 53 last season (53%, avg 1.5).",
+    "Against DEN \u2014 this season (2026-27): none; last season (2025-26): 1 game, 16.0 pts (Nov 17: 16)."
+   ]
+  },
+  {
+   "player": "Tre Jones",
+   "team": "CHI",
+   "opp": "DEN",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 15,
+   "games_prev": 65,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 13.5,
+     "over": -111,
+     "under": -115
+    },
+    {
+     "stat": "Rebounds",
+     "line": 2.5,
+     "over": -113,
+     "under": -113
+    },
+    {
+     "stat": "Assists",
+     "line": 4.5,
+     "over": -106,
+     "under": -120
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 20.5,
+     "over": -125,
+     "under": -102
+    }
+   ],
+   "text": [
+    "Tre Jones (CHI) hosts DEN tonight. This season (2026-27): 10.9 pts, 2.1 reb, 3.7 ast in 19.3 min over 15 games. Last season (2025-26): 14.1 pts, 3.1 reb, 5.4 ast over 65 games. That is 3.1 points a game down from last season, on 15 games.",
+    "Points 13.5 (FanDuel over -111, under -115): over in 3 of 15 this season (latest first: 12, 10, 16, 16, 4); 31 of 65 last season (48%, avg 14.1).",
+    "Rebounds 2.5 (FanDuel over -113, under -113): over in 6 of 15 this season (latest first: 1, 2, 2, 0, 1); 33 of 65 last season (51%, avg 3.1).",
+    "Assists 4.5 (FanDuel over -106, under -120): over in 4 of 15 this season (latest first: 7, 6, 6, 4, 3); 41 of 65 last season (63%, avg 5.4).",
+    "Pts+Rebs+Asts 20.5 (FanDuel over -125, under -102): over in 3 of 15 this season (latest first: 20, 18, 24, 20, 8); 38 of 65 last season (58%, avg 22.6).",
+    "Against DEN \u2014 this season (2026-27): none; last season (2025-26): none."
+   ]
+  },
+  {
+   "player": "Josh Giddey",
+   "team": "CHI",
+   "opp": "DEN",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 15,
+   "games_prev": 54,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 12.5,
+     "over": -106,
+     "under": -120
+    },
+    {
+     "stat": "Rebounds",
+     "line": 6.5,
+     "over": 112,
+     "under": -140
+    },
+    {
+     "stat": "Assists",
+     "line": 7.5,
+     "over": -142,
+     "under": 112
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": 128,
+     "under": -164
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 27.5,
+     "over": -104,
+     "under": -122
+    }
+   ],
+   "text": [
+    "Josh Giddey (CHI) hosts DEN tonight. This season (2026-27): 9.9 pts, 5.9 reb, 8.4 ast in 27.8 min over 15 games. Last season (2025-26): 17.0 pts, 8.3 reb, 9.1 ast over 54 games. That is 7.1 points a game down from last season, on 15 games.",
+    "Points 12.5 (FanDuel over -106, under -120): over in 5 of 15 this season (latest first: 2, 18, 4, 8, 15); 39 of 54 last season (72%, avg 17.0).",
+    "Rebounds 6.5 (FanDuel over +112, under -140): over in 7 of 15 this season (latest first: 6, 14, 4, 8, 10); 37 of 54 last season (69%, avg 8.3).",
+    "Assists 7.5 (FanDuel over -142, under +112): over in 8 of 15 this season (latest first: 7, 9, 8, 5, 14); 33 of 54 last season (61%, avg 9.1).",
+    "3-PT Made 1.5 (FanDuel over +128, under -164): over in 4 of 15 this season (latest first: 0, 1, 1, 2, 3); 31 of 54 last season (57%, avg 1.9).",
+    "Pts+Rebs+Asts 27.5 (FanDuel over -104, under -122): over in 4 of 15 this season (latest first: 15, 41, 16, 21, 39); 40 of 54 last season (74%, avg 34.5).",
+    "Against DEN \u2014 this season (2026-27): none; last season (2025-26): 1 game, 21.0 pts (Nov 17: 21)."
+   ]
+  },
+  {
+   "player": "Buddy Hield",
+   "team": "CHI",
+   "opp": "DEN",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 13,
+   "games_prev": 51,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 11.5,
+     "over": 106,
+     "under": -136
+    },
+    {
+     "stat": "Rebounds",
+     "line": 2.5,
+     "over": -154,
+     "under": 120
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 2.5,
+     "over": 122,
+     "under": -156
+    }
+   ],
+   "text": [
+    "Buddy Hield (CHI) hosts DEN tonight. This season (2026-27): 8.1 pts, 2.3 reb, 1.7 ast in 16.2 min over 13 games. Last season (2025-26, with ATL): 7.6 pts, 2.3 reb, 1.4 ast over 51 games.",
+    "Points 11.5 (FanDuel over +106, under -136): over in 4 of 13 this season (latest first: 15, 11, 6, 16, 12); 12 of 51 last season (24%, avg 7.6).",
+    "Rebounds 2.5 (FanDuel over -154, under +120): over in 6 of 13 this season (latest first: 4, 1, 4, 4, 3); 21 of 51 last season (41%, avg 2.3).",
+    "3-PT Made 2.5 (FanDuel over +122, under -156): over in 4 of 13 this season (latest first: 4, 3, 2, 4, 2); 11 of 51 last season (22%, avg 1.5).",
+    "Against DEN \u2014 this season (2026-27): none; last season (2025-26): 2 games, 9.5 pts (Oct 23: 11, Nov 7: 8)."
+   ]
+  },
+  {
+   "player": "Isaac Okoro",
+   "team": "CHI",
+   "opp": "DEN",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 15,
+   "games_prev": 63,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 9.5,
+     "over": -125,
+     "under": -102
+    },
+    {
+     "stat": "Rebounds",
+     "line": 3.5,
+     "over": 118,
+     "under": -150
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": 132,
+     "under": -170
+    }
+   ],
+   "text": [
+    "Isaac Okoro (CHI) hosts DEN tonight. This season (2026-27): 7.3 pts, 2.7 reb, 1.8 ast in 23.3 min over 15 games. Last season (2025-26): 9.3 pts, 2.7 reb, 1.6 ast over 63 games.",
+    "Points 9.5 (FanDuel over -125, under -102): over in 5 of 15 this season (latest first: 9, 12, 13, 9, 15); 28 of 63 last season (44%, avg 9.3).",
+    "Rebounds 3.5 (FanDuel over +118, under -150): over in 3 of 15 this season (latest first: 7, 3, 6, 7, 3); 23 of 63 last season (37%, avg 2.7).",
+    "3-PT Made 1.5 (FanDuel over +132, under -170): over in 3 of 15 this season (latest first: 1, 4, 3, 0, 2); 22 of 63 last season (35%, avg 1.2).",
+    "Against DEN \u2014 this season (2026-27): none; last season (2025-26): 2 games, 7.5 pts (Nov 17: 2, Feb 7: 13)."
+   ]
+  },
+  {
+   "player": "Patrick Williams",
+   "team": "CHI",
+   "opp": "DEN",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 8,
+   "games_prev": 72,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 8.5,
+     "over": -102,
+     "under": -125
+    },
+    {
+     "stat": "Rebounds",
+     "line": 3.5,
+     "over": -104,
+     "under": -122
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": 154,
+     "under": -200
+    }
+   ],
+   "text": [
+    "Patrick Williams (CHI) hosts DEN tonight. This season (2026-27): 6.9 pts, 2.9 reb, 1.9 ast in 21.5 min over 8 games. Last season (2025-26): 7.0 pts, 3.0 reb, 1.5 ast over 72 games.",
+    "Points 8.5 (FanDuel over -102, under -125): over in 3 of 8 this season (latest first: 6, 2, 0, 14, 13); 25 of 72 last season (35%, avg 7.0).",
+    "Rebounds 3.5 (FanDuel over -104, under -122): over in 3 of 8 this season (latest first: 3, 1, 0, 5, 4); 26 of 72 last season (36%, avg 3.0).",
+    "3-PT Made 1.5 (FanDuel over +154, under -200): over in 2 of 8 this season (latest first: 0, 0, 0, 2, 4); 32 of 72 last season (44%, avg 1.3).",
+    "Against DEN \u2014 this season (2026-27): none; last season (2025-26): 2 games, 7.5 pts (Nov 17: 7, Feb 7: 8)."
+   ]
+  },
+  {
+   "player": "Nikola Jokic",
+   "team": "DEN",
+   "opp": "CHI",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 14,
+   "games_prev": 65,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 25.5,
+     "over": -128,
+     "under": 100
+    },
+    {
+     "stat": "Rebounds",
+     "line": 11.5,
+     "over": -128,
+     "under": 100
+    },
+    {
+     "stat": "Assists",
+     "line": 9.5,
+     "over": -125,
+     "under": -102
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": -113,
+     "under": -113
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 47.5,
+     "over": -115,
+     "under": -111
+    }
+   ],
+   "text": [
+    "Nikola Jokic (DEN) visits CHI tonight. This season (2026-27): 24.2 pts, 10.4 reb, 9.1 ast in 36.8 min over 14 games. Last season (2025-26): 27.7 pts, 12.9 reb, 10.7 ast over 65 games. That is 3.5 points a game down from last season, on 14 games.",
+    "Points 25.5 (FanDuel over -128, under +100): over in 7 of 14 this season (latest first: 26, 24, 28, 26, 27); 35 of 65 last season (54%, avg 27.7).",
+    "Rebounds 11.5 (FanDuel over -128, under +100): over in 5 of 14 this season (latest first: 7, 8, 15, 8, 11); 44 of 65 last season (68%, avg 12.9).",
+    "Assists 9.5 (FanDuel over -125, under -102): over in 7 of 14 this season (latest first: 11, 9, 7, 10, 8); 42 of 65 last season (65%, avg 10.7).",
+    "3-PT Made 1.5 (FanDuel over -113, under -113): over in 5 of 14 this season (latest first: 2, 3, 2, 1, 1); 32 of 65 last season (49%, avg 1.7).",
+    "Pts+Rebs+Asts 47.5 (FanDuel over -115, under -111): over in 4 of 14 this season (latest first: 44, 41, 50, 44, 46); 41 of 65 last season (63%, avg 51.3).",
+    "Against CHI \u2014 this season (2026-27): none; last season (2025-26): 2 games, 29.0 pts (Nov 17: 36, Feb 7: 22)."
+   ]
+  },
+  {
+   "player": "Jamal Murray",
+   "team": "DEN",
+   "opp": "CHI",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 14,
+   "games_prev": 75,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 23.5,
+     "over": 100,
+     "under": -128
+    },
+    {
+     "stat": "Rebounds",
+     "line": 4.5,
+     "over": 108,
+     "under": -138
+    },
+    {
+     "stat": "Assists",
+     "line": 6.5,
+     "over": 114,
+     "under": -146
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 2.5,
+     "over": -138,
+     "under": 108
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 33.5,
+     "over": -122,
+     "under": -104
+    }
+   ],
+   "text": [
+    "Jamal Murray (DEN) visits CHI tonight. This season (2026-27): 24.9 pts, 5.0 reb, 5.8 ast in 36.4 min over 14 games. Last season (2025-26): 25.4 pts, 4.4 reb, 7.1 ast over 75 games.",
+    "Points 23.5 (FanDuel over +100, under -128): over in 6 of 14 this season (latest first: 14, 21, 28, 23, 30); 39 of 75 last season (52%, avg 25.4).",
+    "Rebounds 4.5 (FanDuel over +108, under -138): over in 8 of 14 this season (latest first: 2, 7, 4, 7, 4); 37 of 75 last season (49%, avg 4.4).",
+    "Assists 6.5 (FanDuel over +114, under -146): over in 6 of 14 this season (latest first: 7, 2, 4, 9, 8); 39 of 75 last season (52%, avg 7.1).",
+    "3-PT Made 2.5 (FanDuel over -138, under +108): over in 7 of 14 this season (latest first: 1, 2, 1, 0, 4); 41 of 75 last season (55%, avg 3.3).",
+    "Pts+Rebs+Asts 33.5 (FanDuel over -122, under -104): over in 7 of 14 this season (latest first: 23, 30, 36, 39, 42); 50 of 75 last season (67%, avg 36.9).",
+    "Against CHI \u2014 this season (2026-27): none; last season (2025-26): 2 games, 31.0 pts (Nov 17: 34, Feb 7: 28)."
+   ]
+  },
+  {
+   "player": "Aaron Gordon",
+   "team": "DEN",
+   "opp": "CHI",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 14,
+   "games_prev": 36,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 13.5,
+     "over": -106,
+     "under": -120
+    },
+    {
+     "stat": "Rebounds",
+     "line": 5.5,
+     "over": 120,
+     "under": -154
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": 132,
+     "under": -170
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 20.5,
+     "over": -120,
+     "under": -106
+    }
+   ],
+   "text": [
+    "Aaron Gordon (DEN) visits CHI tonight. This season (2026-27): 11.6 pts, 4.8 reb, 1.9 ast in 29.2 min over 14 games. Last season (2025-26): 16.2 pts, 5.8 reb, 2.7 ast over 36 games. That is 4.5 points a game down from last season, on 14 games.",
+    "Points 13.5 (FanDuel over -106, under -120): over in 5 of 14 this season (latest first: 18, 13, 11, 11, 9); 24 of 36 last season (67%, avg 16.2).",
+    "Rebounds 5.5 (FanDuel over +120, under -154): over in 4 of 14 this season (latest first: 3, 8, 1, 5, 3); 20 of 36 last season (56%, avg 5.8).",
+    "3-PT Made 1.5 (FanDuel over +132, under -170): over in 4 of 14 this season (latest first: 1, 0, 2, 1, 1); 15 of 36 last season (42%, avg 1.7).",
+    "Pts+Rebs+Asts 20.5 (FanDuel over -120, under -106): over in 5 of 14 this season (latest first: 23, 23, 13, 17, 14); 25 of 36 last season (69%, avg 24.6).",
+    "Against CHI \u2014 this season (2026-27): none; last season (2025-26): 1 game, 24.0 pts (Nov 17: 24)."
+   ]
+  },
+  {
+   "player": "Christian Braun",
+   "team": "DEN",
+   "opp": "CHI",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 14,
+   "games_prev": 44,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 13.5,
+     "over": -104,
+     "under": -122
+    },
+    {
+     "stat": "Rebounds",
+     "line": 4.5,
+     "over": -115,
+     "under": -111
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": 102,
+     "under": -130
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 20.5,
+     "over": -111,
+     "under": -115
+    }
+   ],
+   "text": [
+    "Christian Braun (DEN) visits CHI tonight. This season (2026-27): 13.2 pts, 4.4 reb, 2.4 ast in 33.6 min over 14 games. Last season (2025-26): 12.0 pts, 4.8 reb, 2.7 ast over 44 games.",
+    "Points 13.5 (FanDuel over -104, under -122): over in 7 of 14 this season (latest first: 19, 15, 10, 17, 12); 16 of 44 last season (36%, avg 12.0).",
+    "Rebounds 4.5 (FanDuel over -115, under -111): over in 7 of 14 this season (latest first: 5, 5, 3, 7, 5); 23 of 44 last season (52%, avg 4.8).",
+    "3-PT Made 1.5 (FanDuel over +102, under -130): over in 5 of 14 this season (latest first: 3, 1, 2, 1, 2); 11 of 44 last season (25%, avg 1.0).",
+    "Pts+Rebs+Asts 20.5 (FanDuel over -111, under -115): over in 6 of 14 this season (latest first: 27, 23, 16, 25, 21); 20 of 44 last season (45%, avg 19.5).",
+    "Against CHI \u2014 this season (2026-27): none; last season (2025-26): 1 game, 10.0 pts (Feb 7: 10)."
+   ]
+  },
+  {
+   "player": "DeMar DeRozan",
+   "team": "DEN",
+   "opp": "CHI",
+   "game": "DEN @ CHI",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 13,
+   "games_prev": 77,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 11.5,
+     "over": -108,
+     "under": -118
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 16.5,
+     "over": -102,
+     "under": -125
+    }
+   ],
+   "text": [
+    "DeMar DeRozan (DEN) visits CHI tonight. This season (2026-27): 10.3 pts, 2.0 reb, 2.6 ast in 22.8 min over 13 games. Last season (2025-26, with SAC): 18.4 pts, 2.9 reb, 4.1 ast over 77 games. That is 8.1 points a game down from last season, on 13 games.",
+    "Points 11.5 (FanDuel over -108, under -118): over in 5 of 13 this season (latest first: 15, 18, 2, 9, 8); 58 of 77 last season (75%, avg 18.4).",
+    "Pts+Rebs+Asts 16.5 (FanDuel over -102, under -125): over in 5 of 13 this season (latest first: 19, 22, 4, 14, 13); 61 of 77 last season (79%, avg 25.5).",
+    "Against CHI \u2014 this season (2026-27): none; last season (2025-26): 1 game, 19.0 pts (Oct 29: 19)."
    ]
   },
   {
@@ -1577,41 +2102,41 @@
     {
      "stat": "Points",
      "line": 25.5,
-     "over": -114,
-     "under": -114
+     "over": -113,
+     "under": -113
     },
     {
      "stat": "Rebounds",
      "line": 6.5,
-     "over": -112,
-     "under": -118
+     "over": -118,
+     "under": -108
     },
     {
      "stat": "Assists",
      "line": 7.5,
-     "over": -112,
-     "under": -118
+     "over": 102,
+     "under": -130
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 100,
-     "under": -132
+     "over": 106,
+     "under": -136
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 40.5,
-     "over": -108,
+     "over": -104,
      "under": -122
     }
    ],
    "text": [
     "Franz Wagner (ORL) visits WAS tonight. This season (2026-27): 25.1 pts, 6.8 reb, 8.4 ast in 36.7 min over 15 games. Last season (2025-26): 20.6 pts, 5.2 reb, 3.3 ast over 34 games. That is 4.5 points a game up on last season, on 15 games.",
-    "Points 25.5 (FanDuel over -114, under -114): over in 7 of 15 this season (latest first: 35, 27, 21, 35, 38); 6 of 34 last season (18%, avg 20.6).",
-    "Rebounds 6.5 (FanDuel over -112, under -118): over in 7 of 15 this season (latest first: 5, 8, 8, 9, 8); 9 of 34 last season (26%, avg 5.2).",
-    "Assists 7.5 (FanDuel over -112, under -118): over in 8 of 15 this season (latest first: 7, 11, 9, 12, 1); 0 of 34 last season (0%, avg 3.3).",
-    "3-PT Made 1.5 (FanDuel over +100, under -132): over in 6 of 15 this season (latest first: 2, 1, 0, 3, 3); 15 of 34 last season (44%, avg 1.4).",
-    "Pts+Rebs+Asts 40.5 (FanDuel over -108, under -122): over in 8 of 15 this season (latest first: 47, 46, 38, 56, 47); 2 of 34 last season (6%, avg 29.1).",
+    "Points 25.5 (FanDuel over -113, under -113): over in 7 of 15 this season (latest first: 35, 27, 21, 35, 38); 6 of 34 last season (18%, avg 20.6).",
+    "Rebounds 6.5 (FanDuel over -118, under -108): over in 7 of 15 this season (latest first: 5, 8, 8, 9, 8); 9 of 34 last season (26%, avg 5.2).",
+    "Assists 7.5 (FanDuel over +102, under -130): over in 8 of 15 this season (latest first: 7, 11, 9, 12, 1); 0 of 34 last season (0%, avg 3.3).",
+    "3-PT Made 1.5 (FanDuel over +106, under -136): over in 6 of 15 this season (latest first: 2, 1, 0, 3, 3); 15 of 34 last season (44%, avg 1.4).",
+    "Pts+Rebs+Asts 40.5 (FanDuel over -104, under -122): over in 8 of 15 this season (latest first: 47, 46, 38, 56, 47); 2 of 34 last season (6%, avg 29.1).",
     "Against WAS \u2014 this season (2026-27): 1 game, 24.0 pts (Nov 2: 24); last season (2025-26): 1 game, 25.0 pts (Nov 1: 25)."
    ]
   },
@@ -1627,41 +2152,41 @@
     {
      "stat": "Points",
      "line": 19.5,
-     "over": -112,
-     "under": -118
+     "over": -111,
+     "under": -115
     },
     {
      "stat": "Rebounds",
      "line": 4.5,
-     "over": -120,
-     "under": -110
+     "over": -104,
+     "under": -122
     },
     {
      "stat": "Assists",
      "line": 3.5,
-     "over": 130,
-     "under": -174
+     "over": 138,
+     "under": -178
     },
     {
      "stat": "3-PT Made",
      "line": 3.5,
-     "over": -102,
-     "under": -130
+     "over": 100,
+     "under": -128
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 27.5,
-     "over": -114,
-     "under": -114
+     "over": -111,
+     "under": -115
     }
    ],
    "text": [
     "Desmond Bane (ORL) visits WAS tonight. This season (2026-27): 18.6 pts, 4.1 reb, 2.7 ast in 34.9 min over 14 games. Last season (2025-26): 20.1 pts, 4.1 reb, 4.1 ast over 82 games.",
-    "Points 19.5 (FanDuel over -112, under -118): over in 7 of 14 this season (latest first: 21, 15, 24, 21, 25); 42 of 82 last season (51%, avg 20.1).",
-    "Rebounds 4.5 (FanDuel over -120, under -110): over in 7 of 14 this season (latest first: 2, 3, 8, 5, 3); 33 of 82 last season (40%, avg 4.1).",
-    "Assists 3.5 (FanDuel over +130, under -174): over in 4 of 14 this season (latest first: 3, 3, 5, 3, 2); 51 of 82 last season (62%, avg 4.1).",
-    "3-PT Made 3.5 (FanDuel over -102, under -130): over in 9 of 14 this season (latest first: 7, 5, 3, 6, 7); 9 of 82 last season (11%, avg 2.0).",
-    "Pts+Rebs+Asts 27.5 (FanDuel over -114, under -114): over in 5 of 14 this season (latest first: 26, 21, 37, 29, 30); 46 of 82 last season (56%, avg 28.3).",
+    "Points 19.5 (FanDuel over -111, under -115): over in 7 of 14 this season (latest first: 21, 15, 24, 21, 25); 42 of 82 last season (51%, avg 20.1).",
+    "Rebounds 4.5 (FanDuel over -104, under -122): over in 7 of 14 this season (latest first: 2, 3, 8, 5, 3); 33 of 82 last season (40%, avg 4.1).",
+    "Assists 3.5 (FanDuel over +138, under -178): over in 4 of 14 this season (latest first: 3, 3, 5, 3, 2); 51 of 82 last season (62%, avg 4.1).",
+    "3-PT Made 3.5 (FanDuel over +100, under -128): over in 9 of 14 this season (latest first: 7, 5, 3, 6, 7); 9 of 82 last season (11%, avg 2.0).",
+    "Pts+Rebs+Asts 27.5 (FanDuel over -111, under -115): over in 5 of 14 this season (latest first: 26, 21, 37, 29, 30); 46 of 82 last season (56%, avg 28.3).",
     "Against WAS \u2014 this season (2026-27): 1 game, 20.0 pts (Nov 2: 20); last season (2025-26): 4 games, 16.8 pts (Nov 1: 5, Jan 6: 15, Mar 3: 25, Mar 12: 22)."
    ]
   },
@@ -1677,78 +2202,42 @@
     {
      "stat": "Points",
      "line": 15.5,
-     "over": -112,
-     "under": -118
+     "over": -113,
+     "under": -113
     },
     {
      "stat": "Rebounds",
      "line": 4.5,
-     "over": -114,
-     "under": -114
+     "over": -122,
+     "under": -104
     },
     {
      "stat": "Assists",
-     "line": 4.5,
-     "over": -140,
-     "under": 106
+     "line": 5.5,
+     "over": 122,
+     "under": -156
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -112,
-     "under": -118
+     "over": -111,
+     "under": -115
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 25.5,
-     "over": -108,
-     "under": -122
+     "over": -115,
+     "under": -111
     }
    ],
    "text": [
     "Anthony Black (ORL) visits WAS tonight. This season (2026-27): 16.2 pts, 5.1 reb, 5.7 ast in 33.1 min over 12 games. Last season (2025-26): 15.0 pts, 3.8 reb, 3.7 ast over 64 games.",
-    "Points 15.5 (FanDuel over -112, under -118): over in 7 of 12 this season (latest first: 13, 15, 20, 5, 22); 28 of 64 last season (44%, avg 15.0).",
-    "Rebounds 4.5 (FanDuel over -114, under -114): over in 7 of 12 this season (latest first: 7, 2, 2, 2, 7); 18 of 64 last season (28%, avg 3.8).",
-    "Assists 4.5 (FanDuel over -140, under +106): over in 10 of 12 this season (latest first: 6, 6, 7, 5, 8); 20 of 64 last season (31%, avg 3.7).",
-    "3-PT Made 1.5 (FanDuel over -112, under -118): over in 8 of 12 this season (latest first: 2, 2, 3, 1, 3); 28 of 64 last season (44%, avg 1.6).",
-    "Pts+Rebs+Asts 25.5 (FanDuel over -108, under -122): over in 8 of 12 this season (latest first: 26, 23, 29, 12, 37); 24 of 64 last season (38%, avg 22.5).",
+    "Points 15.5 (FanDuel over -113, under -113): over in 7 of 12 this season (latest first: 13, 15, 20, 5, 22); 28 of 64 last season (44%, avg 15.0).",
+    "Rebounds 4.5 (FanDuel over -122, under -104): over in 7 of 12 this season (latest first: 7, 2, 2, 2, 7); 18 of 64 last season (28%, avg 3.8).",
+    "Assists 5.5 (FanDuel over +122, under -156): over in 7 of 12 this season (latest first: 6, 6, 7, 5, 8); 10 of 64 last season (16%, avg 3.7).",
+    "3-PT Made 1.5 (FanDuel over -111, under -115): over in 8 of 12 this season (latest first: 2, 2, 3, 1, 3); 28 of 64 last season (44%, avg 1.6).",
+    "Pts+Rebs+Asts 25.5 (FanDuel over -115, under -111): over in 8 of 12 this season (latest first: 26, 23, 29, 12, 37); 24 of 64 last season (38%, avg 22.5).",
     "Against WAS \u2014 this season (2026-27): none; last season (2025-26): 2 games, 7.0 pts (Nov 1: 8, Jan 6: 6)."
-   ]
-  },
-  {
-   "player": "Wendell Carter Jr.",
-   "team": "ORL",
-   "opp": "WAS",
-   "game": "ORL @ WAS",
-   "start_time": "2026-11-23T00:10:00.000Z",
-   "games_cur": 15,
-   "games_prev": 78,
-   "props": [
-    {
-     "stat": "Points",
-     "line": 12.5,
-     "over": 102,
-     "under": -136
-    },
-    {
-     "stat": "Rebounds",
-     "line": 8.5,
-     "over": 114,
-     "under": -152
-    },
-    {
-     "stat": "Pts+Rebs+Asts",
-     "line": 22.5,
-     "over": -102,
-     "under": -130
-    }
-   ],
-   "text": [
-    "Wendell Carter Jr. (ORL) visits WAS tonight. This season (2026-27): 13.0 pts, 8.7 reb, 1.3 ast in 32.5 min over 15 games. Last season (2025-26): 11.8 pts, 7.4 reb, 2.0 ast over 78 games.",
-    "Points 12.5 (FanDuel over +102, under -136): over in 6 of 15 this season (latest first: 8, 15, 10, 12, 9); 35 of 78 last season (45%, avg 11.8).",
-    "Rebounds 8.5 (FanDuel over +114, under -152): over in 8 of 15 this season (latest first: 8, 8, 3, 8, 7); 22 of 78 last season (28%, avg 7.4).",
-    "Pts+Rebs+Asts 22.5 (FanDuel over -102, under -130): over in 6 of 15 this season (latest first: 18, 26, 14, 20, 19); 30 of 78 last season (38%, avg 21.2).",
-    "Against WAS \u2014 this season (2026-27): 1 game, 6.0 pts (Nov 2: 6); last season (2025-26): 3 games, 12.3 pts (Nov 1: 16, Jan 6: 2, Mar 12: 19)."
    ]
   },
   {
@@ -1763,42 +2252,78 @@
     {
      "stat": "Points",
      "line": 11.5,
-     "over": -130,
+     "over": -125,
      "under": -102
     },
     {
      "stat": "Rebounds",
      "line": 4.5,
      "over": 124,
-     "under": -166
+     "under": -160
     },
     {
      "stat": "Assists",
      "line": 3.5,
-     "over": -160,
-     "under": 120
+     "over": -164,
+     "under": 128
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -118,
-     "under": -112
+     "over": -138,
+     "under": 108
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 20.5,
-     "over": -114,
-     "under": -114
+     "over": -108,
+     "under": -118
     }
    ],
    "text": [
     "Jalen Suggs (ORL) visits WAS tonight. This season (2026-27): 9.3 pts, 5.3 reb, 4.3 ast in 29.6 min over 7 games. Last season (2025-26): 13.8 pts, 3.9 reb, 5.5 ast over 57 games. That is 4.5 points a game down from last season, on 7 games.",
-    "Points 11.5 (FanDuel over -130, under -102): over in 3 of 7 this season (latest first: 8, 18, 12, 3, 4); 37 of 57 last season (65%, avg 13.8).",
-    "Rebounds 4.5 (FanDuel over +124, under -166): over in 5 of 7 this season (latest first: 6, 8, 6, 2, 6); 18 of 57 last season (32%, avg 3.9).",
-    "Assists 3.5 (FanDuel over -160, under +120): over in 5 of 7 this season (latest first: 2, 4, 4, 3, 6); 47 of 57 last season (82%, avg 5.5).",
-    "3-PT Made 1.5 (FanDuel over -118, under -112): over in 3 of 7 this season (latest first: 2, 5, 2, 1, 0); 37 of 57 last season (65%, avg 2.1).",
-    "Pts+Rebs+Asts 20.5 (FanDuel over -114, under -114): over in 3 of 7 this season (latest first: 16, 30, 22, 8, 16); 34 of 57 last season (60%, avg 23.1).",
+    "Points 11.5 (FanDuel over -125, under -102): over in 3 of 7 this season (latest first: 8, 18, 12, 3, 4); 37 of 57 last season (65%, avg 13.8).",
+    "Rebounds 4.5 (FanDuel over +124, under -160): over in 5 of 7 this season (latest first: 6, 8, 6, 2, 6); 18 of 57 last season (32%, avg 3.9).",
+    "Assists 3.5 (FanDuel over -164, under +128): over in 5 of 7 this season (latest first: 2, 4, 4, 3, 6); 47 of 57 last season (82%, avg 5.5).",
+    "3-PT Made 1.5 (FanDuel over -138, under +108): over in 3 of 7 this season (latest first: 2, 5, 2, 1, 0); 37 of 57 last season (65%, avg 2.1).",
+    "Pts+Rebs+Asts 20.5 (FanDuel over -108, under -118): over in 3 of 7 this season (latest first: 16, 30, 22, 8, 16); 34 of 57 last season (60%, avg 23.1).",
     "Against WAS \u2014 this season (2026-27): none; last season (2025-26): 3 games, 14.7 pts (Nov 1: 6, Mar 3: 10, Mar 12: 28)."
+   ]
+  },
+  {
+   "player": "Wendell Carter Jr.",
+   "team": "ORL",
+   "opp": "WAS",
+   "game": "ORL @ WAS",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 15,
+   "games_prev": 78,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 11.5,
+     "over": -122,
+     "under": -104
+    },
+    {
+     "stat": "Rebounds",
+     "line": 8.5,
+     "over": 102,
+     "under": -130
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 22.5,
+     "over": -106,
+     "under": -120
+    }
+   ],
+   "text": [
+    "Wendell Carter Jr. (ORL) visits WAS tonight. This season (2026-27): 13.0 pts, 8.7 reb, 1.3 ast in 32.5 min over 15 games. Last season (2025-26): 11.8 pts, 7.4 reb, 2.0 ast over 78 games.",
+    "Points 11.5 (FanDuel over -122, under -104): over in 7 of 15 this season (latest first: 8, 15, 10, 12, 9); 38 of 78 last season (49%, avg 11.8).",
+    "Rebounds 8.5 (FanDuel over +102, under -130): over in 8 of 15 this season (latest first: 8, 8, 3, 8, 7); 22 of 78 last season (28%, avg 7.4).",
+    "Pts+Rebs+Asts 22.5 (FanDuel over -106, under -120): over in 6 of 15 this season (latest first: 18, 26, 14, 20, 19); 30 of 78 last season (38%, avg 21.2).",
+    "Against WAS \u2014 this season (2026-27): 1 game, 6.0 pts (Nov 2: 6); last season (2025-26): 3 games, 12.3 pts (Nov 1: 16, Jan 6: 2, Mar 12: 19)."
    ]
   },
   {
@@ -1812,28 +2337,28 @@
    "props": [
     {
      "stat": "Points",
-     "line": 11.5,
-     "over": -114,
-     "under": -114
+     "line": 10.5,
+     "over": -115,
+     "under": -111
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -158,
-     "under": 118
+     "over": -130,
+     "under": 102
     },
     {
      "stat": "3-PT Made",
      "line": 2.5,
-     "over": 126,
-     "under": -168
+     "over": 130,
+     "under": -166
     }
    ],
    "text": [
     "Tristan da Silva (ORL) visits WAS tonight. This season (2026-27): 13.8 pts, 3.7 reb, 1.7 ast in 29.8 min over 13 games. Last season (2025-26): 9.9 pts, 3.7 reb, 1.6 ast over 77 games. That is 3.9 points a game up on last season, on 13 games.",
-    "Points 11.5 (FanDuel over -114, under -114): over in 9 of 13 this season (latest first: 6, 12, 13, 12, 19); 32 of 77 last season (42%, avg 9.9).",
-    "Rebounds 3.5 (FanDuel over -158, under +118): over in 5 of 13 this season (latest first: 1, 2, 6, 6, 7); 35 of 77 last season (45%, avg 3.7).",
-    "3-PT Made 2.5 (FanDuel over +126, under -168): over in 7 of 13 this season (latest first: 2, 2, 3, 2, 5); 21 of 77 last season (27%, avg 1.6).",
+    "Points 10.5 (FanDuel over -115, under -111): over in 9 of 13 this season (latest first: 6, 12, 13, 12, 19); 36 of 77 last season (47%, avg 9.9).",
+    "Rebounds 3.5 (FanDuel over -130, under +102): over in 5 of 13 this season (latest first: 1, 2, 6, 6, 7); 35 of 77 last season (45%, avg 3.7).",
+    "3-PT Made 2.5 (FanDuel over +130, under -166): over in 7 of 13 this season (latest first: 2, 2, 3, 2, 5); 21 of 77 last season (27%, avg 1.6).",
     "Against WAS \u2014 this season (2026-27): 1 game, 10.0 pts (Nov 2: 10); last season (2025-26): 4 games, 12.2 pts (Nov 1: 2, Jan 6: 13, Mar 3: 8, Mar 12: 26)."
    ]
   },
@@ -1848,35 +2373,28 @@
    "props": [
     {
      "stat": "Points",
-     "line": 24.5,
-     "over": -108,
-     "under": -122
+     "line": 23.5,
+     "over": 100,
+     "under": -128
     },
     {
      "stat": "Rebounds",
      "line": 10.5,
-     "over": -108,
-     "under": -122
-    },
-    {
-     "stat": "Assists",
-     "line": 1.5,
-     "over": -188,
-     "under": 140
+     "over": 100,
+     "under": -128
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 36.5,
-     "over": -120,
-     "under": -110
+     "line": 35.5,
+     "over": -113,
+     "under": -113
     }
    ],
    "text": [
     "Anthony Davis (WAS) hosts ORL tonight. This season (2026-27): 25.3 pts, 10.1 reb, 2.1 ast in 34.1 min over 15 games. Last season (2025-26, with DAL): 20.4 pts, 11.1 reb, 2.8 ast over 20 games. That is 5.0 points a game up on last season, on 15 games.",
-    "Points 24.5 (FanDuel over -108, under -122): over in 9 of 15 this season (latest first: 36, 25, 23, 14, 30); 8 of 20 last season (40%, avg 20.4).",
-    "Rebounds 10.5 (FanDuel over -108, under -122): over in 7 of 15 this season (latest first: 11, 14, 4, 8, 15); 12 of 20 last season (60%, avg 11.1).",
-    "Assists 1.5 (FanDuel over -188, under +140): over in 8 of 15 this season (latest first: 3, 2, 0, 5, 4); 17 of 20 last season (85%, avg 2.8).",
-    "Pts+Rebs+Asts 36.5 (FanDuel over -120, under -110): over in 9 of 15 this season (latest first: 50, 41, 27, 27, 49); 12 of 20 last season (60%, avg 34.2).",
+    "Points 23.5 (FanDuel over +100, under -128): over in 9 of 15 this season (latest first: 36, 25, 23, 14, 30); 10 of 20 last season (50%, avg 20.4).",
+    "Rebounds 10.5 (FanDuel over +100, under -128): over in 7 of 15 this season (latest first: 11, 14, 4, 8, 15); 12 of 20 last season (60%, avg 11.1).",
+    "Pts+Rebs+Asts 35.5 (FanDuel over -113, under -113): over in 9 of 15 this season (latest first: 50, 41, 27, 27, 49); 14 of 20 last season (70%, avg 34.2).",
     "Against ORL \u2014 this season (2026-27): 1 game, 27.0 pts (Nov 2: 27); last season (2025-26): none."
    ]
   },
@@ -1891,93 +2409,43 @@
    "props": [
     {
      "stat": "Points",
-     "line": 18.5,
-     "over": -108,
-     "under": -122
+     "line": 17.5,
+     "over": -128,
+     "under": 100
     },
     {
      "stat": "Rebounds",
      "line": 6.5,
-     "over": -114,
-     "under": -114
+     "over": 102,
+     "under": -130
     },
     {
      "stat": "Assists",
      "line": 2.5,
      "over": 104,
-     "under": -138
+     "under": -132
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 120,
+     "over": 124,
      "under": -160
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 27.5,
-     "over": -118,
-     "under": -112
+     "over": -106,
+     "under": -120
     }
    ],
    "text": [
     "AJ Dybantsa (WAS) hosts ORL tonight. This season (2026-27): 16.5 pts, 6.8 reb, 2.5 ast in 33.9 min over 13 games. No 2025-26 NBA games to compare against.",
-    "Points 18.5 (FanDuel over -108, under -122): over in 7 of 13 this season (latest first: 20, 23, 21, 16, 5).",
-    "Rebounds 6.5 (FanDuel over -114, under -114): over in 7 of 13 this season (latest first: 10, 12, 5, 7, 8).",
-    "Assists 2.5 (FanDuel over +104, under -138): over in 6 of 13 this season (latest first: 6, 2, 3, 1, 4).",
-    "3-PT Made 1.5 (FanDuel over +120, under -160): over in 2 of 13 this season (latest first: 2, 0, 1, 2, 1).",
-    "Pts+Rebs+Asts 27.5 (FanDuel over -118, under -112): over in 6 of 13 this season (latest first: 36, 37, 29, 24, 17).",
+    "Points 17.5 (FanDuel over -128, under +100): over in 7 of 13 this season (latest first: 20, 23, 21, 16, 5).",
+    "Rebounds 6.5 (FanDuel over +102, under -130): over in 7 of 13 this season (latest first: 10, 12, 5, 7, 8).",
+    "Assists 2.5 (FanDuel over +104, under -132): over in 6 of 13 this season (latest first: 6, 2, 3, 1, 4).",
+    "3-PT Made 1.5 (FanDuel over +124, under -160): over in 2 of 13 this season (latest first: 2, 0, 1, 2, 1).",
+    "Pts+Rebs+Asts 27.5 (FanDuel over -106, under -120): over in 6 of 13 this season (latest first: 36, 37, 29, 24, 17).",
     "Against ORL \u2014 this season (2026-27): 1 game, 21.0 pts (Nov 2: 21); last season (2025-26): none."
-   ]
-  },
-  {
-   "player": "Trae Young",
-   "team": "WAS",
-   "opp": "ORL",
-   "game": "ORL @ WAS",
-   "start_time": "2026-11-23T00:10:00.000Z",
-   "games_cur": 17,
-   "games_prev": 15,
-   "props": [
-    {
-     "stat": "Points",
-     "line": 17.5,
-     "over": -110,
-     "under": -120
-    },
-    {
-     "stat": "Rebounds",
-     "line": 2.5,
-     "over": -114,
-     "under": -114
-    },
-    {
-     "stat": "Assists",
-     "line": 7.5,
-     "over": -152,
-     "under": 114
-    },
-    {
-     "stat": "3-PT Made",
-     "line": 2.5,
-     "over": 162,
-     "under": -220
-    },
-    {
-     "stat": "Pts+Rebs+Asts",
-     "line": 28.5,
-     "over": -112,
-     "under": -118
-    }
-   ],
-   "text": [
-    "Trae Young (WAS) hosts ORL tonight. This season (2026-27): 17.4 pts, 2.7 reb, 8.6 ast in 35.0 min over 17 games. Last season (2025-26): 17.9 pts, 2.0 reb, 8.0 ast over 15 games.",
-    "Points 17.5 (FanDuel over -110, under -120): over in 9 of 17 this season (latest first: 16, 11, 13, 0, 37); 7 of 15 last season (47%, avg 17.9).",
-    "Rebounds 2.5 (FanDuel over -114, under -114): over in 7 of 17 this season (latest first: 2, 1, 2, 1, 2); 5 of 15 last season (33%, avg 2.0).",
-    "Assists 7.5 (FanDuel over -152, under +114): over in 12 of 17 this season (latest first: 5, 8, 12, 8, 14); 7 of 15 last season (47%, avg 8.0).",
-    "3-PT Made 2.5 (FanDuel over +162, under -220): over in 7 of 17 this season (latest first: 4, 1, 2, 0, 4); 4 of 15 last season (27%, avg 1.8).",
-    "Pts+Rebs+Asts 28.5 (FanDuel over -112, under -118): over in 7 of 17 this season (latest first: 23, 20, 27, 9, 53); 7 of 15 last season (47%, avg 27.9).",
-    "Against ORL \u2014 this season (2026-27): 1 game, 15.0 pts (Nov 2: 15); last season (2025-26): 2 games, 20.0 pts (Oct 24: 25, Mar 12: 15)."
    ]
   },
   {
@@ -1993,41 +2461,91 @@
      "stat": "Points",
      "line": 16.5,
      "over": 100,
-     "under": -132
+     "under": -128
     },
     {
      "stat": "Rebounds",
      "line": 4.5,
-     "over": 104,
-     "under": -138
+     "over": 110,
+     "under": -140
     },
     {
      "stat": "Assists",
      "line": 3.5,
-     "over": -148,
-     "under": 112
+     "over": -162,
+     "under": 126
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -192,
-     "under": 142
+     "over": -188,
+     "under": 146
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 24.5,
-     "over": -118,
-     "under": -112
+     "over": -120,
+     "under": -106
     }
    ],
    "text": [
     "Kyshawn George (WAS) hosts ORL tonight. This season (2026-27): 17.4 pts, 4.4 reb, 4.5 ast in 33.8 min over 17 games. Last season (2025-26): 14.8 pts, 5.1 reb, 4.5 ast over 48 games. That is 2.6 points a game up on last season, on 17 games.",
-    "Points 16.5 (FanDuel over +100, under -132): over in 9 of 17 this season (latest first: 11, 20, 18, 11, 14); 16 of 48 last season (33%, avg 14.8).",
-    "Rebounds 4.5 (FanDuel over +104, under -138): over in 6 of 17 this season (latest first: 7, 2, 6, 2, 1); 26 of 48 last season (54%, avg 5.1).",
-    "Assists 3.5 (FanDuel over -148, under +112): over in 10 of 17 this season (latest first: 5, 4, 1, 4, 5); 29 of 48 last season (60%, avg 4.5).",
-    "3-PT Made 1.5 (FanDuel over -192, under +142): over in 11 of 17 this season (latest first: 1, 4, 2, 1, 3); 30 of 48 last season (62%, avg 2.1).",
-    "Pts+Rebs+Asts 24.5 (FanDuel over -118, under -112): over in 10 of 17 this season (latest first: 23, 26, 25, 17, 20); 22 of 48 last season (46%, avg 24.4).",
+    "Points 16.5 (FanDuel over +100, under -128): over in 9 of 17 this season (latest first: 11, 20, 18, 11, 14); 16 of 48 last season (33%, avg 14.8).",
+    "Rebounds 4.5 (FanDuel over +110, under -140): over in 6 of 17 this season (latest first: 7, 2, 6, 2, 1); 26 of 48 last season (54%, avg 5.1).",
+    "Assists 3.5 (FanDuel over -162, under +126): over in 10 of 17 this season (latest first: 5, 4, 1, 4, 5); 29 of 48 last season (60%, avg 4.5).",
+    "3-PT Made 1.5 (FanDuel over -188, under +146): over in 11 of 17 this season (latest first: 1, 4, 2, 1, 3); 30 of 48 last season (62%, avg 2.1).",
+    "Pts+Rebs+Asts 24.5 (FanDuel over -120, under -106): over in 10 of 17 this season (latest first: 23, 26, 25, 17, 20); 22 of 48 last season (46%, avg 24.4).",
     "Against ORL \u2014 this season (2026-27): 1 game, 22.0 pts (Nov 2: 22); last season (2025-26): 1 game, 17.0 pts (Nov 1: 17)."
+   ]
+  },
+  {
+   "player": "Trae Young",
+   "team": "WAS",
+   "opp": "ORL",
+   "game": "ORL @ WAS",
+   "start_time": "2026-11-23T00:10:00.000Z",
+   "games_cur": 17,
+   "games_prev": 15,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 16.5,
+     "over": -128,
+     "under": 100
+    },
+    {
+     "stat": "Rebounds",
+     "line": 2.5,
+     "over": -108,
+     "under": -118
+    },
+    {
+     "stat": "Assists",
+     "line": 7.5,
+     "over": -156,
+     "under": 122
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 2.5,
+     "over": 162,
+     "under": -210
+    },
+    {
+     "stat": "Pts+Rebs+Asts",
+     "line": 27.5,
+     "over": -122,
+     "under": -104
+    }
+   ],
+   "text": [
+    "Trae Young (WAS) hosts ORL tonight. This season (2026-27): 17.4 pts, 2.7 reb, 8.6 ast in 35.0 min over 17 games. Last season (2025-26): 17.9 pts, 2.0 reb, 8.0 ast over 15 games.",
+    "Points 16.5 (FanDuel over -128, under +100): over in 9 of 17 this season (latest first: 16, 11, 13, 0, 37); 8 of 15 last season (53%, avg 17.9).",
+    "Rebounds 2.5 (FanDuel over -108, under -118): over in 7 of 17 this season (latest first: 2, 1, 2, 1, 2); 5 of 15 last season (33%, avg 2.0).",
+    "Assists 7.5 (FanDuel over -156, under +122): over in 12 of 17 this season (latest first: 5, 8, 12, 8, 14); 7 of 15 last season (47%, avg 8.0).",
+    "3-PT Made 2.5 (FanDuel over +162, under -210): over in 7 of 17 this season (latest first: 4, 1, 2, 0, 4); 4 of 15 last season (27%, avg 1.8).",
+    "Pts+Rebs+Asts 27.5 (FanDuel over -122, under -104): over in 8 of 17 this season (latest first: 23, 20, 27, 9, 53); 9 of 15 last season (60%, avg 27.9).",
+    "Against ORL \u2014 this season (2026-27): 1 game, 15.0 pts (Nov 2: 15); last season (2025-26): 2 games, 20.0 pts (Oct 24: 25, Mar 12: 15)."
    ]
   },
   {
@@ -2042,27 +2560,27 @@
     {
      "stat": "Points",
      "line": 10.5,
-     "over": -108,
-     "under": -122
+     "over": -115,
+     "under": -111
     },
     {
      "stat": "Rebounds",
      "line": 6.5,
-     "over": -136,
-     "under": 102
+     "over": 100,
+     "under": -128
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 168,
-     "under": -230
+     "over": 172,
+     "under": -225
     }
    ],
    "text": [
     "Alex Sarr (WAS) hosts ORL tonight. This season (2026-27): 11.3 pts, 6.7 reb, 1.6 ast in 26.8 min over 16 games. Last season (2025-26): 16.3 pts, 7.4 reb, 2.7 ast over 48 games. That is 5.0 points a game down from last season, on 16 games.",
-    "Points 10.5 (FanDuel over -108, under -122): over in 8 of 16 this season (latest first: 3, 13, 6, 25, 30); 37 of 48 last season (77%, avg 16.3).",
-    "Rebounds 6.5 (FanDuel over -136, under +102): over in 9 of 16 this season (latest first: 3, 2, 4, 9, 9); 26 of 48 last season (54%, avg 7.4).",
-    "3-PT Made 1.5 (FanDuel over +168, under -230): over in 4 of 16 this season (latest first: 1, 3, 1, 3, 4); 13 of 48 last season (27%, avg 1.0).",
+    "Points 10.5 (FanDuel over -115, under -111): over in 8 of 16 this season (latest first: 3, 13, 6, 25, 30); 37 of 48 last season (77%, avg 16.3).",
+    "Rebounds 6.5 (FanDuel over +100, under -128): over in 9 of 16 this season (latest first: 3, 2, 4, 9, 9); 26 of 48 last season (54%, avg 7.4).",
+    "3-PT Made 1.5 (FanDuel over +172, under -225): over in 4 of 16 this season (latest first: 1, 3, 1, 3, 4); 13 of 48 last season (27%, avg 1.0).",
     "Against ORL \u2014 this season (2026-27): none; last season (2025-26): 3 games, 16.3 pts (Nov 1: 10, Jan 6: 23, Mar 12: 16)."
    ]
   },
@@ -2078,20 +2596,20 @@
     {
      "stat": "Points",
      "line": 6.5,
-     "over": -118,
-     "under": -112
+     "over": -122,
+     "under": -104
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -120,
-     "under": -110
+     "over": -113,
+     "under": -113
     }
    ],
    "text": [
     "Bilal Coulibaly (WAS) hosts ORL tonight. This season (2026-27): 6.6 pts, 4.4 reb, 0.7 ast in 24.9 min over 16 games. Last season (2025-26): 11.7 pts, 4.3 reb, 2.6 ast over 56 games. That is 5.1 points a game down from last season, on 16 games.",
-    "Points 6.5 (FanDuel over -118, under -112): over in 8 of 16 this season (latest first: 2, 3, 11, 9, 4); 45 of 56 last season (80%, avg 11.7).",
-    "Rebounds 3.5 (FanDuel over -120, under -110): over in 11 of 16 this season (latest first: 5, 8, 5, 2, 7); 36 of 56 last season (64%, avg 4.3).",
+    "Points 6.5 (FanDuel over -122, under -104): over in 8 of 16 this season (latest first: 2, 3, 11, 9, 4); 45 of 56 last season (80%, avg 11.7).",
+    "Rebounds 3.5 (FanDuel over -113, under -113): over in 11 of 16 this season (latest first: 5, 8, 5, 2, 7); 36 of 56 last season (64%, avg 4.3).",
     "Against ORL \u2014 this season (2026-27): 1 game, 7.0 pts (Nov 2: 7); last season (2025-26): 4 games, 14.8 pts (Nov 1: 10, Jan 6: 14, Mar 3: 6, Mar 12: 29)."
    ]
   },
@@ -2107,14 +2625,14 @@
     {
      "stat": "Points",
      "line": 20.5,
-     "over": -106,
-     "under": -125
+     "over": -108,
+     "under": -122
     },
     {
      "stat": "Rebounds",
      "line": 5.5,
-     "over": -138,
-     "under": 104
+     "over": -136,
+     "under": 102
     },
     {
      "stat": "Assists",
@@ -2125,23 +2643,23 @@
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -106,
-     "under": -125
+     "over": -102,
+     "under": -130
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 29.5,
-     "over": -112,
-     "under": -118
+     "over": -114,
+     "under": -114
     }
    ],
    "text": [
     "Pascal Siakam (IND) visits NYK tonight. This season (2026-27): 23.0 pts, 6.1 reb, 3.8 ast in 32.3 min over 15 games. Last season (2025-26): 24.0 pts, 6.6 reb, 3.8 ast over 62 games.",
-    "Points 20.5 (FanDuel over -106, under -125): over in 10 of 15 this season (latest first: 21, 24, 31, 19, 28); 46 of 62 last season (74%, avg 24.0).",
-    "Rebounds 5.5 (FanDuel over -138, under +104): over in 7 of 15 this season (latest first: 7, 4, 2, 3, 8); 39 of 62 last season (63%, avg 6.6).",
+    "Points 20.5 (FanDuel over -108, under -122): over in 10 of 15 this season (latest first: 21, 24, 31, 19, 28); 46 of 62 last season (74%, avg 24.0).",
+    "Rebounds 5.5 (FanDuel over -136, under +102): over in 7 of 15 this season (latest first: 7, 4, 2, 3, 8); 39 of 62 last season (63%, avg 6.6).",
     "Assists 3.5 (FanDuel over +142, under -192): over in 7 of 15 this season (latest first: 2, 3, 2, 2, 5); 35 of 62 last season (56%, avg 3.8).",
-    "3-PT Made 1.5 (FanDuel over -106, under -125): over in 9 of 15 this season (latest first: 2, 2, 0, 2, 2); 31 of 62 last season (50%, avg 1.7).",
-    "Pts+Rebs+Asts 29.5 (FanDuel over -112, under -118): over in 10 of 15 this season (latest first: 30, 31, 35, 24, 41); 45 of 62 last season (73%, avg 34.4).",
+    "3-PT Made 1.5 (FanDuel over -102, under -130): over in 9 of 15 this season (latest first: 2, 2, 0, 2, 2); 31 of 62 last season (50%, avg 1.7).",
+    "Pts+Rebs+Asts 29.5 (FanDuel over -114, under -114): over in 10 of 15 this season (latest first: 30, 31, 35, 24, 41); 45 of 62 last season (73%, avg 34.4).",
     "Against NYK \u2014 this season (2026-27): 1 game, 19.0 pts (Nov 13: 19); last season (2025-26): 2 games, 28.0 pts (Dec 18: 26, Feb 10: 30)."
    ]
   },
@@ -2157,20 +2675,20 @@
     {
      "stat": "Points",
      "line": 14.5,
-     "over": 102,
-     "under": -136
+     "over": 104,
+     "under": -138
     },
     {
      "stat": "Rebounds",
      "line": 2.5,
-     "over": -102,
-     "under": -130
+     "over": 100,
+     "under": -132
     },
     {
      "stat": "Assists",
      "line": 6.5,
-     "over": -152,
-     "under": 114
+     "over": -146,
+     "under": 110
     },
     {
      "stat": "3-PT Made",
@@ -2187,48 +2705,12 @@
    ],
    "text": [
     "Andrew Nembhard (IND) visits NYK tonight. This season (2026-27): 16.2 pts, 2.3 reb, 7.7 ast in 32.8 min over 12 games. Last season (2025-26): 16.9 pts, 2.8 reb, 7.7 ast over 57 games.",
-    "Points 14.5 (FanDuel over +102, under -136): over in 7 of 12 this season (latest first: 12, 12, 17, 12, 9); 35 of 57 last season (61%, avg 16.9).",
-    "Rebounds 2.5 (FanDuel over -102, under -130): over in 5 of 12 this season (latest first: 3, 4, 2, 3, 1); 27 of 57 last season (47%, avg 2.8).",
-    "Assists 6.5 (FanDuel over -152, under +114): over in 7 of 12 this season (latest first: 8, 6, 10, 12, 8); 36 of 57 last season (63%, avg 7.7).",
+    "Points 14.5 (FanDuel over +104, under -138): over in 7 of 12 this season (latest first: 12, 12, 17, 12, 9); 35 of 57 last season (61%, avg 16.9).",
+    "Rebounds 2.5 (FanDuel over +100, under -132): over in 5 of 12 this season (latest first: 3, 4, 2, 3, 1); 27 of 57 last season (47%, avg 2.8).",
+    "Assists 6.5 (FanDuel over -146, under +110): over in 7 of 12 this season (latest first: 8, 6, 10, 12, 8); 36 of 57 last season (63%, avg 7.7).",
     "3-PT Made 1.5 (FanDuel over -140, under +106): over in 7 of 12 this season (latest first: 3, 1, 3, 1, 3); 34 of 57 last season (60%, avg 1.9).",
     "Pts+Rebs+Asts 23.5 (FanDuel over -122, under -108): over in 7 of 12 this season (latest first: 23, 22, 29, 27, 18); 41 of 57 last season (72%, avg 27.4).",
     "Against NYK \u2014 this season (2026-27): 1 game, 12.0 pts (Nov 13: 12); last season (2025-26): 3 games, 21.0 pts (Dec 18: 31, Feb 10: 24, Mar 13: 8)."
-   ]
-  },
-  {
-   "player": "Kelly Oubre Jr.",
-   "team": "IND",
-   "opp": "NYK",
-   "game": "IND @ NYK",
-   "start_time": "2026-11-23T01:10:00.000Z",
-   "games_cur": 14,
-   "games_prev": 50,
-   "props": [
-    {
-     "stat": "Points",
-     "line": 13.5,
-     "over": 102,
-     "under": -136
-    },
-    {
-     "stat": "Rebounds",
-     "line": 3.5,
-     "over": -160,
-     "under": 120
-    },
-    {
-     "stat": "3-PT Made",
-     "line": 1.5,
-     "over": 110,
-     "under": -146
-    }
-   ],
-   "text": [
-    "Kelly Oubre Jr. (IND) visits NYK tonight. This season (2026-27): 11.6 pts, 3.3 reb, 1.1 ast in 24.4 min over 14 games. Last season (2025-26, with PHI): 14.1 pts, 5.0 reb, 1.6 ast over 50 games. That is 2.5 points a game down from last season, on 14 games.",
-    "Points 13.5 (FanDuel over +102, under -136): over in 8 of 14 this season (latest first: 17, 17, 16, 16, 14); 27 of 50 last season (54%, avg 14.1).",
-    "Rebounds 3.5 (FanDuel over -160, under +120): over in 6 of 14 this season (latest first: 6, 4, 4, 5, 6); 37 of 50 last season (74%, avg 5.0).",
-    "3-PT Made 1.5 (FanDuel over +110, under -146): over in 4 of 14 this season (latest first: 3, 2, 2, 1, 0); 26 of 50 last season (52%, avg 1.7).",
-    "Against NYK \u2014 this season (2026-27): 1 game, 16.0 pts (Nov 13: 16); last season (2025-26): 2 games, 8.0 pts (Jan 24: 14, Feb 11: 2)."
    ]
   },
   {
@@ -2243,8 +2725,8 @@
     {
      "stat": "Points",
      "line": 12.5,
-     "over": 104,
-     "under": -138
+     "over": -102,
+     "under": -130
     },
     {
      "stat": "Rebounds",
@@ -2253,32 +2735,61 @@
      "under": 102
     },
     {
-     "stat": "Assists",
-     "line": 2.5,
-     "over": 154,
-     "under": -210
-    },
-    {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -138,
-     "under": 104
+     "over": -140,
+     "under": 106
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 17.5,
-     "over": -128,
-     "under": -104
+     "line": 18.5,
+     "over": -106,
+     "under": -125
     }
    ],
    "text": [
     "Aaron Nesmith (IND) visits NYK tonight. This season (2026-27): 10.8 pts, 3.3 reb, 2.3 ast in 27.0 min over 14 games. Last season (2025-26): 13.8 pts, 4.2 reb, 1.9 ast over 45 games. That is 3.0 points a game down from last season, on 14 games.",
-    "Points 12.5 (FanDuel over +104, under -138): over in 6 of 14 this season (latest first: 2, 2, 12, 18, 2); 23 of 45 last season (51%, avg 13.8).",
+    "Points 12.5 (FanDuel over -102, under -130): over in 6 of 14 this season (latest first: 2, 2, 12, 18, 2); 23 of 45 last season (51%, avg 13.8).",
     "Rebounds 3.5 (FanDuel over -136, under +102): over in 5 of 14 this season (latest first: 10, 3, 4, 7, 1); 22 of 45 last season (49%, avg 4.2).",
-    "Assists 2.5 (FanDuel over +154, under -210): over in 4 of 14 this season (latest first: 7, 3, 4, 1, 1); 10 of 45 last season (22%, avg 1.9).",
-    "3-PT Made 1.5 (FanDuel over -138, under +104): over in 7 of 14 this season (latest first: 0, 0, 0, 2, 0); 28 of 45 last season (62%, avg 2.3).",
-    "Pts+Rebs+Asts 17.5 (FanDuel over -128, under -104): over in 7 of 14 this season (latest first: 19, 8, 20, 26, 4); 25 of 45 last season (56%, avg 19.9).",
+    "3-PT Made 1.5 (FanDuel over -140, under +106): over in 7 of 14 this season (latest first: 0, 0, 0, 2, 0); 28 of 45 last season (62%, avg 2.3).",
+    "Pts+Rebs+Asts 18.5 (FanDuel over -106, under -125): over in 6 of 14 this season (latest first: 19, 8, 20, 26, 4); 24 of 45 last season (53%, avg 19.9).",
     "Against NYK \u2014 this season (2026-27): 1 game, 18.0 pts (Nov 13: 18); last season (2025-26): 3 games, 12.3 pts (Feb 10: 11, Mar 13: 12, Mar 17: 14)."
+   ]
+  },
+  {
+   "player": "Kelly Oubre Jr.",
+   "team": "IND",
+   "opp": "NYK",
+   "game": "IND @ NYK",
+   "start_time": "2026-11-23T01:10:00.000Z",
+   "games_cur": 14,
+   "games_prev": 50,
+   "props": [
+    {
+     "stat": "Points",
+     "line": 12.5,
+     "over": -114,
+     "under": -114
+    },
+    {
+     "stat": "Rebounds",
+     "line": 4.5,
+     "over": 116,
+     "under": -154
+    },
+    {
+     "stat": "3-PT Made",
+     "line": 1.5,
+     "over": 112,
+     "under": -148
+    }
+   ],
+   "text": [
+    "Kelly Oubre Jr. (IND) visits NYK tonight. This season (2026-27): 11.6 pts, 3.3 reb, 1.1 ast in 24.4 min over 14 games. Last season (2025-26, with PHI): 14.1 pts, 5.0 reb, 1.6 ast over 50 games. That is 2.5 points a game down from last season, on 14 games.",
+    "Points 12.5 (FanDuel over -114, under -114): over in 8 of 14 this season (latest first: 17, 17, 16, 16, 14); 29 of 50 last season (58%, avg 14.1).",
+    "Rebounds 4.5 (FanDuel over +116, under -154): over in 3 of 14 this season (latest first: 6, 4, 4, 5, 6); 24 of 50 last season (48%, avg 5.0).",
+    "3-PT Made 1.5 (FanDuel over +112, under -148): over in 4 of 14 this season (latest first: 3, 2, 2, 1, 0); 26 of 50 last season (52%, avg 1.7).",
+    "Against NYK \u2014 this season (2026-27): 1 game, 16.0 pts (Nov 13: 16); last season (2025-26): 2 games, 8.0 pts (Jan 24: 14, Feb 11: 2)."
    ]
   },
   {
@@ -2293,34 +2804,27 @@
     {
      "stat": "Points",
      "line": 11.5,
-     "over": -114,
-     "under": -114
+     "over": -112,
+     "under": -118
     },
     {
      "stat": "Rebounds",
      "line": 8.5,
-     "over": -102,
-     "under": -130
-    },
-    {
-     "stat": "Assists",
-     "line": 1.5,
-     "over": -166,
-     "under": 124
+     "over": 100,
+     "under": -132
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 22.5,
-     "over": -106,
-     "under": -125
+     "over": -102,
+     "under": -130
     }
    ],
    "text": [
     "Ivica Zubac (IND) visits NYK tonight. This season (2026-27): 10.8 pts, 8.1 reb, 1.9 ast in 23.7 min over 11 games. Last season (2025-26): 14.1 pts, 10.6 reb, 2.2 ast over 48 games. That is 3.3 points a game down from last season, on 11 games.",
-    "Points 11.5 (FanDuel over -114, under -114): over in 5 of 11 this season (latest first: 21, 4, 8, 12, 20); 28 of 48 last season (58%, avg 14.1).",
-    "Rebounds 8.5 (FanDuel over -102, under -130): over in 6 of 11 this season (latest first: 10, 3, 5, 13, 12); 31 of 48 last season (65%, avg 10.6).",
-    "Assists 1.5 (FanDuel over -166, under +124): over in 7 of 11 this season (latest first: 2, 4, 2, 1, 1); 30 of 48 last season (62%, avg 2.2).",
-    "Pts+Rebs+Asts 22.5 (FanDuel over -106, under -125): over in 5 of 11 this season (latest first: 33, 11, 15, 26, 33); 32 of 48 last season (67%, avg 26.9).",
+    "Points 11.5 (FanDuel over -112, under -118): over in 5 of 11 this season (latest first: 21, 4, 8, 12, 20); 28 of 48 last season (58%, avg 14.1).",
+    "Rebounds 8.5 (FanDuel over +100, under -132): over in 6 of 11 this season (latest first: 10, 3, 5, 13, 12); 31 of 48 last season (65%, avg 10.6).",
+    "Pts+Rebs+Asts 22.5 (FanDuel over -102, under -130): over in 5 of 11 this season (latest first: 33, 11, 15, 26, 33); 32 of 48 last season (67%, avg 26.9).",
     "Against NYK \u2014 this season (2026-27): 1 game, 12.0 pts (Nov 13: 12); last season (2025-26): 3 games, 14.7 pts (Jan 7: 22, Mar 13: 11, Mar 17: 11)."
    ]
   },
@@ -2336,27 +2840,27 @@
     {
      "stat": "Points",
      "line": 11.5,
-     "over": -114,
-     "under": -118
+     "over": -108,
+     "under": -122
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -162,
-     "under": 122
+     "over": -158,
+     "under": 118
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 104,
-     "under": -138
+     "over": 100,
+     "under": -132
     }
    ],
    "text": [
     "Obi Toppin (IND) visits NYK tonight. This season (2026-27): 11.7 pts, 4.0 reb, 1.5 ast in 20.3 min over 13 games. Last season (2025-26): 11.6 pts, 4.4 reb, 2.3 ast over 24 games.",
-    "Points 11.5 (FanDuel over -114, under -118): over in 6 of 13 this season (latest first: 17, 6, 5, 9, 8); 11 of 24 last season (46%, avg 11.6).",
-    "Rebounds 3.5 (FanDuel over -162, under +122): over in 6 of 13 this season (latest first: 3, 1, 2, 3, 3); 14 of 24 last season (58%, avg 4.4).",
-    "3-PT Made 1.5 (FanDuel over +104, under -138): over in 6 of 13 this season (latest first: 2, 0, 0, 1, 2); 10 of 24 last season (42%, avg 1.5).",
+    "Points 11.5 (FanDuel over -108, under -122): over in 6 of 13 this season (latest first: 17, 6, 5, 9, 8); 11 of 24 last season (46%, avg 11.6).",
+    "Rebounds 3.5 (FanDuel over -158, under +118): over in 6 of 13 this season (latest first: 3, 1, 2, 3, 3); 14 of 24 last season (58%, avg 4.4).",
+    "3-PT Made 1.5 (FanDuel over +100, under -132): over in 6 of 13 this season (latest first: 2, 0, 0, 1, 2); 10 of 24 last season (42%, avg 1.5).",
     "Against NYK \u2014 this season (2026-27): 1 game, 9.0 pts (Nov 13: 9); last season (2025-26): 2 games, 12.0 pts (Mar 13: 9, Mar 17: 15)."
    ]
   },
@@ -2372,41 +2876,41 @@
     {
      "stat": "Points",
      "line": 28.5,
-     "over": -114,
-     "under": -114
+     "over": -122,
+     "under": -108
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": 130,
-     "under": -174
+     "over": 140,
+     "under": -188
     },
     {
      "stat": "Assists",
      "line": 6.5,
-     "over": 104,
-     "under": -138
+     "over": -118,
+     "under": -112
     },
     {
      "stat": "3-PT Made",
      "line": 2.5,
-     "over": -182,
-     "under": 136
+     "over": -146,
+     "under": 110
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 38.5,
-     "over": -112,
-     "under": -118
+     "over": -122,
+     "under": -108
     }
    ],
    "text": [
     "Jalen Brunson (NYK) hosts IND tonight. This season (2026-27): 26.8 pts, 3.1 reb, 5.9 ast in 34.4 min over 16 games. Last season (2025-26): 26.0 pts, 3.3 reb, 6.8 ast over 74 games.",
-    "Points 28.5 (FanDuel over -114, under -114): over in 6 of 16 this season (latest first: 30, 21, 31, 28, 33); 30 of 74 last season (41%, avg 26.0).",
-    "Rebounds 3.5 (FanDuel over +130, under -174): over in 6 of 16 this season (latest first: 7, 2, 5, 1, 1); 31 of 74 last season (42%, avg 3.3).",
-    "Assists 6.5 (FanDuel over +104, under -138): over in 6 of 16 this season (latest first: 5, 7, 5, 9, 11); 40 of 74 last season (54%, avg 6.8).",
-    "3-PT Made 2.5 (FanDuel over -182, under +136): over in 11 of 16 this season (latest first: 6, 4, 4, 3, 4); 35 of 74 last season (47%, avg 2.6).",
-    "Pts+Rebs+Asts 38.5 (FanDuel over -112, under -118): over in 6 of 16 this season (latest first: 42, 30, 41, 38, 45); 34 of 74 last season (46%, avg 36.2).",
+    "Points 28.5 (FanDuel over -122, under -108): over in 6 of 16 this season (latest first: 30, 21, 31, 28, 33); 30 of 74 last season (41%, avg 26.0).",
+    "Rebounds 3.5 (FanDuel over +140, under -188): over in 6 of 16 this season (latest first: 7, 2, 5, 1, 1); 31 of 74 last season (42%, avg 3.3).",
+    "Assists 6.5 (FanDuel over -118, under -112): over in 6 of 16 this season (latest first: 5, 7, 5, 9, 11); 40 of 74 last season (54%, avg 6.8).",
+    "3-PT Made 2.5 (FanDuel over -146, under +110): over in 11 of 16 this season (latest first: 6, 4, 4, 3, 4); 35 of 74 last season (47%, avg 2.6).",
+    "Pts+Rebs+Asts 38.5 (FanDuel over -122, under -108): over in 6 of 16 this season (latest first: 42, 30, 41, 38, 45); 34 of 74 last season (46%, avg 36.2).",
     "Against IND \u2014 this season (2026-27): 1 game, 33.0 pts (Nov 13: 33); last season (2025-26): 3 games, 31.3 pts (Dec 18: 25, Feb 10: 40, Mar 13: 29)."
    ]
   },
@@ -2421,21 +2925,21 @@
    "props": [
     {
      "stat": "Points",
-     "line": 21.5,
-     "over": -102,
-     "under": -130
+     "line": 20.5,
+     "over": -114,
+     "under": -114
     },
     {
      "stat": "Rebounds",
      "line": 12.5,
-     "over": -146,
-     "under": 110
+     "over": -144,
+     "under": 108
     },
     {
      "stat": "Assists",
      "line": 3.5,
-     "over": -106,
-     "under": -125
+     "over": 116,
+     "under": -154
     },
     {
      "stat": "3-PT Made",
@@ -2446,17 +2950,17 @@
     {
      "stat": "Pts+Rebs+Asts",
      "line": 37.5,
-     "over": -125,
-     "under": -106
+     "over": -108,
+     "under": -122
     }
    ],
    "text": [
     "Karl-Anthony Towns (NYK) hosts IND tonight. This season (2026-27): 21.3 pts, 13.9 reb, 3.9 ast in 32.7 min over 15 games. Last season (2025-26): 20.1 pts, 11.9 reb, 3.0 ast over 75 games.",
-    "Points 21.5 (FanDuel over -102, under -130): over in 8 of 15 this season (latest first: 22, 16, 28, 23, 21); 29 of 75 last season (39%, avg 20.1).",
-    "Rebounds 12.5 (FanDuel over -146, under +110): over in 9 of 15 this season (latest first: 12, 16, 17, 15, 11); 29 of 75 last season (39%, avg 11.9).",
-    "Assists 3.5 (FanDuel over -106, under -125): over in 7 of 15 this season (latest first: 4, 8, 3, 5, 8); 27 of 75 last season (36%, avg 3.0).",
+    "Points 20.5 (FanDuel over -114, under -114): over in 10 of 15 this season (latest first: 22, 16, 28, 23, 21); 36 of 75 last season (48%, avg 20.1).",
+    "Rebounds 12.5 (FanDuel over -144, under +108): over in 9 of 15 this season (latest first: 12, 16, 17, 15, 11); 29 of 75 last season (39%, avg 11.9).",
+    "Assists 3.5 (FanDuel over +116, under -154): over in 7 of 15 this season (latest first: 4, 8, 3, 5, 8); 27 of 75 last season (36%, avg 3.0).",
     "3-PT Made 1.5 (FanDuel over -130, under -102): over in 11 of 15 this season (latest first: 2, 1, 3, 3, 2); 32 of 75 last season (43%, avg 1.5).",
-    "Pts+Rebs+Asts 37.5 (FanDuel over -125, under -106): over in 9 of 15 this season (latest first: 38, 40, 48, 43, 40); 27 of 75 last season (36%, avg 34.9).",
+    "Pts+Rebs+Asts 37.5 (FanDuel over -108, under -122): over in 9 of 15 this season (latest first: 38, 40, 48, 43, 40); 27 of 75 last season (36%, avg 34.9).",
     "Against IND \u2014 this season (2026-27): 1 game, 23.0 pts (Nov 13: 23); last season (2025-26): 2 games, 22.0 pts (Feb 10: 22, Mar 17: 22)."
    ]
   },
@@ -2472,27 +2976,20 @@
     {
      "stat": "Points",
      "line": 11.5,
-     "over": -136,
-     "under": 102
-    },
-    {
-     "stat": "Rebounds",
-     "line": 2.5,
-     "over": 154,
-     "under": -210
+     "over": -114,
+     "under": -114
     },
     {
      "stat": "3-PT Made",
      "line": 2.5,
-     "over": 100,
-     "under": -132
+     "over": 104,
+     "under": -138
     }
    ],
    "text": [
     "Landry Shamet (NYK) hosts IND tonight. This season (2026-27): 11.0 pts, 1.6 reb, 1.9 ast in 26.6 min over 16 games. Last season (2025-26): 9.3 pts, 1.8 reb, 1.4 ast over 51 games.",
-    "Points 11.5 (FanDuel over -136, under +102): over in 7 of 16 this season (latest first: 20, 10, 12, 23, 5); 15 of 51 last season (29%, avg 9.3).",
-    "Rebounds 2.5 (FanDuel over +154, under -210): over in 2 of 16 this season (latest first: 1, 1, 1, 2, 3); 16 of 51 last season (31%, avg 1.8).",
-    "3-PT Made 2.5 (FanDuel over +100, under -132): over in 6 of 16 this season (latest first: 6, 2, 2, 4, 1); 15 of 51 last season (29%, avg 2.0).",
+    "Points 11.5 (FanDuel over -114, under -114): over in 7 of 16 this season (latest first: 20, 10, 12, 23, 5); 15 of 51 last season (29%, avg 9.3).",
+    "3-PT Made 2.5 (FanDuel over +104, under -138): over in 6 of 16 this season (latest first: 6, 2, 2, 4, 1); 15 of 51 last season (29%, avg 2.0).",
     "Against IND \u2014 this season (2026-27): 1 game, 5.0 pts (Nov 13: 5); last season (2025-26): 3 games, 9.3 pts (Feb 10: 17, Mar 13: 9, Mar 17: 2)."
    ]
   },
@@ -2508,41 +3005,41 @@
     {
      "stat": "Points",
      "line": 11.5,
-     "over": -112,
-     "under": -118
+     "over": -125,
+     "under": -106
     },
     {
      "stat": "Rebounds",
-     "line": 2.5,
-     "over": -174,
-     "under": 130
+     "line": 3.5,
+     "over": 100,
+     "under": -132
     },
     {
      "stat": "Assists",
      "line": 2.5,
-     "over": -108,
-     "under": -122
+     "over": 100,
+     "under": -132
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 116,
-     "under": -158
+     "over": 102,
+     "under": -136
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 17.5,
-     "over": -114,
-     "under": -114
+     "line": 18.5,
+     "over": -108,
+     "under": -122
     }
    ],
    "text": [
     "Mikal Bridges (NYK) hosts IND tonight. This season (2026-27): 7.8 pts, 3.4 reb, 2.2 ast in 26.1 min over 16 games. Last season (2025-26): 14.4 pts, 3.8 reb, 3.7 ast over 82 games. That is 6.6 points a game down from last season, on 16 games.",
-    "Points 11.5 (FanDuel over -112, under -118): over in 5 of 16 this season (latest first: 12, 8, 17, 5, 18); 53 of 82 last season (65%, avg 14.4).",
-    "Rebounds 2.5 (FanDuel over -174, under +130): over in 11 of 16 this season (latest first: 2, 3, 5, 7, 3); 58 of 82 last season (71%, avg 3.8).",
-    "Assists 2.5 (FanDuel over -108, under -122): over in 8 of 16 this season (latest first: 3, 3, 1, 3, 3); 56 of 82 last season (68%, avg 3.7).",
-    "3-PT Made 1.5 (FanDuel over +116, under -158): over in 6 of 16 this season (latest first: 2, 2, 2, 0, 2); 47 of 82 last season (57%, avg 1.9).",
-    "Pts+Rebs+Asts 17.5 (FanDuel over -114, under -114): over in 5 of 16 this season (latest first: 17, 14, 23, 15, 24); 60 of 82 last season (73%, avg 21.9).",
+    "Points 11.5 (FanDuel over -125, under -106): over in 5 of 16 this season (latest first: 12, 8, 17, 5, 18); 53 of 82 last season (65%, avg 14.4).",
+    "Rebounds 3.5 (FanDuel over +100, under -132): over in 7 of 16 this season (latest first: 2, 3, 5, 7, 3); 44 of 82 last season (54%, avg 3.8).",
+    "Assists 2.5 (FanDuel over +100, under -132): over in 8 of 16 this season (latest first: 3, 3, 1, 3, 3); 56 of 82 last season (68%, avg 3.7).",
+    "3-PT Made 1.5 (FanDuel over +102, under -136): over in 6 of 16 this season (latest first: 2, 2, 2, 0, 2); 47 of 82 last season (57%, avg 1.9).",
+    "Pts+Rebs+Asts 18.5 (FanDuel over -108, under -122): over in 5 of 16 this season (latest first: 17, 14, 23, 15, 24); 54 of 82 last season (66%, avg 21.9).",
     "Against IND \u2014 this season (2026-27): 1 game, 18.0 pts (Nov 13: 18); last season (2025-26): 4 games, 16.2 pts (Dec 18: 22, Feb 10: 22, Mar 13: 11, Mar 17: 10)."
    ]
   },
@@ -2557,42 +3054,42 @@
    "props": [
     {
      "stat": "Points",
-     "line": 10.5,
-     "over": 100,
-     "under": -132
-    },
-    {
-     "stat": "Rebounds",
-     "line": 7.5,
+     "line": 9.5,
      "over": -130,
      "under": -102
     },
     {
+     "stat": "Rebounds",
+     "line": 8.5,
+     "over": -102,
+     "under": -130
+    },
+    {
      "stat": "Assists",
      "line": 3.5,
-     "over": -154,
-     "under": 116
+     "over": -136,
+     "under": 102
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 130,
-     "under": -174
+     "over": 146,
+     "under": -198
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 22.5,
-     "over": -120,
-     "under": -110
+     "line": 23.5,
+     "over": -102,
+     "under": -130
     }
    ],
    "text": [
     "Josh Hart (NYK) hosts IND tonight. This season (2026-27): 6.3 pts, 6.4 reb, 3.5 ast in 30.1 min over 13 games. Last season (2025-26): 12.0 pts, 7.4 reb, 4.8 ast over 66 games. That is 5.7 points a game down from last season, on 13 games.",
-    "Points 10.5 (FanDuel over +100, under -132): over in 3 of 13 this season (latest first: 0, 11, 5, 0, 0); 38 of 66 last season (58%, avg 12.0).",
-    "Rebounds 7.5 (FanDuel over -130, under -102): over in 4 of 13 this season (latest first: 8, 6, 4, 5, 5); 25 of 66 last season (38%, avg 7.4).",
-    "Assists 3.5 (FanDuel over -154, under +116): over in 5 of 13 this season (latest first: 6, 2, 2, 2, 4); 42 of 66 last season (64%, avg 4.8).",
-    "3-PT Made 1.5 (FanDuel over +130, under -174): over in 7 of 13 this season (latest first: 0, 3, 1, 0, 0); 25 of 66 last season (38%, avg 1.5).",
-    "Pts+Rebs+Asts 22.5 (FanDuel over -120, under -110): over in 3 of 13 this season (latest first: 14, 19, 11, 7, 9); 38 of 66 last season (58%, avg 24.2).",
+    "Points 9.5 (FanDuel over -130, under -102): over in 4 of 13 this season (latest first: 0, 11, 5, 0, 0); 45 of 66 last season (68%, avg 12.0).",
+    "Rebounds 8.5 (FanDuel over -102, under -130): over in 1 of 13 this season (latest first: 8, 6, 4, 5, 5); 22 of 66 last season (33%, avg 7.4).",
+    "Assists 3.5 (FanDuel over -136, under +102): over in 5 of 13 this season (latest first: 6, 2, 2, 2, 4); 42 of 66 last season (64%, avg 4.8).",
+    "3-PT Made 1.5 (FanDuel over +146, under -198): over in 7 of 13 this season (latest first: 0, 3, 1, 0, 0); 25 of 66 last season (38%, avg 1.5).",
+    "Pts+Rebs+Asts 23.5 (FanDuel over -102, under -130): over in 2 of 13 this season (latest first: 14, 19, 11, 7, 9); 36 of 66 last season (55%, avg 24.2).",
     "Against IND \u2014 this season (2026-27): 1 game, 0.0 pts (Nov 13: 0); last season (2025-26): 2 games, 24.0 pts (Feb 10: 15, Mar 17: 33)."
    ]
   },
@@ -2608,20 +3105,20 @@
     {
      "stat": "Points",
      "line": 27.5,
-     "over": -130,
-     "under": -102
+     "over": -114,
+     "under": -118
     },
     {
      "stat": "Rebounds",
-     "line": 6.5,
-     "over": -154,
-     "under": 116
+     "line": 7.5,
+     "over": 118,
+     "under": -158
     },
     {
      "stat": "Assists",
-     "line": 7.5,
-     "over": -108,
-     "under": -122
+     "line": 6.5,
+     "over": -122,
+     "under": -108
     },
     {
      "stat": "3-PT Made",
@@ -2631,18 +3128,18 @@
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 43.5,
-     "over": -108,
-     "under": -122
+     "line": 41.5,
+     "over": -118,
+     "under": -112
     }
    ],
    "text": [
     "Jayson Tatum (BOS) visits GSW tonight. This season (2026-27): 26.4 pts, 6.6 reb, 6.8 ast in 34.1 min over 14 games. Last season (2025-26): 21.8 pts, 10.0 reb, 5.3 ast over 16 games. That is 4.6 points a game up on last season, on 14 games.",
-    "Points 27.5 (FanDuel over -130, under -102): over in 5 of 14 this season (latest first: 24, 24, 32, 24, 21); 1 of 16 last season (6%, avg 21.8).",
-    "Rebounds 6.5 (FanDuel over -154, under +116): over in 7 of 14 this season (latest first: 8, 12, 6, 7, 6); 12 of 16 last season (75%, avg 10.0).",
-    "Assists 7.5 (FanDuel over -108, under -122): over in 5 of 14 this season (latest first: 3, 4, 6, 8, 4); 4 of 16 last season (25%, avg 5.3).",
+    "Points 27.5 (FanDuel over -114, under -118): over in 5 of 14 this season (latest first: 24, 24, 32, 24, 21); 1 of 16 last season (6%, avg 21.8).",
+    "Rebounds 7.5 (FanDuel over +118, under -158): over in 4 of 14 this season (latest first: 8, 12, 6, 7, 6); 11 of 16 last season (69%, avg 10.0).",
+    "Assists 6.5 (FanDuel over -122, under -108): over in 8 of 14 this season (latest first: 3, 4, 6, 8, 4); 8 of 16 last season (50%, avg 5.3).",
     "3-PT Made 3.5 (FanDuel over +146, under -198): over in 3 of 14 this season (latest first: 3, 3, 5, 2, 3); 5 of 16 last season (31%, avg 2.9).",
-    "Pts+Rebs+Asts 43.5 (FanDuel over -108, under -122): over in 4 of 14 this season (latest first: 35, 40, 44, 39, 31); 3 of 16 last season (19%, avg 37.1).",
+    "Pts+Rebs+Asts 41.5 (FanDuel over -118, under -112): over in 5 of 14 this season (latest first: 35, 40, 44, 39, 31); 6 of 16 last season (38%, avg 37.1).",
     "Against GSW \u2014 this season (2026-27): none; last season (2025-26): 1 game, 24.0 pts (Mar 18: 24)."
    ]
   },
@@ -2664,14 +3161,14 @@
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": 132,
-     "under": -178
+     "over": 128,
+     "under": -172
     },
     {
      "stat": "Assists",
      "line": 4.5,
-     "over": 110,
-     "under": -146
+     "over": 114,
+     "under": -152
     },
     {
      "stat": "3-PT Made",
@@ -2689,8 +3186,8 @@
    "text": [
     "Payton Pritchard (BOS) visits GSW tonight. This season (2026-27): 13.4 pts, 3.2 reb, 4.1 ast in 27.6 min over 16 games. Last season (2025-26): 17.0 pts, 3.9 reb, 5.2 ast over 79 games. That is 3.6 points a game down from last season, on 16 games.",
     "Points 16.5 (FanDuel over +102, under -136): over in 5 of 16 this season (latest first: 9, 15, 21, 10, 14); 40 of 79 last season (51%, avg 17.0).",
-    "Rebounds 3.5 (FanDuel over +132, under -178): over in 7 of 16 this season (latest first: 6, 1, 4, 1, 1); 44 of 79 last season (56%, avg 3.9).",
-    "Assists 4.5 (FanDuel over +110, under -146): over in 7 of 16 this season (latest first: 8, 2, 5, 6, 1); 46 of 79 last season (58%, avg 5.2).",
+    "Rebounds 3.5 (FanDuel over +128, under -172): over in 7 of 16 this season (latest first: 6, 1, 4, 1, 1); 44 of 79 last season (56%, avg 3.9).",
+    "Assists 4.5 (FanDuel over +114, under -152): over in 7 of 16 this season (latest first: 8, 2, 5, 6, 1); 46 of 79 last season (58%, avg 5.2).",
     "3-PT Made 2.5 (FanDuel over -112, under -118): over in 7 of 16 this season (latest first: 0, 3, 4, 2, 2); 39 of 79 last season (49%, avg 2.7).",
     "Pts+Rebs+Asts 23.5 (FanDuel over -120, under -110): over in 4 of 16 this season (latest first: 23, 18, 30, 17, 16); 42 of 79 last season (53%, avg 26.1).",
     "Against GSW \u2014 this season (2026-27): none; last season (2025-26): 2 games, 22.5 pts (Feb 19: 26, Mar 18: 19)."
@@ -2714,14 +3211,14 @@
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -104,
-     "under": -128
+     "over": 102,
+     "under": -136
     },
     {
      "stat": "Assists",
      "line": 5.5,
-     "over": 114,
-     "under": -152
+     "over": 116,
+     "under": -154
     },
     {
      "stat": "3-PT Made",
@@ -2732,17 +3229,17 @@
     {
      "stat": "Pts+Rebs+Asts",
      "line": 23.5,
-     "over": -122,
-     "under": -110
+     "over": -114,
+     "under": -114
     }
    ],
    "text": [
     "Derrick White (BOS) visits GSW tonight. This season (2026-27): 12.7 pts, 3.0 reb, 5.0 ast in 29.9 min over 15 games. Last season (2025-26): 16.5 pts, 4.4 reb, 5.4 ast over 77 games. That is 3.8 points a game down from last season, on 15 games.",
     "Points 14.5 (FanDuel over -118, under -112): over in 6 of 15 this season (latest first: 12, 9, 16, 19, 5); 47 of 77 last season (61%, avg 16.5).",
-    "Rebounds 3.5 (FanDuel over -104, under -128): over in 6 of 15 this season (latest first: 3, 3, 4, 1, 1); 53 of 77 last season (69%, avg 4.4).",
-    "Assists 5.5 (FanDuel over +114, under -152): over in 7 of 15 this season (latest first: 8, 2, 2, 7, 3); 31 of 77 last season (40%, avg 5.4).",
+    "Rebounds 3.5 (FanDuel over +102, under -136): over in 6 of 15 this season (latest first: 3, 3, 4, 1, 1); 53 of 77 last season (69%, avg 4.4).",
+    "Assists 5.5 (FanDuel over +116, under -154): over in 7 of 15 this season (latest first: 8, 2, 2, 7, 3); 31 of 77 last season (40%, avg 5.4).",
     "3-PT Made 2.5 (FanDuel over +114, under -152): over in 4 of 15 this season (latest first: 0, 1, 4, 3, 1); 40 of 77 last season (52%, avg 2.7).",
-    "Pts+Rebs+Asts 23.5 (FanDuel over -122, under -110): over in 5 of 15 this season (latest first: 23, 14, 22, 27, 9); 44 of 77 last season (57%, avg 26.2).",
+    "Pts+Rebs+Asts 23.5 (FanDuel over -114, under -114): over in 5 of 15 this season (latest first: 23, 14, 22, 27, 9); 44 of 77 last season (57%, avg 26.2).",
     "Against GSW \u2014 this season (2026-27): none; last season (2025-26): 2 games, 10.5 pts (Feb 19: 10, Mar 18: 11)."
    ]
   },
@@ -2758,34 +3255,27 @@
     {
      "stat": "Points",
      "line": 9.5,
-     "over": -122,
-     "under": -108
+     "over": -118,
+     "under": -112
     },
     {
      "stat": "Rebounds",
-     "line": 8.5,
-     "over": 102,
-     "under": -136
-    },
-    {
-     "stat": "Assists",
-     "line": 1.5,
-     "over": -158,
-     "under": 118
+     "line": 7.5,
+     "over": -128,
+     "under": -104
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 20.5,
-     "over": -106,
-     "under": -125
+     "line": 19.5,
+     "over": -114,
+     "under": -114
     }
    ],
    "text": [
     "Neemias Queta (BOS) visits GSW tonight. This season (2026-27): 10.0 pts, 6.9 reb, 1.9 ast in 22.8 min over 15 games. Last season (2025-26): 10.2 pts, 8.4 reb, 1.7 ast over 76 games.",
-    "Points 9.5 (FanDuel over -122, under -108): over in 7 of 15 this season (latest first: 15, 17, 8, 11, 4); 38 of 76 last season (50%, avg 10.2).",
-    "Rebounds 8.5 (FanDuel over +102, under -136): over in 4 of 15 this season (latest first: 7, 10, 6, 13, 6); 32 of 76 last season (42%, avg 8.4).",
-    "Assists 1.5 (FanDuel over -158, under +118): over in 8 of 15 this season (latest first: 1, 3, 2, 3, 3); 36 of 76 last season (47%, avg 1.7).",
-    "Pts+Rebs+Asts 20.5 (FanDuel over -106, under -125): over in 7 of 15 this season (latest first: 23, 30, 16, 27, 13); 30 of 76 last season (39%, avg 20.2).",
+    "Points 9.5 (FanDuel over -118, under -112): over in 7 of 15 this season (latest first: 15, 17, 8, 11, 4); 38 of 76 last season (50%, avg 10.2).",
+    "Rebounds 7.5 (FanDuel over -128, under -104): over in 5 of 15 this season (latest first: 7, 10, 6, 13, 6); 43 of 76 last season (57%, avg 8.4).",
+    "Pts+Rebs+Asts 19.5 (FanDuel over -114, under -114): over in 7 of 15 this season (latest first: 23, 30, 16, 27, 13); 33 of 76 last season (43%, avg 20.2).",
     "Against GSW \u2014 this season (2026-27): none; last season (2025-26): 2 games, 8.5 pts (Feb 19: 9, Mar 18: 8)."
    ]
   },
@@ -2801,14 +3291,14 @@
     {
      "stat": "Points",
      "line": 8.5,
-     "over": -114,
-     "under": -114
+     "over": -118,
+     "under": -112
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -122,
-     "under": -108
+     "over": -112,
+     "under": -118
     },
     {
      "stat": "3-PT Made",
@@ -2819,8 +3309,8 @@
    ],
    "text": [
     "Sam Hauser (BOS) visits GSW tonight. This season (2026-27): 8.8 pts, 3.3 reb, 1.2 ast in 21.0 min over 16 games. Last season (2025-26): 9.2 pts, 3.8 reb, 1.5 ast over 78 games.",
-    "Points 8.5 (FanDuel over -114, under -114): over in 9 of 16 this season (latest first: 14, 9, 12, 8, 8); 34 of 78 last season (44%, avg 9.2).",
-    "Rebounds 3.5 (FanDuel over -122, under -108): over in 6 of 16 this season (latest first: 6, 2, 1, 1, 9); 41 of 78 last season (53%, avg 3.8).",
+    "Points 8.5 (FanDuel over -118, under -112): over in 9 of 16 this season (latest first: 14, 9, 12, 8, 8); 34 of 78 last season (44%, avg 9.2).",
+    "Rebounds 3.5 (FanDuel over -112, under -118): over in 6 of 16 this season (latest first: 6, 2, 1, 1, 9); 41 of 78 last season (53%, avg 3.8).",
     "3-PT Made 2.5 (FanDuel over +106, under -140): over in 9 of 16 this season (latest first: 4, 3, 4, 2, 2); 30 of 78 last season (38%, avg 2.5).",
     "Against GSW \u2014 this season (2026-27): none; last season (2025-26): 2 games, 11.0 pts (Feb 19: 16, Mar 18: 6)."
    ]
@@ -2836,42 +3326,42 @@
    "props": [
     {
      "stat": "Points",
-     "line": 7.5,
-     "over": -102,
-     "under": -130
+     "line": 6.5,
+     "over": -128,
+     "under": -104
     },
     {
      "stat": "Rebounds",
      "line": 4.5,
-     "over": -104,
-     "under": -128
+     "over": 116,
+     "under": -154
     },
     {
      "stat": "Assists",
      "line": 2.5,
-     "over": 118,
-     "under": -158
+     "over": 148,
+     "under": -200
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -102,
-     "under": -130
+     "over": 110,
+     "under": -146
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 14.5,
-     "over": -106,
-     "under": -125
+     "line": 13.5,
+     "over": -118,
+     "under": -112
     }
    ],
    "text": [
     "Baylor Scheierman (BOS) visits GSW tonight. This season (2026-27): 5.6 pts, 3.6 reb, 1.4 ast in 19.2 min over 16 games. Last season (2025-26): 5.5 pts, 3.5 reb, 1.5 ast over 77 games.",
-    "Points 7.5 (FanDuel over -102, under -130): over in 6 of 16 this season (latest first: 4, 0, 0, 12, 9); 23 of 77 last season (30%, avg 5.5).",
-    "Rebounds 4.5 (FanDuel over -104, under -128): over in 5 of 16 this season (latest first: 3, 1, 1, 5, 7); 26 of 77 last season (34%, avg 3.5).",
-    "Assists 2.5 (FanDuel over +118, under -158): over in 3 of 16 this season (latest first: 1, 1, 1, 3, 3); 17 of 77 last season (22%, avg 1.5).",
-    "3-PT Made 1.5 (FanDuel over -102, under -130): over in 6 of 16 this season (latest first: 0, 0, 0, 2, 3); 24 of 77 last season (31%, avg 1.3).",
-    "Pts+Rebs+Asts 14.5 (FanDuel over -106, under -125): over in 4 of 16 this season (latest first: 8, 2, 2, 20, 19); 21 of 77 last season (27%, avg 10.5).",
+    "Points 6.5 (FanDuel over -128, under -104): over in 7 of 16 this season (latest first: 4, 0, 0, 12, 9); 24 of 77 last season (31%, avg 5.5).",
+    "Rebounds 4.5 (FanDuel over +116, under -154): over in 5 of 16 this season (latest first: 3, 1, 1, 5, 7); 26 of 77 last season (34%, avg 3.5).",
+    "Assists 2.5 (FanDuel over +148, under -200): over in 3 of 16 this season (latest first: 1, 1, 1, 3, 3); 17 of 77 last season (22%, avg 1.5).",
+    "3-PT Made 1.5 (FanDuel over +110, under -146): over in 6 of 16 this season (latest first: 0, 0, 0, 2, 3); 24 of 77 last season (31%, avg 1.3).",
+    "Pts+Rebs+Asts 13.5 (FanDuel over -118, under -112): over in 4 of 16 this season (latest first: 8, 2, 2, 20, 19); 26 of 77 last season (34%, avg 10.5).",
     "Against GSW \u2014 this season (2026-27): none; last season (2025-26): 2 games, 5.0 pts (Feb 19: 7, Mar 18: 3)."
    ]
   },
@@ -2887,41 +3377,41 @@
     {
      "stat": "Points",
      "line": 20.5,
-     "over": -102,
-     "under": -130
+     "over": 100,
+     "under": -132
     },
     {
      "stat": "Rebounds",
      "line": 6.5,
-     "over": -154,
-     "under": 116
+     "over": -132,
+     "under": 100
     },
     {
      "stat": "Assists",
      "line": 3.5,
-     "over": -172,
-     "under": 128
+     "over": -158,
+     "under": 118
     },
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -178,
-     "under": 132
+     "over": -194,
+     "under": 144
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 31.5,
-     "over": -125,
-     "under": -106
+     "over": -110,
+     "under": -120
     }
    ],
    "text": [
     "Yaxel Lendeborg (GSW) hosts BOS tonight. This season (2026-27): 19.7 pts, 7.3 reb, 3.7 ast in 31.6 min over 16 games. No 2025-26 NBA games to compare against.",
-    "Points 20.5 (FanDuel over -102, under -130): over in 8 of 16 this season (latest first: 11, 13, 28, 3, 25).",
-    "Rebounds 6.5 (FanDuel over -154, under +116): over in 11 of 16 this season (latest first: 8, 5, 8, 7, 10).",
-    "Assists 3.5 (FanDuel over -172, under +128): over in 9 of 16 this season (latest first: 7, 4, 3, 1, 0).",
-    "3-PT Made 1.5 (FanDuel over -178, under +132): over in 8 of 16 this season (latest first: 1, 0, 2, 0, 2).",
-    "Pts+Rebs+Asts 31.5 (FanDuel over -125, under -106): over in 9 of 16 this season (latest first: 26, 22, 39, 11, 35).",
+    "Points 20.5 (FanDuel over +100, under -132): over in 8 of 16 this season (latest first: 11, 13, 28, 3, 25).",
+    "Rebounds 6.5 (FanDuel over -132, under +100): over in 11 of 16 this season (latest first: 8, 5, 8, 7, 10).",
+    "Assists 3.5 (FanDuel over -158, under +118): over in 9 of 16 this season (latest first: 7, 4, 3, 1, 0).",
+    "3-PT Made 1.5 (FanDuel over -194, under +144): over in 8 of 16 this season (latest first: 1, 0, 2, 0, 2).",
+    "Pts+Rebs+Asts 31.5 (FanDuel over -110, under -120): over in 9 of 16 this season (latest first: 26, 22, 39, 11, 35).",
     "Against BOS \u2014 this season (2026-27): none; last season (2025-26): none."
    ]
   },
@@ -2937,8 +3427,8 @@
     {
      "stat": "Points",
      "line": 15.5,
-     "over": -132,
-     "under": 100
+     "over": -114,
+     "under": -114
     },
     {
      "stat": "Rebounds",
@@ -2955,23 +3445,23 @@
     {
      "stat": "3-PT Made",
      "line": 2.5,
-     "over": 140,
-     "under": -188
+     "over": 116,
+     "under": -154
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 24.5,
-     "over": -130,
-     "under": -102
+     "over": -118,
+     "under": -112
     }
    ],
    "text": [
     "Brandin Podziemski (GSW) hosts BOS tonight. This season (2026-27): 15.8 pts, 4.7 reb, 3.6 ast in 32.0 min over 14 games. Last season (2025-26): 13.8 pts, 5.1 reb, 3.7 ast over 82 games.",
-    "Points 15.5 (FanDuel over -132, under +100): over in 7 of 14 this season (latest first: 15, 10, 15, 8, 22); 32 of 82 last season (39%, avg 13.8).",
+    "Points 15.5 (FanDuel over -114, under -114): over in 7 of 14 this season (latest first: 15, 10, 15, 8, 22); 32 of 82 last season (39%, avg 13.8).",
     "Rebounds 4.5 (FanDuel over -104, under -128): over in 8 of 14 this season (latest first: 3, 3, 6, 3, 6); 44 of 82 last season (54%, avg 5.1).",
     "Assists 4.5 (FanDuel over +118, under -158): over in 4 of 14 this season (latest first: 2, 4, 3, 0, 4); 26 of 82 last season (32%, avg 3.7).",
-    "3-PT Made 2.5 (FanDuel over +140, under -188): over in 7 of 14 this season (latest first: 0, 0, 3, 2, 4); 22 of 82 last season (27%, avg 1.9).",
-    "Pts+Rebs+Asts 24.5 (FanDuel over -130, under -102): over in 6 of 14 this season (latest first: 20, 17, 24, 11, 32); 33 of 82 last season (40%, avg 22.6).",
+    "3-PT Made 2.5 (FanDuel over +116, under -154): over in 7 of 14 this season (latest first: 0, 0, 3, 2, 4); 22 of 82 last season (27%, avg 1.9).",
+    "Pts+Rebs+Asts 24.5 (FanDuel over -118, under -112): over in 6 of 14 this season (latest first: 20, 17, 24, 11, 32); 33 of 82 last season (40%, avg 22.6).",
     "Against BOS \u2014 this season (2026-27): none; last season (2025-26): 2 games, 10.5 pts (Feb 19: 11, Mar 18: 10)."
    ]
   },
@@ -2987,14 +3477,14 @@
     {
      "stat": "Points",
      "line": 10.5,
-     "over": -114,
-     "under": -114
+     "over": -112,
+     "under": -118
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": 124,
-     "under": -166
+     "over": 120,
+     "under": -160
     },
     {
      "stat": "Assists",
@@ -3005,23 +3495,23 @@
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": -114,
-     "under": -114
+     "over": -130,
+     "under": -102
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 16.5,
-     "over": -122,
-     "under": -108
+     "over": -125,
+     "under": -106
     }
    ],
    "text": [
     "De'Anthony Melton (GSW) hosts BOS tonight. This season (2026-27): 9.1 pts, 3.8 reb, 2.4 ast in 22.0 min over 16 games. Last season (2025-26): 12.3 pts, 3.2 reb, 2.6 ast over 49 games. That is 3.2 points a game down from last season, on 16 games.",
-    "Points 10.5 (FanDuel over -114, under -114): over in 5 of 16 this season (latest first: 9, 0, 8, 8, 11); 26 of 49 last season (53%, avg 12.3).",
-    "Rebounds 3.5 (FanDuel over +124, under -166): over in 10 of 16 this season (latest first: 1, 2, 2, 4, 4); 18 of 49 last season (37%, avg 3.2).",
+    "Points 10.5 (FanDuel over -112, under -118): over in 5 of 16 this season (latest first: 9, 0, 8, 8, 11); 26 of 49 last season (53%, avg 12.3).",
+    "Rebounds 3.5 (FanDuel over +120, under -160): over in 10 of 16 this season (latest first: 1, 2, 2, 4, 4); 18 of 49 last season (37%, avg 3.2).",
     "Assists 2.5 (FanDuel over -144, under +108): over in 8 of 16 this season (latest first: 5, 2, 1, 3, 4); 22 of 49 last season (45%, avg 2.6).",
-    "3-PT Made 1.5 (FanDuel over -114, under -114): over in 9 of 16 this season (latest first: 1, 0, 2, 2, 3); 22 of 49 last season (45%, avg 1.5).",
-    "Pts+Rebs+Asts 16.5 (FanDuel over -122, under -108): over in 5 of 16 this season (latest first: 15, 4, 11, 15, 19); 27 of 49 last season (55%, avg 18.1).",
+    "3-PT Made 1.5 (FanDuel over -130, under -102): over in 9 of 16 this season (latest first: 1, 0, 2, 2, 3); 22 of 49 last season (45%, avg 1.5).",
+    "Pts+Rebs+Asts 16.5 (FanDuel over -125, under -106): over in 5 of 16 this season (latest first: 15, 4, 11, 15, 19); 27 of 49 last season (55%, avg 18.1).",
     "Against BOS \u2014 this season (2026-27): none; last season (2025-26): 2 games, 11.5 pts (Feb 19: 18, Mar 18: 5)."
    ]
   },
@@ -3037,20 +3527,20 @@
     {
      "stat": "Points",
      "line": 7.5,
-     "over": -112,
-     "under": -118
+     "over": -118,
+     "under": -112
     },
     {
      "stat": "Rebounds",
      "line": 5.5,
-     "over": -118,
-     "under": -112
+     "over": -140,
+     "under": 106
     }
    ],
    "text": [
     "Charles Bassey (GSW) hosts BOS tonight. This season (2026-27): 8.4 pts, 5.9 reb, 0.6 ast in 14.9 min over 14 games. Last season (2025-26): 5.8 pts, 4.4 reb, 0.5 ast over 13 games. That is 2.5 points a game up on last season, on 14 games.",
-    "Points 7.5 (FanDuel over -112, under -118): over in 8 of 14 this season (latest first: 16, 10, 4, 11, 7); 3 of 13 last season (23%, avg 5.8).",
-    "Rebounds 5.5 (FanDuel over -118, under -112): over in 8 of 14 this season (latest first: 13, 8, 0, 5, 6); 3 of 13 last season (23%, avg 4.4).",
+    "Points 7.5 (FanDuel over -118, under -112): over in 8 of 14 this season (latest first: 16, 10, 4, 11, 7); 3 of 13 last season (23%, avg 5.8).",
+    "Rebounds 5.5 (FanDuel over -140, under +106): over in 8 of 14 this season (latest first: 13, 8, 0, 5, 6); 3 of 13 last season (23%, avg 4.4).",
     "Against BOS \u2014 this season (2026-27): none; last season (2025-26): none."
    ]
   },
@@ -3066,34 +3556,34 @@
     {
      "stat": "Points",
      "line": 7.5,
-     "over": -130,
-     "under": -102
+     "over": -132,
+     "under": 100
     },
     {
      "stat": "Rebounds",
      "line": 3.5,
-     "over": -172,
-     "under": 128
+     "over": -152,
+     "under": 114
     },
     {
      "stat": "Assists",
      "line": 2.5,
-     "over": 140,
-     "under": -188
+     "over": 136,
+     "under": -182
     },
     {
      "stat": "Pts+Rebs+Asts",
      "line": 14.5,
-     "over": -112,
-     "under": -118
+     "over": -110,
+     "under": -120
     }
    ],
    "text": [
     "Gui Santos (GSW) hosts BOS tonight. This season (2026-27): 6.3 pts, 4.2 reb, 1.7 ast in 18.9 min over 13 games. Last season (2025-26): 9.2 pts, 3.9 reb, 2.3 ast over 68 games. That is 2.9 points a game down from last season, on 13 games.",
-    "Points 7.5 (FanDuel over -130, under -102): over in 4 of 13 this season (latest first: 8, 6, 12, 7, 0); 32 of 68 last season (47%, avg 9.2).",
-    "Rebounds 3.5 (FanDuel over -172, under +128): over in 8 of 13 this season (latest first: 3, 6, 7, 4, 3); 36 of 68 last season (53%, avg 3.9).",
-    "Assists 2.5 (FanDuel over +140, under -188): over in 3 of 13 this season (latest first: 0, 6, 2, 1, 1); 25 of 68 last season (37%, avg 2.3).",
-    "Pts+Rebs+Asts 14.5 (FanDuel over -112, under -118): over in 4 of 13 this season (latest first: 11, 18, 21, 12, 4); 37 of 68 last season (54%, avg 15.4).",
+    "Points 7.5 (FanDuel over -132, under +100): over in 4 of 13 this season (latest first: 8, 6, 12, 7, 0); 32 of 68 last season (47%, avg 9.2).",
+    "Rebounds 3.5 (FanDuel over -152, under +114): over in 8 of 13 this season (latest first: 3, 6, 7, 4, 3); 36 of 68 last season (53%, avg 3.9).",
+    "Assists 2.5 (FanDuel over +136, under -182): over in 3 of 13 this season (latest first: 0, 6, 2, 1, 1); 25 of 68 last season (37%, avg 2.3).",
+    "Pts+Rebs+Asts 14.5 (FanDuel over -110, under -120): over in 4 of 13 this season (latest first: 11, 18, 21, 12, 4); 37 of 68 last season (54%, avg 15.4).",
     "Against BOS \u2014 this season (2026-27): none; last season (2025-26): 2 games, 15.0 pts (Feb 19: 17, Mar 18: 13)."
    ]
   },
@@ -3108,9 +3598,9 @@
    "props": [
     {
      "stat": "Points",
-     "line": 6.5,
-     "over": -132,
-     "under": 100
+     "line": 7.5,
+     "over": -108,
+     "under": -122
     },
     {
      "stat": "Rebounds",
@@ -3121,15 +3611,15 @@
     {
      "stat": "3-PT Made",
      "line": 1.5,
-     "over": 162,
-     "under": -220
+     "over": 164,
+     "under": -225
     }
    ],
    "text": [
     "Will Richard (GSW) hosts BOS tonight. This season (2026-27): 7.5 pts, 2.3 reb, 1.0 ast in 19.8 min over 15 games. Last season (2025-26): 6.4 pts, 2.5 reb, 1.3 ast over 69 games.",
-    "Points 6.5 (FanDuel over -132, under +100): over in 8 of 15 this season (latest first: 15, 20, 11, 7, 9); 30 of 69 last season (43%, avg 6.4).",
+    "Points 7.5 (FanDuel over -108, under -122): over in 7 of 15 this season (latest first: 15, 20, 11, 7, 9); 26 of 69 last season (38%, avg 6.4).",
     "Rebounds 2.5 (FanDuel over -112, under -118): over in 8 of 15 this season (latest first: 5, 0, 3, 4, 4); 26 of 69 last season (38%, avg 2.5).",
-    "3-PT Made 1.5 (FanDuel over +162, under -220): over in 5 of 15 this season (latest first: 1, 1, 2, 1, 2); 16 of 69 last season (23%, avg 1.0).",
+    "3-PT Made 1.5 (FanDuel over +164, under -225): over in 5 of 15 this season (latest first: 1, 1, 2, 1, 2); 16 of 69 last season (23%, avg 1.0).",
     "Against BOS \u2014 this season (2026-27): none; last season (2025-26): 2 games, 12.0 pts (Feb 19: 17, Mar 18: 7)."
    ]
   },
@@ -3145,34 +3635,34 @@
     {
      "stat": "Points",
      "line": 4.5,
-     "over": -136,
-     "under": 102
+     "over": -120,
+     "under": -110
     },
     {
      "stat": "Rebounds",
      "line": 4.5,
-     "over": -132,
-     "under": 100
+     "over": -104,
+     "under": -128
     },
     {
      "stat": "Assists",
      "line": 5.5,
-     "over": -122,
-     "under": -108
+     "over": -102,
+     "under": -130
     },
     {
      "stat": "Pts+Rebs+Asts",
-     "line": 15.5,
-     "over": -122,
-     "under": -108
+     "line": 14.5,
+     "over": -128,
+     "under": -104
     }
    ],
    "text": [
     "Draymond Green (GSW) hosts BOS tonight. This season (2026-27): 3.2 pts, 4.7 reb, 6.5 ast in 25.6 min over 13 games. Last season (2025-26): 8.4 pts, 5.5 reb, 5.5 ast over 68 games. That is 5.2 points a game down from last season, on 13 games.",
-    "Points 4.5 (FanDuel over -136, under +102): over in 2 of 13 this season (latest first: 3, 2, 4, 7, 2); 54 of 68 last season (79%, avg 8.4).",
-    "Rebounds 4.5 (FanDuel over -132, under +100): over in 6 of 13 this season (latest first: 1, 8, 3, 5, 3); 45 of 68 last season (66%, avg 5.5).",
-    "Assists 5.5 (FanDuel over -122, under -108): over in 9 of 13 this season (latest first: 2, 5, 3, 7, 6); 36 of 68 last season (53%, avg 5.5).",
-    "Pts+Rebs+Asts 15.5 (FanDuel over -122, under -108): over in 5 of 13 this season (latest first: 6, 15, 10, 19, 11); 47 of 68 last season (69%, avg 19.4).",
+    "Points 4.5 (FanDuel over -120, under -110): over in 2 of 13 this season (latest first: 3, 2, 4, 7, 2); 54 of 68 last season (79%, avg 8.4).",
+    "Rebounds 4.5 (FanDuel over -104, under -128): over in 6 of 13 this season (latest first: 1, 8, 3, 5, 3); 45 of 68 last season (66%, avg 5.5).",
+    "Assists 5.5 (FanDuel over -102, under -130): over in 9 of 13 this season (latest first: 2, 5, 3, 7, 6); 36 of 68 last season (53%, avg 5.5).",
+    "Pts+Rebs+Asts 14.5 (FanDuel over -128, under -104): over in 7 of 13 this season (latest first: 6, 15, 10, 19, 11); 53 of 68 last season (78%, avg 19.4).",
     "Against BOS \u2014 this season (2026-27): none; last season (2025-26): 2 games, 6.5 pts (Feb 19: 0, Mar 18: 13)."
    ]
   }
