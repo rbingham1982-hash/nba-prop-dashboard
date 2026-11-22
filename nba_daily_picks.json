@@ -5554,9 +5554,9 @@
     "edge": 2.76,
     "pick": "away",
     "pick_label": "BOS -12.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 97,
+    "away_pts": 96,
     "published": true
    },
    {
@@ -5571,9 +5571,9 @@
     "edge": 2.66,
     "pick": "away",
     "pick_label": "NOP +18.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 114,
+    "away_pts": 91,
     "published": true
    },
    {
@@ -5588,9 +5588,9 @@
     "edge": 1.98,
     "pick": "away",
     "pick_label": "MEM +6.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 104,
+    "away_pts": 95,
     "published": false
    },
    {
@@ -5605,9 +5605,9 @@
     "edge": 1.19,
     "pick": "away",
     "pick_label": "POR +2.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 97,
+    "away_pts": 96,
     "published": false
    },
    {
@@ -5622,9 +5622,9 @@
     "edge": 0.47,
     "pick": "away",
     "pick_label": "LAC +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 110,
+    "away_pts": 100,
     "published": false
    }
   ],
@@ -5644,8 +5644,8 @@
     "implied_prob": 0.7103,
     "blended_prob": 0.7103,
     "edge": 0.024,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Landry Shamet",
@@ -5659,8 +5659,8 @@
     "implied_prob": 0.643,
     "blended_prob": 0.643,
     "edge": 0.1684,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Kris Dunn",
@@ -5674,8 +5674,8 @@
     "implied_prob": 0.6248,
     "blended_prob": 0.6248,
     "edge": -0.1605,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 5.0
    },
    {
     "player": "Zach LaVine",
@@ -5689,8 +5689,8 @@
     "implied_prob": 0.5669,
     "blended_prob": 0.5669,
     "edge": -0.094,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 13.0
    },
    {
     "player": "Brook Lopez",
@@ -5704,8 +5704,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": -0.0753,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 27.0
    }
   ],
   "parlay_withheld_price": {

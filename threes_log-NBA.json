@@ -3489,11 +3489,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": 280,
-   "away_odds": -350,
-   "home_prob": 0.2528
+   "home_odds": 265,
+   "away_odds": -330,
+   "home_prob": 0.2631
   },
-  "last_seen": "2026-11-21T17:51:24"
+  "last_seen": "2026-11-22T00:58:55"
  },
  "DEN @ ORL|2026-11-22T00:47": {
   "label": "DEN @ ORL",
@@ -3540,5 +3540,28 @@
    "home_prob": 0.4088
   },
   "last_seen": "2026-11-21T17:51:24"
+ },
+ "MEM @ MIL|2026-11-22T07:03": {
+  "label": "MEM @ MIL",
+  "home_name": "Milwaukee Bucks",
+  "away_name": "Memphis Grizzlies",
+  "start_time": "2026-11-22T07:03:00.000Z",
+  "luck_home": -0.99,
+  "luck_away": 2.37,
+  "bet": "home",
+  "first_seen": "2026-11-22T00:58:55",
+  "first": {
+   "home_odds": 110,
+   "away_odds": -160,
+   "home_prob": 0.4362
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 110,
+   "away_odds": -160,
+   "home_prob": 0.4362
+  },
+  "last_seen": "2026-11-22T00:58:55"
  }
 }
