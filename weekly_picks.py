@@ -210,8 +210,18 @@ def parlay_legs(n: int = 5) -> list:
     except Exception:
         nm, rg = None, None
     parlay_legs.vetoed = []
+    # Live injury check (nfl_injuries): Out / Doubtful / IR players are dropped before
+    # anything else, questionable ones carry a flag. Fails open if the feeds are down.
+    try:
+        import nfl_injuries as inj
+    except Exception:
+        inj = None
+    parlay_legs.injured = []
     scored = []
     for lg in legs:
+        if inj is not None and inj.is_out(lg["player_name"]):
+            parlay_legs.injured.append({**lg, "injury": inj.label(lg["player_name"])})
+            continue
         model = lg.get("hit_rate")
         imp = lg.get("implied_prob")
         if model is None or not imp:
@@ -235,7 +245,8 @@ def parlay_legs(n: int = 5) -> list:
             continue
         scored.append({**lg, "model_prob": round(float(model), 4),
                        "blended_prob": round(blended, 4),
-                       "edge": round(edge, 4), "depth": d, "matchup": m})
+                       "edge": round(edge, 4), "depth": d, "matchup": m,
+                       "injury": inj.label(lg["player_name"]) if inj is not None else None})
 
     # One leg per category and one per player, most LIKELY first — not most disagreed-with.
     #
@@ -474,9 +485,22 @@ def _td_pool() -> list:
     except Exception:
         pass
 
+    # Live injury check (nfl_injuries). FanDuel can keep an injured player's price up for
+    # hours after he is ruled out, so the market alone does not remove him. Out / Doubtful /
+    # IR are dropped; questionable players stay with a flag, since they play about half
+    # the time.
+    try:
+        import nfl_injuries as inj
+    except Exception:
+        inj = None
+    _td_pool.injured = []
+
     out = []
     for _, r in raw.iterrows():
         name = r["player_name"]
+        if inj is not None and inj.is_out(name):
+            _td_pool.injured.append({"player": name, "injury": inj.label(name)})
+            continue
         p_rush, n_rush = dg.nfl_hit_rate(name, "Rushing TDs", 0.5)
         p_rec, n_rec = dg.nfl_hit_rate(name, "Receiving TDs", 0.5)
         if p_rush is None and p_rec is None:
@@ -506,6 +530,7 @@ def _td_pool() -> list:
             "p_rush": round(pr, 4), "p_rec": round(pc, 4),
             "sample_n": int(max(n_rush or 0, n_rec or 0)),
             "start_time": str(r["start_time"]),
+            "injury": inj.label(name) if inj is not None else None,
         })
 
     # Position, so the receiving slate can be cut out of the same pass. Looked up from the
