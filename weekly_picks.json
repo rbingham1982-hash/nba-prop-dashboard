@@ -3921,8 +3921,8 @@
     "edge": -5.91,
     "pick": "away",
     "pick_label": "NO +11.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 8.0
    },
    {
     "game": "MIA @ BUF",
@@ -3933,8 +3933,8 @@
     "edge": -5.6,
     "pick": "away",
     "pick_label": "MIA +16.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": 17.0
    },
    {
     "game": "ARI @ KC",
@@ -3957,8 +3957,8 @@
     "edge": 4.32,
     "pick": "home",
     "pick_label": "PHI +3.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 3.0
    },
    {
     "game": "CIN @ WAS",
@@ -4158,9 +4158,9 @@
     "wind_mph": 15.0,
     "expected_adj": -5.83,
     "gameday": "2026-11-22",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 81.0,
+    "residual": 26.5
    },
    {
     "game": "ARI @ KC",
