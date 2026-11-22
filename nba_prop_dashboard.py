@@ -17,6 +17,10 @@ from bs4 import BeautifulSoup
 from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import playergamelog, commonteamroster, leaguegamefinder, playbyplayv3, commonallplayers
 from datetime import datetime, timedelta
+# On the slim deploy, pull the current logs from the main repo before any module reads one.
+# A no-op in the full repo (see data_sync.py).
+import data_sync as _data_sync
+_data_sync.sync()
 import parlay_tracker
 import accounts as _acct   # the sign-in gate in front of the Edge Finder
 import parlay_model as _pm
