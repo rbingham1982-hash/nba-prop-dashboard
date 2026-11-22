@@ -3493,7 +3493,7 @@
    "away_odds": -460,
    "home_prob": 0.2093
   },
-  "last_seen": "2026-11-22T14:41:10"
+  "last_seen": "2026-11-22T15:05:25"
  },
  "DEN @ ORL|2026-11-22T00:47": {
   "label": "DEN @ ORL",
@@ -3586,5 +3586,28 @@
    "home_prob": 0.5385
   },
   "last_seen": "2026-11-22T14:41:10"
+ },
+ "NYK @ BOS|2026-11-22T21:51": {
+  "label": "NYK @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "New York Knicks",
+  "start_time": "2026-11-22T21:51:00.000Z",
+  "luck_home": -2.34,
+  "luck_away": 0.55,
+  "bet": "home",
+  "first_seen": "2026-11-22T15:05:25",
+  "first": {
+   "home_odds": 100,
+   "away_odds": -140,
+   "home_prob": 0.4615
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 100,
+   "away_odds": -140,
+   "home_prob": 0.4615
+  },
+  "last_seen": "2026-11-22T15:05:25"
  }
 }

@@ -313630,5 +313630,115 @@
   "logged_at": "2026-11-22T14:40:53",
   "outcome": null,
   "actual": null
+ },
+ "bam adebayo|Rebounds|8.5|36341632": {
+  "player": "Bam Adebayo",
+  "stat": "Rebounds",
+  "line": 8.5,
+  "side": "under",
+  "american_odds": 102,
+  "fair_prob": 0.4919,
+  "med5": 5.0,
+  "last5": [
+   8.0,
+   14.0,
+   5.0,
+   1.0,
+   4.0
+  ],
+  "game": "OKC @ MIA",
+  "start_time": "2026-11-22T23:10:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:05:03",
+  "outcome": null,
+  "actual": null
+ },
+ "jayson tatum|Pts+Asts|33.5|36341635": {
+  "player": "Jayson Tatum",
+  "stat": "Pts+Asts",
+  "line": 33.5,
+  "side": "under",
+  "american_odds": -112,
+  "fair_prob": 0.5189,
+  "med5": 28.0,
+  "last5": [
+   25.0,
+   32.0,
+   38.0,
+   28.0,
+   27.0
+  ],
+  "game": "BOS @ GSW",
+  "start_time": "2026-11-23T01:40:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:05:03",
+  "outcome": null,
+  "actual": null
+ },
+ "jayson tatum|Pts+Rebs+Asts|40.5|36341635": {
+  "player": "Jayson Tatum",
+  "stat": "Pts+Rebs+Asts",
+  "line": 40.5,
+  "side": "under",
+  "american_odds": -106,
+  "fair_prob": 0.5058,
+  "med5": 39.0,
+  "last5": [
+   31.0,
+   39.0,
+   44.0,
+   40.0,
+   35.0
+  ],
+  "game": "BOS @ GSW",
+  "start_time": "2026-11-23T01:40:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:05:03",
+  "outcome": null,
+  "actual": null
+ },
+ "josh hart|Pts+Asts|13.5|36341636": {
+  "player": "Josh Hart",
+  "stat": "Pts+Asts",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4927,
+  "med5": 6.0,
+  "last5": [
+   4.0,
+   2.0,
+   7.0,
+   13.0,
+   6.0
+  ],
+  "game": "IND @ NYK",
+  "start_time": "2026-11-23T01:10:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:05:03",
+  "outcome": null,
+  "actual": null
+ },
+ "demar derozan|Pts+Rebs+Asts|15.5|36341637": {
+  "player": "DeMar DeRozan",
+  "stat": "Pts+Rebs+Asts",
+  "line": 15.5,
+  "side": "under",
+  "american_odds": 100,
+  "fair_prob": 0.4961,
+  "med5": 14.0,
+  "last5": [
+   13.0,
+   14.0,
+   4.0,
+   22.0,
+   19.0
+  ],
+  "game": "DEN @ CHI",
+  "start_time": "2026-11-23T00:10:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:05:03",
+  "outcome": null,
+  "actual": null
  }
 }

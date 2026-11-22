@@ -3945,8 +3945,8 @@
     "edge": -5.29,
     "pick": "away",
     "pick_label": "ARI +16.5",
-    "outcome": null,
-    "result": null
+    "outcome": "loss",
+    "result": 27.0
    },
    {
     "game": "PIT @ PHI",
@@ -4170,9 +4170,9 @@
     "wind_mph": 14.4,
     "expected_adj": -5.6,
     "gameday": "2026-11-22",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "over",
+    "actual_total": 41.0,
+    "residual": 0.5
    },
    {
     "game": "CIN @ WAS",
@@ -4355,6 +4355,7 @@
    "fair_prob": 0.2943,
    "breakeven": 0.3217,
    "frozen_at": "2026-11-20T01:26:21"
-  }
+  },
+  "graded": false
  }
 }

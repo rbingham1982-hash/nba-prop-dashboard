@@ -60410,5 +60410,49 @@
   "logged_at": "2026-11-22T14:40:47",
   "outcome": null,
   "actual": null
+ },
+ "justin herbert|Passing Yards|199.5|36305240": {
+  "player": "Justin Herbert",
+  "stat": "Passing Yards",
+  "line": 199.5,
+  "side": "under",
+  "american_odds": -113,
+  "fair_prob": 0.525,
+  "med5": 193.0,
+  "last5": [
+   121.0,
+   204.0,
+   257.0,
+   193.0,
+   129.0
+  ],
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:04:57",
+  "outcome": null,
+  "actual": null
+ },
+ "tim patrick|Receptions|1.5|36305240": {
+  "player": "Tim Patrick",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -220,
+  "fair_prob": 0.668,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   0.0,
+   1.0,
+   2.0,
+   1.0
+  ],
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:04:57",
+  "outcome": null,
+  "actual": null
  }
 }

@@ -13012,5 +13012,41 @@
   "logged_at": "2026-11-22T14:41:09",
   "outcome": null,
   "actual": null
+ },
+ "justin herbert|Passing Yards|199.5|36305240": {
+  "player": "Justin Herbert",
+  "stat": "Passing Yards",
+  "line": 199.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.5497,
+  "fair_prob": 0.475,
+  "edge": 0.0747,
+  "sample_n": 25,
+  "depth": 1,
+  "game": "NYJ @ LAC",
+  "start_time": "2026-11-22T21:06:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:05:23",
+  "outcome": null,
+  "actual": null
+ },
+ "chris rodriguez|Rushing Yards|18.5|36305243": {
+  "player": "Chris Rodriguez Jr.",
+  "stat": "Rushing Yards",
+  "line": 18.5,
+  "side": "over",
+  "american_odds": -113,
+  "model_prob": 0.5764,
+  "fair_prob": 0.475,
+  "edge": 0.1014,
+  "sample_n": 21,
+  "depth": 2,
+  "game": "JAX @ NYG",
+  "start_time": "2026-11-22T21:26:00.000Z",
+  "game_day": "2026-11-22",
+  "logged_at": "2026-11-22T15:05:23",
+  "outcome": null,
+  "actual": null
  }
 }
