@@ -583,10 +583,13 @@
   "start_time": "2026-11-22T18:01:00.000Z",
   "first_seen": "2026-11-10T18:07:54",
   "first_line": 1.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 2.5,
   "last_odds": -104,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_seen": "2026-11-22T00:58:52",
+  "margin": -2.0,
+  "last_result": "win",
+  "first_result": "win"
  },
  "Tampa Bay Buccaneers @ Detroit Lions|2026-11-22T18:01": {
   "dog": "Tampa Bay Buccaneers",
@@ -596,10 +599,13 @@
   "start_time": "2026-11-22T18:01:00.000Z",
   "first_seen": "2026-11-10T18:07:54",
   "first_line": 3.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 3.5,
   "last_odds": -105,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_seen": "2026-11-22T00:58:52",
+  "margin": -10.0,
+  "last_result": "loss",
+  "first_result": "loss"
  },
  "New York Jets @ Los Angeles Chargers|2026-11-22T21:06": {
   "dog": "New York Jets",
@@ -641,7 +647,7 @@
   "outcome": null,
   "last_line": 3.5,
   "last_odds": 100,
-  "last_seen": "2026-11-22T15:57:19"
+  "last_seen": "2026-11-22T17:44:43"
  },
  "Green Bay Packers @ Los Angeles Rams|2026-11-26T01:00": {
   "dog": "Green Bay Packers",
@@ -653,8 +659,8 @@
   "first_line": 3.5,
   "outcome": null,
   "last_line": 3.0,
-  "last_odds": -105,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_odds": -120,
+  "last_seen": "2026-11-22T17:44:43"
  },
  "Chicago Bears @ Detroit Lions|2026-11-26T18:00": {
   "dog": "Detroit Lions",
@@ -666,8 +672,8 @@
   "first_line": 2.5,
   "outcome": null,
   "last_line": 2.5,
-  "last_odds": 100,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_odds": -110,
+  "last_seen": "2026-11-22T17:44:43"
  },
  "Kansas City Chiefs @ Buffalo Bills|2026-11-27T01:15": {
   "dog": "Kansas City Chiefs",
@@ -678,9 +684,9 @@
   "first_seen": "2026-11-17T19:42:14",
   "first_line": 2.5,
   "outcome": null,
-  "last_line": 3.0,
-  "last_odds": -115,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_line": 2.5,
+  "last_odds": 100,
+  "last_seen": "2026-11-22T17:44:43"
  },
  "Denver Broncos @ Pittsburgh Steelers|2026-11-27T20:01": {
   "dog": "Pittsburgh Steelers",
@@ -691,9 +697,9 @@
   "first_seen": "2026-11-17T19:42:14",
   "first_line": 1.5,
   "outcome": null,
-  "last_line": 1.5,
-  "last_odds": -105,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_line": 2.5,
+  "last_odds": -110,
+  "last_seen": "2026-11-22T17:44:43"
  },
  "New York Jets @ Miami Dolphins|2026-11-29T18:01": {
   "dog": "Miami Dolphins",
@@ -704,9 +710,9 @@
   "first_seen": "2026-11-17T19:42:14",
   "first_line": 3.0,
   "outcome": null,
-  "last_line": 3.0,
-  "last_odds": 100,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_line": 3.5,
+  "last_odds": -105,
+  "last_seen": "2026-11-22T17:44:43"
  },
  "Seattle Seahawks @ San Francisco 49ers|2026-11-29T21:26": {
   "dog": "Seattle Seahawks",
@@ -718,8 +724,8 @@
   "first_line": 2.5,
   "outcome": null,
   "last_line": 2.5,
-  "last_odds": -115,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_odds": -105,
+  "last_seen": "2026-11-22T17:44:43"
  },
  "Carolina Panthers @ Tampa Bay Buccaneers|2026-12-01T01:16": {
   "dog": "Carolina Panthers",
@@ -731,8 +737,8 @@
   "first_line": 1.5,
   "outcome": null,
   "last_line": 2.5,
-  "last_odds": -110,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_odds": -105,
+  "last_seen": "2026-11-22T17:44:43"
  },
  "Pittsburgh Steelers @ Philadelphia Eagles|2026-11-22T18:01": {
   "dog": "Philadelphia Eagles",
@@ -742,10 +748,13 @@
   "start_time": "2026-11-22T18:01:00.000Z",
   "first_seen": "2026-11-21T16:02:18",
   "first_line": 3.5,
-  "outcome": null,
+  "outcome": "graded",
   "last_line": 3.5,
   "last_odds": -108,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_seen": "2026-11-22T00:58:52",
+  "margin": 3.0,
+  "last_result": "win",
+  "first_result": "win"
  },
  "New England Patriots @ Los Angeles Chargers|2026-11-29T21:06": {
   "dog": "New England Patriots",
@@ -756,8 +765,8 @@
   "first_seen": "2026-11-22T00:58:52",
   "first_line": 3.5,
   "outcome": null,
-  "last_line": 3.5,
-  "last_odds": -110,
-  "last_seen": "2026-11-22T00:58:52"
+  "last_line": 4.5,
+  "last_odds": -120,
+  "last_seen": "2026-11-22T17:44:43"
  }
 }
