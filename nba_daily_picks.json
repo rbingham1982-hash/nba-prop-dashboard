@@ -5733,9 +5733,9 @@
     "edge": 7.15,
     "pick": "away",
     "pick_label": "OKC +3.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 123,
+    "away_pts": 113,
     "published": false
    },
    {
@@ -5750,9 +5750,9 @@
     "edge": 3.53,
     "pick": "home",
     "pick_label": "GSW +8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 88,
+    "away_pts": 87,
     "published": true
    },
    {
@@ -5767,9 +5767,9 @@
     "edge": 3.32,
     "pick": "home",
     "pick_label": "NYK -7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "loss",
+    "home_pts": 113,
+    "away_pts": 106,
     "published": true
    },
    {
@@ -5784,9 +5784,9 @@
     "edge": 2.85,
     "pick": "home",
     "pick_label": "CHI +9.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 145,
+    "away_pts": 151,
     "published": true
    },
    {
@@ -5801,9 +5801,9 @@
     "edge": 1.57,
     "pick": "away",
     "pick_label": "DAL -1.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 114,
+    "away_pts": 116,
     "published": false
    },
    {
@@ -5818,9 +5818,9 @@
     "edge": 1.02,
     "pick": "home",
     "pick_label": "WAS +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 116,
+    "away_pts": 96,
     "published": false
    }
   ],
@@ -5840,8 +5840,8 @@
     "implied_prob": 0.6906,
     "blended_prob": 0.6906,
     "edge": 0.0651,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 0.0
    },
    {
     "player": "Baylor Scheierman",
@@ -5855,8 +5855,8 @@
     "implied_prob": 0.6481,
     "blended_prob": 0.6481,
     "edge": 0.1548,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Jalen Brunson",
@@ -5870,8 +5870,8 @@
     "implied_prob": 0.6354,
     "blended_prob": 0.6354,
     "edge": -0.0368,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    },
    {
     "player": "Buddy Hield",
@@ -5885,8 +5885,8 @@
     "implied_prob": 0.5678,
     "blended_prob": 0.5678,
     "edge": 0.0979,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 33.0
    },
    {
     "player": "Caleb Martin",
@@ -5900,8 +5900,8 @@
     "implied_prob": 0.5581,
     "blended_prob": 0.5581,
     "edge": 0.0819,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 23.0
    }
   ],
   "parlay_withheld_price": {

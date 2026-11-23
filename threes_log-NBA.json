@@ -3279,7 +3279,7 @@
    "away_odds": 750,
    "home_prob": 0.887
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -1200,
@@ -3325,7 +3325,7 @@
    "away_odds": -155,
    "home_prob": 0.4452
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 105,
@@ -3348,7 +3348,7 @@
    "away_odds": -135,
    "home_prob": 0.4713
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -105,
@@ -3394,7 +3394,7 @@
    "away_odds": -160,
    "home_prob": 0.4362
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 110,
@@ -3486,8 +3486,8 @@
    "away_odds": -350,
    "home_prob": 0.2528
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "home_odds": 320,
    "away_odds": -405,
@@ -3701,5 +3701,51 @@
    "home_prob": 0.3896
   },
   "last_seen": "2026-11-22T18:21:58"
+ },
+ "UTA @ LAL|2026-11-24T03:10": {
+  "label": "UTA @ LAL",
+  "home_name": "Los Angeles Lakers",
+  "away_name": "Utah Jazz",
+  "start_time": "2026-11-24T03:10:00.000Z",
+  "luck_home": -0.77,
+  "luck_away": 2.16,
+  "bet": "home",
+  "first_seen": "2026-11-23T01:48:08",
+  "first": {
+   "home_odds": -800,
+   "away_odds": 560,
+   "home_prob": 0.8544
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -800,
+   "away_odds": 560,
+   "home_prob": 0.8544
+  },
+  "last_seen": "2026-11-23T01:48:08"
+ },
+ "BKN @ MIN|2026-11-24T00:40": {
+  "label": "BKN @ MIN",
+  "home_name": "Minnesota Timberwolves",
+  "away_name": "Brooklyn Nets",
+  "start_time": "2026-11-24T00:40:00.000Z",
+  "luck_home": -0.6,
+  "luck_away": 1.97,
+  "bet": "home",
+  "first_seen": "2026-11-23T01:48:08",
+  "first": {
+   "home_odds": -670,
+   "away_odds": 490,
+   "home_prob": 0.837
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -670,
+   "away_odds": 490,
+   "home_prob": 0.837
+  },
+  "last_seen": "2026-11-23T01:48:08"
  }
 }
