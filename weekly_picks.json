@@ -3969,8 +3969,8 @@
     "edge": 3.93,
     "pick": "home",
     "pick_label": "WAS +6.0",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 2.0
    }
   ],
   "parlay": [],
@@ -3983,8 +3983,8 @@
     "fair_prob": 0.6838,
     "blended_prob": 0.6186,
     "edge": -0.0651,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "Derrick Henry",
@@ -3994,8 +3994,8 @@
     "fair_prob": 0.5131,
     "blended_prob": 0.5472,
     "edge": 0.0341,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Jonah Coleman",
@@ -4005,8 +4005,8 @@
     "fair_prob": 0.547,
     "blended_prob": 0.5326,
     "edge": -0.0145,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 3.0
    },
    {
     "player": "Christian McCaffrey",
@@ -4016,8 +4016,8 @@
     "fair_prob": 0.586,
     "blended_prob": 0.5322,
     "edge": -0.0538,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Javonte Williams",
@@ -4027,8 +4027,8 @@
     "fair_prob": 0.6838,
     "blended_prob": 0.5239,
     "edge": -0.1599,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    },
    {
     "player": "James Cook",
@@ -4038,8 +4038,8 @@
     "fair_prob": 0.5998,
     "blended_prob": 0.522,
     "edge": -0.0778,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Bhayshul Tuten",
@@ -4049,8 +4049,8 @@
     "fair_prob": 0.5131,
     "blended_prob": 0.5153,
     "edge": 0.0022,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "D'Andre Swift",
@@ -4060,8 +4060,8 @@
     "fair_prob": 0.5713,
     "blended_prob": 0.491,
     "edge": -0.0803,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Cam Skattebo",
@@ -4071,8 +4071,8 @@
     "fair_prob": 0.4647,
     "blended_prob": 0.4791,
     "edge": 0.0143,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Chuba Hubbard",
@@ -4082,8 +4082,8 @@
     "fair_prob": 0.5383,
     "blended_prob": 0.455,
     "edge": -0.0834,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 2.0
    }
   ],
   "receivers_rule": "edge",
@@ -4097,8 +4097,8 @@
     "fair_prob": 0.593,
     "blended_prob": 0.344,
     "edge": -0.249,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Justin Jefferson",
@@ -4109,8 +4109,8 @@
     "fair_prob": 0.434,
     "blended_prob": 0.2129,
     "edge": -0.2211,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Ja'Marr Chase",
@@ -4121,8 +4121,8 @@
     "fair_prob": 0.5554,
     "blended_prob": 0.344,
     "edge": -0.2114,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    },
    {
     "player": "Brock Bowers",
@@ -4133,7 +4133,7 @@
     "fair_prob": 0.2304,
     "blended_prob": 0.4283,
     "edge": 0.198,
-    "outcome": null,
+    "outcome": "dnp",
     "actual": null
    },
    {
@@ -4145,8 +4145,8 @@
     "fair_prob": 0.3094,
     "blended_prob": 0.1211,
     "edge": -0.1883,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 0.0
    }
   ],
   "wind": [
@@ -4182,9 +4182,9 @@
     "wind_mph": 11.5,
     "expected_adj": -4.47,
     "gameday": "2026-11-23",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 42.0,
+    "residual": -11.5
    }
   ],
   "parlay_gate": true,
@@ -4201,8 +4201,8 @@
     "implied_prob": 0.6763,
     "team": "",
     "matchup": null,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 4.0
    },
    {
     "player": "Tyler Shough",
@@ -4222,8 +4222,8 @@
      "games": 9,
      "tilt": 0.024
     },
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Geno Smith",
@@ -4243,8 +4243,8 @@
      "games": 9,
      "tilt": 0.327
     },
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 4.0
    },
    {
     "player": "Brock Purdy",
@@ -4264,8 +4264,8 @@
      "games": 9,
      "tilt": 0.179
     },
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 255.0
    },
    {
     "player": "Aaron Jones",
@@ -4285,8 +4285,8 @@
      "games": 9,
      "tilt": 0.022
     },
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 13.0
    }
   ],
   "parlay_withheld_price": {
@@ -4356,6 +4356,6 @@
    "breakeven": 0.3217,
    "frozen_at": "2026-11-20T01:26:21"
   },
-  "graded": false
+  "graded": true
  }
 }

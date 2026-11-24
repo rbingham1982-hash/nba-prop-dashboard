@@ -8100,7 +8100,7 @@
    "home_odds": 200,
    "away_odds": -310
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "away",
@@ -8652,8 +8652,8 @@
    "home_odds": 385,
    "away_odds": -500
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.8017,
@@ -8676,8 +8676,8 @@
    "home_odds": -800,
    "away_odds": 560
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.8544,
@@ -8700,8 +8700,8 @@
    "home_odds": -670,
    "away_odds": 490
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.837,
@@ -8724,8 +8724,8 @@
    "home_odds": -510,
    "away_odds": 390
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "home",
    "fav_prob": 0.8038,
@@ -8748,8 +8748,8 @@
    "home_odds": 265,
    "away_odds": -330
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "away",
    "fav_prob": 0.7369,
@@ -8781,7 +8781,7 @@
    "home_odds": 350,
    "away_odds": -450
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "DAL @ DEN|2026-11-25T03:10": {
   "label": "DAL @ DEN",
@@ -8800,12 +8800,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7369,
-   "odds": -330,
-   "home_odds": -330,
-   "away_odds": 265
+   "fav_prob": 0.7258,
+   "odds": -310,
+   "home_odds": -310,
+   "away_odds": 250
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "CHA @ DEN|2026-11-24T04:35": {
   "label": "CHA @ DEN",
@@ -8878,5 +8878,125 @@
    "away_odds": -280
   },
   "last_seen": "2026-11-23T22:22:24"
+ },
+ "PHX @ HOU|2026-11-26T01:40": {
+  "label": "PHX @ HOU",
+  "home_name": "Houston Rockets",
+  "away_name": "Phoenix Suns",
+  "start_time": "2026-11-26T01:40:00.000Z",
+  "first_seen": "2026-11-24T04:00:58",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7567,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 295
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7567,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 295
+  },
+  "last_seen": "2026-11-24T04:00:58"
+ },
+ "CLE @ NYK|2026-11-26T00:40": {
+  "label": "CLE @ NYK",
+  "home_name": "New York Knicks",
+  "away_name": "Cleveland Cavaliers",
+  "start_time": "2026-11-26T00:40:00.000Z",
+  "first_seen": "2026-11-24T04:00:58",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6581,
+   "odds": -220,
+   "home_odds": -220,
+   "away_odds": 180
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6581,
+   "odds": -220,
+   "home_odds": -220,
+   "away_odds": 180
+  },
+  "last_seen": "2026-11-24T04:00:58"
+ },
+ "MIA @ TOR|2026-11-24T10:19": {
+  "label": "MIA @ TOR",
+  "home_name": "Toronto Raptors",
+  "away_name": "Miami Heat",
+  "start_time": "2026-11-24T10:19:00.000Z",
+  "first_seen": "2026-11-24T04:00:58",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.6598,
+   "odds": -255,
+   "home_odds": 170,
+   "away_odds": -255
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.6598,
+   "odds": -255,
+   "home_odds": 170,
+   "away_odds": -255
+  },
+  "last_seen": "2026-11-24T04:00:58"
+ },
+ "MIL @ MEM|2026-11-24T11:19": {
+  "label": "MIL @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-24T11:19:00.000Z",
+  "first_seen": "2026-11-24T04:00:58",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6663,
+   "odds": -265,
+   "home_odds": -265,
+   "away_odds": 175
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6663,
+   "odds": -265,
+   "home_odds": -265,
+   "away_odds": 175
+  },
+  "last_seen": "2026-11-24T04:00:58"
+ },
+ "TOR @ CHI|2026-11-24T11:23": {
+  "label": "TOR @ CHI",
+  "home_name": "Chicago Bulls",
+  "away_name": "Toronto Raptors",
+  "start_time": "2026-11-24T11:23:00.000Z",
+  "first_seen": "2026-11-24T04:00:58",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6663,
+   "odds": -265,
+   "home_odds": -265,
+   "away_odds": 175
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6663,
+   "odds": -265,
+   "home_odds": -265,
+   "away_odds": 175
+  },
+  "last_seen": "2026-11-24T04:00:58"
  }
 }

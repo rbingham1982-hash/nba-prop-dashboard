@@ -1188,8 +1188,8 @@
    "home_odds": 176,
    "away_odds": -210
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "away",
    "fav_prob": 0.7175,
@@ -1312,12 +1312,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7907,
-   "odds": -460,
-   "home_odds": -460,
-   "away_odds": 360
+   "fav_prob": 0.7995,
+   "odds": -490,
+   "home_odds": -490,
+   "away_odds": 380
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "GB @ LA|2026-11-26T01:00": {
   "label": "GB @ LA",
@@ -1336,12 +1336,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.5583,
-   "odds": -138,
-   "home_odds": -138,
-   "away_odds": 118
+   "fav_prob": 0.5635,
+   "odds": -142,
+   "home_odds": -142,
+   "away_odds": 120
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "NO @ CIN|2026-11-29T18:01": {
   "label": "NO @ CIN",
@@ -1360,12 +1360,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.822,
-   "odds": -590,
-   "home_odds": -590,
-   "away_odds": 440
+   "fav_prob": 0.825,
+   "odds": -600,
+   "home_odds": -600,
+   "away_odds": 450
   },
-  "last_seen": "2026-11-23T01:48:06"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "BAL @ HOU|2026-11-29T18:01": {
   "label": "BAL @ HOU",
@@ -1384,12 +1384,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7328,
-   "odds": -320,
-   "home_odds": -320,
-   "away_odds": 260
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": -330,
+   "away_odds": 265
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "LV @ CLE|2026-11-30T01:21": {
   "label": "LV @ CLE",
@@ -1408,12 +1408,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.6675,
-   "odds": -225,
-   "home_odds": -225,
-   "away_odds": 190
+   "fav_prob": 0.6778,
+   "odds": -240,
+   "home_odds": -240,
+   "away_odds": 198
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "NYG @ IND|2026-11-29T18:01": {
   "label": "NYG @ IND",
@@ -1432,12 +1432,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7402,
-   "odds": -335,
-   "home_odds": 270,
-   "away_odds": -335
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": 265,
+   "away_odds": -330
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "TEN @ JAX|2026-11-29T18:01": {
   "label": "TEN @ JAX",
@@ -1461,7 +1461,7 @@
    "home_odds": -1200,
    "away_odds": 750
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "ATL @ MIN|2026-11-29T18:01": {
   "label": "ATL @ MIN",
@@ -1480,12 +1480,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7213,
-   "odds": -300,
-   "home_odds": -300,
-   "away_odds": 245
+   "fav_prob": 0.7328,
+   "odds": -320,
+   "home_odds": -320,
+   "away_odds": 260
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "WAS @ ARI|2026-11-29T21:26": {
   "label": "WAS @ ARI",
@@ -1504,12 +1504,12 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7472,
-   "odds": -350,
-   "home_odds": 280,
-   "away_odds": -350
+   "fav_prob": 0.7595,
+   "odds": -375,
+   "home_odds": 300,
+   "away_odds": -375
   },
-  "last_seen": "2026-11-23T01:48:06"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "NE @ LAC|2026-11-29T21:06": {
   "label": "NE @ LAC",
@@ -1533,7 +1533,7 @@
    "home_odds": -112,
    "away_odds": -104
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  },
  "NYJ @ MIA|2026-11-29T18:01": {
   "label": "NYJ @ MIA",
@@ -1552,11 +1552,11 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.6464,
-   "odds": -205,
-   "home_odds": 172,
-   "away_odds": -205
+   "fav_prob": 0.6515,
+   "odds": -210,
+   "home_odds": 176,
+   "away_odds": -210
   },
-  "last_seen": "2026-11-23T22:22:24"
+  "last_seen": "2026-11-24T04:00:58"
  }
 }

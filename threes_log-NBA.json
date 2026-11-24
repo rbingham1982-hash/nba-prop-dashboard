@@ -3463,7 +3463,7 @@
    "away_odds": -155,
    "home_prob": 0.4452
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 105,
@@ -3716,8 +3716,8 @@
    "away_odds": 560,
    "home_prob": 0.8544
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": -800,
    "away_odds": 560,
@@ -3739,8 +3739,8 @@
    "away_odds": 490,
    "home_prob": 0.837
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "home_odds": -670,
    "away_odds": 490,
@@ -3769,7 +3769,7 @@
    "away_odds": -450,
    "home_prob": 0.2136
   },
-  "last_seen": "2026-11-23T22:22:26"
+  "last_seen": "2026-11-24T04:00:59"
  },
  "DEN @ ORL|2026-11-24T05:03": {
   "label": "DEN @ ORL",
@@ -3793,5 +3793,28 @@
    "home_prob": 0.3265
   },
   "last_seen": "2026-11-23T22:22:26"
+ },
+ "ORL @ DEN|2026-11-24T10:11": {
+  "label": "ORL @ DEN",
+  "home_name": "Denver Nuggets",
+  "away_name": "Orlando Magic",
+  "start_time": "2026-11-24T10:11:00.000Z",
+  "luck_home": -0.99,
+  "luck_away": 1.72,
+  "bet": "home",
+  "first_seen": "2026-11-24T04:00:59",
+  "first": {
+   "home_odds": 105,
+   "away_odds": -155,
+   "home_prob": 0.4452
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 105,
+   "away_odds": -155,
+   "home_prob": 0.4452
+  },
+  "last_seen": "2026-11-24T04:00:59"
  }
 }
