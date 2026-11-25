@@ -8268,7 +8268,7 @@
    "home_odds": -320,
    "away_odds": 205
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -8772,8 +8772,8 @@
    "home_odds": 350,
    "away_odds": -450
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "away",
    "fav_prob": 0.7864,
@@ -8796,8 +8796,8 @@
    "home_odds": -330,
    "away_odds": 265
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "fav": "home",
    "fav_prob": 0.7002,
@@ -8896,12 +8896,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7595,
-   "odds": -375,
-   "home_odds": -375,
-   "away_odds": 300
+   "fav_prob": 0.7654,
+   "odds": -390,
+   "home_odds": -390,
+   "away_odds": 310
   },
-  "last_seen": "2026-11-24T21:07:20"
+  "last_seen": "2026-11-25T02:44:41"
  },
  "CLE @ NYK|2026-11-26T00:40": {
   "label": "CLE @ NYK",
@@ -8920,12 +8920,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.5857,
-   "odds": -156,
-   "home_odds": -156,
-   "away_odds": 132
+   "fav_prob": 0.579,
+   "odds": -152,
+   "home_odds": -152,
+   "away_odds": 128
   },
-  "last_seen": "2026-11-24T21:07:20"
+  "last_seen": "2026-11-25T02:44:41"
  },
  "MIA @ TOR|2026-11-24T10:19": {
   "label": "MIA @ TOR",
@@ -9070,5 +9070,53 @@
    "away_odds": 170
   },
   "last_seen": "2026-11-24T21:07:20"
+ },
+ "LAC @ MEM|2026-11-26T01:10": {
+  "label": "LAC @ MEM",
+  "home_name": "Memphis Grizzlies",
+  "away_name": "Los Angeles Clippers",
+  "start_time": "2026-11-26T01:10:00.000Z",
+  "first_seen": "2026-11-25T02:44:41",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6854,
+   "odds": -250,
+   "home_odds": -250,
+   "away_odds": 205
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6854,
+   "odds": -250,
+   "home_odds": -250,
+   "away_odds": 205
+  },
+  "last_seen": "2026-11-25T02:44:41"
+ },
+ "SAC @ GSW|2026-11-26T03:10": {
+  "label": "SAC @ GSW",
+  "home_name": "Golden State Warriors",
+  "away_name": "Sacramento Kings",
+  "start_time": "2026-11-26T03:10:00.000Z",
+  "first_seen": "2026-11-25T02:44:41",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.6735,
+   "odds": -235,
+   "home_odds": -235,
+   "away_odds": 194
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.6735,
+   "odds": -235,
+   "home_odds": -235,
+   "away_odds": 194
+  },
+  "last_seen": "2026-11-25T02:44:41"
  }
 }

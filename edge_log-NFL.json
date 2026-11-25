@@ -10490,7 +10490,7 @@
   "start_time": "2026-11-22T18:01:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-17T02:01:09",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "khalil shakir|Receiving Yards|29.5|36305235": {
@@ -10706,7 +10706,7 @@
   "start_time": "2026-11-22T18:01:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-17T19:42:12",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "khalil shakir|Receptions|2.5|36305235": {
@@ -10868,7 +10868,7 @@
   "start_time": "2026-11-22T21:26:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-17T19:42:12",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "malik nabers|Receptions|5.5|36305243": {
@@ -11210,7 +11210,7 @@
   "start_time": "2026-11-22T18:01:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-18T19:20:03",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "patrick mahomes|Passing Yards|250.5|36305237": {
@@ -11858,7 +11858,7 @@
   "start_time": "2026-11-22T18:01:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-20T01:25:34",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "adonai mitchell|Receptions|3.5|36305240": {
@@ -12218,7 +12218,7 @@
   "start_time": "2026-11-22T21:26:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-20T18:54:24",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "brock bowers|Receiving Yards|53.5|36305239": {
@@ -12236,7 +12236,7 @@
   "start_time": "2026-11-22T21:26:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-20T18:54:24",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "devonta smith|Receiving Yards|53.5|36305241": {
@@ -12326,7 +12326,7 @@
   "start_time": "2026-11-22T21:26:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-20T18:54:24",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "omarion hampton|Receptions|1.5|36305240": {
@@ -12866,7 +12866,7 @@
   "start_time": "2026-11-22T21:06:00.000Z",
   "game_day": "2026-11-22",
   "logged_at": "2026-11-22T14:41:09",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "kimani vidal|Receptions|1.5|36305240": {
@@ -14504,6 +14504,78 @@
   "start_time": "2026-12-01T01:16:00.000Z",
   "game_day": "2026-11-30",
   "logged_at": "2026-11-24T21:07:19",
+  "outcome": null,
+  "actual": null
+ },
+ "dk metcalf|Receiving Yards|29.5|35610249": {
+  "player": "DK Metcalf",
+  "stat": "Receiving Yards",
+  "line": 29.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.585,
+  "fair_prob": 0.475,
+  "edge": 0.11,
+  "sample_n": 25,
+  "depth": 1,
+  "game": "DEN @ PIT",
+  "start_time": "2026-11-27T20:01:00.000Z",
+  "game_day": "2026-11-27",
+  "logged_at": "2026-11-25T02:44:41",
+  "outcome": null,
+  "actual": null
+ },
+ "germie bernard|Receiving Yards|22.5|35610249": {
+  "player": "Germie Bernard",
+  "stat": "Receiving Yards",
+  "line": 22.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.599,
+  "fair_prob": 0.475,
+  "edge": 0.124,
+  "sample_n": 9,
+  "depth": 2,
+  "game": "DEN @ PIT",
+  "start_time": "2026-11-27T20:01:00.000Z",
+  "game_day": "2026-11-27",
+  "logged_at": "2026-11-25T02:44:41",
+  "outcome": null,
+  "actual": null
+ },
+ "joe burrow|Passing Yards|302.5|36331649": {
+  "player": "Joe Burrow",
+  "stat": "Passing Yards",
+  "line": 302.5,
+  "side": "over",
+  "american_odds": -114,
+  "model_prob": 0.544,
+  "fair_prob": 0.475,
+  "edge": 0.069,
+  "sample_n": 18,
+  "depth": 1,
+  "game": "NO @ CIN",
+  "start_time": "2026-11-29T18:01:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-25T02:44:41",
+  "outcome": null,
+  "actual": null
+ },
+ "joe burrow|Passing TDs|2.5|36331649": {
+  "player": "Joe Burrow",
+  "stat": "Passing TDs",
+  "line": 2.5,
+  "side": "over",
+  "american_odds": 108,
+  "model_prob": 0.5126,
+  "fair_prob": 0.4239,
+  "edge": 0.0887,
+  "sample_n": 18,
+  "depth": 1,
+  "game": "NO @ CIN",
+  "start_time": "2026-11-29T18:01:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-25T02:44:41",
   "outcome": null,
   "actual": null
  }

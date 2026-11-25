@@ -5929,9 +5929,9 @@
     "edge": 2.64,
     "pick": "away",
     "pick_label": "DAL +7.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 101,
+    "away_pts": 120,
     "published": true
    }
   ],
@@ -5951,8 +5951,8 @@
     "implied_prob": 0.6356,
     "blended_prob": 0.6356,
     "edge": 0.0373,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 3.0
    },
    {
     "player": "Zaccharie Risacher",
@@ -5966,8 +5966,8 @@
     "implied_prob": 0.6146,
     "blended_prob": 0.6146,
     "edge": 0.0183,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "P.J. Washington",
@@ -5981,8 +5981,8 @@
     "implied_prob": 0.6046,
     "blended_prob": 0.6046,
     "edge": -0.1546,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 6.0
    },
    {
     "player": "DeMar DeRozan",
@@ -5996,8 +5996,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": 0.0404,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 9.0
    },
    {
     "player": "Christian Braun",
@@ -6011,8 +6011,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": -0.0553,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 21.0
    }
   ],
   "parlay_withheld_price": {

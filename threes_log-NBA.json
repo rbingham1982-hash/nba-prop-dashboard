@@ -3555,7 +3555,7 @@
    "away_odds": -160,
    "home_prob": 0.4362
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 110,
@@ -3762,8 +3762,8 @@
    "away_odds": -450,
    "home_prob": 0.2136
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "away",
   "last": {
    "home_odds": 350,
    "away_odds": -450,
@@ -3834,11 +3834,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": -154,
-   "away_odds": 130,
-   "home_prob": 0.5824
+   "home_odds": -156,
+   "away_odds": 132,
+   "home_prob": 0.5857
   },
-  "last_seen": "2026-11-24T21:07:24"
+  "last_seen": "2026-11-25T02:44:44"
  },
  "CHA @ ORL|2026-11-25T04:03": {
   "label": "CHA @ ORL",
@@ -3908,5 +3908,28 @@
    "home_prob": 0.3527
   },
   "last_seen": "2026-11-24T21:07:24"
+ },
+ "SAC @ GSW|2026-11-26T03:10": {
+  "label": "SAC @ GSW",
+  "home_name": "Golden State Warriors",
+  "away_name": "Sacramento Kings",
+  "start_time": "2026-11-26T03:10:00.000Z",
+  "luck_home": -3.55,
+  "luck_away": -0.75,
+  "bet": "home",
+  "first_seen": "2026-11-25T02:44:44",
+  "first": {
+   "home_odds": -235,
+   "away_odds": 194,
+   "home_prob": 0.6735
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -235,
+   "away_odds": 194,
+   "home_prob": 0.6735
+  },
+  "last_seen": "2026-11-25T02:44:44"
  }
 }
