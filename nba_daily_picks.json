@@ -5912,5 +5912,116 @@
    "fair_prob": 0.09012,
    "breakeven_prob": 0.10006
   }
+ },
+ "2026-11-24": {
+  "date": "2026-11-24",
+  "generated": "2026-11-24T21:07:25",
+  "ats": [
+   {
+    "event": "401909316",
+    "game": "DAL @ DEN",
+    "home": "DEN",
+    "away": "DAL",
+    "start_time": "2026-11-25T03:00Z",
+    "home_spread": -7.5,
+    "book": "Draft Kings",
+    "pred_margin": 4.86,
+    "edge": 2.64,
+    "pick": "away",
+    "pick_label": "DAL +7.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": true
+   }
+  ],
+  "ats_rule": "published when the model and the line differ by 2-6 points",
+  "parlay": [],
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Aaron Gordon",
+    "stat_type": "Assists",
+    "line": 2.5,
+    "side": "under",
+    "american_odds": -184,
+    "game": "DAL @ DEN",
+    "start_time": "2026-11-25T03:10:00.000Z",
+    "model_prob": 0.6729,
+    "implied_prob": 0.6356,
+    "blended_prob": 0.6356,
+    "edge": 0.0373,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Zaccharie Risacher",
+    "stat_type": "3-PT Made",
+    "line": 0.5,
+    "side": "over",
+    "american_odds": -210,
+    "game": "DAL @ DEN",
+    "start_time": "2026-11-25T03:10:00.000Z",
+    "model_prob": 0.6329,
+    "implied_prob": 0.6146,
+    "blended_prob": 0.6146,
+    "edge": 0.0183,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "P.J. Washington",
+    "stat_type": "Rebounds",
+    "line": 5.5,
+    "side": "under",
+    "american_odds": -160,
+    "game": "DAL @ DEN",
+    "start_time": "2026-11-25T03:10:00.000Z",
+    "model_prob": 0.45,
+    "implied_prob": 0.6046,
+    "blended_prob": 0.6046,
+    "edge": -0.1546,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "DeMar DeRozan",
+    "stat_type": "Points",
+    "line": 10.5,
+    "side": "under",
+    "american_odds": -128,
+    "game": "DAL @ DEN",
+    "start_time": "2026-11-25T03:10:00.000Z",
+    "model_prob": 0.5943,
+    "implied_prob": 0.5539,
+    "blended_prob": 0.5539,
+    "edge": 0.0404,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Christian Braun",
+    "stat_type": "Pts+Rebs+Asts",
+    "line": 20.5,
+    "side": "under",
+    "american_odds": -128,
+    "game": "DAL @ DEN",
+    "start_time": "2026-11-25T03:10:00.000Z",
+    "model_prob": 0.4986,
+    "implied_prob": 0.5539,
+    "blended_prob": 0.5539,
+    "edge": -0.0553,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 11.748,
+   "american": 1075,
+   "model_prob": 0.05679,
+   "blended_prob": 0.07246,
+   "fair_prob": 0.07246,
+   "breakeven_prob": 0.08512
+  }
  }
 }

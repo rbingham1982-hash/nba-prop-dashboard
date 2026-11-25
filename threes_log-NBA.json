@@ -3509,7 +3509,7 @@
    "away_odds": -115,
    "home_prob": 0.5095
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": -125,
@@ -3532,7 +3532,7 @@
    "away_odds": -180,
    "home_prob": 0.4088
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 125,
@@ -3816,5 +3816,97 @@
    "home_prob": 0.4452
   },
   "last_seen": "2026-11-24T04:00:59"
+ },
+ "CHI @ CHA|2026-11-26T00:10": {
+  "label": "CHI @ CHA",
+  "home_name": "Charlotte Hornets",
+  "away_name": "Chicago Bulls",
+  "start_time": "2026-11-26T00:10:00.000Z",
+  "luck_home": -1.31,
+  "luck_away": 1.51,
+  "bet": "home",
+  "first_seen": "2026-11-24T21:07:24",
+  "first": {
+   "home_odds": -154,
+   "away_odds": 130,
+   "home_prob": 0.5824
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -154,
+   "away_odds": 130,
+   "home_prob": 0.5824
+  },
+  "last_seen": "2026-11-24T21:07:24"
+ },
+ "CHA @ ORL|2026-11-25T04:03": {
+  "label": "CHA @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Charlotte Hornets",
+  "start_time": "2026-11-25T04:03:00.000Z",
+  "luck_home": 1.72,
+  "luck_away": -1.31,
+  "bet": "away",
+  "first_seen": "2026-11-24T21:07:24",
+  "first": {
+   "home_odds": 120,
+   "away_odds": -170,
+   "home_prob": 0.4193
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 120,
+   "away_odds": -170,
+   "home_prob": 0.4193
+  },
+  "last_seen": "2026-11-24T21:07:24"
+ },
+ "BOS @ NYK|2026-11-25T04:07": {
+  "label": "BOS @ NYK",
+  "home_name": "New York Knicks",
+  "away_name": "Boston Celtics",
+  "start_time": "2026-11-25T04:07:00.000Z",
+  "luck_home": 0.58,
+  "luck_away": -2.85,
+  "bet": "away",
+  "first_seen": "2026-11-24T21:07:24",
+  "first": {
+   "home_odds": 160,
+   "away_odds": -245,
+   "home_prob": 0.3513
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 160,
+   "away_odds": -245,
+   "home_prob": 0.3513
+  },
+  "last_seen": "2026-11-24T21:07:24"
+ },
+ "DEN @ ORL|2026-11-25T04:15": {
+  "label": "DEN @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-25T04:15:00.000Z",
+  "luck_home": 1.72,
+  "luck_away": -0.99,
+  "bet": "away",
+  "first_seen": "2026-11-24T21:07:24",
+  "first": {
+   "home_odds": 160,
+   "away_odds": -240,
+   "home_prob": 0.3527
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": 160,
+   "away_odds": -240,
+   "home_prob": 0.3527
+  },
+  "last_seen": "2026-11-24T21:07:24"
  }
 }

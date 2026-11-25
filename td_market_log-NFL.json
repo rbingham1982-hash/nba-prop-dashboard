@@ -71,6 +71,24 @@
   "player": "Aaron Jones",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "aaronjones|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 155,
+   "implied_prob": 0.3922,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 155,
+   "implied_prob": 0.3922,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Aaron Jones",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "aaronrodgers|35610249": {
   "actual": null,
   "first": {
@@ -83,7 +101,7 @@
   "last": {
    "american_odds": 2200,
    "implied_prob": 0.0435,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Aaron Rodgers",
@@ -153,9 +171,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 2700,
-   "implied_prob": 0.0357,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2000,
+   "implied_prob": 0.0476,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Adam Prentice",
@@ -243,9 +261,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 1600,
-   "implied_prob": 0.0588,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1700,
+   "implied_prob": 0.0556,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Adam Trautman",
@@ -441,9 +459,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 290,
-   "implied_prob": 0.2564,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 300,
+   "implied_prob": 0.25,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "AJ Barner",
@@ -520,6 +538,24 @@
   "outcome": "void",
   "player": "AJ Dillon",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "ajdillon|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "AJ Dillon",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "alexbachman|36215316": {
   "actual": 0,
@@ -711,9 +747,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": -140,
-   "implied_prob": 0.5833,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": -145,
+   "implied_prob": 0.5918,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Amon-Ra St. Brown",
@@ -783,9 +819,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 2000,
-   "implied_prob": 0.0476,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2200,
+   "implied_prob": 0.0435,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Andrew Armstrong",
@@ -1060,6 +1096,24 @@
   "outcome": "loss",
   "player": "Anthony Tyus III",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "anthonytyus|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Anthony Tyus III",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "antoniowilliams|36215324": {
   "actual": 0,
@@ -1403,6 +1457,24 @@
   "player": "Atlanta Defense",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "atlantadefense|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 800,
+   "implied_prob": 0.1111,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 800,
+   "implied_prob": 0.1111,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Atlanta Defense",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "audricestime|36215315": {
   "actual": null,
   "first": {
@@ -1601,6 +1673,24 @@
   "player": "Austin Hooper",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "austinhooper|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1900,
+   "implied_prob": 0.05,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1900,
+   "implied_prob": 0.05,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Austin Hooper",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "bakermayfield|36215319": {
   "actual": 0,
   "first": {
@@ -1654,6 +1744,24 @@
   "outcome": "loss",
   "player": "Baker Mayfield",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "bakermayfield|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Baker Mayfield",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "baltimoredefense|36215313": {
   "actual": null,
@@ -1726,6 +1834,24 @@
   "outcome": "void",
   "player": "Baltimore Defense",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "baltimoredefense|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 900,
+   "implied_prob": 0.1,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 900,
+   "implied_prob": 0.1,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Baltimore Defense",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "bamknight|36215314": {
   "actual": 0,
@@ -1889,6 +2015,24 @@
   "player": "Bauer Sharp",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "bauersharp|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 2200,
+   "implied_prob": 0.0435,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 2200,
+   "implied_prob": 0.0435,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Bauer Sharp",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "beauxcollins|35603243": {
   "actual": null,
   "first": {
@@ -1924,6 +2068,24 @@
   "outcome": "loss",
   "player": "Beaux Collins",
   "start_time": "2026-11-15T18:01:00.000Z"
+ },
+ "beauxcollins|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1600,
+   "implied_prob": 0.0588,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1600,
+   "implied_prob": 0.0588,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Beaux Collins",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "bensinnott|36215324": {
   "actual": null,
@@ -2007,9 +2169,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 2700,
-   "implied_prob": 0.0357,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2200,
+   "implied_prob": 0.0435,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Ben Skowronek",
@@ -2213,6 +2375,24 @@
   "player": "Ben Yurosek",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "benyurosek|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 950,
+   "implied_prob": 0.0952,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 950,
+   "implied_prob": 0.0952,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Ben Yurosek",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "bhayshultuten|36215317": {
   "actual": 2,
   "first": {
@@ -2339,6 +2519,24 @@
   "player": "Bijan Robinson",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "bijanrobinson|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": -125,
+   "implied_prob": 0.5556,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": -125,
+   "implied_prob": 0.5556,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Bijan Robinson",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "blakecorum|35607031": {
   "actual": null,
   "first": {
@@ -2351,7 +2549,7 @@
   "last": {
    "american_odds": 130,
    "implied_prob": 0.4348,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Blake Corum",
@@ -2477,7 +2675,7 @@
   "last": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Bo Melton",
@@ -2529,9 +2727,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 500,
-   "implied_prob": 0.1667,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Bo Nix",
@@ -2657,7 +2855,7 @@
   "last": {
    "american_odds": 3500,
    "implied_prob": 0.0278,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Brady Russell",
@@ -2927,7 +3125,7 @@
   "last": {
    "american_odds": 4000,
    "implied_prob": 0.0244,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Brayden Willis",
@@ -3179,7 +3377,7 @@
   "last": {
    "american_odds": 350,
    "implied_prob": 0.2222,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Brevyn Spann-Ford",
@@ -3357,9 +3555,9 @@
   "game": "Philadelphia Eagles @ Dallas Cowboys",
   "game_id": "35599534",
   "last": {
-   "american_odds": 1900,
-   "implied_prob": 0.05,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2000,
+   "implied_prob": 0.0476,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Britain Covey",
@@ -3519,9 +3717,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 480,
-   "implied_prob": 0.1724,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 470,
+   "implied_prob": 0.1754,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Brock Purdy",
@@ -3557,7 +3755,7 @@
   "last": {
    "american_odds": 1100,
    "implied_prob": 0.0833,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Brock Wright",
@@ -3725,6 +3923,24 @@
   "player": "Brycen Tremayne",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "brycentremayne|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 1600,
+   "implied_prob": 0.0588,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 1600,
+   "implied_prob": 0.0588,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Brycen Tremayne",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "bryceyoung|36244867": {
   "actual": 0,
   "first": {
@@ -3778,6 +3994,24 @@
   "outcome": "loss",
   "player": "Bryce Young",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "bryceyoung|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Bryce Young",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "buckyirving|36215319": {
   "actual": 1,
@@ -3833,6 +4067,24 @@
   "player": "Bucky Irving",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "buckyirving|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": -120,
+   "implied_prob": 0.5455,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": -120,
+   "implied_prob": 0.5455,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Bucky Irving",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "buffalodefense|35607552": {
   "actual": null,
   "first": {
@@ -3843,9 +4095,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 900,
-   "implied_prob": 0.1,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 950,
+   "implied_prob": 0.0952,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Buffalo Defense",
@@ -3976,6 +4228,24 @@
   "outcome": "loss",
   "player": "Cade Otton",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "cadeotton|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 330,
+   "implied_prob": 0.2326,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 330,
+   "implied_prob": 0.2326,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Cade Otton",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "cadestover|36244874": {
   "actual": null,
@@ -4115,7 +4385,7 @@
   "last": {
    "american_odds": 330,
    "implied_prob": 0.2326,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Caleb Williams",
@@ -4241,7 +4511,7 @@
   "last": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Camden Brown",
@@ -4661,6 +4931,24 @@
   "player": "Carolina Defense",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "carolinadefense|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 750,
+   "implied_prob": 0.1176,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 750,
+   "implied_prob": 0.1176,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Carolina Defense",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "carsenryan|36215315": {
   "actual": null,
   "first": {
@@ -4835,7 +5123,7 @@
   "last": {
    "american_odds": -160,
    "implied_prob": 0.6154,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "CeeDee Lamb",
@@ -5075,6 +5363,24 @@
   "player": "Charlie Woerner",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "charliewoerner|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Charlie Woerner",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "chasebrown|35603243": {
   "actual": 0,
   "first": {
@@ -5157,9 +5463,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": 750,
-   "implied_prob": 0.1176,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 800,
+   "implied_prob": 0.1111,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Chicago Defense",
@@ -5471,6 +5777,24 @@
   "player": "Chris Blair",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "chrisblair|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Chris Blair",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "chrisbrooks|35607031": {
   "actual": null,
   "first": {
@@ -5483,7 +5807,7 @@
   "last": {
    "american_odds": 500,
    "implied_prob": 0.1667,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Chris Brooks",
@@ -5560,6 +5884,24 @@
   "outcome": "loss",
   "player": "Chris Godwin",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "chrisgodwin|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 390,
+   "implied_prob": 0.2041,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 390,
+   "implied_prob": 0.2041,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Chris Godwin",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "chrismanhertz|36244873": {
   "actual": null,
@@ -5841,9 +6183,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": -175,
-   "implied_prob": 0.6364,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": -160,
+   "implied_prob": 0.6154,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Christian McCaffrey",
@@ -5861,7 +6203,7 @@
   "last": {
    "american_odds": 170,
    "implied_prob": 0.3704,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Christian Watson",
@@ -5957,6 +6299,24 @@
   "player": "Chuba Hubbard",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "chubahubbard|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 100,
+   "implied_prob": 0.5,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 100,
+   "implied_prob": 0.5,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Chuba Hubbard",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "cincinnatidefense|35603243": {
   "actual": null,
   "first": {
@@ -6041,7 +6401,7 @@
   "last": {
    "american_odds": 480,
    "implied_prob": 0.1724,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "CJ Daniels",
@@ -6190,6 +6550,24 @@
   "outcome": "loss",
   "player": "C.J. Stroud",
   "start_time": "2026-11-20T01:16:00.000Z"
+ },
+ "cjstroud|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "C.J. Stroud",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "cjwilliams|36215317": {
   "actual": null,
@@ -6507,9 +6885,9 @@
   "game": "Green Bay Packers @ Los Angeles Rams",
   "game_id": "35607031",
   "last": {
-   "american_odds": 260,
-   "implied_prob": 0.2778,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 250,
+   "implied_prob": 0.2857,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Colby Parkinson",
@@ -6689,7 +7067,7 @@
   "last": {
    "american_odds": 130,
    "implied_prob": 0.4348,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Colston Loveland",
@@ -6885,9 +7263,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 390,
-   "implied_prob": 0.2041,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 410,
+   "implied_prob": 0.1961,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Cooper Kupp",
@@ -6957,9 +7335,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 340,
-   "implied_prob": 0.2273,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 350,
+   "implied_prob": 0.2222,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Courtland Sutton",
@@ -7031,7 +7409,7 @@
   "last": {
    "american_odds": 650,
    "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Cyrus Allen",
@@ -7121,7 +7499,7 @@
   "last": {
    "american_odds": 650,
    "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Dak Prescott",
@@ -7211,7 +7589,7 @@
   "last": {
    "american_odds": 500,
    "implied_prob": 0.1667,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Dallas Defense",
@@ -7299,9 +7677,9 @@
   "game": "Philadelphia Eagles @ Dallas Cowboys",
   "game_id": "35599534",
   "last": {
-   "american_odds": 320,
-   "implied_prob": 0.2381,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 330,
+   "implied_prob": 0.2326,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Dallas Goedert",
@@ -7407,9 +7785,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 250,
-   "implied_prob": 0.2857,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 270,
+   "implied_prob": 0.2703,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Dalton Kincaid",
@@ -7541,6 +7919,24 @@
   "player": "Dalton Schultz",
   "start_time": "2026-11-20T01:16:00.000Z"
  },
+ "daltonschultz|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 250,
+   "implied_prob": 0.2857,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 250,
+   "implied_prob": 0.2857,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Dalton Schultz",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "dandreswift|35607159": {
   "actual": null,
   "first": {
@@ -7553,7 +7949,7 @@
   "last": {
    "american_odds": -125,
    "implied_prob": 0.5556,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "D'Andre Swift",
@@ -7857,9 +8253,9 @@
   "game": "Philadelphia Eagles @ Dallas Cowboys",
   "game_id": "35599534",
   "last": {
-   "american_odds": 600,
-   "implied_prob": 0.1429,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Darius Cooper",
@@ -7983,9 +8379,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 410,
-   "implied_prob": 0.1961,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 430,
+   "implied_prob": 0.1887,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Darnell Washington",
@@ -8099,6 +8495,24 @@
   "player": "Darren Waller",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "darrenwaller|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 360,
+   "implied_prob": 0.2174,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 360,
+   "implied_prob": 0.2174,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Darren Waller",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "davidmartinrobinson|36215312": {
   "actual": 0,
   "first": {
@@ -8188,6 +8602,24 @@
   "outcome": "loss",
   "player": "David Montgomery",
   "start_time": "2026-11-20T01:16:00.000Z"
+ },
+ "davidmontgomery|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": -145,
+   "implied_prob": 0.5918,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": -145,
+   "implied_prob": 0.5918,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "David Montgomery",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "davidmoore|36244867": {
   "actual": 0,
@@ -8291,7 +8723,7 @@
   "last": {
    "american_odds": 700,
    "implied_prob": 0.125,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Davis Allen",
@@ -8363,7 +8795,7 @@
   "last": {
    "american_odds": 500,
    "implied_prob": 0.1667,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Dawson Knox",
@@ -8487,9 +8919,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": 1300,
-   "implied_prob": 0.0714,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "DeAndre Carter",
@@ -8613,9 +9045,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 390,
-   "implied_prob": 0.2041,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 330,
+   "implied_prob": 0.2326,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Deebo Samuel",
@@ -8692,6 +9124,24 @@
   "outcome": "loss",
   "player": "DeeJay Dallas",
   "start_time": "2026-11-15T18:01:00.000Z"
+ },
+ "deejaydallas|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1700,
+   "implied_prob": 0.0556,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1700,
+   "implied_prob": 0.0556,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "DeeJay Dallas",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "deionburks|36215317": {
   "actual": 0,
@@ -8921,7 +9371,7 @@
   "last": {
    "american_odds": 750,
    "implied_prob": 0.1176,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Denver Defense",
@@ -9179,6 +9629,24 @@
   "player": "Derrick Henry",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "derrickhenry|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": -115,
+   "implied_prob": 0.5349,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": -115,
+   "implied_prob": 0.5349,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Derrick Henry",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "deshaunwatson|36215315": {
   "actual": 0,
   "first": {
@@ -9245,7 +9713,7 @@
   "last": {
    "american_odds": 800,
    "implied_prob": 0.1111,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Detroit Defense",
@@ -9515,7 +9983,7 @@
   "last": {
    "american_odds": 200,
    "implied_prob": 0.3333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "DeVonta Smith",
@@ -9610,6 +10078,24 @@
   "outcome": "loss",
   "player": "Devontez Walker",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "devontezwalker|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 1600,
+   "implied_prob": 0.0588,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 1600,
+   "implied_prob": 0.0588,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Devontez Walker",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "djgiddens|36215317": {
   "actual": 0,
@@ -9765,9 +10251,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 220,
-   "implied_prob": 0.3125,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 230,
+   "implied_prob": 0.303,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "D.J. Moore",
@@ -9855,9 +10341,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 300,
-   "implied_prob": 0.25,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 320,
+   "implied_prob": 0.2381,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "DK Metcalf",
@@ -10168,6 +10654,24 @@
   "outcome": "loss",
   "player": "Drake London",
   "start_time": "2026-11-15T18:01:00.000Z"
+ },
+ "drakelondon|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 260,
+   "implied_prob": 0.2778,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 260,
+   "implied_prob": 0.2778,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Drake London",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "drakemaye|35605986": {
   "actual": 0,
@@ -10683,9 +11187,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 7500,
-   "implied_prob": 0.0132,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 7000,
+   "implied_prob": 0.0141,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Eli Heidenreich",
@@ -10865,7 +11369,7 @@
   "last": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Elijah Moore",
@@ -10997,6 +11501,24 @@
   "player": "Elijah Sarratt",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "elijahsarratt|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Elijah Sarratt",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "eliraridon|35605986": {
   "actual": 0,
   "first": {
@@ -11061,9 +11583,9 @@
   "game": "Philadelphia Eagles @ Dallas Cowboys",
   "game_id": "35599534",
   "last": {
-   "american_odds": 3000,
-   "implied_prob": 0.0323,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Eli Stowers",
@@ -11189,7 +11711,7 @@
   "last": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Emanuel Wilson",
@@ -11285,6 +11807,24 @@
   "player": "Emeka Egbuka",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "emekaegbuka|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 170,
+   "implied_prob": 0.3704,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 170,
+   "implied_prob": 0.3704,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Emeka Egbuka",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "emmettjohnson|35607552": {
   "actual": null,
   "first": {
@@ -11295,9 +11835,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": -125,
-   "implied_prob": 0.5556,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": -140,
+   "implied_prob": 0.5833,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Emmett Johnson",
@@ -11439,9 +11979,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 1300,
-   "implied_prob": 0.0714,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Eric Saubert",
@@ -11457,9 +11997,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 500,
-   "implied_prob": 0.1667,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Evan Engram",
@@ -11645,6 +12185,24 @@
   "player": "Feleipe Franks",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "feleipefranks|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Feleipe Franks",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "fernandomendoza|36275769": {
   "actual": 1,
   "first": {
@@ -11734,6 +12292,24 @@
   "outcome": "loss",
   "player": "Foster Moreau",
   "start_time": "2026-11-20T01:16:00.000Z"
+ },
+ "fostermoreau|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 470,
+   "implied_prob": 0.1754,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 470,
+   "implied_prob": 0.1754,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Foster Moreau",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "gardnerminshew|36244878": {
   "actual": 0,
@@ -11896,6 +12472,24 @@
   "outcome": "win",
   "player": "Gavin Bartholomew",
   "start_time": "2026-11-15T18:01:00.000Z"
+ },
+ "gavinbartholomew|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Gavin Bartholomew",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "genosmith|36215320": {
   "actual": 0,
@@ -12087,9 +12681,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 180,
-   "implied_prob": 0.3571,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 185,
+   "implied_prob": 0.3509,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "George Kittle",
@@ -12107,7 +12701,7 @@
   "last": {
    "american_odds": -115,
    "implied_prob": 0.5349,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "George Pickens",
@@ -12195,9 +12789,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 460,
-   "implied_prob": 0.1786,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 490,
+   "implied_prob": 0.1695,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Germie Bernard",
@@ -12267,9 +12861,9 @@
   "game": "Philadelphia Eagles @ Dallas Cowboys",
   "game_id": "35599534",
   "last": {
-   "american_odds": 3000,
-   "implied_prob": 0.0323,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Grant Calcaterra",
@@ -12341,7 +12935,7 @@
   "last": {
    "american_odds": 1000,
    "implied_prob": 0.0909,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Green Bay Defense",
@@ -12393,9 +12987,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 1800,
-   "implied_prob": 0.0526,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1900,
+   "implied_prob": 0.05,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Greg Dortch",
@@ -12887,6 +13481,24 @@
   "player": "Houston Defense",
   "start_time": "2026-11-20T01:16:00.000Z"
  },
+ "houstondefense|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 500,
+   "implied_prob": 0.1667,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 500,
+   "implied_prob": 0.1667,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Houston Defense",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "hunterhenry|35605986": {
   "actual": 0,
   "first": {
@@ -12989,7 +13601,7 @@
   "last": {
    "american_odds": 850,
    "implied_prob": 0.1053,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Hunter Luepke",
@@ -13277,7 +13889,7 @@
   "last": {
    "american_odds": 3000,
    "implied_prob": 0.0323,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Irv Charles",
@@ -13311,9 +13923,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": 430,
-   "implied_prob": 0.1887,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 420,
+   "implied_prob": 0.1923,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Isaac TeSlaa",
@@ -13817,7 +14429,7 @@
   "last": {
    "american_odds": 1500,
    "implied_prob": 0.0625,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jackson Hawes",
@@ -14087,7 +14699,7 @@
   "last": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jacob Cowing",
@@ -14141,7 +14753,7 @@
   "last": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jacob Saylors",
@@ -14255,6 +14867,24 @@
   "player": "Jacoby Brissett",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "jacobybrissett|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Jacoby Brissett",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "jacorycroskeymerritt|36305242": {
   "actual": 1,
   "first": {
@@ -14337,9 +14967,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 290,
-   "implied_prob": 0.2564,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 300,
+   "implied_prob": 0.25,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jadarian Price",
@@ -14435,6 +15065,24 @@
   "player": "Jahan Dotson",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "jahandotson|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Jahan Dotson",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "jahdaewalker|35607159": {
   "actual": null,
   "first": {
@@ -14447,7 +15095,7 @@
   "last": {
    "american_odds": 1500,
    "implied_prob": 0.0625,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jahdae Walker",
@@ -14537,7 +15185,7 @@
   "last": {
    "american_odds": -270,
    "implied_prob": 0.7297,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jahmyr Gibbs",
@@ -14607,9 +15255,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 700,
-   "implied_prob": 0.125,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 750,
+   "implied_prob": 0.1176,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jake Briningstool",
@@ -14795,6 +15443,24 @@
   "player": "Ja'Kobi Lane",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "jakobilane|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 380,
+   "implied_prob": 0.2083,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 380,
+   "implied_prob": 0.2083,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Ja'Kobi Lane",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "jakobimeyers|36244870": {
   "actual": 0,
   "first": {
@@ -14957,6 +15623,24 @@
   "player": "Jalen Coker",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "jalencoker|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 270,
+   "implied_prob": 0.2703,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 270,
+   "implied_prob": 0.2703,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Jalen Coker",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "jalennailor|36215320": {
   "actual": 1,
   "first": {
@@ -15057,9 +15741,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 1600,
-   "implied_prob": 0.0588,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1800,
+   "implied_prob": 0.0526,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jalen Royals",
@@ -15363,9 +16047,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": -115,
-   "implied_prob": 0.5349,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": -110,
+   "implied_prob": 0.5238,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "James Cook",
@@ -15455,7 +16139,7 @@
   "last": {
    "american_odds": 1700,
    "implied_prob": 0.0556,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "James Mitchell",
@@ -15563,7 +16247,7 @@
   "last": {
    "american_odds": 200,
    "implied_prob": 0.3333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jameson Williams",
@@ -15651,9 +16335,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": 1200,
-   "implied_prob": 0.0769,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1100,
+   "implied_prob": 0.0833,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jared Goff",
@@ -15833,7 +16517,7 @@
   "last": {
    "american_odds": 750,
    "implied_prob": 0.1176,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jashaun Corbin",
@@ -15892,6 +16576,24 @@
   "outcome": "void",
   "player": "Ja'Tavion Sanders",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "jatavionsanders|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Ja'Tavion Sanders",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "jauanjennings|35605987": {
   "actual": 0,
@@ -15965,6 +16667,24 @@
   "player": "Jauan Jennings",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "jauanjennings|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 360,
+   "implied_prob": 0.2174,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 360,
+   "implied_prob": 0.2174,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Jauan Jennings",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "javontewilliams|35599534": {
   "actual": null,
   "first": {
@@ -15977,7 +16697,7 @@
   "last": {
    "american_odds": -180,
    "implied_prob": 0.6429,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Javonte Williams",
@@ -16121,7 +16841,7 @@
   "last": {
    "american_odds": 125,
    "implied_prob": 0.4444,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jaxon Smith-Njigba",
@@ -16211,7 +16931,7 @@
   "last": {
    "american_odds": 850,
    "implied_prob": 0.1053,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jaydn Ott",
@@ -16301,7 +17021,7 @@
   "last": {
    "american_odds": 2500,
    "implied_prob": 0.0385,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jaydon Blue",
@@ -16371,9 +17091,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 300,
-   "implied_prob": 0.25,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 310,
+   "implied_prob": 0.2439,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jaylen Waddle",
@@ -16443,9 +17163,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 195,
-   "implied_prob": 0.339,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 200,
+   "implied_prob": 0.3333,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jaylen Warren",
@@ -16865,6 +17585,24 @@
   "player": "Jeshaun Jones",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "jeshaunjones|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1700,
+   "implied_prob": 0.0556,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1700,
+   "implied_prob": 0.0556,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Jeshaun Jones",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "jjmccarthy|36244873": {
   "actual": 0,
   "first": {
@@ -17001,9 +17739,9 @@
   "game": "Green Bay Packers @ Los Angeles Rams",
   "game_id": "35607031",
   "last": {
-   "american_odds": 1300,
-   "implied_prob": 0.0714,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "J. Michael Sturdivant",
@@ -17147,7 +17885,7 @@
   "last": {
    "american_odds": 280,
    "implied_prob": 0.2632,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Joe Milton III",
@@ -17315,6 +18053,24 @@
   "player": "John Metchie III",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "johnmetchie|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 700,
+   "implied_prob": 0.125,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 700,
+   "implied_prob": 0.125,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "John Metchie III",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "johnnymundt|35599534": {
   "actual": null,
   "first": {
@@ -17327,7 +18083,7 @@
   "last": {
    "american_odds": 3000,
    "implied_prob": 0.0323,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Johnny Mundt",
@@ -17397,9 +18153,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": -120,
-   "implied_prob": 0.5455,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": -130,
+   "implied_prob": 0.5652,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jonah Coleman",
@@ -17603,6 +18359,24 @@
   "player": "Jonathan Taylor",
   "start_time": "2026-11-20T01:16:00.000Z"
  },
+ "jonathonbrooks|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Jonathon Brooks",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "jonnusmith|35607031": {
   "actual": null,
   "first": {
@@ -17615,7 +18389,7 @@
   "last": {
    "american_odds": 1500,
    "implied_prob": 0.0625,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jonnu Smith",
@@ -17793,9 +18567,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 2500,
-   "implied_prob": 0.0385,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 3000,
+   "implied_prob": 0.0323,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jordan James",
@@ -17813,7 +18587,7 @@
   "last": {
    "american_odds": 1100,
    "implied_prob": 0.0833,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jordan Love",
@@ -17927,6 +18701,24 @@
   "player": "Jordan Mason",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "jordanmason|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 220,
+   "implied_prob": 0.3125,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 220,
+   "implied_prob": 0.3125,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Jordan Mason",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "jordanwatkins|35605987": {
   "actual": 0,
   "first": {
@@ -17991,9 +18783,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 750,
-   "implied_prob": 0.1176,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 850,
+   "implied_prob": 0.1053,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Jordan Watkins",
@@ -18099,9 +18891,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": -115,
-   "implied_prob": 0.5349,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": -125,
+   "implied_prob": 0.5556,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Josh Allen",
@@ -18323,6 +19115,24 @@
   "player": "Josh Cuevas",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "joshcuevas|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 800,
+   "implied_prob": 0.1111,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 800,
+   "implied_prob": 0.1111,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Josh Cuevas",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "joshdowns|35607552": {
   "actual": null,
   "first": {
@@ -18333,9 +19143,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 250,
-   "implied_prob": 0.2857,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 270,
+   "implied_prob": 0.2703,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Josh Downs",
@@ -18629,6 +19439,24 @@
   "player": "Justice Hill",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "justicehill|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 480,
+   "implied_prob": 0.1724,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 480,
+   "implied_prob": 0.1724,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Justice Hill",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "justinherbert|36215316": {
   "actual": 0,
   "first": {
@@ -18772,6 +19600,24 @@
   "outcome": "loss",
   "player": "Justin Jefferson",
   "start_time": "2026-11-15T18:01:00.000Z"
+ },
+ "justinjefferson|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": -110,
+   "implied_prob": 0.5238,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": -110,
+   "implied_prob": 0.5238,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Justin Jefferson",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "justinjoly|36215322": {
   "actual": null,
@@ -18929,7 +19775,7 @@
   "last": {
    "american_odds": 3500,
    "implied_prob": 0.0278,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kaden Wetjen",
@@ -19053,9 +19899,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 360,
-   "implied_prob": 0.2174,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 450,
+   "implied_prob": 0.1818,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kaelon Black",
@@ -19073,7 +19919,7 @@
   "last": {
    "american_odds": 200,
    "implied_prob": 0.3333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kaleb Johnson",
@@ -19127,7 +19973,7 @@
   "last": {
    "american_odds": 350,
    "implied_prob": 0.2222,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kalif Raymond",
@@ -19241,6 +20087,24 @@
   "player": "Kameron Johnson",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "kameronjohnson|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 3300,
+   "implied_prob": 0.0294,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 3300,
+   "implied_prob": 0.0294,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Kameron Johnson",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "kansascitydefense|35607552": {
   "actual": null,
   "first": {
@@ -19253,7 +20117,7 @@
   "last": {
    "american_odds": 900,
    "implied_prob": 0.1,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kansas City Defense",
@@ -19343,7 +20207,7 @@
   "last": {
    "american_odds": 650,
    "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "KaVontae Turpin",
@@ -19456,6 +20320,24 @@
   "outcome": "win",
   "player": "Kayshon Boutte",
   "start_time": "2026-11-20T01:16:00.000Z"
+ },
+ "kayshonboutte|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 420,
+   "implied_prob": 0.1923,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 420,
+   "implied_prob": 0.1923,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Kayshon Boutte",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "kaytronallen|36215322": {
   "actual": 0,
@@ -19809,9 +20691,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 320,
-   "implied_prob": 0.2381,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 350,
+   "implied_prob": 0.2222,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Keenan Allen",
@@ -19829,7 +20711,7 @@
   "last": {
    "american_odds": 1500,
    "implied_prob": 0.0625,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Keleki Latu",
@@ -20069,6 +20951,24 @@
   "player": "Kenneth Gainwell",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "kennethgainwell|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 310,
+   "implied_prob": 0.2439,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 310,
+   "implied_prob": 0.2439,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Kenneth Gainwell",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "kennethwalker|35607552": {
   "actual": null,
   "first": {
@@ -20079,9 +20979,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": -125,
-   "implied_prob": 0.5556,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": -140,
+   "implied_prob": 0.5833,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kenneth Walker III",
@@ -20241,9 +21141,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 420,
-   "implied_prob": 0.1923,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 430,
+   "implied_prob": 0.1887,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Keon Coleman",
@@ -20465,6 +21365,24 @@
   "player": "Khalil Herbert",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "khalilherbert|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Khalil Herbert",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "khalilshakir|35607552": {
   "actual": null,
   "first": {
@@ -20477,7 +21395,7 @@
   "last": {
    "american_odds": 280,
    "implied_prob": 0.2632,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Khalil Shakir",
@@ -20699,6 +21617,24 @@
   "player": "Kirk Cousins",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "kirkcousins|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1500,
+   "implied_prob": 0.0625,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1500,
+   "implied_prob": 0.0625,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Kirk Cousins",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "kokieft|36215319": {
   "actual": 0,
   "first": {
@@ -20753,6 +21689,24 @@
   "player": "Ko Kieft",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "kokieft|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 3000,
+   "implied_prob": 0.0323,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 3000,
+   "implied_prob": 0.0323,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Ko Kieft",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "konatamumpfield|35607031": {
   "actual": null,
   "first": {
@@ -20763,9 +21717,9 @@
   "game": "Green Bay Packers @ Los Angeles Rams",
   "game_id": "35607031",
   "last": {
-   "american_odds": 370,
-   "implied_prob": 0.2128,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 380,
+   "implied_prob": 0.2083,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Konata Mumpfield",
@@ -20889,9 +21843,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 1400,
-   "implied_prob": 0.0667,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1100,
+   "implied_prob": 0.0833,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kyle Juszczyk",
@@ -20943,9 +21897,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": 145,
-   "implied_prob": 0.4082,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 150,
+   "implied_prob": 0.4,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kyle Monangai",
@@ -21077,6 +22031,24 @@
   "player": "Kyle Pitts",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "kylepitts|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 360,
+   "implied_prob": 0.2174,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 360,
+   "implied_prob": 0.2174,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Kyle Pitts",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "kylermurray|36215318": {
   "actual": 0,
   "first": {
@@ -21179,7 +22151,7 @@
   "last": {
    "american_odds": 115,
    "implied_prob": 0.4651,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Kyren Williams",
@@ -21755,7 +22727,7 @@
   "last": {
    "american_odds": 4500,
    "implied_prob": 0.0217,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Lew Nichols III",
@@ -21825,9 +22797,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 1600,
-   "implied_prob": 0.0588,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Lil'Jordan Humphrey",
@@ -21899,7 +22871,7 @@
   "last": {
    "american_odds": 800,
    "implied_prob": 0.1111,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Los Angeles Rams Defense",
@@ -22023,9 +22995,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 1200,
-   "implied_prob": 0.0769,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1400,
+   "implied_prob": 0.0667,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Luke Farrell",
@@ -22115,7 +23087,7 @@
   "last": {
    "american_odds": 650,
    "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Luke Schoonmaker",
@@ -22205,7 +23177,7 @@
   "last": {
    "american_odds": 125,
    "implied_prob": 0.4444,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Luther Burden III",
@@ -22313,7 +23285,7 @@
   "last": {
    "american_odds": 410,
    "implied_prob": 0.1961,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Makai Lemon",
@@ -22859,6 +23831,24 @@
   "player": "Mark Andrews",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "markandrews|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 340,
+   "implied_prob": 0.2273,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 340,
+   "implied_prob": 0.2273,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Mark Andrews",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "markredman|35607031": {
   "actual": null,
   "first": {
@@ -22869,9 +23859,9 @@
   "game": "Green Bay Packers @ Los Angeles Rams",
   "game_id": "35607031",
   "last": {
-   "american_odds": 1100,
-   "implied_prob": 0.0833,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Mark Redman",
@@ -22967,6 +23957,24 @@
   "player": "Marlin Klein",
   "start_time": "2026-11-20T01:16:00.000Z"
  },
+ "marlinklein|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Marlin Klein",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "marquisebrown|36215324": {
   "actual": 0,
   "first": {
@@ -23013,9 +24021,9 @@
   "game": "Green Bay Packers @ Los Angeles Rams",
   "game_id": "35607031",
   "last": {
-   "american_odds": 440,
-   "implied_prob": 0.1852,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 460,
+   "implied_prob": 0.1786,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "MarShawn Lloyd",
@@ -23121,9 +24129,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 1000,
-   "implied_prob": 0.0909,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 850,
+   "implied_prob": 0.1053,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Marvin Mims Jr.",
@@ -23267,7 +24275,7 @@
   "last": {
    "american_odds": 185,
    "implied_prob": 0.3509,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Matthew Golden",
@@ -23381,6 +24389,24 @@
   "player": "Matthew Hibner",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "matthewhibner|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 1400,
+   "implied_prob": 0.0667,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 1400,
+   "implied_prob": 0.0667,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Matthew Hibner",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "matthewstafford|35607031": {
   "actual": null,
   "first": {
@@ -23393,7 +24419,7 @@
   "last": {
    "american_odds": 2000,
    "implied_prob": 0.0476,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Matthew Stafford",
@@ -23525,6 +24551,24 @@
   "player": "Max Bredeson",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "maxbredeson|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 3000,
+   "implied_prob": 0.0323,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 3000,
+   "implied_prob": 0.0323,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Max Bredeson",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "maxhurleman|36305241": {
   "actual": 1,
   "first": {
@@ -23553,9 +24597,9 @@
   "game": "Green Bay Packers @ Los Angeles Rams",
   "game_id": "35607031",
   "last": {
-   "american_odds": 1900,
-   "implied_prob": 0.05,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1800,
+   "implied_prob": 0.0526,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Max Klare",
@@ -23921,6 +24965,24 @@
   "player": "Michael Penix Jr.",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "michaelpenix|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Michael Penix Jr.",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "michaelpittman|35610249": {
   "actual": null,
   "first": {
@@ -23931,9 +24993,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 650,
-   "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 700,
+   "implied_prob": 0.125,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Michael Pittman Jr.",
@@ -24059,7 +25121,7 @@
   "last": {
    "american_odds": 190,
    "implied_prob": 0.3448,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Mike Evans",
@@ -24281,6 +25343,24 @@
   "player": "Minnesota Defense",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "minnesotadefense|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 600,
+   "implied_prob": 0.1429,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 600,
+   "implied_prob": 0.1429,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Minnesota Defense",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "mitchellevans|36244867": {
   "actual": 0,
   "first": {
@@ -24334,6 +25414,24 @@
   "outcome": "win",
   "player": "Mitchell Evans",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "mitchellevans|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Mitchell Evans",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "mitchelltinsley|35603243": {
   "actual": 0,
@@ -24569,6 +25667,24 @@
   "player": "Myles Price",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "mylesprice|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 750,
+   "implied_prob": 0.1176,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 750,
+   "implied_prob": 0.1176,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Myles Price",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "nateadkins|35610249": {
   "actual": null,
   "first": {
@@ -24579,9 +25695,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 950,
-   "implied_prob": 0.0952,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Nate Adkins",
@@ -25047,9 +26163,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 2200,
-   "implied_prob": 0.0435,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2000,
+   "implied_prob": 0.0476,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Nick Kallerup",
@@ -25109,6 +26225,24 @@
   "player": "Nick Muse",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "nickmuse|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Nick Muse",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "nickvannett|36215313": {
   "actual": null,
   "first": {
@@ -25162,6 +26296,24 @@
   "outcome": "void",
   "player": "Nick Vannett",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "nickvannett|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 4000,
+   "implied_prob": 0.0244,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Nick Vannett",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "nickwestbrookikhine|36275761": {
   "actual": 0,
@@ -25253,6 +26405,24 @@
   "player": "Nico Collins",
   "start_time": "2026-11-20T01:16:00.000Z"
  },
+ "nicocollins|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 105,
+   "implied_prob": 0.4878,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 105,
+   "implied_prob": 0.4878,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Nico Collins",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "nikkoremigio|36215321": {
   "actual": 0,
   "first": {
@@ -25342,6 +26512,24 @@
   "outcome": "loss",
   "player": "Nikko Remigio",
   "start_time": "2026-11-20T01:16:00.000Z"
+ },
+ "nikkoremigio|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 2700,
+   "implied_prob": 0.0357,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Nikko Remigio",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "noahfant|36244869": {
   "actual": 0,
@@ -25594,6 +26782,24 @@
   "outcome": "loss",
   "player": "Olamide Zaccheaus",
   "start_time": "2026-11-15T18:01:00.000Z"
+ },
+ "olamidezaccheaus|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 900,
+   "implied_prob": 0.1,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 900,
+   "implied_prob": 0.1,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Olamide Zaccheaus",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "olliegordon|36215322": {
   "actual": 0,
@@ -26003,7 +27209,7 @@
   "last": {
    "american_odds": 500,
    "implied_prob": 0.1667,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Pat Bryant",
@@ -26055,9 +27261,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 460,
-   "implied_prob": 0.1786,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 490,
+   "implied_prob": 0.1695,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Pat Freiermuth",
@@ -26127,9 +27333,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 750,
-   "implied_prob": 0.1176,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 550,
+   "implied_prob": 0.1538,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Patrick Mahomes",
@@ -26315,6 +27521,24 @@
   "player": "Payne Durham",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "paynedurham|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 1200,
+   "implied_prob": 0.0769,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Payne Durham",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "pharaohbrown|36215317": {
   "actual": null,
   "first": {
@@ -26399,7 +27623,7 @@
   "last": {
    "american_odds": 650,
    "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Philadelphia Defense",
@@ -26541,9 +27765,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 650,
-   "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 700,
+   "implied_prob": 0.125,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Pittsburgh Defense",
@@ -27027,9 +28251,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 200,
-   "implied_prob": 0.3333,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 220,
+   "implied_prob": 0.3125,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Rashee Rice",
@@ -27153,9 +28377,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 460,
-   "implied_prob": 0.1786,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 410,
+   "implied_prob": 0.1961,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Rashid Shaheed",
@@ -27233,6 +28457,24 @@
   "player": "Rashod Bateman",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "rashodbateman|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 480,
+   "implied_prob": 0.1724,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 480,
+   "implied_prob": 0.1724,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Rashod Bateman",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "raydavis|35607552": {
   "actual": null,
   "first": {
@@ -27243,9 +28485,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 950,
-   "implied_prob": 0.0952,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1000,
+   "implied_prob": 0.0909,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Ray Davis",
@@ -27477,9 +28719,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 330,
-   "implied_prob": 0.2326,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 350,
+   "implied_prob": 0.2222,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Rico Dowdle",
@@ -27551,7 +28793,7 @@
   "last": {
    "american_odds": 6000,
    "implied_prob": 0.0164,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Riley Nowakowski",
@@ -27693,9 +28935,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 2700,
-   "implied_prob": 0.0357,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 2200,
+   "implied_prob": 0.0435,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Robert Tonyan",
@@ -27765,9 +29007,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 550,
-   "implied_prob": 0.1538,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 600,
+   "implied_prob": 0.1429,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Roman Wilson",
@@ -27803,7 +29045,7 @@
   "last": {
    "american_odds": 160,
    "implied_prob": 0.3846,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Rome Odunze",
@@ -27875,7 +29117,7 @@
   "last": {
    "american_odds": 1900,
    "implied_prob": 0.05,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Ronnie Rivers",
@@ -27999,9 +29241,9 @@
   "game": "Philadelphia Eagles @ Dallas Cowboys",
   "game_id": "35599534",
   "last": {
-   "american_odds": 280,
-   "implied_prob": 0.2632,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 290,
+   "implied_prob": 0.2564,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Ryan Flournoy",
@@ -28125,9 +29367,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": 900,
-   "implied_prob": 0.1,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 950,
+   "implied_prob": 0.0952,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Salvon Ahmed",
@@ -28287,9 +29529,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 1500,
-   "implied_prob": 0.0625,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1400,
+   "implied_prob": 0.0667,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Sam Darnold",
@@ -28325,7 +29567,7 @@
   "last": {
    "american_odds": 185,
    "implied_prob": 0.3509,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Sam LaPorta",
@@ -28397,7 +29639,7 @@
   "last": {
    "american_odds": 750,
    "implied_prob": 0.1176,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Sam Roush",
@@ -28521,9 +29763,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 800,
-   "implied_prob": 0.1111,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 850,
+   "implied_prob": 0.1053,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "San Francisco Defense",
@@ -28539,9 +29781,9 @@
   "game": "Philadelphia Eagles @ Dallas Cowboys",
   "game_id": "35599534",
   "last": {
-   "american_odds": -105,
-   "implied_prob": 0.5122,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 110,
+   "implied_prob": 0.4762,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Saquon Barkley",
@@ -28613,7 +29855,7 @@
   "last": {
    "american_odds": 500,
    "implied_prob": 0.1667,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Savion Williams",
@@ -28781,6 +30023,24 @@
   "player": "Sean Tucker",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "seantucker|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 1600,
+   "implied_prob": 0.0588,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 1600,
+   "implied_prob": 0.0588,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Sean Tucker",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "seattledefense|36215323": {
   "actual": null,
   "first": {
@@ -28845,9 +30105,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 600,
-   "implied_prob": 0.1429,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Seattle Defense",
@@ -29135,7 +30395,7 @@
   "last": {
    "american_odds": 550,
    "implied_prob": 0.1538,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Sione Vaki",
@@ -29205,9 +30465,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 1200,
-   "implied_prob": 0.0769,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1300,
+   "implied_prob": 0.0714,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Skyler Bell",
@@ -29297,7 +30557,7 @@
   "last": {
    "american_odds": 1100,
    "implied_prob": 0.0833,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Skyy Moore",
@@ -29403,9 +30663,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": 1800,
-   "implied_prob": 0.0526,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1900,
+   "implied_prob": 0.05,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Stephen Carlson",
@@ -29609,6 +30869,24 @@
   "player": "Tai Felton",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "taifelton|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 420,
+   "implied_prob": 0.1923,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 420,
+   "implied_prob": 0.1923,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Tai Felton",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "tampabaydefense|36215319": {
   "actual": null,
   "first": {
@@ -29663,6 +30941,24 @@
   "player": "Tampa Bay Defense",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "tampabaydefense|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 600,
+   "implied_prob": 0.1429,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 600,
+   "implied_prob": 0.1429,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Tampa Bay Defense",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "tankdell|36244874": {
   "actual": 1,
   "first": {
@@ -29716,6 +31012,24 @@
   "outcome": "loss",
   "player": "Tank Dell",
   "start_time": "2026-11-20T01:16:00.000Z"
+ },
+ "tankdell|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 250,
+   "implied_prob": 0.2857,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 250,
+   "implied_prob": 0.2857,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Tank Dell",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "tannerarkin|36215322": {
   "actual": 0,
@@ -29873,7 +31187,7 @@
   "last": {
    "american_odds": 2700,
    "implied_prob": 0.0357,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Tay Martin",
@@ -30059,6 +31373,24 @@
   "player": "Ted Hurst III",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "tedhurst|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 360,
+   "implied_prob": 0.2174,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 360,
+   "implied_prob": 0.2174,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Ted Hurst III",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "teehiggins|35603243": {
   "actual": 2,
   "first": {
@@ -30239,6 +31571,24 @@
   "player": "Tetairoa McMillan",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "tetairoamcmillan|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 170,
+   "implied_prob": 0.3704,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 170,
+   "implied_prob": 0.3704,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Tetairoa McMillan",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "tezjohnson|36215319": {
   "actual": 0,
   "first": {
@@ -30292,6 +31642,24 @@
   "outcome": "loss",
   "player": "Tez Johnson",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "tezjohnson|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 500,
+   "implied_prob": 0.1667,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 500,
+   "implied_prob": 0.1667,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Tez Johnson",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "theojohnson|36244873": {
   "actual": null,
@@ -30617,6 +31985,24 @@
   "player": "T.J. Hockenson",
   "start_time": "2026-11-15T18:01:00.000Z"
  },
+ "tjhockenson|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 165,
+   "implied_prob": 0.3774,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 165,
+   "implied_prob": 0.3774,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "T.J. Hockenson",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "tommytremble|36244867": {
   "actual": 1,
   "first": {
@@ -30670,6 +32056,24 @@
   "outcome": "loss",
   "player": "Tommy Tremble",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "tommytremble|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 370,
+   "implied_prob": 0.2128,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 370,
+   "implied_prob": 0.2128,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Tommy Tremble",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "tonypollard|36215312": {
   "actual": 2,
@@ -30789,9 +32193,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 650,
-   "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 800,
+   "implied_prob": 0.1111,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Tory Horton",
@@ -30843,9 +32247,9 @@
   "game": "Denver Broncos @ Pittsburgh Steelers",
   "game_id": "35610249",
   "last": {
-   "american_odds": 7500,
-   "implied_prob": 0.0132,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 7000,
+   "implied_prob": 0.0141,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Travis Homer",
@@ -30987,9 +32391,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 180,
-   "implied_prob": 0.3571,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 195,
+   "implied_prob": 0.339,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Travis Kelce",
@@ -31283,6 +32687,24 @@
   "player": "Trevor Etienne",
   "start_time": "2026-11-22T18:01:00.000Z"
  },
+ "trevoretienne|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 650,
+   "implied_prob": 0.1333,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Trevor Etienne",
+  "start_time": "2026-12-01T01:16:00.000Z"
+ },
  "trevorlawrence|36215317": {
   "actual": 0,
   "first": {
@@ -31529,7 +32951,7 @@
   "last": {
    "american_odds": 1200,
    "implied_prob": 0.0769,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Troy Franklin",
@@ -31601,7 +33023,7 @@
   "last": {
    "american_odds": 240,
    "implied_prob": 0.2941,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Tucker Kraft",
@@ -31655,7 +33077,7 @@
   "last": {
    "american_odds": 430,
    "implied_prob": 0.1887,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Tutu Atwell",
@@ -31763,7 +33185,7 @@
   "last": {
    "american_odds": 650,
    "implied_prob": 0.1333,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Ty Johnson",
@@ -31997,7 +33419,7 @@
   "last": {
    "american_odds": 1400,
    "implied_prob": 0.0667,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Tyler Conklin",
@@ -32103,9 +33525,9 @@
   "game": "Green Bay Packers @ Los Angeles Rams",
   "game_id": "35607031",
   "last": {
-   "american_odds": 290,
-   "implied_prob": 0.2564,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 300,
+   "implied_prob": 0.25,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Tyler Higbee",
@@ -32301,9 +33723,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 1200,
-   "implied_prob": 0.0769,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 1300,
+   "implied_prob": 0.0714,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Tyrell Shavers",
@@ -32643,9 +34065,9 @@
   "game": "Philadelphia Eagles @ Dallas Cowboys",
   "game_id": "35599534",
   "last": {
-   "american_odds": 800,
-   "implied_prob": 0.1111,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 600,
+   "implied_prob": 0.1429,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Will Shipley",
@@ -32777,6 +34199,24 @@
   "player": "Xavier Hutchinson",
   "start_time": "2026-11-20T01:16:00.000Z"
  },
+ "xavierhutchinson|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 230,
+   "implied_prob": 0.303,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 230,
+   "implied_prob": 0.303,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Xavier Hutchinson",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "xavierlegette|36275767": {
   "actual": null,
   "first": {
@@ -32812,6 +34252,24 @@
   "outcome": "void",
   "player": "Xavier Legette",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "xavierlegette|36331659": {
+  "actual": null,
+  "first": {
+   "american_odds": 1700,
+   "implied_prob": 0.0556,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Carolina Panthers @ Tampa Bay Buccaneers",
+  "game_id": "36331659",
+  "last": {
+   "american_odds": 1700,
+   "implied_prob": 0.0556,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Xavier Legette",
+  "start_time": "2026-12-01T01:16:00.000Z"
  },
  "xavierrestrepo|36215312": {
   "actual": 0,
@@ -32879,7 +34337,7 @@
   "last": {
    "american_odds": 850,
    "implied_prob": 0.1053,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Xavier Smith",
@@ -32913,9 +34371,9 @@
   "game": "Kansas City Chiefs @ Buffalo Bills",
   "game_id": "35607552",
   "last": {
-   "american_odds": 420,
-   "implied_prob": 0.1923,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 450,
+   "implied_prob": 0.1818,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Xavier Worthy",
@@ -33011,6 +34469,24 @@
   "player": "Zachariah Branch",
   "start_time": "2026-11-01T18:01:00.000Z"
  },
+ "zachariahbranch|36331656": {
+  "actual": null,
+  "first": {
+   "american_odds": 900,
+   "implied_prob": 0.1,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Atlanta Falcons @ Minnesota Vikings",
+  "game_id": "36331656",
+  "last": {
+   "american_odds": 900,
+   "implied_prob": 0.1,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Zachariah Branch",
+  "start_time": "2026-11-29T18:01:00.000Z"
+ },
  "zachcharbonnet|36215323": {
   "actual": 0,
   "first": {
@@ -33075,9 +34551,9 @@
   "game": "Seattle Seahawks @ San Francisco 49ers",
   "game_id": "36331655",
   "last": {
-   "american_odds": 115,
-   "implied_prob": 0.4651,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 120,
+   "implied_prob": 0.4545,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Zach Charbonnet",
@@ -33095,7 +34571,7 @@
   "last": {
    "american_odds": 1500,
    "implied_prob": 0.0625,
-   "seen_at": "2026-11-24T04:00:59"
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Zach Ertz",
@@ -33201,9 +34677,9 @@
   "game": "Chicago Bears @ Detroit Lions",
   "game_id": "35607159",
   "last": {
-   "american_odds": 850,
-   "implied_prob": 0.1053,
-   "seen_at": "2026-11-24T04:00:59"
+   "american_odds": 800,
+   "implied_prob": 0.1111,
+   "seen_at": "2026-11-24T21:07:23"
   },
   "outcome": null,
   "player": "Zavion Thomas",
@@ -33334,6 +34810,24 @@
   "outcome": "loss",
   "player": "Zay Flowers",
   "start_time": "2026-11-22T18:01:00.000Z"
+ },
+ "zayflowers|36331650": {
+  "actual": null,
+  "first": {
+   "american_odds": 175,
+   "implied_prob": 0.3636,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "game": "Baltimore Ravens @ Houston Texans",
+  "game_id": "36331650",
+  "last": {
+   "american_odds": 175,
+   "implied_prob": 0.3636,
+   "seen_at": "2026-11-24T21:07:23"
+  },
+  "outcome": null,
+  "player": "Zay Flowers",
+  "start_time": "2026-11-29T18:01:00.000Z"
  },
  "zayjones|36215314": {
   "actual": null,
