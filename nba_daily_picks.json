@@ -6023,5 +6023,133 @@
    "fair_prob": 0.07246,
    "breakeven_prob": 0.08512
   }
+ },
+ "2026-11-25": {
+  "date": "2026-11-25",
+  "generated": "2026-11-25T20:19:43",
+  "ats": [
+   {
+    "event": "401909325",
+    "game": "SAS @ POR",
+    "home": "POR",
+    "away": "SAS",
+    "start_time": "2026-11-26T03:00Z",
+    "home_spread": 4.5,
+    "book": "DraftKings",
+    "pred_margin": -1.72,
+    "edge": 2.78,
+    "pick": "home",
+    "pick_label": "POR +4.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": true
+   },
+   {
+    "event": "401909324",
+    "game": "SAC @ GSW",
+    "home": "GSW",
+    "away": "SAC",
+    "start_time": "2026-11-26T03:00Z",
+    "home_spread": -8.5,
+    "book": "DraftKings",
+    "pred_margin": 10.67,
+    "edge": 2.17,
+    "pick": "home",
+    "pick_label": "GSW -8.5",
+    "outcome": null,
+    "home_pts": null,
+    "away_pts": null,
+    "published": true
+   }
+  ],
+  "ats_rule": "published when the model and the line differ by 2-6 points",
+  "parlay": [],
+  "parlay_rule": "market",
+  "parlay_withheld": [
+   {
+    "player": "Will Richard",
+    "stat_type": "3-PT Made",
+    "line": 1.5,
+    "side": "under",
+    "american_odds": -235,
+    "game": "SAC @ GSW",
+    "start_time": "2026-11-26T03:10:00.000Z",
+    "model_prob": 0.6671,
+    "implied_prob": 0.6876,
+    "blended_prob": 0.6876,
+    "edge": -0.0205,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Scoot Henderson",
+    "stat_type": "Rebounds",
+    "line": 2.5,
+    "side": "under",
+    "american_odds": -200,
+    "game": "SAS @ POR",
+    "start_time": "2026-11-26T03:10:00.000Z",
+    "model_prob": 0.6343,
+    "implied_prob": 0.6537,
+    "blended_prob": 0.6537,
+    "edge": -0.0194,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Gui Santos",
+    "stat_type": "Assists",
+    "line": 2.5,
+    "side": "under",
+    "american_odds": -164,
+    "game": "SAC @ GSW",
+    "start_time": "2026-11-26T03:10:00.000Z",
+    "model_prob": 0.67,
+    "implied_prob": 0.6112,
+    "blended_prob": 0.6112,
+    "edge": 0.0588,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Sidy Cissoko",
+    "stat_type": "Points",
+    "line": 6.5,
+    "side": "under",
+    "american_odds": -136,
+    "game": "SAS @ POR",
+    "start_time": "2026-11-26T03:10:00.000Z",
+    "model_prob": 0.4729,
+    "implied_prob": 0.5678,
+    "blended_prob": 0.5678,
+    "edge": -0.0949,
+    "outcome": null,
+    "actual": null
+   },
+   {
+    "player": "Keegan Murray",
+    "stat_type": "Pts+Rebs+Asts",
+    "line": 20.5,
+    "side": "under",
+    "american_odds": -128,
+    "game": "SAC @ GSW",
+    "start_time": "2026-11-26T03:10:00.000Z",
+    "model_prob": 0.6314,
+    "implied_prob": 0.5539,
+    "blended_prob": 0.5539,
+    "edge": 0.0775,
+    "outcome": null,
+    "actual": null
+   }
+  ],
+  "parlay_withheld_price": {
+   "decimal": 10.64,
+   "american": 964,
+   "model_prob": 0.08465,
+   "blended_prob": 0.0864,
+   "fair_prob": 0.0864,
+   "breakeven_prob": 0.09399
+  }
  }
 }
