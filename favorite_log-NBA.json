@@ -8892,8 +8892,8 @@
    "home_odds": -370,
    "away_odds": 295
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7654,
@@ -8916,8 +8916,8 @@
    "home_odds": -220,
    "away_odds": 180
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.579,
@@ -9108,8 +9108,8 @@
    "home_odds": -235,
    "away_odds": 194
   },
-  "outcome": null,
-  "winner": null,
+  "outcome": "graded",
+  "winner": "home",
   "last": {
    "fav": "home",
    "fav_prob": 0.7502,
@@ -9142,5 +9142,53 @@
    "away_odds": -270
   },
   "last_seen": "2026-11-25T20:19:38"
+ },
+ "ATL @ BOS|2026-11-28T01:10": {
+  "label": "ATL @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "Atlanta Hawks",
+  "start_time": "2026-11-28T01:10:00.000Z",
+  "first_seen": "2026-11-26T02:29:39",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7567,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 295
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7567,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 295
+  },
+  "last_seen": "2026-11-26T02:29:39"
+ },
+ "DEN @ UTA|2026-11-28T02:40": {
+  "label": "DEN @ UTA",
+  "home_name": "Utah Jazz",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-28T02:40:00.000Z",
+  "first_seen": "2026-11-26T02:29:39",
+  "first": {
+   "fav": "away",
+   "fav_prob": 0.7532,
+   "odds": -360,
+   "home_odds": 290,
+   "away_odds": -360
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "away",
+   "fav_prob": 0.7532,
+   "odds": -360,
+   "home_odds": 290,
+   "away_odds": -360
+  },
+  "last_seen": "2026-11-26T02:29:39"
  }
 }

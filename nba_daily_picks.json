@@ -6040,9 +6040,9 @@
     "edge": 2.78,
     "pick": "home",
     "pick_label": "POR +4.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 116,
+    "away_pts": 111,
     "published": true
    },
    {
@@ -6057,9 +6057,9 @@
     "edge": 2.17,
     "pick": "home",
     "pick_label": "GSW -8.5",
-    "outcome": null,
-    "home_pts": null,
-    "away_pts": null,
+    "outcome": "win",
+    "home_pts": 129,
+    "away_pts": 110,
     "published": true
    }
   ],
@@ -6079,8 +6079,8 @@
     "implied_prob": 0.6876,
     "blended_prob": 0.6876,
     "edge": -0.0205,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Scoot Henderson",
@@ -6094,8 +6094,8 @@
     "implied_prob": 0.6537,
     "blended_prob": 0.6537,
     "edge": -0.0194,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 5.0
    },
    {
     "player": "Gui Santos",
@@ -6109,8 +6109,8 @@
     "implied_prob": 0.6112,
     "blended_prob": 0.6112,
     "edge": 0.0588,
-    "outcome": null,
-    "actual": null
+    "outcome": "win",
+    "actual": 1.0
    },
    {
     "player": "Sidy Cissoko",
@@ -6124,8 +6124,8 @@
     "implied_prob": 0.5678,
     "blended_prob": 0.5678,
     "edge": -0.0949,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 16.0
    },
    {
     "player": "Keegan Murray",
@@ -6139,8 +6139,8 @@
     "implied_prob": 0.5539,
     "blended_prob": 0.5539,
     "edge": 0.0775,
-    "outcome": null,
-    "actual": null
+    "outcome": "loss",
+    "actual": 24.0
    }
   ],
   "parlay_withheld_price": {

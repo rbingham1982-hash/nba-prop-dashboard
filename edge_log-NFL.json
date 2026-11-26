@@ -12596,7 +12596,7 @@
   "start_time": "2026-11-24T01:16:00.000Z",
   "game_day": "2026-11-23",
   "logged_at": "2026-11-21T16:02:17",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "quentin johnston|Receptions|2.5|36305240": {
@@ -13154,8 +13154,8 @@
   "start_time": "2026-11-26T01:00:00.000Z",
   "game_day": "2026-11-25",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 140.0
  },
  "dandre swift|Rushing Yards|53.5|35607159": {
   "player": "D'Andre Swift",
@@ -13442,8 +13442,8 @@
   "start_time": "2026-11-26T01:00:00.000Z",
   "game_day": "2026-11-25",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 140.0
  },
  "marshawn lloyd|Rushing Yards|11.5|35607031": {
   "player": "MarShawn Lloyd",
@@ -13460,8 +13460,8 @@
   "start_time": "2026-11-26T01:00:00.000Z",
   "game_day": "2026-11-25",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 10.0
  },
  "kyren williams|Rushing Yards|54.5|35607031": {
   "player": "Kyren Williams",
@@ -13478,8 +13478,8 @@
   "start_time": "2026-11-26T01:00:00.000Z",
   "game_day": "2026-11-25",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 46.0
  },
  "brock wright|Receptions|0.5|35607159": {
   "player": "Brock Wright",
@@ -13982,8 +13982,8 @@
   "start_time": "2026-11-26T01:00:00.000Z",
   "game_day": "2026-11-25",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 46.0
  },
  "dandre swift|Rushing Yards|46.5|35607159": {
   "player": "D'Andre Swift",
