@@ -3785,7 +3785,7 @@
    "away_odds": -280,
    "home_prob": 0.3265
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "home_odds": 180,
@@ -4041,11 +4041,11 @@
   "outcome": null,
   "winner": null,
   "last": {
-   "home_odds": -370,
-   "away_odds": 295,
-   "home_prob": 0.7567
+   "home_odds": -400,
+   "away_odds": 315,
+   "home_prob": 0.7685
   },
-  "last_seen": "2026-11-26T20:18:40"
+  "last_seen": "2026-11-27T02:44:03"
  },
  "DEN @ ORL|2026-11-27T02:27": {
   "label": "DEN @ ORL",
@@ -4092,5 +4092,28 @@
    "home_prob": 0.5
   },
   "last_seen": "2026-11-26T20:18:40"
+ },
+ "NYK @ BOS|2026-11-27T09:03": {
+  "label": "NYK @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "New York Knicks",
+  "start_time": "2026-11-27T09:03:00.000Z",
+  "luck_home": -2.79,
+  "luck_away": 1.31,
+  "bet": "home",
+  "first_seen": "2026-11-27T02:44:03",
+  "first": {
+   "home_odds": -215,
+   "away_odds": 145,
+   "home_prob": 0.6258
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -215,
+   "away_odds": 145,
+   "home_prob": 0.6258
+  },
+  "last_seen": "2026-11-27T02:44:03"
  }
 }

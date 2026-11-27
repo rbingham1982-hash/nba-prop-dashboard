@@ -13064,8 +13064,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 291.0
  },
  "ceedee lamb|Receiving Yards|84.5|35599534": {
   "player": "CeeDee Lamb",
@@ -13082,8 +13082,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 134.0
  },
  "devonta smith|Receptions|5.5|35599534": {
   "player": "DeVonta Smith",
@@ -13100,8 +13100,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 11.0
  },
  "george pickens|Receiving Yards|66.5|35599534": {
   "player": "George Pickens",
@@ -13118,8 +13118,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 67.0
  },
  "makai lemon|Receptions|3.5|35599534": {
   "player": "Makai Lemon",
@@ -13136,8 +13136,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 5.0
  },
  "matthew stafford|Passing Yards|234.5|35607031": {
   "player": "Matthew Stafford",
@@ -13172,8 +13172,8 @@
   "start_time": "2026-11-26T18:00:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 65.0
  },
  "patrick mahomes|Passing Yards|254.5|35607552": {
   "player": "Patrick Mahomes",
@@ -13190,8 +13190,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 174.0
  },
  "rashee rice|Receptions|4.5|35607552": {
   "player": "Rashee Rice",
@@ -13208,8 +13208,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "travis kelce|Receiving Yards|46.5|35607552": {
   "player": "Travis Kelce",
@@ -13226,8 +13226,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 71.0
  },
  "khalil shakir|Receptions|3.5|35607552": {
   "player": "Khalil Shakir",
@@ -13244,8 +13244,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 3.0
  },
  "james cook|Receptions|1.5|35607552": {
   "player": "James Cook",
@@ -13262,8 +13262,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "rashee rice|Receiving Yards|48.5|35607552": {
   "player": "Rashee Rice",
@@ -13280,8 +13280,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "ty johnson|Receptions|2.5|35607552": {
   "player": "Ty Johnson",
@@ -13298,8 +13298,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "khalil shakir|Receiving Yards|37.5|35607552": {
   "player": "Khalil Shakir",
@@ -13316,8 +13316,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 33.0
  },
  "james cook|Rushing Yards|85.5|35607552": {
   "player": "James Cook",
@@ -13334,8 +13334,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T01:48:05",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 117.0
  },
  "dallas goedert|Receiving Yards|30.5|35599534": {
   "player": "Dallas Goedert",
@@ -13352,8 +13352,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 9.0
  },
  "dallas goedert|Receptions|3.5|35599534": {
   "player": "Dallas Goedert",
@@ -13370,8 +13370,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 1.0
  },
  "george pickens|Receiving Yards|70.5|35599534": {
   "player": "George Pickens",
@@ -13388,8 +13388,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 67.0
  },
  "ceedee lamb|Receptions|7.5|35599534": {
   "player": "CeeDee Lamb",
@@ -13406,8 +13406,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 7.0
  },
  "george pickens|Receptions|5.5|35599534": {
   "player": "George Pickens",
@@ -13424,8 +13424,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 5.0
  },
  "matthew stafford|Passing Yards|232.5|35607031": {
   "player": "Matthew Stafford",
@@ -13496,8 +13496,8 @@
   "start_time": "2026-11-26T18:00:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "brock wright|Receiving Yards|4.5|35607159": {
   "player": "Brock Wright",
@@ -13514,8 +13514,8 @@
   "start_time": "2026-11-26T18:00:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "patrick mahomes|Passing Yards|239.5|35607552": {
   "player": "Patrick Mahomes",
@@ -13532,8 +13532,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 174.0
  },
  "josh allen|Passing Yards|227.5|35607552": {
   "player": "Josh Allen",
@@ -13550,8 +13550,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 81.0
  },
  "rashee rice|Receiving Yards|49.5|35607552": {
   "player": "Rashee Rice",
@@ -13568,8 +13568,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "khalil shakir|Receiving Yards|40.5|35607552": {
   "player": "Khalil Shakir",
@@ -13586,8 +13586,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-23T22:22:23",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 33.0
  },
  "bo nix|Passing Yards|208.5|35610249": {
   "player": "Bo Nix",
@@ -13946,8 +13946,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 134.0
  },
  "george pickens|Receiving Yards|68.5|35599534": {
   "player": "George Pickens",
@@ -13964,8 +13964,8 @@
   "start_time": "2026-11-26T21:30:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 67.0
  },
  "kyren williams|Rushing Yards|53.5|35607031": {
   "player": "Kyren Williams",
@@ -14000,8 +14000,8 @@
   "start_time": "2026-11-26T18:00:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 65.0
  },
  "patrick mahomes|Passing TDs|1.5|35607552": {
   "player": "Patrick Mahomes",
@@ -14018,8 +14018,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "rashee rice|Receiving Yards|47.5|35607552": {
   "player": "Rashee Rice",
@@ -14036,8 +14036,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 19.0
  },
  "dalton kincaid|Receptions|3.5|35607552": {
   "player": "Dalton Kincaid",
@@ -14054,8 +14054,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 2.0
  },
  "travis kelce|Receptions|4.5|35607552": {
   "player": "Travis Kelce",
@@ -14072,8 +14072,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 4.0
  },
  "james cook|Rushing Yards|82.5|35607552": {
   "player": "James Cook",
@@ -14090,8 +14090,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 117.0
  },
  "ty johnson|Rushing Yards|1.5|35607552": {
   "player": "Ty Johnson",
@@ -14108,8 +14108,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-24T21:07:19",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "dk metcalf|Receiving Yards|32.5|35610249": {
   "player": "DK Metcalf",
@@ -14612,8 +14612,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-25T20:19:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 174.0
  },
  "josh allen|Passing TDs|1.5|35607552": {
   "player": "Josh Allen",
@@ -14630,8 +14630,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-25T20:19:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "josh allen|Passing Yards|215.5|35607552": {
   "player": "Josh Allen",
@@ -14648,8 +14648,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-25T20:19:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 81.0
  },
  "dawson knox|Receptions|1.5|35607552": {
   "player": "Dawson Knox",
@@ -14666,8 +14666,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-25T20:19:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "noah gray|Receptions|1.5|35607552": {
   "player": "Noah Gray",
@@ -14684,8 +14684,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-25T20:19:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "win",
+  "actual": 3.0
  },
  "dawson knox|Receiving Yards|9.5|35607552": {
   "player": "Dawson Knox",
@@ -14702,8 +14702,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-25T20:19:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 0.0
  },
  "khalil shakir|Receiving Yards|39.5|35607552": {
   "player": "Khalil Shakir",
@@ -14720,8 +14720,8 @@
   "start_time": "2026-11-27T01:15:00.000Z",
   "game_day": "2026-11-26",
   "logged_at": "2026-11-25T20:19:37",
-  "outcome": null,
-  "actual": null
+  "outcome": "loss",
+  "actual": 33.0
  },
  "bo nix|Passing Yards|201.5|35610249": {
   "player": "Bo Nix",
