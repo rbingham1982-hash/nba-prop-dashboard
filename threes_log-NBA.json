@@ -4023,5 +4023,74 @@
    "home_prob": 0.5638
   },
   "last_seen": "2026-11-26T02:29:42"
+ },
+ "GSW @ POR|2026-11-28T02:40": {
+  "label": "GSW @ POR",
+  "home_name": "Portland Trail Blazers",
+  "away_name": "Golden State Warriors",
+  "start_time": "2026-11-28T02:40:00.000Z",
+  "luck_home": 1.51,
+  "luck_away": -2.77,
+  "bet": "away",
+  "first_seen": "2026-11-26T20:18:40",
+  "first": {
+   "home_odds": -370,
+   "away_odds": 295,
+   "home_prob": 0.7567
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -370,
+   "away_odds": 295,
+   "home_prob": 0.7567
+  },
+  "last_seen": "2026-11-26T20:18:40"
+ },
+ "DEN @ ORL|2026-11-27T02:27": {
+  "label": "DEN @ ORL",
+  "home_name": "Orlando Magic",
+  "away_name": "Denver Nuggets",
+  "start_time": "2026-11-27T02:27:00.000Z",
+  "luck_home": 2.1,
+  "luck_away": -1.15,
+  "bet": "away",
+  "first_seen": "2026-11-26T20:18:40",
+  "first": {
+   "home_odds": -175,
+   "away_odds": 120,
+   "home_prob": 0.5833
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -175,
+   "away_odds": 120,
+   "home_prob": 0.5833
+  },
+  "last_seen": "2026-11-26T20:18:40"
+ },
+ "OKC @ BOS|2026-11-27T02:31": {
+  "label": "OKC @ BOS",
+  "home_name": "Boston Celtics",
+  "away_name": "Oklahoma City Thunder",
+  "start_time": "2026-11-27T02:31:00.000Z",
+  "luck_home": -2.79,
+  "luck_away": 0.5,
+  "bet": "home",
+  "first_seen": "2026-11-26T20:18:40",
+  "first": {
+   "home_odds": -120,
+   "away_odds": -120,
+   "home_prob": 0.5
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "home_odds": -120,
+   "away_odds": -120,
+   "home_prob": 0.5
+  },
+  "last_seen": "2026-11-26T20:18:40"
  }
 }

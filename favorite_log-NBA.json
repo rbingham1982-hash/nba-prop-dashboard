@@ -8508,7 +8508,7 @@
    "home_odds": -590,
    "away_odds": 440
   },
-  "outcome": null,
+  "outcome": "void",
   "winner": null,
   "last": {
    "fav": "home",
@@ -9160,12 +9160,12 @@
   "winner": null,
   "last": {
    "fav": "home",
-   "fav_prob": 0.7567,
-   "odds": -370,
-   "home_odds": -370,
-   "away_odds": 295
+   "fav_prob": 0.7711,
+   "odds": -405,
+   "home_odds": -405,
+   "away_odds": 320
   },
-  "last_seen": "2026-11-26T02:29:39"
+  "last_seen": "2026-11-26T20:18:37"
  },
  "DEN @ UTA|2026-11-28T02:40": {
   "label": "DEN @ UTA",
@@ -9184,11 +9184,83 @@
   "winner": null,
   "last": {
    "fav": "away",
-   "fav_prob": 0.7532,
-   "odds": -360,
-   "home_odds": 290,
-   "away_odds": -360
+   "fav_prob": 0.8017,
+   "odds": -500,
+   "home_odds": 385,
+   "away_odds": -500
   },
-  "last_seen": "2026-11-26T02:29:39"
+  "last_seen": "2026-11-26T20:18:37"
+ },
+ "MIL @ DET|2026-11-28T00:40": {
+  "label": "MIL @ DET",
+  "home_name": "Detroit Pistons",
+  "away_name": "Milwaukee Bucks",
+  "start_time": "2026-11-28T00:40:00.000Z",
+  "first_seen": "2026-11-26T20:18:37",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7567,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 295
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7567,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 295
+  },
+  "last_seen": "2026-11-26T20:18:37"
+ },
+ "GSW @ POR|2026-11-28T02:40": {
+  "label": "GSW @ POR",
+  "home_name": "Portland Trail Blazers",
+  "away_name": "Golden State Warriors",
+  "start_time": "2026-11-28T02:40:00.000Z",
+  "first_seen": "2026-11-26T20:18:37",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7567,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 295
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7567,
+   "odds": -370,
+   "home_odds": -370,
+   "away_odds": 295
+  },
+  "last_seen": "2026-11-26T20:18:37"
+ },
+ "BKN @ TOR|2026-11-28T00:40": {
+  "label": "BKN @ TOR",
+  "home_name": "Toronto Raptors",
+  "away_name": "Brooklyn Nets",
+  "start_time": "2026-11-28T00:40:00.000Z",
+  "first_seen": "2026-11-26T20:18:37",
+  "first": {
+   "fav": "home",
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": -330,
+   "away_odds": 265
+  },
+  "outcome": null,
+  "winner": null,
+  "last": {
+   "fav": "home",
+   "fav_prob": 0.7369,
+   "odds": -330,
+   "home_odds": -330,
+   "away_odds": 265
+  },
+  "last_seen": "2026-11-26T20:18:37"
  }
 }
