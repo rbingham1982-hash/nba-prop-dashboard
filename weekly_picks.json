@@ -4420,8 +4420,8 @@
     "edge": 4.3,
     "pick": "home",
     "pick_label": "PIT +4.5",
-    "outcome": null,
-    "result": null
+    "outcome": "win",
+    "result": 22.0
    }
   ],
   "parlay": [],
@@ -4621,9 +4621,9 @@
     "wind_mph": 12.9,
     "expected_adj": -5.02,
     "gameday": "2026-11-27",
-    "outcome": null,
-    "actual_total": null,
-    "residual": null
+    "outcome": "under",
+    "actual_total": 32.0,
+    "residual": -5.5
    }
   ],
   "parlay_gate": true,
@@ -4787,6 +4787,7 @@
    "fair_prob": 0.2838,
    "breakeven": 0.3091,
    "frozen_at": "2026-11-27T02:45:00"
-  }
+  },
+  "graded": false
  }
 }
