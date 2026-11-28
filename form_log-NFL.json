@@ -60760,7 +60760,7 @@
   "start_time": "2026-11-26T01:00:00.000Z",
   "game_day": "2026-11-25",
   "logged_at": "2026-11-23T01:47:43",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "tyler higbee|Receptions|3.5|35607031": {
@@ -60870,7 +60870,7 @@
   "start_time": "2026-11-26T01:00:00.000Z",
   "game_day": "2026-11-25",
   "logged_at": "2026-11-23T01:47:43",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "christian watson|Receiving Yards|76.5|35607031": {
@@ -62036,7 +62036,7 @@
   "start_time": "2026-11-26T01:00:00.000Z",
   "game_day": "2026-11-25",
   "logged_at": "2026-11-23T22:22:01",
-  "outcome": null,
+  "outcome": "void",
   "actual": null
  },
  "xavier smith|Receiving Yards|9.5|35607031": {
@@ -68350,6 +68350,204 @@
   "start_time": "2026-11-29T21:06:00.000Z",
   "game_day": "2026-11-29",
   "logged_at": "2026-11-27T20:05:19",
+  "outcome": null,
+  "actual": null
+ },
+ "david montgomery|Rushing Yards|43.5|36331650": {
+  "player": "David Montgomery",
+  "stat": "Rushing Yards",
+  "line": 43.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 24.0,
+  "last5": [
+   10.0,
+   33.0,
+   24.0,
+   11.0,
+   107.0
+  ],
+  "game": "BAL @ HOU",
+  "start_time": "2026-11-29T18:01:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
+  "outcome": null,
+  "actual": null
+ },
+ "kc concepcion|Receiving Yards|51.5|36331651": {
+  "player": "KC Concepcion",
+  "stat": "Receiving Yards",
+  "line": 51.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 37.0,
+  "last5": [
+   37.0,
+   129.0,
+   37.0,
+   85.0,
+   21.0
+  ],
+  "game": "LV @ CLE",
+  "start_time": "2026-11-30T01:21:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
+  "outcome": null,
+  "actual": null
+ },
+ "jaylen wright|Rushing Yards|13.5|36331653": {
+  "player": "Jaylen Wright",
+  "stat": "Rushing Yards",
+  "line": 13.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 8.0,
+  "last5": [
+   11.0,
+   8.0,
+   5.0,
+   -2.0,
+   10.0
+  ],
+  "game": "NYJ @ MIA",
+  "start_time": "2026-11-29T18:01:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
+  "outcome": null,
+  "actual": null
+ },
+ "daniel bellinger|Receiving Yards|6.5|36331654": {
+  "player": "Daniel Bellinger",
+  "stat": "Receiving Yards",
+  "line": 6.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 5.0,
+  "last5": [
+   0.0,
+   4.0,
+   36.0,
+   6.0,
+   5.0
+  ],
+  "game": "TEN @ JAX",
+  "start_time": "2026-11-29T18:01:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
+  "outcome": null,
+  "actual": null
+ },
+ "chris rodriguez|Rushing Yards|77.5|36331654": {
+  "player": "Chris Rodriguez Jr.",
+  "stat": "Rushing Yards",
+  "line": 77.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 28.0,
+  "last5": [
+   55.0,
+   41.0,
+   19.0,
+   5.0,
+   28.0
+  ],
+  "game": "TEN @ JAX",
+  "start_time": "2026-11-29T18:01:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
+  "outcome": null,
+  "actual": null
+ },
+ "mac jones|Rushing Yards|7.5|36331655": {
+  "player": "Mac Jones",
+  "stat": "Rushing Yards",
+  "line": 7.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": -2.0,
+  "last5": [
+   2.0,
+   -3.0,
+   -2.0,
+   -3.0,
+   -1.0
+  ],
+  "game": "SEA @ SF",
+  "start_time": "2026-11-29T21:26:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
+  "outcome": null,
+  "actual": null
+ },
+ "jacory croskey-merritt|Receptions|1.5|36331657": {
+  "player": "Jacory Croskey-Merritt",
+  "stat": "Receptions",
+  "line": 1.5,
+  "side": "under",
+  "american_odds": -250,
+  "fair_prob": 0.6932,
+  "med5": 1.0,
+  "last5": [
+   1.0,
+   1.0,
+   2.0,
+   0.0,
+   2.0
+  ],
+  "game": "WAS @ ARI",
+  "start_time": "2026-11-29T21:26:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
+  "outcome": null,
+  "actual": null
+ },
+ "jacory croskey-merritt|Rushing Yards|52.5|36331657": {
+  "player": "Jacory Croskey-Merritt",
+  "stat": "Rushing Yards",
+  "line": 52.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 43.0,
+  "last5": [
+   43.0,
+   36.0,
+   15.0,
+   82.0,
+   54.0
+  ],
+  "game": "WAS @ ARI",
+  "start_time": "2026-11-29T21:26:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
+  "outcome": null,
+  "actual": null
+ },
+ "kyle williams|Receiving Yards|11.5|36331658": {
+  "player": "Kyle Williams",
+  "stat": "Receiving Yards",
+  "line": 11.5,
+  "side": "under",
+  "american_odds": -114,
+  "fair_prob": 0.525,
+  "med5": 0.0,
+  "last5": [
+   12.0,
+   0.0,
+   43.0,
+   0.0,
+   0.0
+  ],
+  "game": "NE @ LAC",
+  "start_time": "2026-11-29T21:06:00.000Z",
+  "game_day": "2026-11-29",
+  "logged_at": "2026-11-28T01:56:58",
   "outcome": null,
   "actual": null
  }
